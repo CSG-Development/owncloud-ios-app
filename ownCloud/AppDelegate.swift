@@ -83,7 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		OCExtensionManager.shared.addExtension(CollaborateAction.actionExtension)
 		OCExtensionManager.shared.addExtension(FavoriteAction.actionExtension)
 		OCExtensionManager.shared.addExtension(UnfavoriteAction.actionExtension)
-		OCExtensionManager.shared.addExtension(DisplayExifMetadataAction.actionExtension)
+		//OCExtensionManager.shared.addExtension(DisplayExifMetadataAction.actionExtension)
 		OCExtensionManager.shared.addExtension(PresentationModeAction.actionExtension)
 		OCExtensionManager.shared.addExtension(PDFGoToPageAction.actionExtension)
 		OCExtensionManager.shared.addExtension(ImportPasteboardAction.actionExtension)
@@ -92,7 +92,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		OCExtensionManager.shared.addExtension(AddToSidebarAction.actionExtension)
 		OCExtensionManager.shared.addExtension(RemoveFromSidebarAction.actionExtension)
 		OCExtensionManager.shared.addExtension(CreateShortcutFileAction.actionExtension)
-		OCExtensionManager.shared.addExtension(OpenShortcutFileAction.actionExtension)
+		//OCExtensionManager.shared.addExtension(OpenShortcutFileAction.actionExtension)
 
 		if UIDevice.current.isIpad {
 			// iPad only
@@ -100,8 +100,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			OCExtensionManager.shared.addExtension(OpenSceneAction.actionExtension)
 		}
 
-		OCExtensionManager.shared.addExtension(ScanAction.actionExtension)
-		OCExtensionManager.shared.addExtension(DocumentEditingAction.actionExtension)
+		//OCExtensionManager.shared.addExtension(ScanAction.actionExtension)
+		//OCExtensionManager.shared.addExtension(DocumentEditingAction.actionExtension)
 
 		OCExtensionManager.shared.addExtension(ManageSpaceAction.actionExtension)
 		OCExtensionManager.shared.addExtension(MembersSpaceAction.actionExtension)
