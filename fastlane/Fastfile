@@ -248,7 +248,7 @@ platform :ios do
     end
   end
 
-  lane :homecloud_noveo_build do
+  lane :homecloud_noveo_build do |values|
     build_ipa_in_house(
       ENTERPRISE_APP_ID: "com.noveogroup.owncloud.ios-app",
       ENTERPRISE_APP_PROFILE: "Owncloud :: App :: AdHoc",
