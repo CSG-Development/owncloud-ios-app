@@ -918,6 +918,7 @@ end
       configuration: CONFIGURATION,
       codesigning_identity: ENTERPRISE_IDENTITY,
       output_name: ipaName,
+      output_directory: "./.build",
       export_method: EXPORT_METHOD,
       xcargs: "CODE_SIGN_STYLE=Manual APP_BUILD_FLAGS='" + appBuildFlags + "'",
       export_options: {
