@@ -248,6 +248,34 @@ platform :ios do
     end
   end
 
+  lane :homecloud_noveo_build do |values|
+    build_ipa_in_house(
+      ENTERPRISE_APP_ID: "com.noveogroup.owncloud.ios-app",
+      ENTERPRISE_APP_PROFILE: "Owncloud :: App :: AdHoc",
+      ENTERPRISE_FP_ID: "com.noveogroup.owncloud.ios-app.ownCloud-File-Provider",
+      ENTERPRISE_FP_PROFILE: "Owncloud :: File Provider :: AdHoc",
+      ENTERPRISE_FP_UI_ID: "com.noveogroup.owncloud.ios-app.ownCloud-File-ProviderUI",
+      ENTERPRISE_FP_UI_PROFILE: "Owncloud :: File Provider UI :: AdHoc",
+      ENTERPRISE_INTENT_ID: "com.noveogroup.owncloud.ios-app.ownCloud-Intents",
+      ENTERPRISE_INTENT_PROFILE: "Owncloud :: Intents :: AdHoc",
+      ENTERPRISE_SHARE_EXTENSION_ID: "com.noveogroup.owncloud.ios-app.ownCloud-Share-Extension",
+      ENTERPRISE_SHARE_EXTENSION_PROFILE: "Owncloud :: Share Extension :: AdHoc",
+      ENTERPRISE_ACTION_EXTENSION_ID: "com.noveogroup.owncloud.ios-app.ownCloud-Action-Extension",
+      ENTERPRISE_ACTION_EXTENSION_PROFILE: "Owncloud :: Action Extension :: AdHoc",
+      ENTERPRISE_APP_FW_ID: "com.noveogroup.owncloud.ownCloudApp",
+      ENTERPRISE_TEAM: "HVE639V94N",
+      ENTERPRISE_IDENTITY: "iPhone Distribution: Noveo Inc. (HVE639V94N)",
+      APP_GROUP_IDENTIFIERS: "group.com.noveogroup.owncloud.ios-app",
+      EXPORT_METHOD: "ad-hoc",
+      CONFIGURATION: "Release",
+      BETA_APP_ICON: false,
+      BUILD_NUMBER: values[:BUILD_NUMBER],
+      APP_NAME: "homeCloud",
+      URL_SCHEME: "homecloud-app",
+      IPA_NAME: "homeCloud-noveo"
+    )
+  end
+
   lane :owncloud_regular_build do
     build_ipa_in_house(
       ENTERPRISE_APP_ID: "com.owncloud.ios-app",
@@ -890,6 +918,7 @@ end
       configuration: CONFIGURATION,
       codesigning_identity: ENTERPRISE_IDENTITY,
       output_name: ipaName,
+      output_directory: "./.build",
       export_method: EXPORT_METHOD,
       xcargs: "CODE_SIGN_STYLE=Manual APP_BUILD_FLAGS='" + appBuildFlags + "'",
       export_options: {
