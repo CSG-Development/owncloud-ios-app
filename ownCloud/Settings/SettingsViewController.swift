@@ -65,5 +65,9 @@ class SettingsViewController: StaticTableViewController {
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		VendorServices.shared.considerReviewPrompt()
+
+		// Crashlytics test crash. to remove
+		let numbers = [0]
+		let _ = numbers[1]
 	}
 }

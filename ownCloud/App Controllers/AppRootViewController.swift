@@ -154,10 +154,6 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 		considerLaunchPopups()
 
 		shownFirstTime = false
-
-		// Crashlytics test crash. to remove 
-		let numbers = [0]
-		let _ = numbers[1]
 	}
 
 	open override func viewDidDisappear(_ animated: Bool) {
