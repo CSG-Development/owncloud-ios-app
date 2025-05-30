@@ -142,6 +142,13 @@
 		6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5FC171221590B000F60846 /* DisplayHostViewController.swift */; };
 		6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E91F37D21ECA6FD009436D2 /* CopyAction.swift */; };
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
+		99FC32132DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC32142DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC32152DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC32162DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC32172DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC32182DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC321E2DE99A1C0011D066 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 99FC321D2DE99A1C0011D066 /* FirebaseCrashlytics */; };
 		DC0030C12350B1CE00BB8570 /* NSData+Encoding.m in Sources */ = {isa = PBXBuildFile; fileRef = DC0030BF2350B1CE00BB8570 /* NSData+Encoding.m */; };
 		DC0030C22350B1CE00BB8570 /* NSData+Encoding.h in Headers */ = {isa = PBXBuildFile; fileRef = DC0030C02350B1CE00BB8570 /* NSData+Encoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DC0030CB2350B75000BB8570 /* ScanViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1AC7CF2319ADAE002B7892 /* ScanViewController.swift */; };
@@ -1188,6 +1195,7 @@
 		6EA78B8E2179B55400A5216A /* ImageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageScrollView.swift; sourceTree = "<group>"; };
 		6EB8EDBE2114358300C2BF44 /* folder-create.tvg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "folder-create.tvg"; path = "img/filetypes-tvg/folder-create.tvg"; sourceTree = SOURCE_ROOT; };
 		6ED1B80A21A4004900E16C95 /* CreateFolderAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderAction.swift; sourceTree = "<group>"; };
+		99FC32122DE9992E0011D066 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A56EA84D8AD331FFA604138B /* Pods_ownCloudTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ownCloudTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0D9C062DD1E85A838608B0F /* EarlGrey.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EarlGrey.framework; path = Pods/EarlGrey/EarlGrey/EarlGrey.framework; sourceTree = SOURCE_ROOT; };
 		DC0030BF2350B1CE00BB8570 /* NSData+Encoding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Encoding.m"; sourceTree = "<group>"; };
@@ -1696,6 +1704,7 @@
 				DC3BE0D82077BC5D002A0AC0 /* ownCloudSDK.framework in Frameworks */,
 				DC8BFC0E2A14CAB900BFF393 /* PocketSVG in Frameworks */,
 				DCD8640628115FD600CA6631 /* OpenSSL in Frameworks */,
+				99FC321E2DE99A1C0011D066 /* FirebaseCrashlytics in Frameworks */,
 				DC080CF1238C8D850044C5D2 /* StoreKit.framework in Frameworks */,
 				DCC085712293F1FD008CC05C /* ownCloudApp.framework in Frameworks */,
 				DCE0275E21F1DF7E00F2544E /* ownCloudUI.framework in Frameworks */,
@@ -1822,6 +1831,7 @@
 				DC3BAC63282472A80057FCD4 /* KNOWN_ISSUES.md */,
 				DC9BFBB220A19AF3007064B5 /* doc */,
 				DCB86E8E2BD7B9EE00492C09 /* PrivacyInfo.xcprivacy */,
+				99FC32122DE9992E0011D066 /* GoogleService-Info.plist */,
 				233BDEBF204FEFF300C06732 /* ownCloudSDK.xcodeproj */,
 				233BDE9E204FEFE500C06732 /* ownCloud */,
 				233BDEB3204FEFE500C06732 /* ownCloudTests */,
@@ -3905,6 +3915,7 @@
 				DCEAF08C28084B3800980B6D /* Down */,
 				DCD8640528115FD600CA6631 /* OpenSSL */,
 				DC8BFC0D2A14CAB900BFF393 /* PocketSVG */,
+				99FC321D2DE99A1C0011D066 /* FirebaseCrashlytics */,
 			);
 			productName = ownCloud;
 			productReference = 233BDE9C204FEFE500C06732 /* ownCloud.app */;
@@ -4231,6 +4242,7 @@
 				DC049197258CAF8200DEDC27 /* XCRemoteSwiftPackageReference "PocketSVG" */,
 				DCEAF066280767BC00980B6D /* XCRemoteSwiftPackageReference "OpenSSL" */,
 				DCEAF08B28084B3800980B6D /* XCRemoteSwiftPackageReference "Down" */,
+				99FC321C2DE99A1C0011D066 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 233BDE9D204FEFE500C06732 /* Products */;
 			projectDirPath = "";
@@ -4314,6 +4326,7 @@
 				DCE684F6241BD4E800799C30 /* Branding.plist in Resources */,
 				395E3B152C8B0E83007979C9 /* InfoPlist.xcstrings in Resources */,
 				DC9BFBB320A19AF4007064B5 /* doc in Resources */,
+				99FC32162DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 				233BDEA7204FEFE500C06732 /* Assets.xcassets in Resources */,
 				DC6C68362574FD0400E46BD4 /* PLCrashReporter.LICENSE in Resources */,
 			);
@@ -4333,6 +4346,7 @@
 			files = (
 				395E3B1B2C8B0E84007979C9 /* InfoPlist.xcstrings in Resources */,
 				DCB86E942BD7B9EE00492C09 /* PrivacyInfo.xcprivacy in Resources */,
+				99FC32152DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4382,6 +4396,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DCB86E922BD7B9EE00492C09 /* PrivacyInfo.xcprivacy in Resources */,
+				99FC32172DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4391,6 +4406,7 @@
 			files = (
 				DCB86E912BD7B9EE00492C09 /* PrivacyInfo.xcprivacy in Resources */,
 				39DC7CD325C2E1570001E08C /* MainInterface.storyboard in Resources */,
+				99FC32142DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4409,6 +4425,7 @@
 			files = (
 				DCB86E902BD7B9EE00492C09 /* PrivacyInfo.xcprivacy in Resources */,
 				395E3B1D2C8B0E85007979C9 /* Localizable.xcstrings in Resources */,
+				99FC32182DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4421,6 +4438,7 @@
 				395E3B182C8B0E84007979C9 /* Localizable.xcstrings in Resources */,
 				DCB86E932BD7B9EE00492C09 /* PrivacyInfo.xcprivacy in Resources */,
 				39E104CA24C585C30085FDDD /* (null) in Resources */,
+				99FC32132DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6326,6 +6344,14 @@
 				version = 1.12.0;
 			};
 		};
+		99FC321C2DE99A1C0011D066 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.13.0;
+			};
+		};
 		DC049197258CAF8200DEDC27 /* XCRemoteSwiftPackageReference "PocketSVG" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pocketsvg/PocketSVG.git";
@@ -6362,6 +6388,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 024F3A1F24A3AB410083E11E /* XCRemoteSwiftPackageReference "plcrashreporter" */;
 			productName = CrashReporter;
+		};
+		99FC321D2DE99A1C0011D066 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99FC321C2DE99A1C0011D066 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 		DC0491A9258CAF9800DEDC27 /* PocketSVG */ = {
 			isa = XCSwiftPackageProductDependency;
