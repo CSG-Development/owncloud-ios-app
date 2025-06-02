@@ -881,7 +881,7 @@ end
 
 
       time = Time.now
-      ipaSuffix = EXPORT_METHOD + "-" + time.strftime("%Y%m%d-%k%M")
+      ipaSuffix = EXPORT_METHOD + "-" + time.strftime("%Y%m%d-%H%M")
       if !customAppVersionNumber.nil?
         version = customAppVersionNumber
       end
