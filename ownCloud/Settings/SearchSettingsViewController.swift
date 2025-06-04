@@ -21,7 +21,6 @@ import ownCloudSDK
 import ownCloudAppShared
 
 class SearchSettingsViewController: StaticTableViewController {
-
 	private var defaultScopeSection : StaticTableViewSection?
 
 	private func addDefaultScopeSection() {
