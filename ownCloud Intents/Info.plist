@@ -20,6 +20,11 @@
 	<string>$(APP_SHORT_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(APP_VERSION)</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
@@ -47,17 +52,12 @@
 		<string>$(PRODUCT_MODULE_NAME).IntentHandler</string>
 	</dict>
 	<key>OCAppGroupIdentifier</key>
-	<string>group.com.owncloud.ios-app</string>
+	<string>group.com.noveogroup.owncloud.ios-app</string>
 	<key>OCAppIdentifierPrefix</key>
 	<string>$(AppIdentifierPrefix)</string>
 	<key>OCHasFileProvider</key>
 	<true/>
 	<key>OCKeychainAccessGroupIdentifier</key>
-	<string>group.com.owncloud.ios-app</string>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
+	<string>group.com.noveogroup.owncloud.ios-app</string>
 </dict>
 </plist>
