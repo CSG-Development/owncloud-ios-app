@@ -21,7 +21,7 @@ import ownCloudApp
 
 extension OCSidebarItem {
 	static func registerCellProvider() {
-		let sidebarItemSidebarCellRegistration = UICollectionView.CellRegistration<ThemeableCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let sidebarItemSidebarCellRegistration = UICollectionView.CellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var content = cell.defaultContentConfiguration()
 
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
