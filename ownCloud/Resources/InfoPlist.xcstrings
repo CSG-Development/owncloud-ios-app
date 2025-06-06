@@ -34,6 +34,12 @@
             "value" : "هذا الإذن مطلوب لتحميل ملفات الوسائط من الخادم"
           }
         },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This permission is needed for uploading media files to your server."
+          }
+        },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
@@ -165,6 +171,12 @@
             "value" : "إلغاء قفل التطبيق دون كتابة الرمز المروري"
           }
         },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock the app without entering the passcode."
+          }
+        },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
@@ -284,6 +296,12 @@
             "value" : "هذا الإذن مطلوب لتمكين التحميل التلقائي للصور ومقاطع الفيديو في الخلفية."
           }
         },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This permission is needed to enable auto-upload of photos and videos in the background."
+          }
+        },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
@@ -395,6 +413,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "هذا الإذن مطلوب لتمكين التحميل التلقائي للصور ومقاطع الفيديو في الخلفية."
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This permission is needed to enable auto-upload of photos and videos in background"
           }
         },
         "cs" : {
@@ -510,6 +534,12 @@
             "value" : "هذا الإذن مطلوب لتمكين التحميل التلقائي للصور ومقاطع الفيديو في الخلفية."
           }
         },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This permission is needed to enable auto-upload of photos and videos in background"
+          }
+        },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
@@ -621,6 +651,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "هذا الإذن مطلوب لتسجيل مقاطع الفيديو"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This permission is needed to record videos"
           }
         },
         "cs" : {
@@ -742,6 +778,12 @@
             "value" : "هذا الإذن مطلوب لتحميل الصور والفيديوهات من مكتبة الصور"
           }
         },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This permission is needed to upload photos and videos from your photo library."
+          }
+        },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
@@ -859,6 +901,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "هذا الإذن مطلوب لتحميل الصور والفيديوهات من مكتبة الصور"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This permission is needed to upload photos and videos from your photo library."
           }
         },
         "cs" : {
