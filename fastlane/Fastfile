@@ -477,6 +477,7 @@ end
     ENTERPRISE_ACTION_EXTENSION_PROFILE = values[:ENTERPRISE_ACTION_EXTENSION_PROFILE]
     ENTERPRISE_APP_FW_ID = values[:ENTERPRISE_APP_FW_ID]
     ENTERPRISE_APP_SHARED_ID = "com.owncloud.ownCloudAppShared"
+    ENTERPRISE_HC_APP_SHARED_ID = "com.owncloud.homeCloudAppShared"
     ENTERPRISE_TEAM = values[:ENTERPRISE_TEAM]
     ENTERPRISE_IDENTITY = values[:ENTERPRISE_IDENTITY]
     APP_GROUP_IDENTIFIERS = values[:APP_GROUP_IDENTIFIERS]
@@ -873,7 +874,7 @@ end
       use_automatic_signing: false,
       team_id: ENTERPRISE_TEAM,
       code_sign_identity: ENTERPRISE_IDENTITY,
-      bundle_identifier: ENTERPRISE_APP_SHARED_ID,
+      bundle_identifier: ENTERPRISE_HC_APP_SHARED_ID,
       targets: ["homeCloudAppShared"]
     )
 
