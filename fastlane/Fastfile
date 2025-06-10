@@ -868,6 +868,15 @@ end
       targets: ["ownCloudAppShared"]
     )
 
+    automatic_code_signing(
+      path: "ownCloud.xcodeproj",
+      use_automatic_signing: false,
+      team_id: ENTERPRISE_TEAM,
+      code_sign_identity: ENTERPRISE_IDENTITY,
+      bundle_identifier: ENTERPRISE_APP_SHARED_ID,
+      targets: ["homeCloudAppShared"]
+    )
+
     # Add a badge with the latest short commit hash to the app icon
     build_number = app_version(
       xcodeproj: "ownCloud.xcodeproj",
