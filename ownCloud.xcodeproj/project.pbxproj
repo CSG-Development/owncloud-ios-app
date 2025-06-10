@@ -142,6 +142,19 @@
 		6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5FC171221590B000F60846 /* DisplayHostViewController.swift */; };
 		6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E91F37D21ECA6FD009436D2 /* CopyAction.swift */; };
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
+		99AD42F92DF2E92000914C19 /* homeCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */; };
+		99AD42FA2DF2E92000914C19 /* homeCloudAppShared.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		99AD430C2DF2EBA100914C19 /* HCColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD430B2DF2EB9800914C19 /* HCColor.swift */; };
+		99AD430F2DF2EBCC00914C19 /* UIColor+HexString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD430E2DF2EBC500914C19 /* UIColor+HexString.swift */; };
+		99AD431D2DF3020A00914C19 /* Bundle+Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD43192DF3020300914C19 /* Bundle+Shared.swift */; };
+		99AD431F2DF310CA00914C19 /* SidebarCollectionViewListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */; };
+		99FC32132DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC32142DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC32152DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC32162DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC32172DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC32182DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
+		99FC321E2DE99A1C0011D066 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 99FC321D2DE99A1C0011D066 /* FirebaseCrashlytics */; };
 		DC0030C12350B1CE00BB8570 /* NSData+Encoding.m in Sources */ = {isa = PBXBuildFile; fileRef = DC0030BF2350B1CE00BB8570 /* NSData+Encoding.m */; };
 		DC0030C22350B1CE00BB8570 /* NSData+Encoding.h in Headers */ = {isa = PBXBuildFile; fileRef = DC0030C02350B1CE00BB8570 /* NSData+Encoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DC0030CB2350B75000BB8570 /* ScanViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1AC7CF2319ADAE002B7892 /* ScanViewController.swift */; };
@@ -802,6 +815,13 @@
 			remoteGlobalIDString = 394A0AF822EEFC2C00603813;
 			remoteInfo = ownCloudAppShared;
 		};
+		99AD42F72DF2E92000914C19 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 233BDE94204FEFE500C06732 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 99AD42F22DF2E92000914C19;
+			remoteInfo = homeCloudAppShared;
+		};
 		DC0196A520F754CA00C41B78 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 233BDEBF204FEFF300C06732 /* ownCloudSDK.xcodeproj */;
@@ -981,6 +1001,7 @@
 				DCC085722293F1FD008CC05C /* ownCloudApp.framework in Copy Frameworks */,
 				DCFBAD0C21BE67A100943F76 /* ownCloudUI.framework in Copy Frameworks */,
 				DC3BE0DA2077BC6B002A0AC0 /* ownCloudSDK.framework in Copy Frameworks */,
+				99AD42FA2DF2E92000914C19 /* homeCloudAppShared.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1188,6 +1209,12 @@
 		6EA78B8E2179B55400A5216A /* ImageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageScrollView.swift; sourceTree = "<group>"; };
 		6EB8EDBE2114358300C2BF44 /* folder-create.tvg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "folder-create.tvg"; path = "img/filetypes-tvg/folder-create.tvg"; sourceTree = SOURCE_ROOT; };
 		6ED1B80A21A4004900E16C95 /* CreateFolderAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderAction.swift; sourceTree = "<group>"; };
+		99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = homeCloudAppShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		99AD430B2DF2EB9800914C19 /* HCColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCColor.swift; sourceTree = "<group>"; };
+		99AD430E2DF2EBC500914C19 /* UIColor+HexString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+HexString.swift"; sourceTree = "<group>"; };
+		99AD43192DF3020300914C19 /* Bundle+Shared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Shared.swift"; sourceTree = "<group>"; };
+		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
+		99FC32122DE9992E0011D066 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A56EA84D8AD331FFA604138B /* Pods_ownCloudTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ownCloudTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0D9C062DD1E85A838608B0F /* EarlGrey.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EarlGrey.framework; path = Pods/EarlGrey/EarlGrey/EarlGrey.framework; sourceTree = SOURCE_ROOT; };
 		DC0030BF2350B1CE00BB8570 /* NSData+Encoding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Encoding.m"; sourceTree = "<group>"; };
@@ -1696,8 +1723,10 @@
 				DC3BE0D82077BC5D002A0AC0 /* ownCloudSDK.framework in Frameworks */,
 				DC8BFC0E2A14CAB900BFF393 /* PocketSVG in Frameworks */,
 				DCD8640628115FD600CA6631 /* OpenSSL in Frameworks */,
+				99FC321E2DE99A1C0011D066 /* FirebaseCrashlytics in Frameworks */,
 				DC080CF1238C8D850044C5D2 /* StoreKit.framework in Frameworks */,
 				DCC085712293F1FD008CC05C /* ownCloudApp.framework in Frameworks */,
+				99AD42F92DF2E92000914C19 /* homeCloudAppShared.framework in Frameworks */,
 				DCE0275E21F1DF7E00F2544E /* ownCloudUI.framework in Frameworks */,
 				DCEAF08D28084B3800980B6D /* Down in Frameworks */,
 				DCFB046F2D71A4C700CD6C78 /* ImagePlayground.framework in Frameworks */,
@@ -1754,6 +1783,13 @@
 				39DC7CE725C305E40001E08C /* ownCloudApp.framework in Frameworks */,
 				39BF67B225E804DF0039663F /* ownCloudUI.framework in Frameworks */,
 				39BF67B325E804EF0039663F /* ownCloudSDK.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		99AD42F02DF2E92000914C19 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1822,6 +1858,7 @@
 				DC3BAC63282472A80057FCD4 /* KNOWN_ISSUES.md */,
 				DC9BFBB220A19AF3007064B5 /* doc */,
 				DCB86E8E2BD7B9EE00492C09 /* PrivacyInfo.xcprivacy */,
+				99FC32122DE9992E0011D066 /* GoogleService-Info.plist */,
 				233BDEBF204FEFF300C06732 /* ownCloudSDK.xcodeproj */,
 				233BDE9E204FEFE500C06732 /* ownCloud */,
 				233BDEB3204FEFE500C06732 /* ownCloudTests */,
@@ -1834,6 +1871,7 @@
 				DCE4E46924C1F5610051722F /* ownCloud Share Extension */,
 				39DC7CCE25C2E1570001E08C /* ownCloud File Provider UI */,
 				391933B72B0B81DB007DF90B /* ownCloud Action Extension */,
+				99AD43082DF2EB0000914C19 /* homeCloudAppShared */,
 				233BDE9D204FEFE500C06732 /* Products */,
 				DC85573220513CC700189B9A /* Frameworks */,
 			);
@@ -1854,6 +1892,7 @@
 				DCE4E46824C1F5610051722F /* ownCloud Share Extension.appex */,
 				39DC7CCD25C2E1570001E08C /* ownCloud File Provider UI.appex */,
 				391933B42B0B81DB007DF90B /* ownCloud Action Extension.appex */,
+				99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2271,6 +2310,32 @@
 				DCB796572BC535AD00D6D759 /* RemoveFromSidebarAction.swift */,
 			);
 			path = "Actions+Extensions";
+			sourceTree = "<group>";
+		};
+		99AD43082DF2EB0000914C19 /* homeCloudAppShared */ = {
+			isa = PBXGroup;
+			children = (
+				99AD430D2DF2EBBE00914C19 /* Extensions */,
+				99AD430A2DF2EB8800914C19 /* Branding */,
+			);
+			path = homeCloudAppShared;
+			sourceTree = "<group>";
+		};
+		99AD430A2DF2EB8800914C19 /* Branding */ = {
+			isa = PBXGroup;
+			children = (
+				99AD430B2DF2EB9800914C19 /* HCColor.swift */,
+			);
+			path = Branding;
+			sourceTree = "<group>";
+		};
+		99AD430D2DF2EBBE00914C19 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				99AD43192DF3020300914C19 /* Bundle+Shared.swift */,
+				99AD430E2DF2EBC500914C19 /* UIColor+HexString.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 		DC0030BE2350B1CE00BB8570 /* Tools */ = {
@@ -3531,6 +3596,7 @@
 		DCEAF0882808252300980B6D /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */,
 				DC49C22028524D6C00BAA910 /* ThemeableCollectionViewCell.swift */,
 				DC01AF2028411D8400903101 /* ThemeableCollectionViewListCell.swift */,
 				DCD68A2E291D9BE400993FF5 /* AccountControllerCell.swift */,
@@ -3800,6 +3866,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		99AD42EE2DF2E92000914C19 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DCC085572293F1FD008CC05C /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -3898,6 +3971,7 @@
 				DC0491AA258CAF9800DEDC27 /* PBXTargetDependency */,
 				39DC7CD625C2E1570001E08C /* PBXTargetDependency */,
 				391933C12B0B81DB007DF90B /* PBXTargetDependency */,
+				99AD42F82DF2E92000914C19 /* PBXTargetDependency */,
 			);
 			name = ownCloud;
 			packageProductDependencies = (
@@ -3905,6 +3979,7 @@
 				DCEAF08C28084B3800980B6D /* Down */,
 				DCD8640528115FD600CA6631 /* OpenSSL */,
 				DC8BFC0D2A14CAB900BFF393 /* PocketSVG */,
+				99FC321D2DE99A1C0011D066 /* FirebaseCrashlytics */,
 			);
 			productName = ownCloud;
 			productReference = 233BDE9C204FEFE500C06732 /* ownCloud.app */;
@@ -4021,6 +4096,26 @@
 			productReference = 39DC7CCD25C2E1570001E08C /* ownCloud File Provider UI.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		99AD42F22DF2E92000914C19 /* homeCloudAppShared */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 99AD43002DF2E92000914C19 /* Build configuration list for PBXNativeTarget "homeCloudAppShared" */;
+			buildPhases = (
+				99AD42EE2DF2E92000914C19 /* Headers */,
+				99AD42EF2DF2E92000914C19 /* Sources */,
+				99AD42F02DF2E92000914C19 /* Frameworks */,
+				99AD42F12DF2E92000914C19 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = homeCloudAppShared;
+			packageProductDependencies = (
+			);
+			productName = homeCloudAppShared;
+			productReference = 99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		DC7DBA33207F84BF00E7337D /* MakeTVG */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DC7DBA38207F84BF00E7337D /* Build configuration list for PBXNativeTarget "MakeTVG" */;
@@ -4127,14 +4222,13 @@
 		233BDE94204FEFE500C06732 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1500;
+				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1600;
 				ORGANIZATIONNAME = "ownCloud GmbH";
 				TargetAttributes = {
 					233BDE9B204FEFE500C06732 = {
 						CreatedOnToolsVersion = 9.2;
 						LastSwiftMigration = 1010;
-						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -4166,10 +4260,12 @@
 					};
 					39A7137F22E79C6700089423 = {
 						CreatedOnToolsVersion = 11.0;
-						ProvisioningStyle = Automatic;
 					};
 					39DC7CCC25C2E1570001E08C = {
 						CreatedOnToolsVersion = 12.2;
+					};
+					99AD42F22DF2E92000914C19 = {
+						CreatedOnToolsVersion = 16.4;
 					};
 					DC7DBA33207F84BF00E7337D = {
 						CreatedOnToolsVersion = 9.3;
@@ -4187,7 +4283,6 @@
 					};
 					DCC6564520C9B7E300110A97 = {
 						CreatedOnToolsVersion = 9.4;
-						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Keychain = {
 								enabled = 1;
@@ -4196,7 +4291,6 @@
 					};
 					DCE4E46724C1F5610051722F = {
 						CreatedOnToolsVersion = 11.5;
-						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -4231,6 +4325,7 @@
 				DC049197258CAF8200DEDC27 /* XCRemoteSwiftPackageReference "PocketSVG" */,
 				DCEAF066280767BC00980B6D /* XCRemoteSwiftPackageReference "OpenSSL" */,
 				DCEAF08B28084B3800980B6D /* XCRemoteSwiftPackageReference "Down" */,
+				99FC321C2DE99A1C0011D066 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 233BDE9D204FEFE500C06732 /* Products */;
 			projectDirPath = "";
@@ -4251,6 +4346,7 @@
 				DCE4E46724C1F5610051722F /* ownCloud Share Extension */,
 				DCC0855B2293F1FD008CC05C /* ownCloudApp */,
 				394A0AF822EEFC2C00603813 /* ownCloudAppShared */,
+				99AD42F22DF2E92000914C19 /* homeCloudAppShared */,
 				DCC085632293F1FD008CC05C /* ownCloudAppTests */,
 				391933B32B0B81DB007DF90B /* ownCloud Action Extension */,
 			);
@@ -4314,6 +4410,7 @@
 				DCE684F6241BD4E800799C30 /* Branding.plist in Resources */,
 				395E3B152C8B0E83007979C9 /* InfoPlist.xcstrings in Resources */,
 				DC9BFBB320A19AF4007064B5 /* doc in Resources */,
+				99FC32162DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 				233BDEA7204FEFE500C06732 /* Assets.xcassets in Resources */,
 				DC6C68362574FD0400E46BD4 /* PLCrashReporter.LICENSE in Resources */,
 			);
@@ -4333,6 +4430,7 @@
 			files = (
 				395E3B1B2C8B0E84007979C9 /* InfoPlist.xcstrings in Resources */,
 				DCB86E942BD7B9EE00492C09 /* PrivacyInfo.xcprivacy in Resources */,
+				99FC32152DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4382,6 +4480,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DCB86E922BD7B9EE00492C09 /* PrivacyInfo.xcprivacy in Resources */,
+				99FC32172DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4391,6 +4490,14 @@
 			files = (
 				DCB86E912BD7B9EE00492C09 /* PrivacyInfo.xcprivacy in Resources */,
 				39DC7CD325C2E1570001E08C /* MainInterface.storyboard in Resources */,
+				99FC32142DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		99AD42F12DF2E92000914C19 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4409,6 +4516,7 @@
 			files = (
 				DCB86E902BD7B9EE00492C09 /* PrivacyInfo.xcprivacy in Resources */,
 				395E3B1D2C8B0E85007979C9 /* Localizable.xcstrings in Resources */,
+				99FC32182DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4421,6 +4529,7 @@
 				395E3B182C8B0E84007979C9 /* Localizable.xcstrings in Resources */,
 				DCB86E932BD7B9EE00492C09 /* PrivacyInfo.xcprivacy in Resources */,
 				39E104CA24C585C30085FDDD /* (null) in Resources */,
+				99FC32132DE9992E0011D066 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4816,6 +4925,7 @@
 				DCA2EDE2279B16F1001F04E6 /* ResourceSourceItemIcons.swift in Sources */,
 				DCB330E629F18C6F00BFF393 /* OptionGroup.swift in Sources */,
 				DCBAEADE29A5536F00BFF393 /* CollectionViewSupplementaryCellProvider.swift in Sources */,
+				99AD431F2DF310CA00914C19 /* SidebarCollectionViewListCell.swift in Sources */,
 				DCEAF08A2808254800980B6D /* DriveListCell.swift in Sources */,
 				DCB5D5A728632C17004AF425 /* SearchScope.swift in Sources */,
 				DC6FDAF72953AD50004F0C7F /* ClientSharedWithMeViewController.swift in Sources */,
@@ -4972,6 +5082,16 @@
 			files = (
 				39DC7CD025C2E1570001E08C /* DocumentActionViewController.swift in Sources */,
 				39BF674C25E7FE020039663F /* CancelLabelViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		99AD42EF2DF2E92000914C19 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				99AD430F2DF2EBCC00914C19 /* UIColor+HexString.swift in Sources */,
+				99AD431D2DF3020A00914C19 /* Bundle+Shared.swift in Sources */,
+				99AD430C2DF2EBA100914C19 /* HCColor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5167,6 +5287,11 @@
 			isa = PBXTargetDependency;
 			target = 394A0AF822EEFC2C00603813 /* ownCloudAppShared */;
 			targetProxy = 39DC7CF625C305E80001E08C /* PBXContainerItemProxy */;
+		};
+		99AD42F82DF2E92000914C19 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 99AD42F22DF2E92000914C19 /* homeCloudAppShared */;
+			targetProxy = 99AD42F72DF2E92000914C19 /* PBXContainerItemProxy */;
 		};
 		DC0491AA258CAF9800DEDC27 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -5463,13 +5588,15 @@
 		233BDEBA204FEFE500C06732 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APP_SHORT_VERSION = 12.5.0;
+				APP_VERSION = 298;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ownCloud/ownCloud.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(APP_VERSION)";
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				FRAMEWORK_SEARCH_PATHS = "${TARGET_BUILD_DIR}";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -5494,7 +5621,7 @@
 					OCLocalizedFormat,
 				);
 				MARKETING_VERSION = "${APP_SHORT_VERSION}";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
@@ -5508,13 +5635,14 @@
 		233BDEBB204FEFE500C06732 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APP_SHORT_VERSION = 12.5.0;
+				APP_VERSION = 298;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ownCloud/ownCloud.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(APP_VERSION)";
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				FRAMEWORK_SEARCH_PATHS = "${TARGET_BUILD_DIR}";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"APP_IDENTIFIER_PREFIX=\"\\\"$(AppIdentifierPrefix)\\\"\"",
@@ -5538,9 +5666,9 @@
 					OCLocalizedFormat,
 				);
 				MARKETING_VERSION = "${APP_SHORT_VERSION}";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.owncloud.ios-app";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(APP_BUILD_FLAGS_SWIFT) DISABLE_APPSTORE_LICENSING";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -5554,14 +5682,14 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9B5WD74GWJ;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				INFOPLIST_FILE = ownCloudTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.owncloud.ownCloudTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.noveogroup.owncloud.ownCloudTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ownCloud.app/ownCloud";
@@ -5573,14 +5701,14 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9B5WD74GWJ;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				INFOPLIST_FILE = ownCloudTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.owncloud.ownCloudTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.noveogroup.owncloud.ownCloudTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ownCloud.app/ownCloud";
@@ -5599,7 +5727,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(APP_VERSION)";
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -5608,7 +5736,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ownCloud Action Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ownCloud Action Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = "Save to $(APP_PRODUCT_NAME)";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 ownCloud GmbH. All rights reserved.";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5626,7 +5754,7 @@
 				MARKETING_VERSION = "${APP_SHORT_VERSION}";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app.ownCloud-Action-Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app.ownCloud-Action-Extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -5644,16 +5772,15 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CODE_SIGN_ENTITLEMENTS = "ownCloud Action Extension/ownCloud Action Extension.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(APP_VERSION)";
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ownCloud Action Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ownCloud Action Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = "Save to $(APP_PRODUCT_NAME)";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 ownCloud GmbH. All rights reserved.";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5670,9 +5797,9 @@
 				);
 				MARKETING_VERSION = "${APP_SHORT_VERSION}";
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app.ownCloud-Action-Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app.ownCloud-Action-Extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.owncloud.ios-app.ownCloud-Action-Extension";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -5778,7 +5905,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -5798,7 +5925,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app.ownCloud-Intents";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app.ownCloud-Intents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -5811,10 +5938,9 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_ENTITLEMENTS = "ownCloud Intents/ownCloud Intents.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				INFOPLIST_FILE = "ownCloud Intents/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5829,9 +5955,9 @@
 					OCLocalizedString,
 				);
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app.ownCloud-Intents";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app.ownCloud-Intents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.owncloud.ios-app.ownCloud-Intents";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -5846,7 +5972,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -5866,7 +5992,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app.ownCloud-File-ProviderUI";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app.ownCloud-File-ProviderUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -5879,10 +6005,9 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CODE_SIGN_ENTITLEMENTS = "ownCloud File Provider UI/ownCloud_File_Provider_UI.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				INFOPLIST_FILE = "ownCloud File Provider UI/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -5897,11 +6022,109 @@
 					OCLocalizedString,
 				);
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app.ownCloud-File-ProviderUI";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app.ownCloud-File-ProviderUI";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.owncloud.ios-app.ownCloud-File-ProviderUI";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		99AD42FB2DF2E92000914C19 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 ownCloud GmbH. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.seagate.owncloud.homeCloudAppShared;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		99AD42FC2DF2E92000914C19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 ownCloud GmbH. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.seagate.owncloud.homeCloudAppShared;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
@@ -6029,7 +6252,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -6042,7 +6265,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.owncloud.ownCloudAppTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.noveogroup.owncloud.ownCloudAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ownCloud.app/ownCloud";
@@ -6055,7 +6278,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				INFOPLIST_FILE = ownCloudAppTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6063,7 +6286,7 @@
 					"@loader_path/Frameworks",
 				);
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.owncloud.ownCloudAppTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.noveogroup.owncloud.ownCloudAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ownCloud.app/ownCloud";
@@ -6078,7 +6301,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				INFOPLIST_FILE = "ownCloud File Provider/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6092,7 +6315,7 @@
 					OCLocalizedFormat,
 					OCLocalizedString,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app.ownCloud-File-Provider";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app.ownCloud-File-Provider";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -6105,10 +6328,9 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_ENTITLEMENTS = "ownCloud File Provider/ownCloud_File_Provider.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				INFOPLIST_FILE = "ownCloud File Provider/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6122,9 +6344,9 @@
 					OCLocalizedFormat,
 					OCLocalizedString,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app.ownCloud-File-Provider";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app.ownCloud-File-Provider";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.owncloud.ios-app.ownCloud-File-Provider";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -6139,7 +6361,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(APP_VERSION)";
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -6160,7 +6382,7 @@
 				MARKETING_VERSION = "${APP_SHORT_VERSION}";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app.ownCloud-Share-Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app.ownCloud-Share-Extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
@@ -6174,11 +6396,10 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_ENTITLEMENTS = "ownCloud Share Extension/ownCloud Share Extension.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(APP_VERSION)";
-				DEVELOPMENT_TEAM = 4AP2STM4H5;
+				DEVELOPMENT_TEAM = HVE639V94N;
 				INFOPLIST_FILE = "ownCloud Share Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6194,9 +6415,9 @@
 				);
 				MARKETING_VERSION = "${APP_SHORT_VERSION}";
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.owncloud.ios-app.ownCloud-Share-Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app.ownCloud-Share-Extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.owncloud.ios-app.ownCloud-Share-Extension";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -6270,6 +6491,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		99AD43002DF2E92000914C19 /* Build configuration list for PBXNativeTarget "homeCloudAppShared" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				99AD42FB2DF2E92000914C19 /* Debug */,
+				99AD42FC2DF2E92000914C19 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		DC7DBA38207F84BF00E7337D /* Build configuration list for PBXNativeTarget "MakeTVG" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -6326,6 +6556,14 @@
 				version = 1.12.0;
 			};
 		};
+		99FC321C2DE99A1C0011D066 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.13.0;
+			};
+		};
 		DC049197258CAF8200DEDC27 /* XCRemoteSwiftPackageReference "PocketSVG" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pocketsvg/PocketSVG.git";
@@ -6362,6 +6600,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 024F3A1F24A3AB410083E11E /* XCRemoteSwiftPackageReference "plcrashreporter" */;
 			productName = CrashReporter;
+		};
+		99FC321D2DE99A1C0011D066 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99FC321C2DE99A1C0011D066 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 		DC0491A9258CAF9800DEDC27 /* PocketSVG */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -202,7 +202,7 @@ extension ActionCell {
 			})
 		}
 
-		let actionSideBarCellRegistration = UICollectionView.CellRegistration<ThemeableCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let actionSideBarCellRegistration = UICollectionView.CellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
 				var accessories: [UICellAccessory] = []
 				var content = cell.defaultContentConfiguration()

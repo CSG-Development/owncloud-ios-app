@@ -19,6 +19,7 @@
 import UIKit
 import ownCloudSDK
 import ownCloudApp
+import homeCloudAppShared
 
 extension ThemeCSSSelector {
 	static let logo = ThemeCSSSelector(rawValue: "logo")
@@ -188,21 +189,7 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 	}
 
 	public var brandingElementDataSource: OCDataSourceArray? {
-		if Branding.shared.isBranded {
-			let logoSize = CGSize(width: 128, height: 64)
-			let brandView = BrandView(showBackground: true, showLogo: true, logoMaxSize: logoSize, roundedCorners: true, assetSuffix: .sidebar)
-
-			NSLayoutConstraint.activate([
-				brandView.heightAnchor.constraint(equalToConstant: logoSize.height)
-			])
-
-			let elementDataSource = OCDataSourceArray(items: [ brandView ])
-			let section = CollectionViewSection(identifier: "branding-elements", dataSource: elementDataSource, cellStyle: CollectionViewCellStyle(with: .sideBar), cellLayout: .list(appearance: .sidebar), clientContext: clientContext)
-
-			return OCDataSourceArray(items: [ section ])
-		}
-
-		return nil
+		nil
 	}
 
 	public var sidebarLinksDataSource: OCDataSourceArray? {
@@ -289,68 +276,43 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 // MARK: - Branding
 extension ClientSidebarViewController {
 	static public func buildNavigationLogoView() -> ThemeCSSView {
-		let logoImage = UIImage(named: "branding-login-logo")
-		let logoImageView = UIImageView(image: logoImage)
-		logoImageView.cssSelector = .icon
-		logoImageView.accessibilityLabel = VendorServices.shared.appName
-		logoImageView.contentMode = .scaleAspectFit
-		logoImageView.translatesAutoresizingMaskIntoConstraints = false
-		if let logoImage = logoImage {
-			// Keep aspect ratio + scale logo to 90% of available height
-			logoImageView.widthAnchor.constraint(equalTo: logoImageView.heightAnchor, multiplier: (logoImage.size.width / logoImage.size.height) * 0.9).isActive = true
-		}
+		let container = ThemeCSSView()
 
-		let logoLabel = ThemeCSSLabel()
-		logoLabel.translatesAutoresizingMaskIntoConstraints = false
-		logoLabel.text = VendorServices.shared.appName
-		logoLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-		logoLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-		logoLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+		let greenText = "Home Cloud"
+		let defaultText = " Files"  // note leading space so it flows correctly
 
-		let logoContainer = ThemeCSSView(withSelectors: [.logo])
-		logoContainer.translatesAutoresizingMaskIntoConstraints = false
-		logoContainer.setContentHuggingPriority(.required, for: .horizontal)
-		logoContainer.setContentHuggingPriority(.required, for: .vertical)
+		let attributed = NSMutableAttributedString(
+			string: greenText,
+			attributes: [
+				.font: UIFont.systemFont(ofSize: 20, weight: .regular),
+				.foregroundColor: HCColor.green
+			]
+		)
+		attributed.append(
+			NSAttributedString(
+				string: defaultText,
+				attributes: [
+					.font: UIFont.systemFont(ofSize: 20, weight: .regular),
+					.foregroundColor: UIColor.label
+				]
+			)
+		)
 
-		let logoWrapperView = ThemeCSSView()
-		logoWrapperView.addSubview(logoContainer)
+		let label = UILabel()
+		label.attributedText = attributed
+		label.translatesAutoresizingMaskIntoConstraints = false
 
-		if VendorServices.shared.isBranded {
-			logoContainer.addSubview(logoLabel)
-			NSLayoutConstraint.activate([
-				logoLabel.topAnchor.constraint(greaterThanOrEqualTo: logoContainer.topAnchor),
-				logoLabel.bottomAnchor.constraint(lessThanOrEqualTo: logoContainer.bottomAnchor),
-				logoLabel.centerYAnchor.constraint(equalTo: logoContainer.centerYAnchor),
-				logoLabel.centerXAnchor.constraint(equalTo: logoContainer.centerXAnchor),
-				logoContainer.topAnchor.constraint(equalTo: logoWrapperView.topAnchor),
-				logoContainer.bottomAnchor.constraint(equalTo: logoWrapperView.bottomAnchor),
-				logoContainer.centerXAnchor.constraint(equalTo: logoWrapperView.centerXAnchor)
-			])
-		} else {
-			logoContainer.addSubview(logoImageView)
-			logoContainer.addSubview(logoLabel)
-			NSLayoutConstraint.activate([
-				logoImageView.topAnchor.constraint(greaterThanOrEqualTo: logoContainer.topAnchor),
-				logoImageView.bottomAnchor.constraint(lessThanOrEqualTo: logoContainer.bottomAnchor),
-				logoImageView.centerYAnchor.constraint(equalTo: logoContainer.centerYAnchor),
-				logoLabel.topAnchor.constraint(greaterThanOrEqualTo: logoContainer.topAnchor),
-				logoLabel.bottomAnchor.constraint(lessThanOrEqualTo: logoContainer.bottomAnchor),
-				logoLabel.centerYAnchor.constraint(equalTo: logoContainer.centerYAnchor),
-				logoImageView.leadingAnchor.constraint(equalTo: logoContainer.leadingAnchor),
-				logoLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: logoImageView.trailingAnchor, multiplier: 1),
-				logoLabel.trailingAnchor.constraint(equalTo: logoContainer.trailingAnchor),
-				logoContainer.topAnchor.constraint(equalTo: logoWrapperView.topAnchor),
-				logoContainer.bottomAnchor.constraint(equalTo: logoWrapperView.bottomAnchor),
-				logoContainer.centerXAnchor.constraint(equalTo: logoWrapperView.centerXAnchor)
-			])
-		}
+		container.addSubview(label)
 
-		logoWrapperView.addThemeApplier({ (_, collection, _) in
-			if !VendorServices.shared.isBranded, let logoColor = collection.css.getColor(.stroke, for: logoImageView) {
-				logoImageView.image = logoImageView.image?.tinted(with: logoColor)
-			}
-		})
+		NSLayoutConstraint.activate([
+			label.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+			label.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+			label.centerYAnchor.constraint(equalTo: container.centerYAnchor)
+		])
+		let heightConstraint = container.heightAnchor.constraint(equalToConstant: 44)
+		heightConstraint.priority = .defaultHigh
+		heightConstraint.isActive = true
 
-		return logoWrapperView
+		return container
 	}
 }

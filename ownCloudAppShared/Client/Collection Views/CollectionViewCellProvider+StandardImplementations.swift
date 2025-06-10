@@ -46,7 +46,7 @@ public extension CollectionViewCellProvider {
 	}
 
 	static func registerPresentableCellProvider() {
-		let presentableCellRegistration = UICollectionView.CellRegistration<ThemeableCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let presentableCellRegistration = UICollectionView.CellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var content = cell.defaultContentConfiguration()
 			var hasDisclosureIndicator : Bool = false
 
@@ -119,7 +119,7 @@ public extension CollectionViewCellProvider {
 			cell.accessories = hasDisclosureIndicator ? [ .disclosureIndicator() ] : [ ]
 		}
 
-		let presentableSidebarCellRegistration = UICollectionView.CellRegistration<ThemeableCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let presentableSidebarCellRegistration = UICollectionView.CellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var title: String?
 			var image: UIImage?
 			var hasChildren: Bool = false

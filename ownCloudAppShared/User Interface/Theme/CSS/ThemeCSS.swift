@@ -51,7 +51,7 @@ public struct ThemeCSSSelector: RawRepresentable, Equatable {
 	public static let sectionFooter = ThemeCSSSelector(rawValue: "sectionFooter")
 	public static let cell = ThemeCSSSelector(rawValue: "cell")
 	public static let accessory = ThemeCSSSelector(rawValue: "accessory")
-	
+
 	// Confidential
 	public static let confidentialLabel = ThemeCSSSelector(rawValue: "confidentialLabel")
 	public static let confidentialSecondaryLabel = ThemeCSSSelector(rawValue: "confidentialSecondaryLabel")

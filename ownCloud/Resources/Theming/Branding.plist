@@ -2,9 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>branding.organization-name</key>
-    <string>Home cloud</string>
+	<key>branding.organization-name</key>
+	<string>Home cloud</string>
 	<key>app.recommend-to-friend-enabled</key>
 	<false/>
+	<key>branding.theme-colors</key>
+	<dict>
+		<key>tint-color-dark</key>
+		<string>#64B5F6</string>
+		<key>tint-color</key>
+		<string>#1976D2</string>
+		<key>setup-status-bar-style</key>
+		<string>default</string>
+		<key>folder-icon-color</key>
+		<string>#FEDC7A</string>
+		<key>file-icon-color</key>
+		<string>#49ABE8</string>
+	</dict>
 </dict>
 </plist>
