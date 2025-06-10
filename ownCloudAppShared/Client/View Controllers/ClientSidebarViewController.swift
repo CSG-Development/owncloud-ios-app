@@ -278,31 +278,35 @@ extension ClientSidebarViewController {
 	static public func buildNavigationLogoView() -> ThemeCSSView {
 		let container = ThemeCSSView()
 
-		let greenText = "Home Cloud"
-		let defaultText = " Files"  // note leading space so it flows correctly
-
-		let attributed = NSMutableAttributedString(
-			string: greenText,
-			attributes: [
-				.font: UIFont.systemFont(ofSize: 20, weight: .regular),
-				.foregroundColor: HCColor.green
-			]
-		)
-		attributed.append(
-			NSAttributedString(
-				string: defaultText,
-				attributes: [
-					.font: UIFont.systemFont(ofSize: 20, weight: .regular),
-					.foregroundColor: UIColor.label
-				]
-			)
-		)
-
 		let label = UILabel()
-		label.attributedText = attributed
 		label.translatesAutoresizingMaskIntoConstraints = false
 
 		container.addSubview(label)
+
+		container.addThemeApplier({ (_, collection, _) in
+			if let titleColor = collection.css.getColor(.stroke, for: label) {
+				let greenText = "Home Cloud"
+				let defaultText = " Files"
+
+				let attributedText = NSMutableAttributedString(
+					string: greenText,
+					attributes: [
+						.font: UIFont.systemFont(ofSize: 20, weight: .regular),
+						.foregroundColor: HCColor.green
+					]
+				)
+				attributedText.append(
+					NSAttributedString(
+						string: defaultText,
+						attributes: [
+							.font: UIFont.systemFont(ofSize: 20, weight: .regular),
+							.foregroundColor: titleColor
+						]
+					)
+				)
+				label.attributedText = attributedText
+			}
+		})
 
 		NSLayoutConstraint.activate([
 			label.leadingAnchor.constraint(equalTo: container.leadingAnchor),
