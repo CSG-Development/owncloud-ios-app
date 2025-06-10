@@ -59,6 +59,7 @@ extension OCClassSettingsKey {
 
 enum BrandingColorAlias: String, CaseIterable {
 	case tintColor = "tint-color"
+	case tintColorDark = "tint-color-dark"
 	case brandingBackgroundColor = "branding-background-color"
 	case setupStatusBarStyle = "setup-status-bar-style"
 	case folderIconColor = "folder-icon-color"
@@ -188,6 +189,10 @@ extension Branding : ownCloudApp.BrandingInitialization {
 					[
 						OCClassSettingsMetadataKey.value 	: BrandingColorAlias.tintColor.rawValue,
 						OCClassSettingsMetadataKey.description 	: "Color to use as tint/accent color for controls (in hex notation)."
+					],
+					[
+						OCClassSettingsMetadataKey.value 	: BrandingColorAlias.tintColorDark.rawValue,
+						OCClassSettingsMetadataKey.description 	: "Color to use as tint/accent color for controls in dark mode (in hex notation)."
 					],
 					[
 						OCClassSettingsMetadataKey.value 	: BrandingColorAlias.brandingBackgroundColor.rawValue,
@@ -474,6 +479,7 @@ extension Branding {
 			}
 		} else if isBranded {
 			var tintColor: UIColor?
+			var tintColorDark: UIColor?
 			var mappedCSSRecordStrings : [String]?
 
 			if let colors = self.computedValue(forClassSettingsKey: .themeColors) as? [String:String] {
@@ -491,6 +497,9 @@ extension Branding {
 							case .tintColor:
 								// Use as tint color
 								tintColor = value.colorFromHex
+							case .tintColorDark:
+								// Use as tint color
+								tintColorDark = value.colorFromHex
 
 							case .brandingBackgroundColor:
 								addCSSRecord([.brand, .background], property: .fill, value: value)
@@ -519,7 +528,7 @@ extension Branding {
 			}
 
 			brandingThemeStyles.append(ThemeStyle.systemLight(with: tintColor, cssRecordStrings: effectiveCSSRecordStrings))
-			brandingThemeStyles.append(ThemeStyle.systemDark(with: tintColor, cssRecordStrings: effectiveCSSRecordStrings))
+			brandingThemeStyles.append(ThemeStyle.systemDark(with: tintColorDark, cssRecordStrings: effectiveCSSRecordStrings))
 			allowThemeSelection = true
 		}
 

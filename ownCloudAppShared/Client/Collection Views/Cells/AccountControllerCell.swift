@@ -20,13 +20,21 @@ import UIKit
 import ownCloudSDK
 import ownCloudApp
 
-class AccountControllerCell: ThemeableCollectionViewListCell {
-	static let avatarSideLength : CGFloat = 45
+private enum Constants {
+	static let avatarSideLength: CGFloat = 32.0
+	static let bottomListOffset: CGFloat = 8.0
+}
 
+class AccountControllerCell: ThemeableCollectionViewListCell {
 	public var titleLabel: UILabel = ThemeCSSLabel(withSelectors: [.title])
 	public var detailLabel: UILabel = ThemeCSSLabel(withSelectors: [.description])
 	public var logoFallbackView: UIImageView = UIImageView()
-	public var iconView: ResourceViewHost = ResourceViewHost(fallbackSize: CGSize(width: AccountControllerCell.avatarSideLength, height: AccountControllerCell.avatarSideLength))
+	public var iconView: ResourceViewHost = ResourceViewHost(
+		fallbackSize: CGSize(
+			width: Constants.avatarSideLength,
+			height: Constants.avatarSideLength
+		)
+	)
 	public var infoView: UIView = UIView()
 	public var statusIconView: UIImageView = UIImageView()
 	public var disconnectButton: UIButton = UIButton()
@@ -54,7 +62,7 @@ class AccountControllerCell: ThemeableCollectionViewListCell {
 
 		detailLabel.textColor = UIColor.gray
 
-		let symbolConfig = UIImage.SymbolConfiguration(pointSize: 10)
+		let symbolConfig = UIImage.SymbolConfiguration(pointSize: 6)
 
 		var buttonConfig = UIButton.Configuration.gray()
 		buttonConfig.image = UIImage(systemName: "eject.fill", withConfiguration: symbolConfig)
@@ -85,19 +93,19 @@ class AccountControllerCell: ThemeableCollectionViewListCell {
 	}
 
 	func configureLayout() {
-		let dynamicHeight = UIFontMetrics.default.scaledValue(for: AccountControllerCell.avatarSideLength + 20)
+		let dynamicHeight = UIFontMetrics.default.scaledValue(for: Constants.avatarSideLength + 50)
 
 		NSLayoutConstraint.activate([
-			iconView.widthAnchor.constraint(equalToConstant: AccountControllerCell.avatarSideLength),
-			iconView.heightAnchor.constraint(equalToConstant: AccountControllerCell.avatarSideLength),
-			iconView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+			iconView.widthAnchor.constraint(equalToConstant: Constants.avatarSideLength),
+			iconView.heightAnchor.constraint(equalToConstant: Constants.avatarSideLength),
+			iconView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+			iconView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
 
-			iconView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
 			iconView.trailingAnchor.constraint(equalTo: titleLabel.leadingAnchor, constant: -10),
 			iconView.trailingAnchor.constraint(equalTo: detailLabel.leadingAnchor, constant: -10),
 
-			statusIconView.trailingAnchor.constraint(equalTo: iconView.trailingAnchor),
-			statusIconView.bottomAnchor.constraint(equalTo: iconView.bottomAnchor),
+			statusIconView.trailingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 3),
+			statusIconView.bottomAnchor.constraint(equalTo: iconView.bottomAnchor, constant: 3),
 			statusIconView.widthAnchor.constraint(equalToConstant: 16),
 			statusIconView.heightAnchor.constraint(equalToConstant: 16),
 
@@ -107,13 +115,13 @@ class AccountControllerCell: ThemeableCollectionViewListCell {
 			detailLabel.trailingAnchor.constraint(equalTo: infoView.leadingAnchor),
 			detailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 2),
 
-			infoView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-			infoView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-			infoView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+			infoView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+			infoView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
+			infoView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
 
 			disconnectButton.leadingAnchor.constraint(greaterThanOrEqualTo: infoView.leadingAnchor),
 			disconnectButton.trailingAnchor.constraint(lessThanOrEqualTo: infoView.trailingAnchor),
-			disconnectButton.centerYAnchor.constraint(equalTo: infoView.centerYAnchor),
+			disconnectButton.topAnchor.constraint(equalTo: infoView.topAnchor),
 
 			contentView.heightAnchor.constraint(equalToConstant: dynamicHeight).with(priority: .defaultHigh)
 		])
@@ -347,12 +355,12 @@ class AccountControllerCell: ThemeableCollectionViewListCell {
 		if let cornerRadius = collection.css.getCGFloat(.cornerRadius, for: self) {
 			backgroundConfig.cornerRadius = cornerRadius
 		}
+		backgroundConfig.backgroundInsets.bottom = Constants.bottomListOffset
 
 		var disconnectButtonConfig = disconnectButton.configuration
 		disconnectButtonConfig?.baseBackgroundColor = collection.css.getColor(.fill,   for: disconnectButton)
 		disconnectButtonConfig?.baseForegroundColor = collection.css.getColor(.stroke, for: disconnectButton)
 		disconnectButton.configuration = disconnectButtonConfig
-
 		backgroundConfiguration = backgroundConfig
 	}
 }

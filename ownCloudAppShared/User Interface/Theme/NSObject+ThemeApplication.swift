@@ -265,7 +265,7 @@ public extension NSObject {
 					if let textColor = css.getColor(.stroke, selectors: stateSelectors, for: cell) {
 						cellListConfiguration.textProperties.color = textColor
 					}
-
+					cellListConfiguration.textProperties.font = UIFont.systemFont(ofSize: 16, weight: .medium)
 					var iconSelectors = stateSelectors
 					iconSelectors.append(.icon)
 
@@ -273,6 +273,7 @@ public extension NSObject {
 						cellListConfiguration.imageProperties.tintColor = iconColor
 					}
 					cell.contentConfiguration = cellListConfiguration
+					cell.directionalLayoutMargins.leading = 12
 				}
 
 				cell.tintColor = css.getColor(.stroke, selectors: stateSelectors, for: cell)
