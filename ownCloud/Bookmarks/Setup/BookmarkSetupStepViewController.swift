@@ -23,7 +23,6 @@ import ownCloudAppShared
 extension BookmarkComposer.Step {
 	var cssSelector: ThemeCSSSelector {
 		switch self {
-			case .intro: return ThemeCSSSelector(rawValue: "intro")
 			case .enterUsername: return ThemeCSSSelector(rawValue: "enterUsername")
 			case .serverURL(urlString: _):  return ThemeCSSSelector(rawValue: "serverURL")
 			case .authenticate(withCredentials: _, username: _, password: _): return ThemeCSSSelector(rawValue: "authenticate")

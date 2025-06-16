@@ -70,7 +70,7 @@ class BookmarkSetupViewController: EmbeddingViewController, BookmarkComposerDele
 			let deviceScreenHeight = UIScreen.main.bounds.height
 			let logoMaxHeight = deviceScreenHeight < 800 ? (deviceScreenHeight < 600 ? 48 : 96) : 128
 			let maxLogoSize = CGSize(width: 256, height: logoMaxHeight)
-			logoView = BrandView(showBackground: false, showLogo: true, logoMaxSize: maxLogoSize, fitToLogo: true, roundedCorners: false, assetSuffix: .setup)
+			// logoView = BrandView(showBackground: false, showLogo: true, logoMaxSize: maxLogoSize, fitToLogo: true, roundedCorners: false, assetSuffix: .setup)
 		}
 
 		if let logoView {
@@ -173,9 +173,6 @@ class BookmarkSetupViewController: EmbeddingViewController, BookmarkComposerDele
 		var stepViewController: UIViewController?
 
 		switch step {
-			case .intro:
-				stepViewController = BookmarkSetupStepIntroViewController(with: self, step: step)
-
 			case .serverURL(urlString: _):
 				stepViewController = BookmarkSetupStepEnterURLViewController(with: self, step: step)
 

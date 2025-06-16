@@ -54,7 +54,6 @@
 		394A0B0022EEFC2C00603813 /* ownCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */; };
 		394A0B0122EEFC2C00603813 /* ownCloudAppShared.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		394A0B0922EEFCE400603813 /* ownCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */; };
-		394A0B0A22EEFCF500603813 /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
 		394E1FDA233E2D64009D2897 /* FavoriteAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394E1FD9233E2D64009D2897 /* FavoriteAction.swift */; };
 		394E1FDC233E3750009D2897 /* UnfavoriteAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 394E1FDB233E3750009D2897 /* UnfavoriteAction.swift */; };
 		395E3B152C8B0E83007979C9 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 395E3B142C8B0E83007979C9 /* InfoPlist.xcstrings */; };
@@ -142,6 +141,18 @@
 		6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5FC171221590B000F60846 /* DisplayHostViewController.swift */; };
 		6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E91F37D21ECA6FD009436D2 /* CopyAction.swift */; };
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
+		998CC82F2DF97A9700BDA4CB /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 998CC82E2DF97A9700BDA4CB /* SnapKit */; };
+		998CC8362DF97B8B00BDA4CB /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998CC8352DF97B8200BDA4CB /* WelcomeViewController.swift */; };
+		998CC8382DFAC1E900BDA4CB /* Down in Frameworks */ = {isa = PBXBuildFile; productRef = 998CC8372DFAC1E900BDA4CB /* Down */; };
+		998CC8412DFAC1F600BDA4CB /* PocketSVG in Frameworks */ = {isa = PBXBuildFile; productRef = 998CC8402DFAC1F600BDA4CB /* PocketSVG */; };
+		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
+		998CC8432DFAC2BB00BDA4CB /* ownCloudApp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
+		998CC8472DFAC2BB00BDA4CB /* ownCloudSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		998EBA9C2DFACAF700198721 /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
+		998EBA9D2DFACAF700198721 /* ownCloudApp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		998EBAA52DFACD8B00198721 /* UIButton+HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998EBAA42DFACD8200198721 /* UIButton+HCButtonStyle.swift */; };
+		998EBAA72DFADB0B00198721 /* HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998EBAA62DFADB0400198721 /* HCButtonStyle.swift */; };
 		99AD42F92DF2E92000914C19 /* homeCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */; };
 		99AD42FA2DF2E92000914C19 /* homeCloudAppShared.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		99AD430C2DF2EBA100914C19 /* HCColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD430B2DF2EB9800914C19 /* HCColor.swift */; };
@@ -579,7 +590,6 @@
 		DCD9B87B2379612B00691929 /* OCLicenseManager+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = DCD9B873237960E600691929 /* OCLicenseManager+Internal.h */; };
 		DCDBB60A2525305600FAD707 /* NotificationAuthErrorForwarder.h in Headers */ = {isa = PBXBuildFile; fileRef = DCDBB60225252FDA00FAD707 /* NotificationAuthErrorForwarder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DCDBB60B2525306000FAD707 /* NotificationAuthErrorForwarder.m in Sources */ = {isa = PBXBuildFile; fileRef = DCDBB60325252FDA00FAD707 /* NotificationAuthErrorForwarder.m */; };
-		DCDC0ACF23CD186400DFE36D /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
 		DCDC0AD123CD18D200DFE36D /* OCLicenseManager+Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDC0AD023CD18D200DFE36D /* OCLicenseManager+Setup.swift */; };
 		DCDC208C239912DC003CFF5B /* OCLicenseTransaction.h in Headers */ = {isa = PBXBuildFile; fileRef = DCDC208A239912DC003CFF5B /* OCLicenseTransaction.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DCDC208D239912DC003CFF5B /* OCLicenseTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = DCDC208B239912DC003CFF5B /* OCLicenseTransaction.m */; };
@@ -773,13 +783,6 @@
 			remoteGlobalIDString = 394A0AF822EEFC2C00603813;
 			remoteInfo = ownCloudAppShared;
 		};
-		394A0B0B22EEFD2800603813 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 233BDEBF204FEFF300C06732 /* ownCloudSDK.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = DCC8F9AA202852A200EB6701;
-			remoteInfo = ownCloudSDK;
-		};
 		39A7138522E79C6700089423 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 233BDE94204FEFE500C06732 /* Project object */;
@@ -814,6 +817,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 394A0AF822EEFC2C00603813;
 			remoteInfo = ownCloudAppShared;
+		};
+		998CC8442DFAC2BB00BDA4CB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 233BDE94204FEFE500C06732 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DCC0855B2293F1FD008CC05C;
+			remoteInfo = ownCloudApp;
+		};
+		998EBA9E2DFACAF700198721 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 233BDE94204FEFE500C06732 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DCC0855B2293F1FD008CC05C;
+			remoteInfo = ownCloudApp;
 		};
 		99AD42F72DF2E92000914C19 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -941,13 +958,6 @@
 			remoteGlobalIDString = DCC6564520C9B7E300110A97;
 			remoteInfo = "ownCloud File Provider";
 		};
-		DCDC0ACD23CD185F00DFE36D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 233BDE94204FEFE500C06732 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DCC0855B2293F1FD008CC05C;
-			remoteInfo = ownCloudApp;
-		};
 		DCE4E47024C1F5610051722F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 233BDE94204FEFE500C06732 /* Project object */;
@@ -978,6 +988,29 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		998CC8482DFAC2BB00BDA4CB /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				998CC8472DFAC2BB00BDA4CB /* ownCloudSDK.framework in Embed Frameworks */,
+				998CC8432DFAC2BB00BDA4CB /* ownCloudApp.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		998EBAA02DFACAF700198721 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				998EBA9D2DFACAF700198721 /* ownCloudApp.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1209,6 +1242,9 @@
 		6EA78B8E2179B55400A5216A /* ImageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageScrollView.swift; sourceTree = "<group>"; };
 		6EB8EDBE2114358300C2BF44 /* folder-create.tvg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "folder-create.tvg"; path = "img/filetypes-tvg/folder-create.tvg"; sourceTree = SOURCE_ROOT; };
 		6ED1B80A21A4004900E16C95 /* CreateFolderAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderAction.swift; sourceTree = "<group>"; };
+		998CC8352DF97B8200BDA4CB /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
+		998EBAA42DFACD8200198721 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
+		998EBAA62DFADB0400198721 /* HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCButtonStyle.swift; sourceTree = "<group>"; };
 		99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = homeCloudAppShared.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		99AD430B2DF2EB9800914C19 /* HCColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCColor.swift; sourceTree = "<group>"; };
 		99AD430E2DF2EBC500914C19 /* UIColor+HexString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+HexString.swift"; sourceTree = "<group>"; };
@@ -1759,9 +1795,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC9B4FCA29413B480037F8F8 /* Down in Frameworks */,
+				998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */,
+				998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */,
 				DC04920B258CB06A00DEDC27 /* PocketSVG in Frameworks */,
-				DCDC0ACF23CD186400DFE36D /* ownCloudApp.framework in Frameworks */,
-				394A0B0A22EEFCF500603813 /* ownCloudSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1790,6 +1826,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				998CC8382DFAC1E900BDA4CB /* Down in Frameworks */,
+				998EBA9C2DFACAF700198721 /* ownCloudApp.framework in Frameworks */,
+				998CC8412DFAC1F600BDA4CB /* PocketSVG in Frameworks */,
+				998CC82F2DF97A9700BDA4CB /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2312,9 +2352,26 @@
 			path = "Actions+Extensions";
 			sourceTree = "<group>";
 		};
+		998CC8332DF97AC700BDA4CB /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				998CC8342DF97B7800BDA4CB /* WelcomeViewController */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		998CC8342DF97B7800BDA4CB /* WelcomeViewController */ = {
+			isa = PBXGroup;
+			children = (
+				998CC8352DF97B8200BDA4CB /* WelcomeViewController.swift */,
+			);
+			path = WelcomeViewController;
+			sourceTree = "<group>";
+		};
 		99AD43082DF2EB0000914C19 /* homeCloudAppShared */ = {
 			isa = PBXGroup;
 			children = (
+				998CC8332DF97AC700BDA4CB /* Screens */,
 				99AD430D2DF2EBBE00914C19 /* Extensions */,
 				99AD430A2DF2EB8800914C19 /* Branding */,
 			);
@@ -2324,6 +2381,7 @@
 		99AD430A2DF2EB8800914C19 /* Branding */ = {
 			isa = PBXGroup;
 			children = (
+				998EBAA62DFADB0400198721 /* HCButtonStyle.swift */,
 				99AD430B2DF2EB9800914C19 /* HCColor.swift */,
 			);
 			path = Branding;
@@ -2332,6 +2390,7 @@
 		99AD430D2DF2EBBE00914C19 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				998EBAA42DFACD8200198721 /* UIButton+HCButtonStyle.swift */,
 				99AD43192DF3020300914C19 /* Bundle+Shared.swift */,
 				99AD430E2DF2EBC500914C19 /* UIColor+HexString.swift */,
 			);
@@ -4036,15 +4095,15 @@
 				394A0AF622EEFC2C00603813 /* Frameworks */,
 				394A0AF722EEFC2C00603813 /* Resources */,
 				DC049259258CB33600DEDC27 /* Copy PocketSVG license (inactive) */,
+				998CC8482DFAC2BB00BDA4CB /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				DC9B4FC829413B400037F8F8 /* PBXTargetDependency */,
 				DC0491D8258CB00000DEDC27 /* PBXTargetDependency */,
-				DCDC0ACE23CD185F00DFE36D /* PBXTargetDependency */,
-				394A0B0C22EEFD2800603813 /* PBXTargetDependency */,
 				DC2A6C762AC6BE0100BFF393 /* PBXTargetDependency */,
+				998CC8452DFAC2BB00BDA4CB /* PBXTargetDependency */,
 			);
 			name = ownCloudAppShared;
 			packageProductDependencies = (
@@ -4104,13 +4163,18 @@
 				99AD42EF2DF2E92000914C19 /* Sources */,
 				99AD42F02DF2E92000914C19 /* Frameworks */,
 				99AD42F12DF2E92000914C19 /* Resources */,
+				998EBAA02DFACAF700198721 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				998EBA9F2DFACAF700198721 /* PBXTargetDependency */,
 			);
 			name = homeCloudAppShared;
 			packageProductDependencies = (
+				998CC82E2DF97A9700BDA4CB /* SnapKit */,
+				998CC8372DFAC1E900BDA4CB /* Down */,
+				998CC8402DFAC1F600BDA4CB /* PocketSVG */,
 			);
 			productName = homeCloudAppShared;
 			productReference = 99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */;
@@ -4326,6 +4390,7 @@
 				DCEAF066280767BC00980B6D /* XCRemoteSwiftPackageReference "OpenSSL" */,
 				DCEAF08B28084B3800980B6D /* XCRemoteSwiftPackageReference "Down" */,
 				99FC321C2DE99A1C0011D066 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				998CC82D2DF97A9700BDA4CB /* XCRemoteSwiftPackageReference "SnapKit" */,
 			);
 			productRefGroup = 233BDE9D204FEFE500C06732 /* Products */;
 			projectDirPath = "";
@@ -5089,9 +5154,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				998EBAA72DFADB0B00198721 /* HCButtonStyle.swift in Sources */,
 				99AD430F2DF2EBCC00914C19 /* UIColor+HexString.swift in Sources */,
 				99AD431D2DF3020A00914C19 /* Bundle+Shared.swift in Sources */,
 				99AD430C2DF2EBA100914C19 /* HCColor.swift in Sources */,
+				998CC8362DF97B8B00BDA4CB /* WelcomeViewController.swift in Sources */,
+				998EBAA52DFACD8B00198721 /* UIButton+HCButtonStyle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5258,11 +5326,6 @@
 			target = 394A0AF822EEFC2C00603813 /* ownCloudAppShared */;
 			targetProxy = 394A0B0722EEFCD900603813 /* PBXContainerItemProxy */;
 		};
-		394A0B0C22EEFD2800603813 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = ownCloudSDK;
-			targetProxy = 394A0B0B22EEFD2800603813 /* PBXContainerItemProxy */;
-		};
 		39A7138622E79C6700089423 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 39A7137F22E79C6700089423 /* ownCloud Intents */;
@@ -5287,6 +5350,16 @@
 			isa = PBXTargetDependency;
 			target = 394A0AF822EEFC2C00603813 /* ownCloudAppShared */;
 			targetProxy = 39DC7CF625C305E80001E08C /* PBXContainerItemProxy */;
+		};
+		998CC8452DFAC2BB00BDA4CB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DCC0855B2293F1FD008CC05C /* ownCloudApp */;
+			targetProxy = 998CC8442DFAC2BB00BDA4CB /* PBXContainerItemProxy */;
+		};
+		998EBA9F2DFACAF700198721 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DCC0855B2293F1FD008CC05C /* ownCloudApp */;
+			targetProxy = 998EBA9E2DFACAF700198721 /* PBXContainerItemProxy */;
 		};
 		99AD42F82DF2E92000914C19 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -5384,11 +5457,6 @@
 			isa = PBXTargetDependency;
 			target = DCC6564520C9B7E300110A97 /* ownCloud File Provider */;
 			targetProxy = DCC6566320C9B7E400110A97 /* PBXContainerItemProxy */;
-		};
-		DCDC0ACE23CD185F00DFE36D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DCC0855B2293F1FD008CC05C /* ownCloudApp */;
-			targetProxy = DCDC0ACD23CD185F00DFE36D /* PBXContainerItemProxy */;
 		};
 		DCE4E47124C1F5610051722F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -6556,6 +6624,14 @@
 				version = 1.12.0;
 			};
 		};
+		998CC82D2DF97A9700BDA4CB /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
 		99FC321C2DE99A1C0011D066 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -6600,6 +6676,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 024F3A1F24A3AB410083E11E /* XCRemoteSwiftPackageReference "plcrashreporter" */;
 			productName = CrashReporter;
+		};
+		998CC82E2DF97A9700BDA4CB /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 998CC82D2DF97A9700BDA4CB /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+		998CC8372DFAC1E900BDA4CB /* Down */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DCEAF08B28084B3800980B6D /* XCRemoteSwiftPackageReference "Down" */;
+			productName = Down;
+		};
+		998CC8402DFAC1F600BDA4CB /* PocketSVG */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DC049197258CAF8200DEDC27 /* XCRemoteSwiftPackageReference "PocketSVG" */;
+			productName = PocketSVG;
 		};
 		99FC321D2DE99A1C0011D066 /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;
