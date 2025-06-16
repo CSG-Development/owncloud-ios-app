@@ -20,6 +20,7 @@ import UIKit
 import ownCloudSDK
 import ownCloudApp
 import ownCloudAppShared
+import homeCloudAppShared
 
 open class AppRootViewController: EmbeddingViewController, BrowserNavigationViewControllerDelegate, BrowserNavigationBookmarkRestore {
 	var clientContext: ClientContext
@@ -123,7 +124,22 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 				// No account available
 				let configuration = BookmarkComposerConfiguration.newBookmarkConfiguration
 				configuration.hasIntro = true
-				self?.contentViewController = BookmarkSetupViewController(configuration: configuration)
+
+				let welcomeViewController = WelcomeViewController()
+				welcomeViewController.backgroundImage =
+					Branding.shared.brandedImageNamed(.brandBackground)
+
+				welcomeViewController.onStartSetupTap = { [weak self] in
+					self?.contentViewController = BookmarkSetupViewController(configuration: configuration)
+				}
+
+				welcomeViewController.onSettingsTap = { [weak self] in
+					let navigationViewController = ThemeNavigationController(rootViewController: SettingsViewController())
+					navigationViewController.modalPresentationStyle = .fullScreen
+					self?.present(navigationViewController, animated: true)
+				}
+
+				self?.contentViewController = welcomeViewController
 			} else {
 				// Account already available
 				self?.contentViewController = self?.contentBrowserController

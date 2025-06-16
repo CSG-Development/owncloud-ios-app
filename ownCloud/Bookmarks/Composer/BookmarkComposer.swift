@@ -23,7 +23,6 @@ import ownCloudAppShared
 class BookmarkComposer: NSObject {
 	// MARK: - Steps
 	enum Step: Equatable, Hashable {
-		case intro
 		case enterUsername
 		case serverURL(urlString: String?)
 		case authenticate(withCredentials: Bool, username: String?, password: String?)
@@ -475,9 +474,7 @@ class BookmarkComposer: NSObject {
 	}
 
 	func updateState() {
-		if configuration.hasIntro, !didShowIntro {
-			currentStep = .intro
-		} else if OCServerLocator.useServerLocatorIdentifier != nil, bookmark.serverLocationUserName == nil {
+		if OCServerLocator.useServerLocatorIdentifier != nil, bookmark.serverLocationUserName == nil {
 			currentStep = .enterUsername
 		} else if bookmark.url == nil {
 			if let absoluteURL = configuration.url?.absoluteString, !configuration.urlEditable {
