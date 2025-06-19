@@ -142,17 +142,13 @@
 		6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E91F37D21ECA6FD009436D2 /* CopyAction.swift */; };
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
 		992F73CD2E041B86009FB59D /* homeCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */; };
-		992F73CE2E041B86009FB59D /* homeCloudAppShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		998CC82F2DF97A9700BDA4CB /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 998CC82E2DF97A9700BDA4CB /* SnapKit */; };
 		998CC8362DF97B8B00BDA4CB /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998CC8352DF97B8200BDA4CB /* WelcomeViewController.swift */; };
 		998CC8382DFAC1E900BDA4CB /* Down in Frameworks */ = {isa = PBXBuildFile; productRef = 998CC8372DFAC1E900BDA4CB /* Down */; };
 		998CC8412DFAC1F600BDA4CB /* PocketSVG in Frameworks */ = {isa = PBXBuildFile; productRef = 998CC8402DFAC1F600BDA4CB /* PocketSVG */; };
 		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
-		998CC8432DFAC2BB00BDA4CB /* ownCloudApp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
-		998CC8472DFAC2BB00BDA4CB /* ownCloudSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		998EBA9C2DFACAF700198721 /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
-		998EBA9D2DFACAF700198721 /* ownCloudApp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		998EBAA52DFACD8B00198721 /* UIButton+HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998EBAA42DFACD8200198721 /* UIButton+HCButtonStyle.swift */; };
 		998EBAA72DFADB0B00198721 /* HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998EBAA62DFADB0400198721 /* HCButtonStyle.swift */; };
 		99AD42F92DF2E92000914C19 /* homeCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99AD42F32DF2E92000914C19 /* homeCloudAppShared.framework */; };
@@ -997,30 +993,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		998CC8482DFAC2BB00BDA4CB /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				998CC8472DFAC2BB00BDA4CB /* ownCloudSDK.framework in Embed Frameworks */,
-				998CC8432DFAC2BB00BDA4CB /* ownCloudApp.framework in Embed Frameworks */,
-				992F73CE2E041B86009FB59D /* homeCloudAppShared.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		998EBAA02DFACAF700198721 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				998EBA9D2DFACAF700198721 /* ownCloudApp.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4106,7 +4078,6 @@
 				394A0AF622EEFC2C00603813 /* Frameworks */,
 				394A0AF722EEFC2C00603813 /* Resources */,
 				DC049259258CB33600DEDC27 /* Copy PocketSVG license (inactive) */,
-				998CC8482DFAC2BB00BDA4CB /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -4175,7 +4146,6 @@
 				99AD42EF2DF2E92000914C19 /* Sources */,
 				99AD42F02DF2E92000914C19 /* Frameworks */,
 				99AD42F12DF2E92000914C19 /* Resources */,
-				998EBAA02DFACAF700198721 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
