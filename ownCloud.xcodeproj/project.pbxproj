@@ -5537,7 +5537,7 @@
 				APP_BUILD_FLAGS = "$(inherited)";
 				APP_BUILD_FLAGS_SWIFT = "$(APP_BUILD_FLAGS)";
 				APP_PRODUCT_NAME = ownCloud;
-				APP_SHORT_VERSION = 1.0.0;
+				APP_SHORT_VERSION = 1.0.2;
 				APP_VERSION = 1;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -5608,7 +5608,7 @@
 				APP_BUILD_FLAGS = "$(inherited)";
 				APP_BUILD_FLAGS_SWIFT = "$(APP_BUILD_FLAGS)";
 				APP_PRODUCT_NAME = ownCloud;
-				APP_SHORT_VERSION = 1.0.0;
+				APP_SHORT_VERSION = 1.0.2;
 				APP_VERSION = 1;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -5673,8 +5673,6 @@
 		233BDEBA204FEFE500C06732 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APP_SHORT_VERSION = 1.0.2;
-				APP_VERSION = 1;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ownCloud/ownCloud.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -5720,8 +5718,6 @@
 		233BDEBB204FEFE500C06732 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APP_SHORT_VERSION = 1.0.2;
-				APP_VERSION = 1;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ownCloud/ownCloud.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
