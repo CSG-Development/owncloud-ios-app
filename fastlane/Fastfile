@@ -276,6 +276,34 @@ platform :ios do
     )
   end
 
+  lane :homecloud_seagate_appstore_build do |values|
+    build_ipa_in_house(
+      ENTERPRISE_APP_ID: "com.seagate.owncloud.ios-app",
+      ENTERPRISE_APP_PROFILE: "STX OwnCloud :: AppStore",
+      ENTERPRISE_FP_ID: "com.seagate.owncloud.ios-app.ownCloud-File-Provider",
+      ENTERPRISE_FP_PROFILE: "STX OwnCloud File Provider :: AppStore",
+      ENTERPRISE_FP_UI_ID: "com.seagate.owncloud.ios-app.ownCloud-File-ProviderUI",
+      ENTERPRISE_FP_UI_PROFILE: "STX OwnCloud File Provider UI :: AppStore",
+      ENTERPRISE_INTENT_ID: "com.seagate.owncloud.ios-app.ownCloud-Intents",
+      ENTERPRISE_INTENT_PROFILE: "STX OwnCloud Intents :: AppStore",
+      ENTERPRISE_SHARE_EXTENSION_ID: "com.seagate.owncloud.ios-app.ownCloud-Share-Extension",
+      ENTERPRISE_SHARE_EXTENSION_PROFILE: "STX OwnCloud Share Extension :: AppStore",
+      ENTERPRISE_ACTION_EXTENSION_ID: "com.seagate.owncloud.ios-app.ownCloud-Action-Extension",
+      ENTERPRISE_ACTION_EXTENSION_PROFILE: "STX OwnCloud Action Extension :: AppStore",
+      ENTERPRISE_APP_FW_ID: "com.seagate.owncloud.ownCloudApp",
+      ENTERPRISE_TEAM: "57HJ3KH2XC",
+      ENTERPRISE_IDENTITY: "Apple Distribution: Seagate Technologies LLC (57HJ3KH2XC)",
+      APP_GROUP_IDENTIFIERS: "group.com.seagate.owncloud.ios-app",
+      EXPORT_METHOD: "app-store",
+      CONFIGURATION: "Release",
+      BETA_APP_ICON: false,
+      BUILD_NUMBER: values[:BUILD_NUMBER],
+      APP_NAME: "homeCloud",
+      URL_SCHEME: "homecloud-app",
+      IPA_NAME: "homeCloud-appStore"
+    )
+  end
+
   lane :owncloud_regular_build do
     build_ipa_in_house(
       ENTERPRISE_APP_ID: "com.owncloud.ios-app",
