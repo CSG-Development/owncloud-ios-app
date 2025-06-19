@@ -77,8 +77,17 @@ platform :ios do
     end
   end
 
-  def upload_ipa(ipa_path, apple_id)
+  def upload_ipa(ipa_path, apple_id, key_id, issuer_id, key_filepath)
+    api_key = app_store_connect_api_key(
+      key_id: key_id,                     
+      issuer_id: issuer_id
+      filepath: key_filepath
+      duration: 1200,
+      in_house: false
+    )
+
     upload_to_testflight(
+        api_key: api_key,
         ipa: ipa_path,
         skip_submission: true,
         skip_waiting_for_build_processing: ENV["should_skip_processing"] || true,
@@ -89,7 +98,10 @@ platform :ios do
   lane :upload_build do |options|
       ipa_path=options[:ipa_path]
       apple_id=options[:apple_id]
-      upload_ipa(ipa_path, apple_id)
+      key_id=options[:key_id]
+      issuer_id=options[:issuer_id]
+      key_filepath=options[:key_filepath]
+      upload_ipa(ipa_path, apple_id, key_id, issuer_id, key_filepath)
   end
 
   desc "In-House Enterprise IPA generation"
