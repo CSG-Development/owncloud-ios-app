@@ -77,6 +77,21 @@ platform :ios do
     end
   end
 
+  def upload_ipa(ipa_path, apple_id)
+    upload_to_testflight(
+        ipa: ipa_path,
+        skip_submission: true,
+        skip_waiting_for_build_processing: ENV["should_skip_processing"] || true,
+        apple_id: apple_id,
+    )
+  end
+
+  lane :upload_build do |options|
+      ipa_path=options[:ipa_path]
+      apple_id=options[:apple_id]
+      upload_ipa(ipa_path, apple_id)
+  end
+
   desc "In-House Enterprise IPA generation"
    lane :build_ipa_in_house do |values|
 
