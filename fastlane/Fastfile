@@ -35,18 +35,18 @@ platform :ios do
 
   lane :homecloud_seagate_appstore_build do |values|
     build_ipa_in_house(
-      ENTERPRISE_APP_ID: "com.seagate.curator.stxfiles.ios-app",
-      ENTERPRISE_APP_PROFILE: "Curator Files :: AppStore",
-      ENTERPRISE_FP_ID: "com.seagate.curator.stxfiles.ios-app.file-provider",
-      ENTERPRISE_FP_PROFILE: "Curator Files File Provider :: AppStore",
-      ENTERPRISE_FP_UI_ID: "com.seagate.curator.stxfiles.ios-app.file-provider-ui",
-      ENTERPRISE_FP_UI_PROFILE: "Curator Files File Provider UI :: AppStore",
-      ENTERPRISE_INTENT_ID: "com.seagate.curator.stxfiles.ios-app.intents",
-      ENTERPRISE_INTENT_PROFILE: "Curator Files Intents :: AppStore",
-      ENTERPRISE_SHARE_EXTENSION_ID: "com.seagate.curator.stxfiles.ios-app.share-extension",
-      ENTERPRISE_SHARE_EXTENSION_PROFILE: "Curator Files Share Extension :: AppStore",
-      ENTERPRISE_ACTION_EXTENSION_ID: "com.seagate.curator.stxfiles.ios-app.action-extension",
-      ENTERPRISE_ACTION_EXTENSION_PROFILE: "Curator Files Action Extension :: AppStore",
+      ENTERPRISE_APP_ID: "com.seagate.curator.stxfiles.ios",
+      ENTERPRISE_APP_PROFILE: "Curator - Files - AppStore",
+      ENTERPRISE_FP_ID: "com.seagate.curator.stxfiles.ios.file-extension",
+      ENTERPRISE_FP_PROFILE: "Curator - Files - File Provider - AppStore",
+      ENTERPRISE_FP_UI_ID: "com.seagate.curator.stxfiles.ios.file-providerUI",
+      ENTERPRISE_FP_UI_PROFILE: "Curator - Files - File Provider UI - AppStore",
+      ENTERPRISE_INTENT_ID: "com.seagate.curator.stxfiles.ios.intents",
+      ENTERPRISE_INTENT_PROFILE: "Curator - Files - Intents - AppStore",
+      ENTERPRISE_SHARE_EXTENSION_ID: "com.seagate.curator.stxfiles.ios.share-extension",
+      ENTERPRISE_SHARE_EXTENSION_PROFILE: "Curator - Files - Share Extension - AppStore",
+      ENTERPRISE_ACTION_EXTENSION_ID: "com.seagate.curator.stxfiles.ios.action-extension",
+      ENTERPRISE_ACTION_EXTENSION_PROFILE: "Curator - Files - Action Extension - AppStore",
       ENTERPRISE_APP_FW_ID: "com.seagate.curator.stxfiles-app",
       ENTERPRISE_TEAM: "57HJ3KH2XC",
       ENTERPRISE_IDENTITY: "Apple Distribution: Seagate Technologies LLC (57HJ3KH2XC)",
@@ -77,31 +77,17 @@ platform :ios do
     end
   end
 
-  def upload_ipa(ipa_path, apple_id, key_id, issuer_id, key_filepath)
-    api_key = app_store_connect_api_key(
-      key_id: key_id,                     
-      issuer_id: issuer_id,
-      key_filepath: key_filepath,
-      duration: 1200,
-      in_house: false
-    )
-
-    upload_to_testflight(
-        api_key: api_key,
-        ipa: ipa_path,
-        skip_submission: true,
-        skip_waiting_for_build_processing: ENV["should_skip_processing"] || true,
-        apple_id: apple_id
-    )
-  end
-
   lane :upload_build do |options|
-      ipa_path=options[:ipa_path]
-      apple_id=options[:apple_id]
-      key_id=options[:key_id]
-      issuer_id=options[:issuer_id]
-      key_filepath=options[:key_filepath]
-      upload_ipa(ipa_path, apple_id, key_id, issuer_id, key_filepath)
+    ipa_path=options[:ipa_path]
+    apple_id=options[:apple_id]      
+    api_key_path=options[:api_key_path]
+    upload_to_testflight(
+      api_key_path: api_key_path,
+      ipa: ipa_path,
+      skip_submission: true,
+      skip_waiting_for_build_processing: ENV["should_skip_processing"] || true,
+      apple_id: apple_id
+    )
   end
 
   desc "In-House Enterprise IPA generation"
