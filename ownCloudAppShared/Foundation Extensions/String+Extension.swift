@@ -21,7 +21,7 @@ import UIKit
 import ownCloudSDK
 import ownCloudApp
 
-private let _sharedAppBundle = Bundle(identifier: "com.owncloud.ownCloudAppShared")
+private let _sharedAppBundle = Bundle(identifier: "com.seagate.curator.stxfiles-app-shared")
 
 public extension Bundle {
 	static var sharedAppBundle : Bundle {

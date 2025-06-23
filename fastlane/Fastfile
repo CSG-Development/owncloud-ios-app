@@ -19,7 +19,7 @@ platform :ios do
       ENTERPRISE_SHARE_EXTENSION_PROFILE: "Curator Files Share Extension :: AdHoc",
       ENTERPRISE_ACTION_EXTENSION_ID: "com.noveogroup.curator.stxfiles.ios-app.action-extension",
       ENTERPRISE_ACTION_EXTENSION_PROFILE: "Curator Files Action Extension :: AdHoc",
-      ENTERPRISE_APP_FW_ID: "com.noveogroup.curator.ownCloudApp",
+      ENTERPRISE_APP_FW_ID: "com.seagate.curator.stxfiles-app",
       ENTERPRISE_TEAM: "HVE639V94N",
       ENTERPRISE_IDENTITY: "iPhone Distribution: Noveo Inc. (HVE639V94N)",
       APP_GROUP_IDENTIFIERS: "group.com.noveogroup.curator.stxfiles.ios-app",
@@ -106,7 +106,7 @@ platform :ios do
     ENTERPRISE_ACTION_EXTENSION_ID = values[:ENTERPRISE_ACTION_EXTENSION_ID]
     ENTERPRISE_ACTION_EXTENSION_PROFILE = values[:ENTERPRISE_ACTION_EXTENSION_PROFILE]
     ENTERPRISE_APP_FW_ID = values[:ENTERPRISE_APP_FW_ID]
-    ENTERPRISE_APP_SHARED_ID = "com.seagate.curator.ownCloudAppShared"
+    ENTERPRISE_APP_SHARED_ID = "com.seagate.curator.stxfiles-app-shared"
     ENTERPRISE_HC_APP_SHARED_ID = "com.seagate.curator.homeCloudAppShared"
     ENTERPRISE_TEAM = values[:ENTERPRISE_TEAM]
     ENTERPRISE_IDENTITY = values[:ENTERPRISE_IDENTITY]
