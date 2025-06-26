@@ -100,15 +100,18 @@ public struct ThemeCSSSelector: RawRepresentable, Equatable {
 	public static let purchase = ThemeCSSSelector(rawValue: "purchase")
 	public static let favorite = ThemeCSSSelector(rawValue: "favorite")
 
-	public static let plain = ThemeCSSSelector(rawValue: "plain")
 	public static let token = ThemeCSSSelector(rawValue: "token")
 
 	// States
 	public static let highlighted = ThemeCSSSelector(rawValue: "highlighted")
 	public static let selected = ThemeCSSSelector(rawValue: "selected")
 	public static let disabled = ThemeCSSSelector(rawValue: "disabled")
-	public static let filled = ThemeCSSSelector(rawValue: "filled")
 	public static let focused = ThemeCSSSelector(rawValue: "focused")
+
+	// Flavors
+	public static let plain = ThemeCSSSelector(rawValue: "plain")
+	public static let filled = ThemeCSSSelector(rawValue: "filled")
+	public static let outlined = ThemeCSSSelector(rawValue: "outlined")
 
 	// Configurations
 	public static let grouped = ThemeCSSSelector(rawValue: "grouped")
@@ -126,9 +129,11 @@ public struct ThemeCSSProperty: RawRepresentable, Equatable {
 	// Colors
 	public static let stroke = ThemeCSSProperty(rawValue: "stroke")
 	public static let fill = ThemeCSSProperty(rawValue: "fill")
+	public static let borderColor = ThemeCSSProperty(rawValue: "borderColor")
 
 	// Integers
 	public static let cornerRadius = ThemeCSSProperty(rawValue: "cornerRadius")
+	public static let borderWidth = ThemeCSSProperty(rawValue: "borderWidth")
 
 	// Others
 	public static let style = ThemeCSSProperty(rawValue: "style") // UIUserInterfaceStyle

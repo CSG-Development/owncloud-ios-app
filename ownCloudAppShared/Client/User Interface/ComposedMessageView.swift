@@ -295,7 +295,7 @@ public class ComposedMessageElement: NSObject {
 						buttonConfig.imagePadding = 10
 					}
 
-					let button = ThemeButton(withSelectors: cssSelectors ?? [], configuration: buttonConfig)
+					let button = ThemeRoundedButton(withSelectors: cssSelectors ?? [], configuration: buttonConfig)
 					button.translatesAutoresizingMaskIntoConstraints = false
 
 					button.addAction(action, for: .primaryActionTriggered)

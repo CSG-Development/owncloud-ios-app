@@ -19,7 +19,6 @@
 import UIKit
 import ownCloudSDK
 import ownCloudApp
-import homeCloudAppShared
 
 extension ThemeCSSSelector {
 	static let logo = ThemeCSSSelector(rawValue: "logo")

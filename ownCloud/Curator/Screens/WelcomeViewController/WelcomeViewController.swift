@@ -1,5 +1,6 @@
 import UIKit
-internal import SnapKit
+import SnapKit
+import ownCloudAppShared
 
 final public class WelcomeViewController: UIViewController {
 	private lazy var backgroundImageView: UIImageView = {
@@ -21,15 +22,15 @@ final public class WelcomeViewController: UIViewController {
 		return label
 	}()
 	private lazy var startSetupButton: UIButton = {
-		let button = UIButton()
-		button.setTitle(title: "Start setup", style: .secondary(configuration: .outlined), darkMode: true)
+		let button = ThemeRoundedButton(withSelectors: [.secondary, .outlined])
+		button.setTitle("Start setup", for: .normal)
 		button.snp.makeConstraints { $0.height.equalTo(40) }
 		button.addTarget(self, action: #selector(didTapStartSetup), for: .touchUpInside)
 		return button
 	}()
 	private lazy var settingsButton: UIButton = {
-		let button = UIButton()
-		button.setTitle(title: "Settings", style: .primary(configuration: .filled), darkMode: false)
+		let button = ThemeRoundedButton(withSelectors: [.primary, .filled])
+		button.setTitle("Settings", for: .normal)
 		button.snp.makeConstraints { $0.height.equalTo(40) }
 		button.addTarget(self, action: #selector(didTapSettings), for: .touchUpInside)
 		return button

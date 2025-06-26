@@ -8,7 +8,7 @@ public enum HCButtonStyle {
 	case primary(configuration: Configuration)
 	case secondary(configuration: Configuration)
 
-	var isOutlined: Bool {
+	public var isOutlined: Bool {
 		switch self {
 			case let .primary(configuration: configuration):
 				return configuration == .outlined

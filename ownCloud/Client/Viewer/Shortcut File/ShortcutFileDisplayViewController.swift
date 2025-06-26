@@ -44,7 +44,7 @@ class ShortcutFileDisplayViewController: DisplayViewController {
 		let rootView = ThemeCSSView(withSelectors: [])
 		rootView.translatesAutoresizingMaskIntoConstraints = false
 
-		let openButton = ThemeCSSButton(withSelectors: [])
+		let openButton = ThemeRoundedButton(withSelectors: [.primary, .plain])
 		openButton.translatesAutoresizingMaskIntoConstraints = false
 		rootView.addSubview(openButton)
 

@@ -42,7 +42,7 @@ class DownloadItemsHUDViewController: CardViewController {
 
 		messageLabel = UILabel()
 		progressView = ThemeCSSProgressView(progressViewStyle: .bar)
-		cancelButton = ThemeButton(withSelectors: [.cancel])
+		cancelButton = ThemeRoundedButton(withSelectors: [.primary, .filled])
 		progressSummarizer = ProgressSummarizer()
 
 		super.init(nibName: nil, bundle: nil)

@@ -52,7 +52,7 @@ open class AlertView: ThemeCSSView {
 	public var descriptionLabel : UILabel = ThemeCSSLabel(withSelectors: [.description])
 	public var optionStackView : UIStackView?
 
-	public var optionViews : [ThemeButton] = []
+	public var optionViews : [ThemeRoundedButton] = []
 
 	public var textAlignment : NSTextAlignment
 
@@ -79,20 +79,17 @@ open class AlertView: ThemeCSSView {
 		var optionIdx : Int = 0
 
 		for option in options {
-			var cssSelector: ThemeCSSSelector
+			var cssSelector: [ThemeCSSSelector]
 
 			switch option.type {
-				case .cancel:
-					cssSelector = .cancel
-
 				case .destructive:
-					cssSelector = .destructive
+					cssSelector = [.destructive]
 
-				case .regular, .default:
-					cssSelector = .confirm
+				case .regular, .default, .cancel:
+					cssSelector = [.primary, .filled]
 			}
 
-			let optionButton = ThemeButton(withSelectors: [cssSelector])
+			let optionButton = ThemeRoundedButton(withSelectors: cssSelector)
 
 			optionButton.setTitle(option.label, for: .normal)
 			optionButton.tag = optionIdx
@@ -110,7 +107,7 @@ open class AlertView: ThemeCSSView {
 		}
 	}
 
-	@objc public func optionSelected(sender: ThemeButton) {
+	@objc public func optionSelected(sender: ThemeRoundedButton) {
 		let option = options[sender.tag]
 
 		self.selectOption(option: option)

@@ -99,7 +99,7 @@ open class ProgressIndicatorViewController: UIViewController, Themeable {
 		self.cancelHandler = cancelHandler
 
 		if cancelHandler != nil {
-			cancelButton = ThemeButton(withSelectors: [.cancel])
+			cancelButton = ThemeRoundedButton(withSelectors: [.primary, .filled])
 			cancelButton?.translatesAutoresizingMaskIntoConstraints = false
 
 			cancelButton?.setTitle(cancelLabel ?? OCLocalizedString("Cancel", nil), for: .normal)
