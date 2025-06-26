@@ -434,7 +434,7 @@ class DisplayHostViewController: UIPageViewController {
 		buttonConfig.image = OCSymbol.icon(forSymbolName: symbolName)
 		buttonConfig.contentInsets = .zero
 
-		let button = ThemeButton(withSelectors: selectors, configuration: buttonConfig)
+		let button = ThemeRoundedButton(withSelectors: selectors, configuration: buttonConfig)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.isHidden = true
 		button.addAction(UIAction(handler: { _ in

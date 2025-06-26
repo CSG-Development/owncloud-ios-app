@@ -18,15 +18,15 @@
 
 import UIKit
 
-class ThemeRoundedButton: ThemeButton {
+public class ThemeRoundedButton: ThemeButton {
 
-	override init(frame: CGRect) {
+	public override init(frame: CGRect) {
 		super.init(frame: frame)
 
 		self.buttonCornerRadius = .round
 	}
 
-	required init?(coder aDecoder: NSCoder) {
+	public required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
 
 		self.buttonCornerRadius = .round

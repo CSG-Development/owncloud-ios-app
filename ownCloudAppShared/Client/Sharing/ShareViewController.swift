@@ -687,7 +687,7 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 
 				let uiAction = UIAction(handler: action)
 
-				let button = ThemeCSSButton()
+				let button = ThemeRoundedButton(withSelectors: [.primary, .plain])
 				button.configuration = buttonConfig
 				button.addAction(uiAction, for: .primaryActionTriggered)
 
@@ -839,7 +839,7 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 				buttonConfig.title = OCLocalizedString("Add", nil)
 				buttonConfig.contentInsets = .zero
 
-				let button = ThemeCSSButton()
+				let button = ThemeRoundedButton(withSelectors: [.primary, .plain])
 				button.configuration = buttonConfig
 				button.addAction(UIAction(handler: { _ in
 					addExpirationDate()

@@ -141,7 +141,7 @@ extension SegmentViewItem {
 		buttonConfig.title = title
 		buttonConfig.contentInsets = .zero
 
-		let button = ThemeCSSButton()
+		let button = ThemeRoundedButton(withSelectors: [.primary, .plain])
 
 		if let customizeButton {
 			buttonConfig = customizeButton(button, buttonConfig)

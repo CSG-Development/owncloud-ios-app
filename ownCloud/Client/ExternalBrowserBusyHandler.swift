@@ -42,7 +42,7 @@ class ExternalBrowserBusyHandler: UIViewController, Themeable {
 	}
 
 	var infoLabel = ThemeCSSLabel(withSelectors: [.secondary])
-	var cancelButton = ThemeButton(withSelectors: [.cancel])
+	var cancelButton = ThemeRoundedButton(withSelectors: [.primary, .filled])
 
 	var cancelHandler : (() -> Void)?
 

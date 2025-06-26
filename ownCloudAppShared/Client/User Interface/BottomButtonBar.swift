@@ -20,9 +20,9 @@ import UIKit
 import ownCloudSDK
 
 open class BottomButtonBar: ThemeCSSView {
-	open var selectButton: UIButton = UIButton()
-	open var cancelButton: UIButton = UIButton()
-	open var alternativeButton: UIButton = UIButton()
+	open var selectButton: ThemeRoundedButton = ThemeRoundedButton(withSelectors: [.primary, .plain])
+	open var cancelButton: ThemeRoundedButton = ThemeRoundedButton(withSelectors: [.primary, .plain])
+	open var alternativeButton: ThemeRoundedButton = ThemeRoundedButton(withSelectors: [.primary, .plain])
 	open var promptLabel: UILabel = ThemeCSSLabel(withSelectors: [.label])
 	open var bottomSeparatorLine: UIView = ThemeCSSView(withSelectors: [.separator])
 

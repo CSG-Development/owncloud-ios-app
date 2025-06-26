@@ -95,7 +95,7 @@ class BookmarkSetupViewController: EmbeddingViewController, BookmarkComposerDele
 					self?.cancel()
 				}))
 			} else {
-				let cancelButton = ThemeCSSButton(withSelectors: [.cancel])
+				let cancelButton = ThemeRoundedButton(withSelectors: [.primary, .filled])
 				cancelButton.translatesAutoresizingMaskIntoConstraints = false
 				cancelButton.setTitle(OCLocalizedString("Cancel", nil), for: .normal)
 				cancelButton.addAction(UIAction(handler: { [weak self] _ in

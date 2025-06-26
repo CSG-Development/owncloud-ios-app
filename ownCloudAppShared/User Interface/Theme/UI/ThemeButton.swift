@@ -73,16 +73,33 @@ open class ThemeButton : UIButton, Themeable, ThemeCSSChangeObserver {
 			}
 		}
 
-		updatedConfiguration.baseForegroundColor = css.getColor(.stroke, selectors: cssSelectors, for: self)
-		updatedConfiguration.baseBackgroundColor = css.getColor(.fill,   selectors: cssSelectors, for: self)
+		let foregroundColor = css.getColor(.stroke, selectors: cssSelectors, for: self)
+		let backgroundColor = css.getColor(.fill, selectors: cssSelectors, for: self)
 
-		if let buttonFont {
-			if let title = title(for: .normal) {
-				var attributedTitle: AttributedString = AttributedString(title)
-				attributedTitle.font = buttonFont
-				updatedConfiguration.attributedTitle = attributedTitle
-			}
+		if let borderWidth = css.getCGFloat(.cornerRadius, selectors: cssSelectors, for: self),
+		   let borderColor = css.getColor(.borderColor, selectors: cssSelectors, for: self) {
+			updatedConfiguration.background.strokeWidth = borderWidth
+			updatedConfiguration.background.strokeOutset = borderWidth / 2.0
+			updatedConfiguration.background.strokeColor = borderColor
 		}
+
+		let text: String
+		if let title = updatedConfiguration.title {
+			text = title
+		} else if let attrTitle = updatedConfiguration.attributedTitle {
+			text = String(attrTitle.characters[...])
+		} else if let title = title(for: .normal) {
+			text = title
+		} else {
+			text = ""
+		}
+
+		updatedConfiguration.background.backgroundColor = backgroundColor
+
+		var attributedTitle: AttributedString = AttributedString(text)
+		attributedTitle.foregroundColor = foregroundColor
+		attributedTitle.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+		updatedConfiguration.attributedTitle = attributedTitle
 
 		switch buttonCornerRadius {
 			case .round:

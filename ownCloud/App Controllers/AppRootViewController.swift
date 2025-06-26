@@ -20,7 +20,6 @@ import UIKit
 import ownCloudSDK
 import ownCloudApp
 import ownCloudAppShared
-import homeCloudAppShared
 
 open class AppRootViewController: EmbeddingViewController, BrowserNavigationViewControllerDelegate, BrowserNavigationBookmarkRestore {
 	var clientContext: ClientContext
@@ -46,6 +45,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 	public var contentBrowserController: BrowserNavigationViewController = BrowserNavigationViewController()
 
 	private var contentBrowserControllerObserver: NSKeyValueObservation?
+	//private var firstRunCoordinator = FirstRunCoordinator()
 
 	// MARK: - Message presentation
 	var alertQueue : OCAsyncSequentialQueue = OCAsyncSequentialQueue()
@@ -127,7 +127,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 
 				let welcomeViewController = WelcomeViewController()
 				welcomeViewController.backgroundImage =
-					Branding.shared.brandedImageNamed(.brandBackground)
+				Branding.shared.brandedImageNamed(.brandBackground)
 
 				welcomeViewController.onStartSetupTap = { [weak self] in
 					self?.contentViewController = BookmarkSetupViewController(configuration: configuration)
@@ -139,6 +139,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 					self?.present(navigationViewController, animated: true)
 				}
 
+				// self?.contentViewController = self?.firstRunCoordinator.makeInitial()
 				self?.contentViewController = welcomeViewController
 			} else {
 				// Account already available

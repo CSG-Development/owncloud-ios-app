@@ -1,6 +1,6 @@
 import UIKit
 
-extension UIButton {
+public extension UIButton {
 	func setTitle(title: String, style: HCButtonStyle, darkMode: Bool) {
 		let updateConfiguration: ((_ state: UIControl.State, _ configuration: inout UIButton.Configuration?) -> Void) = { state, configuration in
 			let backgroundColor = self.backgroundColor(style: style, state: state, darkMode: darkMode)

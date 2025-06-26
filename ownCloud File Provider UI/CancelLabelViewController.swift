@@ -24,7 +24,7 @@ import ownCloudAppShared
 class CancelLabelViewController: UIViewController {
 
 	@IBOutlet var label : UILabel!
-	@IBOutlet var button : ThemeButton!
+	@IBOutlet var button : ThemeRoundedButton!
 
 	typealias CancelAction = (() -> Void)
 

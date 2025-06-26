@@ -73,9 +73,9 @@ extension UIProgressView: ThemeCSSAutoSelector {
 extension UIButton: ThemeCSSAutoSelector {
 	public var cssAutoSelectors: [ThemeCSSSelector] {
 		if (self as? ThemeButton) != nil {
-			return [.filled, .button]
-		} else {
 			return [.button]
+		} else {
+			return [.button, .primary, .plain]
 		}
 	}
 }

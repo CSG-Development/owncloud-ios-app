@@ -40,9 +40,9 @@ public class PasscodeViewController: UIViewController, Themeable {
 
 	@IBOutlet private var keypadContainerView : UIView?
 	@IBOutlet private var keypadButtons: [ThemeRoundedButton]?
-	@IBOutlet private var deleteButton: ThemeButton?
-	@IBOutlet public var cancelButton: ThemeButton?
-	@IBOutlet public var biometricalButton: ThemeButton?
+	@IBOutlet private var deleteButton: ThemeRoundedButton?
+	@IBOutlet public var cancelButton: ThemeRoundedButton?
+	@IBOutlet public var biometricalButton: ThemeRoundedButton?
 	@IBOutlet public var compactHeightPasscodeTextField: UITextField?
 
 	// MARK: - Properties

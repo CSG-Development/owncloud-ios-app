@@ -116,7 +116,7 @@ extension NSObject {
 		}) as NSArray).componentsJoined(by: ".")
 
 		let properties: [ThemeCSSProperty] = [
-			.stroke, .fill, .cornerRadius
+			.stroke, .fill, .cornerRadius, .borderWidth, .borderColor
 		]
 
 		var records = ""
@@ -140,7 +140,7 @@ extension NSObject {
 		}) as NSArray).componentsJoined(by: ".")
 
 		let properties: [ThemeCSSProperty] = [
-			.stroke, .fill, .cornerRadius
+			.stroke, .fill, .cornerRadius, .borderWidth, .borderColor
 		]
 
 		var records = ""
