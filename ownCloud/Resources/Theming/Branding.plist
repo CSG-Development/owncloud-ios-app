@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>branding.organization-name</key>
-	<string>Home cloud</string>
+	<string>Curator Files</string>
 	<key>app.recommend-to-friend-enabled</key>
 	<false/>
 	<key>branding.theme-colors</key>

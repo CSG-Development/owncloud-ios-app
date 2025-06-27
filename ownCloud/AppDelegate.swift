@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 #endif
 
 		// Set up logging (incl. stderr redirection) and log launch time, app version, build number and commit
-		Log.log("ownCloud \(VendorServices.shared.appVersion) (\(VendorServices.shared.appBuildNumber)) #\(GitInfo.app.versionInfo) finished launching with log settings: \(Log.logOptionStatus)")
+		Log.log("curatorFiles \(VendorServices.shared.appVersion) (\(VendorServices.shared.appBuildNumber)) #\(GitInfo.app.versionInfo) finished launching with log settings: \(Log.logOptionStatus)")
 
 		// Set up notification categories
 		NotificationManager.shared.registerCategories()
