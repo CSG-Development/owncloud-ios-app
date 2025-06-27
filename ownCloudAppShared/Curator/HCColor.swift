@@ -46,10 +46,18 @@ public enum HCColor {
 	public enum Content {
 		// Content/Border
 		public static let border = UIColor(hexString: "#CBCDD3FF")
+		//Content/Text primary
+		public static func textPrimary(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#FFFFFFDE") : UIColor(hexString: "#000000DE")
+		}
 	}
 
 	public enum Structure {
 		// Structure/App Background
 		public static let appBackground = UIColor(hexString: "#F0F1F5FF")
+		// Structure/Menu Background
+		public static func menuBackground(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#1D1E21FF") : UIColor(hexString: "#FFFFFFFF")
+		}
 	}
 }

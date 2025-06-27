@@ -462,11 +462,11 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.separator], 			property: .fill,  value: separatorColor),
 
 			// - Navigation Bar
-			ThemeCSSRecord(selectors: [.navigationBar],			property: .stroke, value: navigationBarSet.tintColor),
-			ThemeCSSRecord(selectors: [.navigationBar, .label],		property: .stroke, value: navigationBarSet.labelColor),
-			ThemeCSSRecord(selectors: [.navigationBar],			property: .fill,   value: navigationBarSet.backgroundColor),
+			ThemeCSSRecord(selectors: [.navigationBar], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.navigationBar, .label], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.navigationBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 
-			ThemeCSSRecord(selectors: [.navigationBar, .popupButton, .icon],property: .stroke, value: navigationBarSet.tintColor),
+			ThemeCSSRecord(selectors: [.navigationBar, .popupButton, .icon],property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.navigationBar, .popupButton, .icon],property: .fill,   value: UIColor(white: 0.5, alpha: 0.3)),
 
 			// - Toolbar
@@ -626,6 +626,14 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.confidentialSecondaryLabel],		property: .stroke, value: tintColor.withAlphaComponent(0.4)),
 
 			// # Curator Files
+
+			// ## Sort bar
+			ThemeCSSRecord(selectors: [.sortBar], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.sortBar, .sorting], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.sortBar, .multiselect], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.sortBar, .itemLayout], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.sortBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+
 			// ## Button
 			ThemeCSSRecord(selectors: [.button], property: .borderColor, value: UIColor.clear),
 			ThemeCSSRecord(selectors: [.button], property: .cornerRadius, value: CGFloat(1.0)),
@@ -817,10 +825,10 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sidebar, .account, .disconnect],	property: .fill,   value: sidebarAccountCellSet.labelColor),
 
 			// - Navigation Bar
-			ThemeCSSRecord(selectors: [.sidebar, .navigationBar],		property: .stroke, value: lightBrandColor),
+			ThemeCSSRecord(selectors: [.sidebar, .navigationBar],		property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .navigationBar],		property: .fill,   value: nil),
-			ThemeCSSRecord(selectors: [.sidebar, .navigationBar, .logo],	property: .stroke, value: sidebarLogoIconColor),
-			ThemeCSSRecord(selectors: [.sidebar, .navigationBar, .logo, .label],property: .stroke, value: sidebarLogoLabel),
+			ThemeCSSRecord(selectors: [.sidebar, .navigationBar, .logo],	property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .navigationBar, .logo, .label],property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// - Toolbar
 			ThemeCSSRecord(selectors: [.sidebar, .toolbar],			property: .fill,   value: sidebarCellStateSet.regular.backgroundColor),
@@ -830,9 +838,9 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.content],				property: .fill,   value: collectionBackgroundColor),
 
 			// - Navigation Bar
-			ThemeCSSRecord(selectors: [.content, .navigationBar],			property: .fill,   value: contentNavigationBarSet.backgroundColor),
-			ThemeCSSRecord(selectors: [.content, .navigationBar],			property: .stroke, value: contentNavigationBarSet.tintColor),
-			ThemeCSSRecord(selectors: [.content, .navigationBar, .label, .title],	property: .stroke, value: contentNavigationBarSet.labelColor),
+			ThemeCSSRecord(selectors: [.content, .navigationBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.content, .navigationBar],			property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.content, .navigationBar, .label, .title],	property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// - Toolbar
 			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .stroke, value: contentToolbarSet.tintColor),
@@ -903,10 +911,7 @@ extension ThemeCollection {
 		}
 
 		appearance.backgroundColor = css.getColor(.fill, for: navigationBar)
-
-		if scrollEdge {
-			appearance.shadowColor = .clear
-		}
+		appearance.shadowColor = .clear
 
 		return appearance
 	}

@@ -145,6 +145,7 @@
 		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
 		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
 		99AD431F2DF310CA00914C19 /* SidebarCollectionViewListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */; };
+		99DA8B692E0EB4B700D726DC /* HCNavigationLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */; };
 		99F472F22E095C1500104592 /* UIColor+HexString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+HexString.swift */; };
 		99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EA2E095C1500104592 /* HCButtonStyle.swift */; };
 		99F472F72E095C1500104592 /* HCColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EB2E095C1500104592 /* HCColor.swift */; };
@@ -1199,6 +1200,7 @@
 		6ED1B80A21A4004900E16C95 /* CreateFolderAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderAction.swift; sourceTree = "<group>"; };
 		994E68E22E0D67F100E73D69 /* HCLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCLocalization.swift; sourceTree = "<group>"; };
 		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
+		99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCNavigationLogoView.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
 		99F472E62E095C1500104592 /* UIColor+HexString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+HexString.swift"; sourceTree = "<group>"; };
@@ -2317,6 +2319,7 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */,
 				99F472EA2E095C1500104592 /* HCButtonStyle.swift */,
 			);
 			path = Views;
@@ -4980,6 +4983,7 @@
 				DCB1B99729D1813D00BFF393 /* ThemeCSSTextField.swift in Sources */,
 				DCA2EDE4279B1789001F04E6 /* ResourceItemIcon.swift in Sources */,
 				DC8E99E8297F3BA700594697 /* ActionTapGestureRecognizer.swift in Sources */,
+				99DA8B692E0EB4B700D726DC /* HCNavigationLogoView.swift in Sources */,
 				DCB5D56B2861BEBE004AF425 /* SearchViewController.swift in Sources */,
 				DCC73F2E2B86BC960009A210 /* PasswordComposerViewController.swift in Sources */,
 				DCB1B8A729C75EBD00BFF393 /* ThemeCSS+AutoSelectors.swift in Sources */,

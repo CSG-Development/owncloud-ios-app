@@ -215,7 +215,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	func buildSideBarToggleBarButtonItem() -> UIBarButtonItem {
-		let buttonItem = UIBarButtonItem(image: OCSymbol.icon(forSymbolName: "sidebar.leading"), style: .plain, target: self, action: #selector(showHideSideBar))
+		let buttonItem = UIBarButtonItem(image: OCItem.hanurgerMenu, style: .plain, target: self, action: #selector(showHideSideBar))
 		buttonItem.tag = BarButtonTags.showHideSideBar.rawValue
 		buttonItem.accessibilityLabel = OCLocalizedString("Show/Hide sidebar", nil)
 		return buttonItem

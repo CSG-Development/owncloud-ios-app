@@ -113,6 +113,12 @@ public class SortBar: ThemeCSSView {
 		self.sortDescriptor = sortDescriptor
 
 		super.init(frame: frame)
+
+		layer.shadowColor = UIColor.black.cgColor
+		layer.shadowRadius = 4
+		layer.shadowOpacity = 0.15
+		layer.shadowOffset = CGSize(width: 0, height: 2)
+
 		self.cssSelector = .sortBar
 
 		let focusGuide = UIFocusGuide()
