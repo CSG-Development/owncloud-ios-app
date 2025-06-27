@@ -376,4 +376,5 @@ extension OCItem {
 	public static var cloudLocalOnlyStatusIcon: UIImage? = { return loadIcon(named: "cloud-local-only") }()
 	public static var cloudAvailableOfflineStatusIcon: UIImage? = { return loadIcon(named: "cloud-available-offline") }()
 	public static var cloudUnavailableOfflineStatusIcon: UIImage? = { return loadIcon(named: "cloud-unavailable-offline") }()
+	public static var hanurgerMenu: UIImage? = { return loadIcon(named: "hamburger-menu") }()
 }

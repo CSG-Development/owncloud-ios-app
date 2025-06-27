@@ -275,47 +275,6 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 // MARK: - Branding
 extension ClientSidebarViewController {
 	static public func buildNavigationLogoView() -> ThemeCSSView {
-		let container = ThemeCSSView()
-
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-
-		container.addSubview(label)
-
-		container.addThemeApplier({ (_, collection, _) in
-			if let titleColor = collection.css.getColor(.stroke, for: label) {
-				let greenText = HCL10n.Logo.firstPart
-				let defaultText = HCL10n.Logo.secondPart
-
-				let attributedText = NSMutableAttributedString(
-					string: greenText,
-					attributes: [
-						.font: UIFont.systemFont(ofSize: 20, weight: .regular),
-						.foregroundColor: HCColor.green
-					]
-				)
-				attributedText.append(
-					NSAttributedString(
-						string: defaultText,
-						attributes: [
-							.font: UIFont.systemFont(ofSize: 20, weight: .regular),
-							.foregroundColor: titleColor
-						]
-					)
-				)
-				label.attributedText = attributedText
-			}
-		})
-
-		NSLayoutConstraint.activate([
-			label.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-			label.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-			label.centerYAnchor.constraint(equalTo: container.centerYAnchor)
-		])
-		let heightConstraint = container.heightAnchor.constraint(equalToConstant: 44)
-		heightConstraint.priority = .defaultHigh
-		heightConstraint.isActive = true
-
-		return container
+		HCNavigationLogoView(frame: .zero)
 	}
 }
