@@ -284,8 +284,8 @@ extension ClientSidebarViewController {
 
 		container.addThemeApplier({ (_, collection, _) in
 			if let titleColor = collection.css.getColor(.stroke, for: label) {
-				let greenText = "Home Cloud"
-				let defaultText = " Files"
+				let greenText = HCL10n.Logo.firstPart
+				let defaultText = HCL10n.Logo.secondPart
 
 				let attributedText = NSMutableAttributedString(
 					string: greenText,

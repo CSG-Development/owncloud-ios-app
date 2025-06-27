@@ -12,9 +12,9 @@ final public class WelcomeViewController: UIViewController {
 		let label = UILabel()
 		label.numberOfLines = 0
 		label.textAlignment = .center
-		var firstPartText = AttributedString("Home Cloud\n")
+		var firstPartText = AttributedString(HCL10n.Logo.firstPart)
 		firstPartText.foregroundColor = HCColor.green
-		var secondPartText = AttributedString("Files")
+		var secondPartText = AttributedString(HCL10n.Logo.secondPart)
 		secondPartText.foregroundColor = HCColor.white
 		var attributedText = firstPartText + secondPartText
 		attributedText.font = UIFont.systemFont(ofSize: 34, weight: .regular)
@@ -23,14 +23,14 @@ final public class WelcomeViewController: UIViewController {
 	}()
 	private lazy var startSetupButton: UIButton = {
 		let button = ThemeRoundedButton(withSelectors: [.secondary, .outlined])
-		button.setTitle("Start setup", for: .normal)
+		button.setTitle(HCL10n.Welcome.startSetupButtonTitle, for: .normal)
 		button.snp.makeConstraints { $0.height.equalTo(40) }
 		button.addTarget(self, action: #selector(didTapStartSetup), for: .touchUpInside)
 		return button
 	}()
 	private lazy var settingsButton: UIButton = {
 		let button = ThemeRoundedButton(withSelectors: [.primary, .filled])
-		button.setTitle("Settings", for: .normal)
+		button.setTitle(HCL10n.Welcome.settingsButtonTitle, for: .normal)
 		button.snp.makeConstraints { $0.height.equalTo(40) }
 		button.addTarget(self, action: #selector(didTapSettings), for: .touchUpInside)
 		return button

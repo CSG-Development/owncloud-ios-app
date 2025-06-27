@@ -129,7 +129,7 @@ class ScheduledTaskManager : NSObject {
 		NotificationCenter.default.addObserver(self, selector: #selector(mediaUploadSettingsDidChange), name: UserDefaults.MediaUploadSettingsChangedNotification, object: nil)
 
 		// Activate Wifi monitoring
-		wifiMonitorQueue = DispatchQueue(label: "com.owncloud.scheduled_task_mgr.wifi_monitor")
+		wifiMonitorQueue = DispatchQueue(label: "com.curatorFiles.scheduled_task_mgr.wifi_monitor")
 		wifiMonitor = NWPathMonitor(requiredInterfaceType: .wifi)
 		(wifiMonitor as? NWPathMonitor)?.pathUpdateHandler = { [weak self] path in
 			// Use "inexpensive" WiFi only (not behind a cellular hot-spot)
@@ -145,7 +145,7 @@ class ScheduledTaskManager : NSObject {
 		locationManager.delegate = self
 		#endif
 
-		BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.owncloud.background-refresh-task", using: nil) { (task) in
+		BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.curatorFiles.background-refresh-task", using: nil) { (task) in
 			if let refreshTask = task as? BGAppRefreshTask {
 				self.handleBackgroundRefresh(task: refreshTask)
 			}
@@ -313,7 +313,7 @@ extension ScheduledTaskManager {
 
 	func scheduleBackgroundRefreshTask() {
 
-        let request = BGAppRefreshTaskRequest(identifier: "com.owncloud.background-refresh-task")
+        let request = BGAppRefreshTaskRequest(identifier: "com.curatorFiles.background-refresh-task")
 		request.earliestBeginDate = Date(timeIntervalSinceNow: ScheduledTaskManager.backgroundRefreshInterval)
 		do {
 			try BGTaskScheduler.shared.submit(request)

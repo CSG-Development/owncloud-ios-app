@@ -230,7 +230,7 @@ class LogFilesViewController : UITableViewController, UITableViewDragDelegate, T
 			time = delimiteresRegex?.stringByReplacingMatches(in: timestamp, options: .withoutAnchoringBounds, range: NSRange(location: 0, length: timestamp.count), withTemplate: "_") ?? ""
 
 		}
-		let shareableFileName = "ownCloud_" + time + ".log.txt"
+		let shareableFileName = "curatorFiles_" + time + ".log.txt"
 
 		if makeNamedCopy {
 			let shareableLogURL = FileManager.default.temporaryDirectory.appendingPathComponent(shareableFileName)

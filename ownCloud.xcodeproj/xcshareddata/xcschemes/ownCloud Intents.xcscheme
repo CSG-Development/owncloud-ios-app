@@ -30,7 +30,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "233BDE9B204FEFE500C06732"
-               BuildableName = "ownCloud.app"
+               BuildableName = "curatorFiles.app"
                BlueprintName = "ownCloud"
                ReferencedContainer = "container:ownCloud.xcodeproj">
             </BuildableReference>
@@ -66,7 +66,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "233BDE9B204FEFE500C06732"
-            BuildableName = "ownCloud.app"
+            BuildableName = "curatorFiles.app"
             BlueprintName = "ownCloud"
             ReferencedContainer = "container:ownCloud.xcodeproj">
          </BuildableReference>
@@ -78,14 +78,13 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES"
-      askForAppToLaunch = "Yes"
       launchAutomaticallySubstyle = "2">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "233BDE9B204FEFE500C06732"
-            BuildableName = "ownCloud.app"
+            BuildableName = "curatorFiles.app"
             BlueprintName = "ownCloud"
             ReferencedContainer = "container:ownCloud.xcodeproj">
          </BuildableReference>
