@@ -1,0 +1,97 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.3.1 (swiftlang-1200.0.41 clang-1200.0.32.8)
+// swift-module-flags: -target i386-apple-ios9.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -Onone -module-name telemetry
+import Foundation
+import Swift
+@_exported import telemetry
+open class TelemetryEvent {
+  final public let ACTIVITY_ID_KEY: Swift.String
+  final public let TIMESTAMP_KEY: Swift.String
+  public init?(payload: [[Swift.String : Any]], optHeaders: [Swift.String : Any] = [:]) throws
+  public init?(payload: [Swift.String : Any], optHeaders: [Swift.String : Any] = [:]) throws
+  final public func toJSON(clientID: Swift.String, requestType: Swift.String) -> Swift.String
+  public static func fromJSON(json: Swift.String) -> [Swift.String : Any]?
+  public enum illegalArgumentError : Swift.Error, Swift.Equatable {
+    case emptyPayload
+    public var hashValue: Swift.Int {
+      get
+    }
+    public func hash(into hasher: inout Swift.Hasher)
+    public static func == (a: telemetry.TelemetryEvent.illegalArgumentError, b: telemetry.TelemetryEvent.illegalArgumentError) -> Swift.Bool
+  }
+  @objc deinit
+}
+public enum Environment : Swift.String {
+  case Test
+  case Dogfood
+  case Production
+  public typealias RawValue = Swift.String
+  public init?(rawValue: Swift.String)
+  public var rawValue: Swift.String {
+    get
+  }
+}
+public enum ProcessorMode : Swift.String {
+  case AsReceived
+  case AsCapable
+  case PeriodicBatched
+  case VolumeBatched
+  public typealias RawValue = Swift.String
+  public init?(rawValue: Swift.String)
+  public var rawValue: Swift.String {
+    get
+  }
+}
+@_hasMissingDesignatedInitializers public class TelemetryConstants {
+  public static let ALLOW_REDIRECTS_TAG: Swift.String
+  public static let NUM_OF_REDIRECTS_TAG: Swift.String
+  public static let MODULE_VERSION_TAG: Swift.String
+  public static let CLIENT_ID_TAG: Swift.String
+  public static let REQUEST_TYPE_TAG: Swift.String
+  public static let LOG_LEVEL_TAG: Swift.String
+  public static let LOG_FILE_SIZE_BYTES_MAX_TAG: Swift.String
+  public static let LOG_FILE_COUNT_MAX_TAG: Swift.String
+  public static let ENABLED_TAG: Swift.String
+  public static let ENVIRONMENT_TAG: Swift.String
+  public static let SENDOVERCELLULAR_TAG: Swift.String
+  public static let PROCESSOR_MODE_TAG: Swift.String
+  public static let EVENT_BATCH_SIZE_TAG: Swift.String
+  public static let PERIODIC_INTERVAL_TAG: Swift.String
+  public static let VOLUME_BATCH_THRESHOLD_TAG: Swift.String
+  public static let ASCAPABLE_PROCESSOR_QUEUE_SIZE_TAG: Swift.String
+  public static let NETWORK_RETRY_MAX_TAG: Swift.String
+  public static let NETWORK_RETRY_FACTOR_TAG: Swift.String
+  public static let FILE_RETRY_MAX_TAG: Swift.String
+  public static let EVENT_RETRY_MAX_TAG: Swift.String
+  public static let RETRY_FAILED_INTERVAL: Swift.String
+  public static let RETRY_FAILED_THRESHOLD: Swift.String
+  public static let NUM_THREADS_TAG: Swift.String
+  public static let USE_KINESIS: Swift.String
+  public static let TELEMETRY_DATABASE_DIRECTORY_PATH_TAG: Swift.String
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers public class TelemetryClient {
+  public static let client: telemetry.TelemetryClient
+  public func setup(clientID: Foundation.UUID, requestType: Swift.String, configuration: [Swift.String : Any]) throws
+  public func sendEvent(event: telemetry.TelemetryEvent)
+  public func flushTelemetry()
+  public enum illegalArgumentError : Swift.Error, Swift.Equatable {
+    case missingRequestType
+    case missingClientID
+    case missingDatabaseDirectoryPath
+    public var hashValue: Swift.Int {
+      get
+    }
+    public func hash(into hasher: inout Swift.Hasher)
+    public static func == (a: telemetry.TelemetryClient.illegalArgumentError, b: telemetry.TelemetryClient.illegalArgumentError) -> Swift.Bool
+  }
+  @objc deinit
+}
+extension telemetry.TelemetryEvent.illegalArgumentError : Swift.Hashable {}
+extension telemetry.Environment : Swift.Equatable {}
+extension telemetry.Environment : Swift.Hashable {}
+extension telemetry.Environment : Swift.RawRepresentable {}
+extension telemetry.ProcessorMode : Swift.Equatable {}
+extension telemetry.ProcessorMode : Swift.Hashable {}
+extension telemetry.ProcessorMode : Swift.RawRepresentable {}
+extension telemetry.TelemetryClient.illegalArgumentError : Swift.Hashable {}

@@ -1,0 +1,3 @@
+enum AnalyticsEvent {
+	case testEvent
+}
