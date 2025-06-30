@@ -1,0 +1,4 @@
+framework module telemetry {
+    umbrella header "TelemetryWrapper.h"
+    export *
+}
