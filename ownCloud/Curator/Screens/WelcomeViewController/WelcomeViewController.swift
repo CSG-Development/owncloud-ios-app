@@ -12,7 +12,7 @@ final public class WelcomeViewController: UIViewController {
 		let label = UILabel()
 		label.numberOfLines = 0
 		label.textAlignment = .center
-		var firstPartText = AttributedString(HCL10n.Logo.firstPart)
+		var firstPartText = AttributedString(HCL10n.Logo.firstPart + "\n")
 		firstPartText.foregroundColor = HCColor.green
 		var secondPartText = AttributedString(HCL10n.Logo.secondPart)
 		secondPartText.foregroundColor = HCColor.white
