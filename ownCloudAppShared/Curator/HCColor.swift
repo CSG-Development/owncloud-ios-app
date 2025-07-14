@@ -60,4 +60,11 @@ public enum HCColor {
 			isDark ? UIColor(hexString: "#1D1E21FF") : UIColor(hexString: "#FFFFFFFF")
 		}
 	}
+
+	public enum Interaction {
+		// Interaction/Secondary Label
+		public static func secondaryLabel(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#212121FF") : UIColor(hexString: "#FFFFFFFF")
+		}
+	}
 }
