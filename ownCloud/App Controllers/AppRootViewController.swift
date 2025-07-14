@@ -107,6 +107,13 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 		sidebarViewController = ClientSidebarViewController(context: rootContext!, controllerConfiguration: controllerConfiguration)
 		sidebarViewController?.addToolbarItems(addAccount: Branding.shared.canAddAccount)
 
+		self.contentBrowserController.accountControllerProvider = { [weak self] bookmarkUUID in
+			self?.sidebarViewController?.accountController(for: bookmarkUUID)
+		}
+		self.contentBrowserController.clientContextProvider = { [weak self] in
+			self?.sidebarViewController?.clientContext
+		}
+
 		leftNavigationController = ThemeNavigationController(rootViewController: sidebarViewController!)
 		leftNavigationController?.cssSelectors = [ .sidebar ]
 		leftNavigationController?.setToolbarHidden(false, animated: false)

@@ -42,6 +42,7 @@ open class BrowserNavigationHistory {
 		return nil
 	}
 	open var position: Int = -1
+	open var lastPushAttempt: BrowserNavigationItem?
 
 	open var canMoveBack: Bool {
 		return position > 0
@@ -56,13 +57,17 @@ open class BrowserNavigationHistory {
 	}
 
 	open func push(item: BrowserNavigationItem, completion: CompletionHandler? = nil) {
-		OCSynchronized(self) {
-			if position < items.count - 1 {
-				items.removeSubrange((position+1)...items.count-1)
-			}
+		lastPushAttempt = item
 
-			items.append(item)
-			position += 1
+		if !item.isSpecialTabBarItem {
+			OCSynchronized(self) {
+				if position < items.count - 1 {
+					items.removeSubrange((position+1)...items.count-1)
+				}
+				
+				items.append(item)
+				position += 1
+			}
 		}
 
 		present(item: item, with: (position == 0) ? .none : .toNext, completion: completion)

@@ -42,6 +42,15 @@ open class BrowserNavigationItem: NSObject {
 		return _viewController
 	}
 
+	open var isSpecialTabBarItem: Bool {
+		guard let specialItem = navigationBookmark?.specialItem else { return false }
+		return [
+			AccountController.SpecialItem.availableOfflineItems,
+			AccountController.SpecialItem.sharedByLink,
+			AccountController.SpecialItem.activity
+		].contains(specialItem)
+	}
+
 	open var builder: Builder?
 
 	open var canTrimViewController: Bool {

@@ -123,3 +123,137 @@ public extension UIButton {
 		}
 	}
 }
+
+extension UIButton {
+		/// Vertical button: image above title, with a capsule just behind the image on highlight/selection.
+		static func makeImageHighlightCapsuleButton(
+			image: UIImage?,
+			title: String,
+			tintColor: UIColor = .systemBlue,
+			imageHighlightColor: UIColor = .systemBlue.withAlphaComponent(0.2),
+			imagePadding: CGFloat = 6,
+			contentPadding: CGFloat = 8
+		) -> UIButton {
+			// 1) Base configuration for vertical layout
+			var config = UIButton.Configuration.plain()
+			config.image = image
+			config.title = title
+			config.imagePlacement = .top
+			config.imagePadding = imagePadding
+			config.baseForegroundColor = tintColor
+			// 2) iOS 15+ content insets
+			config.contentInsets = NSDirectionalEdgeInsets(
+				top: contentPadding,
+				leading: contentPadding,
+				bottom: contentPadding,
+				trailing: contentPadding
+			)
+
+			// 3) Create the button
+			let button = UIButton(configuration: config, primaryAction: nil)
+
+			// 4) On state changes, wrap imageView in a capsule fill
+			button.configurationUpdateHandler = { btn in
+				btn.layoutIfNeeded()  // ensure imageView.bounds is correct
+				guard let iv = btn.imageView else { return }
+				iv.layer.cornerRadius = iv.bounds.height / 2
+				iv.layer.masksToBounds = true
+				iv.backgroundColor = (btn.isHighlighted || btn.isSelected)
+				? .green
+					: .clear
+				btn.configuration?.background.backgroundColor = .clear
+			}
+
+			// 5) Example toggle action (optional):
+			button.addAction(UIAction { action in
+				guard let btn = action.sender as? UIButton else { return }
+				btn.isSelected.toggle()
+			}, for: .touchUpInside)
+
+			return button
+		}
+
+}
+
+class ImageHighlightCapsuleButton: ThemeButton {
+	private let highlightView = ThemeCSSView(withSelectors: [.help])
+	private let highlightSize = CGSize(width: 68, height: 32)
+
+	/// Designated initializer
+	init(
+		image: UIImage?,
+		title: String
+	) {
+		// 1) Call a designated UIButton initializer
+		super.init(frame: .zero)
+
+		// 2) Build and apply the configuration
+		var config = UIButton.Configuration.plain()
+		config.image = image
+		config.title = title
+		config.imagePlacement = .top
+		config.imagePadding = 12
+		config.baseForegroundColor = tintColor
+		config.contentInsets = NSDirectionalEdgeInsets(
+			top: 12,
+			leading: 8,
+			bottom: 4,
+			trailing: 8
+		)
+		self.configuration = config
+
+		highlightView.layer.cornerRadius = highlightSize.height / 2
+		highlightView.layer.masksToBounds = true
+		highlightView.isHidden = true
+		highlightView.isUserInteractionEnabled = false
+		insertSubview(highlightView, at: 0)
+
+		// 4) Suppress default dim/tint overlay
+		configurationUpdateHandler = { [weak self] btn in
+			btn.configuration?.background.backgroundColor = .clear
+			//btn.configuration?.titleTextAttributesTransformer
+			self?.updateHighlightVisibility()
+		}
+
+		// 5) Example action to toggle `isSelected`
+		addAction(UIAction { action in
+			guard let btn = action.sender as? UIButton else { return }
+			btn.isSelected.toggle()
+		}, for: .touchUpInside)
+	}
+
+	@available(*, unavailable) required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		// Center the highlightView on the imageView
+		guard let iv = imageView else { return }
+		highlightView.bounds = CGRect(origin: .zero, size: highlightSize)
+		highlightView.center = iv.center
+	}
+
+	private func updateHighlightVisibility() {
+		let css = activeThemeCSS
+		let highlightBackgroundColor = css.getColor(.fill, selectors: [.help], for: self)
+		let highlightForegroundColor = css.getColor(.stroke, selectors: [.help], for: self)
+		let foregroundColor = css.getColor(.stroke, selectors: [], for: self)
+
+		// 3) Set up the fixed‐size capsule behind the imageView
+		highlightView.backgroundColor = highlightBackgroundColor
+		highlightView.isHidden = !(isHighlighted || isSelected)
+
+		self.configuration?.imageColorTransformer = UIConfigurationColorTransformer { [weak self] _ in
+			guard let self else { return .clear }
+			return (self.isSelected ? highlightForegroundColor : foregroundColor) ?? .clear
+		}
+	}
+
+	override var isHighlighted: Bool {
+		didSet { updateHighlightVisibility() }
+	}
+	override var isSelected: Bool {
+		didSet { updateHighlightVisibility() }
+	}
+}
