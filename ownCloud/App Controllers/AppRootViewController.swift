@@ -45,7 +45,6 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 	public var contentBrowserController: BrowserNavigationViewController = BrowserNavigationViewController()
 
 	private var contentBrowserControllerObserver: NSKeyValueObservation?
-	//private var firstRunCoordinator = FirstRunCoordinator()
 
 	// MARK: - Message presentation
 	var alertQueue : OCAsyncSequentialQueue = OCAsyncSequentialQueue()
@@ -125,22 +124,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 				let configuration = BookmarkComposerConfiguration.newBookmarkConfiguration
 				configuration.hasIntro = true
 
-				let welcomeViewController = WelcomeViewController()
-				welcomeViewController.backgroundImage =
-				Branding.shared.brandedImageNamed(.brandBackground)
-
-				welcomeViewController.onStartSetupTap = { [weak self] in
-					self?.contentViewController = BookmarkSetupViewController(configuration: configuration)
-				}
-
-				welcomeViewController.onSettingsTap = { [weak self] in
-					let navigationViewController = ThemeNavigationController(rootViewController: SettingsViewController())
-					navigationViewController.modalPresentationStyle = .fullScreen
-					self?.present(navigationViewController, animated: true)
-				}
-
-				// self?.contentViewController = self?.firstRunCoordinator.makeInitial()
-				self?.contentViewController = welcomeViewController
+				self?.contentViewController = FirstRunCoordinator(rootVC: self).makeInitial()
 			} else {
 				// Account already available
 				self?.contentViewController = self?.contentBrowserController

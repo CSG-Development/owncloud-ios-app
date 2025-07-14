@@ -45,19 +45,57 @@ public enum HCColor {
 
 	public enum Content {
 		// Content/Border
-		public static let border = UIColor(hexString: "#CBCDD3FF")
-		//Content/Text primary
+		public static func border(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#616161FF") : UIColor(hexString: "#CBCDD3FF")
+		}
+
+		// Content/Text primary
 		public static func textPrimary(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#FFFFFFDE") : UIColor(hexString: "#000000DE")
+		}
+
+		// Content/Labels
+		public static func labels(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#FFFFFFCC") : UIColor(hexString: "#000000CC")
+		}
+
+		// Content/Gray 2
+		public static let gray2 = UIColor(hexString: "#B2B2B2FF")
+	}
+
+	public enum Symbolic {
+		// Symbolic/Error
+		public static func error(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#F44336FF") : UIColor(hexString: "#F44336FF")
+		}
+	}
+
+	public enum Interaction {
+		// Interaction/Primary Solid Normal
+		public static func primarySolidNormal(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#64B5F6FF") : UIColor(hexString: "#1976D2FF")
 		}
 	}
 
 	public enum Structure {
 		// Structure/App Background
 		public static let appBackground = UIColor(hexString: "#F0F1F5FF")
+
 		// Structure/Menu Background
 		public static func menuBackground(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#1D1E21FF") : UIColor(hexString: "#FFFFFFFF")
+		}
+
+		// Structure/Card Background
+		public static func cardBackground(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#262729FF") : UIColor(hexString: "#FFFFFFFF")
+		}
+	}
+
+	public enum Constant {
+		// Constant/Primary
+		public static func primary(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#6EBD49FF") : UIColor(hexString: "#6EBD49FF")
 		}
 	}
 

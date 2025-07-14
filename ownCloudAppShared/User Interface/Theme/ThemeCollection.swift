@@ -323,7 +323,11 @@ public class ThemeCollection : NSObject {
 				navigationBarSet = darkBrandSet
 				toolbarSet = darkBrandSet
 
-				cellSet = ThemeColorSet.from(backgroundColor: UIColor(hex: 0), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.lighter(0.3)), for: interfaceStyle)
+				cellSet = ThemeColorSet.from(
+					backgroundColor: HCColor.Structure.cardBackground(true),
+					tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.lighter(0.3)),
+					for: interfaceStyle
+				)
 				cellStateSet = ThemeColorStateSet.from(colorSet: cellSet, for: interfaceStyle)
 				collectionBackgroundColor = darkBrandColor.darker(0.1)
 
@@ -381,7 +385,11 @@ public class ThemeCollection : NSObject {
 				navigationBarSet = ThemeColorSet.from(backgroundColor: .systemBackground.resolvedColor(with: styleTraitCollection), tintColor: lightBrandColor, for: interfaceStyle)
 				toolbarSet = navigationBarSet
 
-				cellSet = ThemeColorSet.from(backgroundColor: .systemBackground.resolvedColor(with: styleTraitCollection), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.darker(0.3)), for: interfaceStyle)
+				cellSet = ThemeColorSet.from(
+					backgroundColor: HCColor.Structure.cardBackground(false),
+					tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.darker(0.3)),
+					for: interfaceStyle
+				)
 				cellStateSet = ThemeColorStateSet.from(colorSet: cellSet, for: interfaceStyle)
 				collectionBackgroundColor = cellSet.backgroundColor
 
@@ -626,6 +634,21 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.confidentialSecondaryLabel],		property: .stroke, value: tintColor.withAlphaComponent(0.4)),
 
 			// # Curator Files
+			// ## App logo
+			ThemeCSSRecord(selectors: [.hcAppLogo, .part1Color], property: .stroke, value: HCColor.Constant.primary(isDark)),
+			ThemeCSSRecord(selectors: [.hcAppLogo, .part2Color], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+
+			// ## HCField
+			ThemeCSSRecord(selectors: [.hcField], property: .stroke, value: HCColor.Content.border(isDark)),
+			ThemeCSSRecord(selectors: [.hcField, .selected], property: .stroke, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
+			ThemeCSSRecord(selectors: [.hcField, .error], property: .stroke, value: HCColor.Symbolic.error(isDark)),
+			ThemeCSSRecord(selectors: [.hcField], property: .borderWidth, value: CGFloat(1)),
+			ThemeCSSRecord(selectors: [.hcField, .selected], property: .borderWidth, value: CGFloat(3)),
+			ThemeCSSRecord(selectors: [.hcField, .text], property: .stroke, value: HCColor.Content.labels(isDark)),
+
+			// ## HCTextField
+			ThemeCSSRecord(selectors: [.hcTextField, .placeholder], property: .stroke, value: HCColor.Content.gray2),
+			ThemeCSSRecord(selectors: [.hcTextField, .text], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// ## Sort bar
 			ThemeCSSRecord(selectors: [.sortBar], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
@@ -633,6 +656,9 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sortBar, .multiselect], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.sortBar, .itemLayout], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.sortBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+
+			// ## Login navbar
+			ThemeCSSRecord(selectors: [ThemeCSSSelector(rawValue: "loginNavbar")], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// ## Button
 			ThemeCSSRecord(selectors: [.button], property: .borderColor, value: UIColor.clear),

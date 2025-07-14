@@ -1,42 +1,36 @@
 import UIKit
 import SnapKit
 import ownCloudAppShared
-import ownCloudApp
 
 final public class WelcomeViewController: UIViewController {
-	let viewModel: WelcomeViewModel
-
 	private lazy var backgroundImageView: UIImageView = {
 		let imageView = UIImageView()
 		imageView.contentMode = .scaleAspectFill
 		return imageView
 	}()
-
 	private lazy var titleLabel: UILabel = {
 		let label = UILabel()
 		label.numberOfLines = 0
 		label.textAlignment = .center
-		var firstPartText = AttributedString(HCL10n.Logo.firstPart + "\n")
+		var firstPartText = AttributedString("Home Cloud\n")
 		firstPartText.foregroundColor = HCColor.green
-		var secondPartText = AttributedString(HCL10n.Logo.secondPart)
+		var secondPartText = AttributedString("Files")
 		secondPartText.foregroundColor = HCColor.white
 		var attributedText = firstPartText + secondPartText
 		attributedText.font = UIFont.systemFont(ofSize: 34, weight: .regular)
 		label.attributedText = NSAttributedString(attributedText)
 		return label
 	}()
-
 	private lazy var startSetupButton: UIButton = {
-		let button = ThemeRoundedButton(withSelectors: [.secondary, .outlined])
-		button.setTitle(HCL10n.Welcome.startSetupButtonTitle, for: .normal)
+		let button = UIButton()
+		button.setTitle(title: "Start setup", style: .secondary(configuration: .outlined), darkMode: true)
 		button.snp.makeConstraints { $0.height.equalTo(40) }
 		button.addTarget(self, action: #selector(didTapStartSetup), for: .touchUpInside)
 		return button
 	}()
-	
 	private lazy var settingsButton: UIButton = {
-		let button = ThemeRoundedButton(withSelectors: [.primary, .filled])
-		button.setTitle(HCL10n.Welcome.settingsButtonTitle, for: .normal)
+		let button = UIButton()
+		button.setTitle(title: "Settings", style: .primary(configuration: .filled), darkMode: false)
 		button.snp.makeConstraints { $0.height.equalTo(40) }
 		button.addTarget(self, action: #selector(didTapSettings), for: .touchUpInside)
 		return button
@@ -49,18 +43,8 @@ final public class WelcomeViewController: UIViewController {
 		}
 	}
 
-	init(viewModel: WelcomeViewModel) {
-		self.viewModel = viewModel
-		super.init(nibName: nil, bundle: nil)
-	}
-
-	public required init?(coder: NSCoder) {
-		fatalError("Not implemented")
-	}
-
-	deinit {
-		print("4242: WelcomeViewController died")
-	}
+	public var onStartSetupTap: (() -> Void)?
+	public var onSettingsTap: (() -> Void)?
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
@@ -89,19 +73,13 @@ final public class WelcomeViewController: UIViewController {
 			$0.bottom.equalTo(stackView.snp.top).offset(-40)
 			$0.centerX.equalToSuperview()
 		}
-
-		backgroundImage = Branding.shared.brandedImageNamed(.brandBackground)
-	}
-
-	func bindViewModel() {
-		//
 	}
 
 	@objc private func didTapStartSetup() {
-		viewModel.didTapStartSetup()
+		onStartSetupTap?()
 	}
 
 	@objc private func didTapSettings() {
-		viewModel.didTapSettings()
+		onSettingsTap?()
 	}
 }
