@@ -2,23 +2,46 @@
 
 # update_fastlane # fastlane automatically update itself
 
+# Noveo provisioning
+NOVEO_APP_ID = "com.noveogroup.curator.stxfiles.ios-app"
+NOVEO_APP_PROFILE = "Curator Files :: AdHoc"
+NOVEO_FP_ID = "com.noveogroup.curator.stxfiles.ios-app.file-provider"
+NOVEO_FP_PROFILE = "Curator Files File Provider :: AdHoc"
+NOVEO_FP_UI_ID = "com.noveogroup.curator.stxfiles.ios-app.file-provider-ui"
+NOVEO_FP_UI_PROFILE = "Curator Files File Provider UI :: AdHoc"
+NOVEO_INTENT_ID = "com.noveogroup.curator.stxfiles.ios-app.intents"
+NOVEO_INTENT_PROFILE = "Curator Files Intents :: AdHoc"
+NOVEO_SHARE_EXTENSION_ID = "com.noveogroup.curator.stxfiles.ios-app.share-extension"
+NOVEO_SHARE_EXTENSION_PROFILE = "Curator Files Share Extension :: AdHoc"
+NOVEO_ACTION_EXTENSION_ID = "com.noveogroup.curator.stxfiles.ios-app.action-extension"
+NOVEO_ACTION_EXTENSION_PROFILE = "Curator Files Action Extension :: AdHoc"
+
 default_platform(:ios)
 
 platform :ios do
+  lane:generate_noveo_profiles do |options|
+    sigh(api_key_path: options[:api_key_path], adhoc: true, force: true, app_identifier: NOVEO_APP_ID, provisioning_name: NOVEO_APP_PROFILE, output_path: "./", cert_id: options[:certificate_id])
+    sigh(api_key_path: options[:api_key_path], adhoc: true, force: true, app_identifier: NOVEO_FP_ID, provisioning_name: NOVEO_FP_PROFILE, output_path: "./", cert_id: options[:certificate_id])
+    sigh(api_key_path: options[:api_key_path], adhoc: true, force: true, app_identifier: NOVEO_FP_UI_ID, provisioning_name: NOVEO_FP_UI_PROFILE, output_path: "./", cert_id: options[:certificate_id])
+    sigh(api_key_path: options[:api_key_path], adhoc: true, force: true, app_identifier: NOVEO_INTENT_ID, provisioning_name: NOVEO_INTENT_PROFILE, output_path: "./", cert_id: options[:certificate_id])
+    sigh(api_key_path: options[:api_key_path], adhoc: true, force: true, app_identifier: NOVEO_SHARE_EXTENSION_ID, provisioning_name: NOVEO_SHARE_EXTENSION_PROFILE, output_path: "./", cert_id: options[:certificate_id])
+    sigh(api_key_path: options[:api_key_path], adhoc: true, force: true, app_identifier: NOVEO_ACTION_EXTENSION_ID, provisioning_name: NOVEO_ACTION_EXTENSION_PROFILE, output_path: "./", cert_id: options[:certificate_id])
+  end
+
   lane :homecloud_noveo_build do |values|
     build_ipa_in_house(
-      ENTERPRISE_APP_ID: "com.noveogroup.curator.stxfiles.ios-app",
-      ENTERPRISE_APP_PROFILE: "Curator Files :: AdHoc",
-      ENTERPRISE_FP_ID: "com.noveogroup.curator.stxfiles.ios-app.file-provider",
-      ENTERPRISE_FP_PROFILE: "Curator Files File Provider :: AdHoc",
-      ENTERPRISE_FP_UI_ID: "com.noveogroup.curator.stxfiles.ios-app.file-provider-ui",
-      ENTERPRISE_FP_UI_PROFILE: "Curator Files File Provider UI :: AdHoc",
-      ENTERPRISE_INTENT_ID: "com.noveogroup.curator.stxfiles.ios-app.intents",
-      ENTERPRISE_INTENT_PROFILE: "Curator Files Intents :: AdHoc",
-      ENTERPRISE_SHARE_EXTENSION_ID: "com.noveogroup.curator.stxfiles.ios-app.share-extension",
-      ENTERPRISE_SHARE_EXTENSION_PROFILE: "Curator Files Share Extension :: AdHoc",
-      ENTERPRISE_ACTION_EXTENSION_ID: "com.noveogroup.curator.stxfiles.ios-app.action-extension",
-      ENTERPRISE_ACTION_EXTENSION_PROFILE: "Curator Files Action Extension :: AdHoc",
+      ENTERPRISE_APP_ID: NOVEO_APP_ID,
+      ENTERPRISE_APP_PROFILE: NOVEO_APP_PROFILE,
+      ENTERPRISE_FP_ID: NOVEO_FP_ID,
+      ENTERPRISE_FP_PROFILE: NOVEO_FP_PROFILE,
+      ENTERPRISE_FP_UI_ID: NOVEO_FP_UI_ID,
+      ENTERPRISE_FP_UI_PROFILE: NOVEO_FP_UI_PROFILE,
+      ENTERPRISE_INTENT_ID: NOVEO_INTENT_ID,
+      ENTERPRISE_INTENT_PROFILE: NOVEO_INTENT_PROFILE,
+      ENTERPRISE_SHARE_EXTENSION_ID: NOVEO_SHARE_EXTENSION_ID,
+      ENTERPRISE_SHARE_EXTENSION_PROFILE: NOVEO_SHARE_EXTENSION_PROFILE,
+      ENTERPRISE_ACTION_EXTENSION_ID: NOVEO_ACTION_EXTENSION_ID,
+      ENTERPRISE_ACTION_EXTENSION_PROFILE: NOVEO_ACTION_EXTENSION_PROFILE,
       ENTERPRISE_APP_FW_ID: "com.seagate.curator.stxfiles-app",
       ENTERPRISE_TEAM: "HVE639V94N",
       ENTERPRISE_IDENTITY: "iPhone Distribution: Noveo Inc. (HVE639V94N)",
