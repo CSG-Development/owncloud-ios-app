@@ -656,7 +656,7 @@ public class ThemeCollection : NSObject {
 
 			// ### Filled
 			// #### Primary
-			ThemeCSSRecord(selectors: [.button, .primary, .filled], property: .stroke, value: isDark ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary),
+			ThemeCSSRecord(selectors: [.button, .primary, .filled], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),
 			ThemeCSSRecord(selectors: [.button, .primary, .filled], property: .fill, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
 			ThemeCSSRecord(selectors: [.button, .primary, .filled, .disabled], property: .stroke, value: HCColor.Grey.grey),
 			ThemeCSSRecord(selectors: [.button, .primary, .filled, .disabled], property: .fill, value: isDark ? HCColor.Grey.darken4 : HCColor.Grey.lighten3),
@@ -787,11 +787,8 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.accountSetup, .step, .title], 		property: .stroke, value: primaryLabelColor),
 			ThemeCSSRecord(selectors: [.accountSetup, .step, .message], 		property: .stroke, value: secondaryLabelColor),
 			ThemeCSSRecord(selectors: [.accountSetup, .step, .background],		property: .fill,   value: collectionBackgroundColor),
-			ThemeCSSRecord(selectors: [.accountSetup, .step, .button, .filled],	property: .stroke, value: UIColor.white),
-			ThemeCSSRecord(selectors: [.accountSetup, .step, .button, .filled],	property: .fill,   value: lightBrandColor),
+
 			ThemeCSSRecord(selectors: [.accountSetup, .help, .subtitle], 		property: .stroke, value: UIColor.lightGray),
-			ThemeCSSRecord(selectors: [.accountSetup, .help, .button], 		property: .stroke, value: lightBrandColor),
-			ThemeCSSRecord(selectors: [.accountSetup, .help, .button], 		property: .fill,   value: UIColor.clear),
 			ThemeCSSRecord(selectors: [.accountSetup],				property: .fill,   value: darkBrandColor),
 			ThemeCSSRecord(selectors: [.accountSetup],      			property: .statusBarStyle, value: UIStatusBarStyle.lightContent),
 
@@ -808,6 +805,8 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell],  	property: .fill,   value: sidebarCellStateSet.regular.backgroundColor),
 			ThemeCSSRecord(selectors: [.sidebar, .collection],  	   	property: .fill,   value: sidebarCellStateSet.regular.backgroundColor),
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell], 	property: .stroke, value: sidebarCellStateSet.regular.labelColor),
+			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell, .highlighted], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell, .selected], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),
 			// ThemeCSSRecord(selectors: [.sidebar, .collection, .label], 	property: .stroke, value: sidebarCellStateSet.regular.labelColor),
 			// ThemeCSSRecord(selectors: [.sidebar, .collection, .icon],  	property: .stroke, value: sidebarCellStateSet.regular.labelColor),
 
