@@ -27,6 +27,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	var navigationView: UINavigationBar = UINavigationBar()
 	var contentContainerView: UIView = UIView()
 	var contentContainerLidView: UIView = UIView()
+	var wrappedContentContainerView: UIView!
 
 	var sideBarSeperatorView: ThemeCSSView = ThemeCSSView(withSelectors: [.separator])
 
@@ -73,6 +74,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 		let wrappedContentContainerView = contentContainerView.withScreenshotProtection
 		view.addSubview(wrappedContentContainerView)
+		self.wrappedContentContainerView = wrappedContentContainerView
 
 		navigationView.translatesAutoresizingMaskIntoConstraints = false
 		navigationView.delegate = self
@@ -93,7 +95,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		NSLayoutConstraint.activate([
 			wrappedContentContainerView.topAnchor.constraint(equalTo: view.topAnchor),
 			wrappedContentContainerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-			wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor).with(priority: .defaultHigh), // Allow for flexibility without having to remove this constraint. It will be overridden by constraints with higher priority (default is .required) when necessary
+			// Leading is in the composed constraints.
 			wrappedContentContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
 			contentContainerLidView.topAnchor.constraint(equalTo: wrappedContentContainerView.topAnchor),
@@ -387,6 +389,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		didSet {
 			if let composedConstraints {
 				NSLayoutConstraint.activate(composedConstraints)
+				view.setNeedsLayout()
 			}
 		}
 	}
@@ -481,7 +484,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 							sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 							sidebarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 							sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-							sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+							sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+							wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
 						]
 
 						contentContainerLidView.isHidden = true
@@ -490,10 +494,10 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 						// Sidebar + Content side-by-side
 						newConstraints = [
 							sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-							sidebarView.trailingAnchor.constraint(equalTo: contentContainerView.leadingAnchor, constant: -1),
 							sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
 							sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-							sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth)
+							sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
+							wrappedContentContainerView.leadingAnchor.constraint(equalTo: sidebarView.trailingAnchor, constant: -1)
 						]
 
 						contentContainerLidView.isHidden = true
@@ -504,7 +508,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 							sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 							sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
 							sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-							sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth)
+							sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
+							wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
 						]
 
 						contentContainerLidView.isHidden = false
@@ -515,7 +520,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 					sidebarView.trailingAnchor.constraint(equalTo: view.leadingAnchor),
 					sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
 					sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-					sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth)
+					sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
+					wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
 				]
 			}
 		}
