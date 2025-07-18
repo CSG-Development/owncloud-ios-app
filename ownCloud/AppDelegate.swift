@@ -65,6 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		ScheduledTaskManager.shared.setup()
 
 		MediaUploadQueue.shared.setup()
+		HCSettings.shared.shouldShowOnboarding = AppStatistics.shared.firstLaunchDate == nil
 		AppStatistics.shared.update()
 
 		// Display Extensions
