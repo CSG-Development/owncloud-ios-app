@@ -258,9 +258,8 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 		rootView?.translatesAutoresizingMaskIntoConstraints = false
 
 		rootView?.addSubview(stackView!)
-		rootView?.addSubview(savedSearchPopup!.button)
 
-		guard let stackView = stackView, let rootView = rootView, let savedSearchPopupButton = savedSearchPopup?.button else { return }
+		guard let stackView = stackView, let rootView = rootView else { return }
 
 		NSLayoutConstraint.activate([
 			stackView.leadingAnchor.constraint(equalTo: rootView.leadingAnchor),
@@ -294,6 +293,9 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 		}
 		stackView?.addArrangedSubview(HCSpacerView(nil, .horizontal))
 
+		if let button = savedSearchPopup?.button {
+			stackView?.addArrangedSubview(button)
+		}
 		if scopeSupportsContentSearch, let searchedContentPopup {
 			let containerView = UIView()
 			containerView.translatesAutoresizingMaskIntoConstraints = false
@@ -416,18 +418,7 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 		if let searchScope = scope as? ItemSearchScope, searchScope.canSaveSearch || searchScope.canSaveTemplate {
 			showSavedSearchButton = true
 		}
-		if let savedSearchPopupButton = savedSearchPopup?.button {
-			if showSavedSearchButton {
-				if savedSearchPopupButton.superview == nil {
-					stackView?.addArrangedSubview(savedSearchPopupButton)
-				}
-			} else {
-				if savedSearchPopupButton.superview != nil {
-					stackView?.removeArrangedSubview(savedSearchPopupButton)
-					savedSearchPopupButton.removeFromSuperview()
-				}
-			}
-		}
+		savedSearchPopup?.button.isHidden = !showSavedSearchButton
 
 		for category in categories {
 			var categoryHasMatch: Bool = false
