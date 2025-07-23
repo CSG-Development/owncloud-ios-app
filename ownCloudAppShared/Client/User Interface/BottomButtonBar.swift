@@ -186,8 +186,8 @@ open class BottomButtonBar: ThemeCSSView {
 				promptLabel.centerYAnchor.constraint(equalTo: selectButton.centerYAnchor),
 
 				selectButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -20),
-				selectButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 20),
-				selectButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20)
+				selectButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+				selectButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
 			])
 
 			if hasCancelButton {
@@ -210,12 +210,12 @@ open class BottomButtonBar: ThemeCSSView {
 			constraints.append(contentsOf: [
 				promptLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 20),
 				promptLabel.trailingAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.trailingAnchor, constant: -20),
-				promptLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 10),
+				promptLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
 
 				selectButton.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 20).with(priority: .defaultHigh),
 				selectButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -20),
-				selectButton.topAnchor.constraint(equalTo: promptLabel.bottomAnchor, constant: 10),
-				selectButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20)
+				selectButton.topAnchor.constraint(equalTo: promptLabel.bottomAnchor, constant: 8),
+				selectButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
 			])
 
 			if hasCancelButton {

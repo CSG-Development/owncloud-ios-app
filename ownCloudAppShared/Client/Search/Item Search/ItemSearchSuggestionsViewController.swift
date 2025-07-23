@@ -150,7 +150,7 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 		stackView = UIStackView(frame: .zero)
 		stackView?.translatesAutoresizingMaskIntoConstraints = false
 		stackView?.axis = .horizontal
-		stackView?.distribution = .equalSpacing
+		stackView?.distribution = .fill
 		stackView?.spacing = 0
 
 		// Saved search popup
@@ -264,13 +264,9 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 
 		NSLayoutConstraint.activate([
 			stackView.leadingAnchor.constraint(equalTo: rootView.leadingAnchor),
-			stackView.trailingAnchor.constraint(lessThanOrEqualTo: savedSearchPopupButton.leadingAnchor),
+			stackView.trailingAnchor.constraint(equalTo: rootView.trailingAnchor),
 			stackView.topAnchor.constraint(equalTo: rootView.topAnchor),
-			stackView.bottomAnchor.constraint(equalTo: rootView.bottomAnchor),
-
-			savedSearchPopupButton.topAnchor.constraint(equalTo: rootView.topAnchor),
-			savedSearchPopupButton.bottomAnchor.constraint(equalTo: rootView.bottomAnchor),
-			savedSearchPopupButton.trailingAnchor.constraint(equalTo: rootView.trailingAnchor)
+			stackView.bottomAnchor.constraint(equalTo: rootView.bottomAnchor)
 		])
 
 		view = rootView
@@ -296,6 +292,7 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 				stackView?.addArrangedSubview(button)
 			}
 		}
+		stackView?.addArrangedSubview(HCSpacerView(nil, .horizontal))
 
 		if scopeSupportsContentSearch, let searchedContentPopup {
 			let containerView = UIView()
