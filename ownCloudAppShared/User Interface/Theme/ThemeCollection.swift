@@ -325,7 +325,7 @@ public class ThemeCollection : NSObject {
 
 				cellSet = ThemeColorSet.from(backgroundColor: UIColor(hex: 0), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.lighter(0.3)), for: interfaceStyle)
 				cellStateSet = ThemeColorStateSet.from(colorSet: cellSet, for: interfaceStyle)
-				collectionBackgroundColor = darkBrandColor.darker(0.1)
+				collectionBackgroundColor = HCColor.Structure.menuBackground(true)
 
 				groupedCellSet = ThemeColorSet.from(backgroundColor: darkBrandColor, tintColor: lightBrandColor, for: interfaceStyle)
 				groupedCellStateSet = ThemeColorStateSet.from(colorSet: groupedCellSet, for: interfaceStyle)
@@ -383,7 +383,7 @@ public class ThemeCollection : NSObject {
 
 				cellSet = ThemeColorSet.from(backgroundColor: .systemBackground.resolvedColor(with: styleTraitCollection), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.darker(0.3)), for: interfaceStyle)
 				cellStateSet = ThemeColorStateSet.from(colorSet: cellSet, for: interfaceStyle)
-				collectionBackgroundColor = cellSet.backgroundColor
+				collectionBackgroundColor = HCColor.Structure.menuBackground(false)
 
 				groupedCellSet = cellSet
 				groupedCellStateSet = ThemeColorStateSet.from(colorSet: groupedCellSet, for: interfaceStyle)
@@ -471,7 +471,7 @@ public class ThemeCollection : NSObject {
 
 			// - Toolbar
 			ThemeCSSRecord(selectors: [.toolbar],				property: .stroke, value: toolbarSet.tintColor),
-			ThemeCSSRecord(selectors: [.toolbar],				property: .fill,   value: toolbarSet.backgroundColor),
+			ThemeCSSRecord(selectors: [.toolbar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 
 			// - Progress
 			ThemeCSSRecord(selectors: [.progress], 				property: .fill,  value: progressBackgroundColor),
@@ -488,7 +488,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.modal],     	    	   	property: .stroke, value: cellSet.labelColor),
 
 			// - Splitview
-			ThemeCSSRecord(selectors: [.splitView],     	    	   	property: .fill,   value: cellSet.backgroundColor),
+			ThemeCSSRecord(selectors: [.splitView],     	    	   	property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
 
 			// - Collection View
 			ThemeCSSRecord(selectors: [.collection],     	    	   	property: .fill,   value: cellStateSet.regular.backgroundColor),
@@ -802,8 +802,8 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sidebar], 			   	property: .statusBarStyle, value: statusBarStyle),
 
 			// - Collection View
-			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell],  	property: .fill,   value: sidebarCellStateSet.regular.backgroundColor),
-			ThemeCSSRecord(selectors: [.sidebar, .collection],  	   	property: .fill,   value: sidebarCellStateSet.regular.backgroundColor),
+			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell],  	property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .collection],  	   	property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell], 	property: .stroke, value: sidebarCellStateSet.regular.labelColor),
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell, .highlighted], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell, .selected], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),
@@ -830,7 +830,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sidebar, .navigationBar, .logo, .label],property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// - Toolbar
-			ThemeCSSRecord(selectors: [.sidebar, .toolbar],			property: .fill,   value: sidebarCellStateSet.regular.backgroundColor),
+			ThemeCSSRecord(selectors: [.sidebar, .toolbar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .toolbar],			property: .stroke, value: lightBrandColor),
 
 			// Content Area
@@ -843,7 +843,7 @@ public class ThemeCollection : NSObject {
 
 			// - Toolbar
 			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .stroke, value: contentToolbarSet.tintColor),
-			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .fill,   value: contentToolbarSet.backgroundColor),
+			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
 
 			// - Location Bar
 			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar, .segments, .item, .plain],		property: .stroke, value: contentToolbarSet.tintColor),

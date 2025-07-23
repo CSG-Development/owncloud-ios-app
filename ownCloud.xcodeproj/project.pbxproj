@@ -160,7 +160,7 @@
 		99DA8B792E1281D900D726DC /* FileManager+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B782E1281D500D726DC /* FileManager+Extensions.swift */; };
 		99DA8B7B2E1286F500D726DC /* AnalyticsTrackerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B7A2E1286EE00D726DC /* AnalyticsTrackerType.swift */; };
 		99DA8B7E2E128A8700D726DC /* AnalyticsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B7D2E128A8100D726DC /* AnalyticsTracker.swift */; };
-		99F472F22E095C1500104592 /* UIColor+HexString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+HexString.swift */; };
+		99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+Extensions.swift */; };
 		99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EA2E095C1500104592 /* HCButtonStyle.swift */; };
 		99F472F72E095C1500104592 /* HCColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EB2E095C1500104592 /* HCColor.swift */; };
 		99F472F82E095C1500104592 /* UIButton+HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */; };
@@ -1231,7 +1231,7 @@
 		99DA8B7D2E128A8100D726DC /* AnalyticsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsTracker.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
-		99F472E62E095C1500104592 /* UIColor+HexString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+HexString.swift"; sourceTree = "<group>"; };
+		99F472E62E095C1500104592 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		99F472EA2E095C1500104592 /* HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCButtonStyle.swift; sourceTree = "<group>"; };
 		99F472EB2E095C1500104592 /* HCColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCColor.swift; sourceTree = "<group>"; };
 		99F4730B2E0968EE00104592 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
@@ -2382,7 +2382,7 @@
 				99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */,
 				99F472E32E095C1500104592 /* CGRect+Geometry.swift */,
 				99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */,
-				99F472E62E095C1500104592 /* UIColor+HexString.swift */,
+				99F472E62E095C1500104592 /* UIColor+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -5100,7 +5100,7 @@
 				DC0A357524C0E43200FB58FC /* ProgressView.swift in Sources */,
 				DC62F57429268D710095BB5D /* ClientWebAppViewController.swift in Sources */,
 				DC24E10B28B7C185002E4F5B /* SingleFolderSearchScope.swift in Sources */,
-				99F472F22E095C1500104592 /* UIColor+HexString.swift in Sources */,
+				99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */,
 				99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */,
 				99F472F72E095C1500104592 /* HCColor.swift in Sources */,
 				99F472F82E095C1500104592 /* UIButton+HCButtonStyle.swift in Sources */,
