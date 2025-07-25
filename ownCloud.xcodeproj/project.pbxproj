@@ -141,6 +141,7 @@
 		6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5FC171221590B000F60846 /* DisplayHostViewController.swift */; };
 		6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E91F37D21ECA6FD009436D2 /* CopyAction.swift */; };
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
+		9901316B2E337AFD00B9D138 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990131672E337AF800B9D138 /* UIView+Extensions.swift */; };
 		99192ACF2E2A3E60000025A1 /* OnboardingContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */; };
 		99192AD52E2A408E000025A1 /* UIStackView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */; };
 		99192ADA2E2A4099000025A1 /* HCSpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD92E2A4099000025A1 /* HCSpacerView.swift */; };
@@ -1213,6 +1214,7 @@
 		6EA78B8E2179B55400A5216A /* ImageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageScrollView.swift; sourceTree = "<group>"; };
 		6EB8EDBE2114358300C2BF44 /* folder-create.tvg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "folder-create.tvg"; path = "img/filetypes-tvg/folder-create.tvg"; sourceTree = SOURCE_ROOT; };
 		6ED1B80A21A4004900E16C95 /* CreateFolderAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderAction.swift; sourceTree = "<group>"; };
+		990131672E337AF800B9D138 /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
 		99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContentView.swift; sourceTree = "<group>"; };
 		99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extensions.swift"; sourceTree = "<group>"; };
 		99192AD92E2A4099000025A1 /* HCSpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpacerView.swift; sourceTree = "<group>"; };
@@ -2379,6 +2381,7 @@
 		99F472E82E095C1500104592 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				990131672E337AF800B9D138 /* UIView+Extensions.swift */,
 				99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */,
 				99F472E32E095C1500104592 /* CGRect+Geometry.swift */,
 				99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */,
@@ -4976,6 +4979,7 @@
 				DC0A358A24C0E44B00FB58FC /* ThemeButton.swift in Sources */,
 				DCB6B1F7292CC8E200D27573 /* OCBookmarkManager+Locking.swift in Sources */,
 				994E68E62E0D67FA00E73D69 /* HCLocalization.swift in Sources */,
+				9901316B2E337AFD00B9D138 /* UIView+Extensions.swift in Sources */,
 				399EA71B25E6561E00B6FF11 /* OCShare+Extension.swift in Sources */,
 				DC62F6F5292819C80095BB5D /* AccountConnectionRichStatus.swift in Sources */,
 				DCB6B1ED292B963300D27573 /* AccountConnection+ItemActions.swift in Sources */,
