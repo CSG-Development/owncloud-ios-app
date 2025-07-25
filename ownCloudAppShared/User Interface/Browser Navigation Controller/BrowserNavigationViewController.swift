@@ -484,7 +484,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 							sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 							sidebarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 							sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-							sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+							sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
 							wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
 						]
 
@@ -495,7 +495,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 						newConstraints = [
 							sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 							sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-							sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+							sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
 							sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
 							wrappedContentContainerView.leadingAnchor.constraint(equalTo: sidebarView.trailingAnchor, constant: -1)
 						]
@@ -507,7 +507,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 						newConstraints = [
 							sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 							sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-							sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+							sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
 							sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
 							wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
 						]
@@ -519,7 +519,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 				newConstraints = [
 					sidebarView.trailingAnchor.constraint(equalTo: view.leadingAnchor),
 					sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-					sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+					sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
 					sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
 					wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
 				]
