@@ -169,6 +169,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		push(item: BrowserNavigationItem(viewController: viewController), completion: completion)
 	}
 
+	open func deleteCurrent(
+		completion: BrowserNavigationHistory.CompletionHandler? = nil
+	) {
+		history.deleteCurrent(completion: completion)
+	}
+
 	open func push(item: BrowserNavigationItem, completion: BrowserNavigationHistory.CompletionHandler? = nil) {
 		// Push to history (+ present)
 		history.push(item: item)
@@ -298,6 +304,15 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	// MARK: - BrowserNavigationHistoryDelegate
+
+	public func updateNavigation() {
+		if let navigationItem = contentViewController?.navigationItem {
+			updateContentNavigationItems()
+
+			navigationView.items = [ navigationItem ]
+		}
+	}
+
 	public func present(item: BrowserNavigationItem?, with direction: BrowserNavigationHistory.Direction, completion: BrowserNavigationHistory.CompletionHandler?) {
 		let needsSideBarLayout = (((item != nil) && (contentViewController == nil)) || ((item == nil) && (contentViewController != nil))) && (emptyHistoryBehaviour == .expandSideBarToFullWidth)
 

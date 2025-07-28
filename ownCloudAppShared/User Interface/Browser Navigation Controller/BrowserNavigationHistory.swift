@@ -20,6 +20,7 @@ import UIKit
 
 public protocol BrowserNavigationHistoryDelegate: AnyObject {
 	func present(item: BrowserNavigationItem?, with direction: BrowserNavigationHistory.Direction, completion: BrowserNavigationHistory.CompletionHandler?)
+	func updateNavigation()
 }
 
 open class BrowserNavigationHistory {
@@ -66,6 +67,30 @@ open class BrowserNavigationHistory {
 		}
 
 		present(item: item, with: (position == 0) ? .none : .toNext, completion: completion)
+	}
+
+	open func deleteCurrent(completion: CompletionHandler? = nil) {
+		guard position > 0 else {
+			completion?(false)
+			return
+		}
+		let current = items[position]
+		let pCount = items.count
+		moveBack { _ in
+			OCSynchronized(self) {
+				self.items = self.items.filter {
+					if
+					   let id1 = $0.navigationBookmark?.location?.path,
+					   let id2 = current.navigationBookmark?.location?.path {
+						return id1 != id2
+					} else {
+						return true
+					}
+				}
+				self.position -= (pCount - self.items.count - 1)
+				self.delegate?.updateNavigation()
+			}
+		}
 	}
 
 	@discardableResult open func moveBack(completion: CompletionHandler? = nil) -> BrowserNavigationItem? {
