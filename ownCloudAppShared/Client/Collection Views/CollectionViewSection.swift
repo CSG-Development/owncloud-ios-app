@@ -183,12 +183,12 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 				case .grid(let itemWidthDimension, let itemHeightDimension, let contentInsets):
 					let itemSize = NSCollectionLayoutSize(widthDimension: itemWidthDimension, heightDimension: itemHeightDimension)
 					let item = NSCollectionLayoutItem(layoutSize: itemSize)
-					item.contentInsets = contentInsets ?? NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+					item.contentInsets = contentInsets ?? NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
 
 					let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: itemHeightDimension), subitems: [ item ])
 
 					let section = NSCollectionLayoutSection(group: group)
-					section.contentInsets = contentInsets ?? NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+					section.contentInsets = contentInsets ?? NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
 
 					section.interGroupSpacing = 0
 
@@ -197,7 +197,7 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 				case .fillingGrid(let minimumWidth, let maximumWidth, let computeHeight, let cellInsets, let sectionInsets, let center):
 					let effectiveContentSize = layoutEnvironment.container.effectiveContentSize
 					let availableWidth = effectiveContentSize.width - (sectionInsets?.leading ?? 0) - (sectionInsets?.trailing ?? 0)
-					let cellInsets = cellInsets ?? NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+					let cellInsets = cellInsets ?? NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
 					let sectionInsets = sectionInsets ?? .zero
 					var groupInsets: NSDirectionalEdgeInsets = .zero
 

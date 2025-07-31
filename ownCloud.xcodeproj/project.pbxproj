@@ -141,6 +141,14 @@
 		6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5FC171221590B000F60846 /* DisplayHostViewController.swift */; };
 		6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E91F37D21ECA6FD009436D2 /* CopyAction.swift */; };
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
+		9901316B2E337AFD00B9D138 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990131672E337AF800B9D138 /* UIView+Extensions.swift */; };
+		99192ACF2E2A3E60000025A1 /* OnboardingContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */; };
+		99192AD52E2A408E000025A1 /* UIStackView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */; };
+		99192ADA2E2A4099000025A1 /* HCSpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD92E2A4099000025A1 /* HCSpacerView.swift */; };
+		994152902E2A75ED00B8ADF5 /* HCSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9941528C2E2A75E800B8ADF5 /* HCSettings.swift */; };
+		99492B992E27D2F800FCF0DB /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99492B982E27D2F300FCF0DB /* OnboardingPage.swift */; };
+		99492B9B2E27D31300FCF0DB /* OnboardingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99492B9A2E27D30C00FCF0DB /* OnboardingPageViewController.swift */; };
+		99492B9D2E27D32900FCF0DB /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99492B9C2E27D32700FCF0DB /* OnboardingViewController.swift */; };
 		994E68E62E0D67FA00E73D69 /* HCLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994E68E22E0D67F100E73D69 /* HCLocalization.swift */; };
 		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
 		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
@@ -153,7 +161,7 @@
 		99DA8B792E1281D900D726DC /* FileManager+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B782E1281D500D726DC /* FileManager+Extensions.swift */; };
 		99DA8B7B2E1286F500D726DC /* AnalyticsTrackerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B7A2E1286EE00D726DC /* AnalyticsTrackerType.swift */; };
 		99DA8B7E2E128A8700D726DC /* AnalyticsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B7D2E128A8100D726DC /* AnalyticsTracker.swift */; };
-		99F472F22E095C1500104592 /* UIColor+HexString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+HexString.swift */; };
+		99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+Extensions.swift */; };
 		99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EA2E095C1500104592 /* HCButtonStyle.swift */; };
 		99F472F72E095C1500104592 /* HCColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EB2E095C1500104592 /* HCColor.swift */; };
 		99F472F82E095C1500104592 /* UIButton+HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */; };
@@ -1206,6 +1214,14 @@
 		6EA78B8E2179B55400A5216A /* ImageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageScrollView.swift; sourceTree = "<group>"; };
 		6EB8EDBE2114358300C2BF44 /* folder-create.tvg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "folder-create.tvg"; path = "img/filetypes-tvg/folder-create.tvg"; sourceTree = SOURCE_ROOT; };
 		6ED1B80A21A4004900E16C95 /* CreateFolderAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderAction.swift; sourceTree = "<group>"; };
+		990131672E337AF800B9D138 /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
+		99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContentView.swift; sourceTree = "<group>"; };
+		99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extensions.swift"; sourceTree = "<group>"; };
+		99192AD92E2A4099000025A1 /* HCSpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpacerView.swift; sourceTree = "<group>"; };
+		9941528C2E2A75E800B8ADF5 /* HCSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSettings.swift; sourceTree = "<group>"; };
+		99492B982E27D2F300FCF0DB /* OnboardingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPage.swift; sourceTree = "<group>"; };
+		99492B9A2E27D30C00FCF0DB /* OnboardingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageViewController.swift; sourceTree = "<group>"; };
+		99492B9C2E27D32700FCF0DB /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
 		994E68E22E0D67F100E73D69 /* HCLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCLocalization.swift; sourceTree = "<group>"; };
 		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
 		99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCNavigationLogoView.swift; sourceTree = "<group>"; };
@@ -1217,7 +1233,7 @@
 		99DA8B7D2E128A8100D726DC /* AnalyticsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsTracker.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
-		99F472E62E095C1500104592 /* UIColor+HexString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+HexString.swift"; sourceTree = "<group>"; };
+		99F472E62E095C1500104592 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		99F472EA2E095C1500104592 /* HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCButtonStyle.swift; sourceTree = "<group>"; };
 		99F472EB2E095C1500104592 /* HCColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCColor.swift; sourceTree = "<group>"; };
 		99F4730B2E0968EE00104592 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
@@ -2313,6 +2329,17 @@
 			path = "Actions+Extensions";
 			sourceTree = "<group>";
 		};
+		99492B942E27D2E500FCF0DB /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */,
+				99492B982E27D2F300FCF0DB /* OnboardingPage.swift */,
+				99492B9A2E27D30C00FCF0DB /* OnboardingPageViewController.swift */,
+				99492B9C2E27D32700FCF0DB /* OnboardingViewController.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
 		99DA8B6B2E127B1E00D726DC /* Telemetry */ = {
 			isa = PBXGroup;
 			children = (
@@ -2354,9 +2381,11 @@
 		99F472E82E095C1500104592 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				990131672E337AF800B9D138 /* UIView+Extensions.swift */,
+				99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */,
 				99F472E32E095C1500104592 /* CGRect+Geometry.swift */,
 				99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */,
-				99F472E62E095C1500104592 /* UIColor+HexString.swift */,
+				99F472E62E095C1500104592 /* UIColor+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2364,6 +2393,7 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				99192AD92E2A4099000025A1 /* HCSpacerView.swift */,
 				99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */,
 				99F472EA2E095C1500104592 /* HCButtonStyle.swift */,
 			);
@@ -2373,6 +2403,7 @@
 		99F472F12E095C1500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
+				9941528C2E2A75E800B8ADF5 /* HCSettings.swift */,
 				994E68E22E0D67F100E73D69 /* HCLocalization.swift */,
 				99F472E82E095C1500104592 /* Extensions */,
 				99F472F02E095C1500104592 /* Views */,
@@ -2392,6 +2423,7 @@
 		99F4730E2E0968EE00104592 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				99492B942E27D2E500FCF0DB /* Onboarding */,
 				99F4730C2E0968EE00104592 /* WelcomeViewController */,
 			);
 			path = Screens;
@@ -4720,6 +4752,7 @@
 				39CC8AE6228C12100020253B /* Array+Extension.swift in Sources */,
 				DCE28F602433683700879DEC /* ClientSessionManager.swift in Sources */,
 				DC5908752AA87A1700BFF393 /* BookmarkSetupStepEnterUsernameViewController.swift in Sources */,
+				99492B992E27D2F800FCF0DB /* OnboardingPage.swift in Sources */,
 				3968C881239C54AC00AC28AC /* ReleaseNotesHostViewController.swift in Sources */,
 				DC6428D02081406800493A01 /* CollapsibleProgressBar.swift in Sources */,
 				39CD755423D8392D00193950 /* EditDocumentViewController.swift in Sources */,
@@ -4760,6 +4793,7 @@
 				6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */,
 				DCB796A72BCFB6EC00D6D759 /* CreateShortcutFileViewController.swift in Sources */,
 				4C51727F22DE04BD001BC97F /* ScheduledTaskManager.swift in Sources */,
+				99492B9B2E27D31300FCF0DB /* OnboardingPageViewController.swift in Sources */,
 				DCB796492BC4854800D6D759 /* INIFile.swift in Sources */,
 				39BC9C3023DB831F0097C52D /* DocumentEditingAction.swift in Sources */,
 				399697F5260255B100E5AEBA /* PDFGotoPageAction.swift in Sources */,
@@ -4785,10 +4819,12 @@
 				DCD954DF247D62FA00E184E6 /* MessageTableViewController.swift in Sources */,
 				025FC73A247BF8BE009307A7 /* PHAsset+InstantUploads.swift in Sources */,
 				399DD7C722A691BC00B45EB2 /* UnshareAction.swift in Sources */,
+				99492B9D2E27D32900FCF0DB /* OnboardingViewController.swift in Sources */,
 				DC9CE3D62D10814400979C44 /* DisableSpaceAction.swift in Sources */,
 				397754F82327A33500119FCB /* OpenSceneAction.swift in Sources */,
 				4CAF783C2282FD40000C85CF /* FileManager+Extension.swift in Sources */,
 				99DA8B7E2E128A8700D726DC /* AnalyticsTracker.swift in Sources */,
+				99192ACF2E2A3E60000025A1 /* OnboardingContentView.swift in Sources */,
 				DCEE1C9C23A0EADD00FE8D98 /* LicenseOfferView.swift in Sources */,
 				6E3A104D219D6F0100F90C96 /* DuplicateAction.swift in Sources */,
 				39D06BEC229BE8D8000D7FC9 /* SettingsSection.swift in Sources */,
@@ -4843,6 +4879,7 @@
 			files = (
 				DC0A357E24C0E43C00FB58FC /* ThemeStyle+Extensions.swift in Sources */,
 				DCB1B8C829C8F84800BFF393 /* ThemeCSSProgressView.swift in Sources */,
+				99192AD52E2A408E000025A1 /* UIStackView+Extensions.swift in Sources */,
 				DC2BB5402CD96C1600320384 /* ServerSideSearchScope.swift in Sources */,
 				DC04FFC827F5B79000F22569 /* CollectionViewController.swift in Sources */,
 				DC298CA72936250D009FA87F /* ClientSidebarViewController.swift in Sources */,
@@ -4912,6 +4949,7 @@
 				39BE385D23435AFE0062A2FE /* String+Extension.swift in Sources */,
 				DC0A357A24C0E43700FB58FC /* CardViewController.swift in Sources */,
 				DC46F3D1284546F000038880 /* OCItem+Interactions.swift in Sources */,
+				994152902E2A75ED00B8ADF5 /* HCSettings.swift in Sources */,
 				DCBAEAED29A627D900BFF393 /* DataSourceCondition.swift in Sources */,
 				DC0A356B24C0E42200FB58FC /* AppLockManager.swift in Sources */,
 				DCFA9CAF2987E14B00004F24 /* BrowserNavigationBookmark.swift in Sources */,
@@ -4941,6 +4979,7 @@
 				DC0A358A24C0E44B00FB58FC /* ThemeButton.swift in Sources */,
 				DCB6B1F7292CC8E200D27573 /* OCBookmarkManager+Locking.swift in Sources */,
 				994E68E62E0D67FA00E73D69 /* HCLocalization.swift in Sources */,
+				9901316B2E337AFD00B9D138 /* UIView+Extensions.swift in Sources */,
 				399EA71B25E6561E00B6FF11 /* OCShare+Extension.swift in Sources */,
 				DC62F6F5292819C80095BB5D /* AccountConnectionRichStatus.swift in Sources */,
 				DCB6B1ED292B963300D27573 /* AccountConnection+ItemActions.swift in Sources */,
@@ -5041,6 +5080,7 @@
 				DCB1B8A429C73DB800BFF393 /* ThemeCSSRecord.swift in Sources */,
 				DC60F2A829802B0900905EC8 /* NavigationContent.swift in Sources */,
 				DC49C22128524D6C00BAA910 /* ThemeableCollectionViewCell.swift in Sources */,
+				99192ADA2E2A4099000025A1 /* HCSpacerView.swift in Sources */,
 				DC62F56C29250DC80095BB5D /* AccountConnectionConsumer.swift in Sources */,
 				DCBAEAE029A554CC00BFF393 /* CollectionViewSupplementaryItem.swift in Sources */,
 				DC0A359924C0E6FE00FB58FC /* VendorServices.swift in Sources */,
@@ -5064,7 +5104,7 @@
 				DC0A357524C0E43200FB58FC /* ProgressView.swift in Sources */,
 				DC62F57429268D710095BB5D /* ClientWebAppViewController.swift in Sources */,
 				DC24E10B28B7C185002E4F5B /* SingleFolderSearchScope.swift in Sources */,
-				99F472F22E095C1500104592 /* UIColor+HexString.swift in Sources */,
+				99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */,
 				99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */,
 				99F472F72E095C1500104592 /* HCColor.swift in Sources */,
 				99F472F82E095C1500104592 /* UIButton+HCButtonStyle.swift in Sources */,
@@ -5466,7 +5506,7 @@
 				APP_BUILD_FLAGS = "$(inherited)";
 				APP_BUILD_FLAGS_SWIFT = "$(APP_BUILD_FLAGS)";
 				APP_PRODUCT_NAME = ownCloud;
-				APP_SHORT_VERSION = 1.0.4;
+				APP_SHORT_VERSION = 1.0.5;
 				APP_VERSION = 1;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -5537,7 +5577,7 @@
 				APP_BUILD_FLAGS = "$(inherited)";
 				APP_BUILD_FLAGS_SWIFT = "$(APP_BUILD_FLAGS)";
 				APP_PRODUCT_NAME = ownCloud;
-				APP_SHORT_VERSION = 1.0.4;
+				APP_SHORT_VERSION = 1.0.5;
 				APP_VERSION = 1;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;

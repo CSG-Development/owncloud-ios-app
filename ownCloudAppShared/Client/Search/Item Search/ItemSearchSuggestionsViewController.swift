@@ -102,8 +102,15 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 		])
 	]
 
-	var stackView : UIStackView?
-	private var rootView : UIView?
+	lazy var stackView: UIStackView = {
+		// Stack view
+		let stackView = UIStackView(frame: .zero)
+		stackView.translatesAutoresizingMaskIntoConstraints = false
+		stackView.axis = .horizontal
+		stackView.distribution = .fill
+		stackView.spacing = 0
+		return stackView
+	}()
 
 	var savedSearchPopup: PopupButtonController?
 	var searchedContentPopup: PopupButtonController?
@@ -145,14 +152,11 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 		self.present(alert, animated: true)
 	}
 
-	override func loadView() {
-		// Stack view
-		stackView = UIStackView(frame: .zero)
-		stackView?.translatesAutoresizingMaskIntoConstraints = false
-		stackView?.axis = .horizontal
-		stackView?.distribution = .equalSpacing
-		stackView?.spacing = 0
+	private var scopeSupportsContentSearch: Bool {
+		scope?.searchableContent.contains(.contents) ?? false
+	}
 
+	override func viewDidLoad() {
 		// Saved search popup
 		savedSearchPopup = PopupButtonController(with: [], selectFirstChoice: false, dropDown: true, choiceHandler: { [weak self] choice, wasSelected in
 			if let scope = self?.scope, let command = choice.representedObject as? String {
@@ -254,33 +258,15 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 			}
 		}
 
-		rootView = UIView()
-		rootView?.translatesAutoresizingMaskIntoConstraints = false
-
-		rootView?.addSubview(stackView!)
-		rootView?.addSubview(savedSearchPopup!.button)
-
-		guard let stackView = stackView, let rootView = rootView, let savedSearchPopupButton = savedSearchPopup?.button else { return }
+		view.addSubview(stackView)
 
 		NSLayoutConstraint.activate([
-			stackView.leadingAnchor.constraint(equalTo: rootView.leadingAnchor),
-			stackView.trailingAnchor.constraint(lessThanOrEqualTo: savedSearchPopupButton.leadingAnchor),
-			stackView.topAnchor.constraint(equalTo: rootView.topAnchor),
-			stackView.bottomAnchor.constraint(equalTo: rootView.bottomAnchor),
-
-			savedSearchPopupButton.topAnchor.constraint(equalTo: rootView.topAnchor),
-			savedSearchPopupButton.bottomAnchor.constraint(equalTo: rootView.bottomAnchor),
-			savedSearchPopupButton.trailingAnchor.constraint(equalTo: rootView.trailingAnchor)
+			stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			stackView.topAnchor.constraint(equalTo: view.topAnchor),
+			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 		])
 
-		view = rootView
-	}
-
-	private var scopeSupportsContentSearch: Bool {
-		scope?.searchableContent.contains(.contents) ?? false
-	}
-
-	override func viewDidLoad() {
 		categoryActiveButtonConfig = UIButton.Configuration.borderedTinted()
 		categoryActiveButtonConfig?.contentInsets.leading = 0
 		categoryActiveButtonConfig?.contentInsets.trailing = 3
@@ -291,12 +277,21 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 
 		createPopups()
 
+		stackView.isLayoutMarginsRelativeArrangement = true
+
 		for category in categories {
 			if let button = category.popupController?.button {
-				stackView?.addArrangedSubview(button)
+				button.setContentCompressionResistancePriority(.required, for: .horizontal)
+				stackView.addArrangedSubview(button)
 			}
 		}
+		let spacerView = HCSpacerView(nil, .horizontal)
+		spacerView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+		stackView.addArrangedSubview(spacerView)
 
+		if let button = savedSearchPopup?.button {
+			stackView.addArrangedSubview(button)
+		}
 		if scopeSupportsContentSearch, let searchedContentPopup {
 			let containerView = UIView()
 			containerView.translatesAutoresizingMaskIntoConstraints = false
@@ -324,7 +319,16 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 				popupButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
 			])
 
-			stackView?.addArrangedSubview(containerView)
+			stackView.addArrangedSubview(containerView)
+		}
+	}
+
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		// Fix for the wrong stack view layout after rotation from landscape with opened sidebar.
+		DispatchQueue.main.async {
+			self.stackView.arrangedSubviews.forEach {
+				$0.invalidateIntrinsicContentSize()
+			}
 		}
 	}
 
@@ -419,18 +423,7 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 		if let searchScope = scope as? ItemSearchScope, searchScope.canSaveSearch || searchScope.canSaveTemplate {
 			showSavedSearchButton = true
 		}
-		if let savedSearchPopupButton = savedSearchPopup?.button {
-			if showSavedSearchButton {
-				if savedSearchPopupButton.superview == nil {
-					stackView?.addArrangedSubview(savedSearchPopupButton)
-				}
-			} else {
-				if savedSearchPopupButton.superview != nil {
-					stackView?.removeArrangedSubview(savedSearchPopupButton)
-					savedSearchPopupButton.removeFromSuperview()
-				}
-			}
-		}
+		savedSearchPopup?.button.isHidden = !showSavedSearchButton
 
 		for category in categories {
 			var categoryHasMatch: Bool = false

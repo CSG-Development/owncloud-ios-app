@@ -26,12 +26,11 @@ public protocol BrowserNavigationViewControllerDelegate: AnyObject {
 		contentViewControllerDidChange: UIViewController?)
 }
 
-open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
-	BrowserNavigationHistoryDelegate, ThemeCSSAutoSelector
-{
+open class BrowserNavigationViewController: EmbeddingViewController, Themeable, BrowserNavigationHistoryDelegate, ThemeCSSAutoSelector {
 	var navigationView: UINavigationBar = UINavigationBar()
 	var contentContainerView: UIView = UIView()
 	var contentContainerLidView: UIView = UIView()
+	var wrappedContentContainerView: UIView!
 	var tabBarView: ThemeCSSView = ThemeCSSView(withSelectors: [.tabBar])
 
 	var filesButton = ImageHighlightCapsuleButton(
@@ -101,6 +100,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 
 		let wrappedContentContainerView = contentContainerView.withScreenshotProtection
 		view.addSubview(wrappedContentContainerView)
+		self.wrappedContentContainerView = wrappedContentContainerView
 
 		navigationView.translatesAutoresizingMaskIntoConstraints = false
 		navigationView.delegate = self
@@ -140,10 +140,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 
 		NSLayoutConstraint.activate([
 			wrappedContentContainerView.topAnchor.constraint(equalTo: view.topAnchor),
-			wrappedContentContainerView.bottomAnchor.constraint(
-				equalTo: wrappedContentContainerView.topAnchor),
-			wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor).with(
-				priority: .defaultHigh),  // Allow for flexibility without having to remove this constraint. It will be overridden by constraints with higher priority (default is .required) when necessary
+			// Leading is in the composed constraints.
 			wrappedContentContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
 			tabBarView.topAnchor.constraint(equalTo: wrappedContentContainerView.bottomAnchor),
@@ -174,7 +171,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 			navigationView.leadingAnchor.constraint(
 				equalTo: contentContainerView.safeAreaLayoutGuide.leadingAnchor),
 			navigationView.trailingAnchor.constraint(
-				equalTo: contentContainerView.safeAreaLayoutGuide.trailingAnchor),
+				equalTo: contentContainerView.safeAreaLayoutGuide.trailingAnchor)
 		])
 
 		navigationView.items = []
@@ -187,14 +184,18 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 		let connection = AccountConnectionPool.shared.connectionsByBookmarkUUID.values.first!
 		guard let clientContext = clientContextProvider?() else { return }
 		let context = ClientContext(with: clientContext, accountConnection: connection)
-		let bookmarkUUID = connection.bookmark.uuid
 
 		let location = OCLocation(
-			bookmarkUUID: connection.core?.bookmark.uuid, driveID: nil, path: "/")
-		location.openItem(from: self, with: context, animated: true, pushViewController: true) {
-			_ in
-			print("4242")
-		}
+			bookmarkUUID: connection.core?.bookmark.uuid,
+			driveID: nil,
+			path: "/"
+		)
+		_ = location.openItem(
+			from: self,
+			with: context,
+			animated: true,
+			pushViewController: true
+		) { _ in }
 	}
 
 	@objc private func didTapLinks() {
@@ -209,15 +210,19 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 		guard let accountController = accountControllerProvider?(bookmarkUUID) else { return }
 
 		let item = CollectionSidebarAction(
-			with: "tedt", icon: nil,
-			viewControllerProvider: { [weak self] (context, action) in
-				return accountController.provideViewController(
-					for: .sharedByLink, in: context)
-			}, cacheViewControllers: false)
+			with: "", icon: nil,
+			viewControllerProvider: { (context, action) in
+				accountController.provideViewController(for: .sharedByLink, in: context)
+			},
+			cacheViewControllers: false
+		)
 
-		item.openItem(from: self, with: context, animated: true, pushViewController: true) { _ in
-			print("4242")
-		}
+		_ = item.openItem(
+			from: self,
+			with: context,
+			animated: true,
+			pushViewController: true
+		) { _ in }
 	}
 
 	@objc private func didTapUploads() {
@@ -232,15 +237,17 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 		guard let accountController = accountControllerProvider?(bookmarkUUID) else { return }
 
 		let item = CollectionSidebarAction(
-			with: "tedt", icon: nil,
-			viewControllerProvider: { [weak self] (context, action) in
-				return accountController.provideViewController(
-					for: .activity, in: context)
+			with: "", icon: nil,
+			viewControllerProvider: { (context, action) in
+				accountController.provideViewController(for: .activity, in: context)
 			}, cacheViewControllers: false)
 
-		item.openItem(from: self, with: context, animated: true, pushViewController: true) { _ in
-			print("4242")
-		}
+		_ = item.openItem(
+			from: self,
+			with: context,
+			animated: true,
+			pushViewController: true
+		) { _ in }
 	}
 
 	@objc private func didTapOffline() {
@@ -255,22 +262,22 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 		guard let accountController = accountControllerProvider?(bookmarkUUID) else { return }
 
 		let item = CollectionSidebarAction(
-			with: "tedt", icon: nil,
-			viewControllerProvider: { [weak self] (context, action) in
-				return accountController.provideViewController(
-					for: .availableOfflineItems, in: context)
+			with: "", icon: nil,
+			viewControllerProvider: { (context, action) in
+				accountController.provideViewController(for: .availableOfflineItems, in: context)
 			}, cacheViewControllers: false)
 
-		item.openItem(from: self, with: context, animated: true, pushViewController: true) { _ in
-			print("4242")
-		}
+		_ = item.openItem(
+			from: self,
+			with: context,
+			animated: true,
+			pushViewController: true
+		) { _ in }
 	}
 
 	func updateBottomNavigation() {
 		tabBarButtons.forEach { $0.isSelected = false }
-		if let item = history.lastPushAttempt.navigationBookmark?.specialItem
-
-
+		//if let item = history.lastPushAttempt.navigationBookmark?.specialItem
 	}
 
 	private var _themeRegistered = false
@@ -332,6 +339,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 		completion: BrowserNavigationHistory.CompletionHandler? = nil
 	) {
 		push(item: BrowserNavigationItem(viewController: viewController), completion: completion)
+	}
+
+	open func deleteCurrent(
+		completion: BrowserNavigationHistory.CompletionHandler? = nil
+	) {
+		history.deleteCurrent(completion: completion)
 	}
 
 	open func push(
@@ -491,6 +504,15 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 	}
 
 	// MARK: - BrowserNavigationHistoryDelegate
+
+	public func updateNavigation() {
+		if let navigationItem = contentViewController?.navigationItem {
+			updateContentNavigationItems()
+
+			navigationView.items = [ navigationItem ]
+		}
+	}
+
 	public func present(
 		item: BrowserNavigationItem?, with direction: BrowserNavigationHistory.Direction,
 		completion: BrowserNavigationHistory.CompletionHandler?
@@ -594,6 +616,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 		didSet {
 			if let composedConstraints {
 				NSLayoutConstraint.activate(composedConstraints)
+				view.setNeedsLayout()
 			}
 		}
 	}
@@ -650,7 +673,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 				case .over:
 					self.contentContainerLidView.alpha = 0.0
 					self.contentContainerLidView.isHidden = false
-				default: break
+				default:
+					break
 				}
 			}
 
@@ -661,7 +685,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 						switch self.effectiveSideBarDisplayMode {
 						case .over:
 							self.contentContainerLidView.alpha = 1.0
-						default: break
+						default:
+							break
 						}
 					} else {
 						self.contentContainerLidView.alpha = 0.0
@@ -685,48 +710,60 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 		if let sidebarViewController, let sidebarView = sidebarViewController.view, let view {
 			if isSideBarVisible {
 				switch effectiveSideBarDisplayMode {
-				case .fullWidth:
-					// Sidebar occupies full area
-					newConstraints = [
-						sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-						sidebarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-						sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-						sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-					]
+					case .fullWidth:
+						// Sidebar occupies full area
+						newConstraints = [
+							sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+							sidebarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+							sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
+							sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+							wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+						]
 
-					contentContainerLidView.isHidden = true
+						contentContainerLidView.isHidden = true
 
-				case .sideBySide:
-					// Sidebar + Content side-by-side
-					newConstraints = [
-						sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-						sidebarView.trailingAnchor.constraint(
-							equalTo: contentContainerView.leadingAnchor, constant: -1),
-						sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-						sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-						sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth)
-					]
+					case .sideBySide:
+						// Sidebar + Content side-by-side
+						if UIDevice.current.isIpad {
+							newConstraints = [
+								sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+								sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
+								sidebarView.bottomAnchor.constraint(equalTo: tabBarView.topAnchor),
+								sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
+								wrappedContentContainerView.leadingAnchor.constraint(equalTo: sidebarView.trailingAnchor, constant: -1)
+							]
+						} else {
+							newConstraints = [
+								sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+								sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
+								sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+								sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
+								wrappedContentContainerView.leadingAnchor.constraint(equalTo: sidebarView.trailingAnchor, constant: -1)
+							]
+						}
 
-					contentContainerLidView.isHidden = true
+						contentContainerLidView.isHidden = true
 
-				case .over:
-					// Sidebar over content
-					newConstraints = [
-						sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-						sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-						sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-						sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth)
-					]
+					case .over:
+						// Sidebar over content
+						newConstraints = [
+							sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+							sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
+							sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+							sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
+							wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+						]
 
-					contentContainerLidView.isHidden = false
+						contentContainerLidView.isHidden = false
 				}
 			} else {
 				// Position sidebar left outside of view
 				newConstraints = [
 					sidebarView.trailingAnchor.constraint(equalTo: view.leadingAnchor),
 					sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-					sidebarView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-					sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth)
+					sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+					sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
+					wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
 				]
 			}
 		}
@@ -764,30 +801,25 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable,
 	}
 
 	open override var childForStatusBarStyle: UIViewController? {
-		return nil
+		nil
 	}
 }
 
 extension BrowserNavigationViewController: UINavigationBarDelegate {
 	public func position(for bar: UIBarPositioning) -> UIBarPosition {
-		return .topAttached
+		.topAttached
 	}
 }
 
 extension UIViewController {
 	public var browserNavigationViewController: BrowserNavigationViewController? {
 		var viewController: UIViewController? = self
-
 		while viewController != nil {
-			if let browserNavigationViewController = viewController
-				as? BrowserNavigationViewController
-			{
+			if let browserNavigationViewController = viewController as? BrowserNavigationViewController {
 				return browserNavigationViewController
 			}
-
 			viewController = viewController?.parent
 		}
-
 		return nil
 	}
 }

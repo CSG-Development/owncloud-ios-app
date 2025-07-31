@@ -94,7 +94,6 @@ open class ThemeNavigationController: UINavigationController, Themeable {
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		self.applyThemeCollection(collection)
 		self.toolbar.applyThemeCollection(collection)
-		self.view.backgroundColor = .clear
 
 		if event == .update {
 			self.setNeedsStatusBarAppearanceUpdate()

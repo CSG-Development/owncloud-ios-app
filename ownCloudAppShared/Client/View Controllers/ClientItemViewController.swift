@@ -362,6 +362,14 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 			collectionView.refreshControl = refreshControl
 		}
+
+		let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+		tapGesture.cancelsTouchesInView = false
+		view.addGestureRecognizer(tapGesture)
+	}
+
+	@objc private func dismissKeyboard() {
+		view.window?.findAndResignFirstResponder()
 	}
 
 	var locationBarViewController: ClientLocationBarController? {

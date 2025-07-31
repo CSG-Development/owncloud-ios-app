@@ -132,25 +132,19 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 				let configuration = BookmarkComposerConfiguration.newBookmarkConfiguration
 				configuration.hasIntro = true
 
-				let welcomeViewController = WelcomeViewController()
-				welcomeViewController.backgroundImage =
-				Branding.shared.brandedImageNamed(.brandBackground)
-
-				welcomeViewController.onStartSetupTap = { [weak self] in
-					self?.contentViewController = BookmarkSetupViewController(configuration: configuration)
-				}
-
-				welcomeViewController.onSettingsTap = { [weak self] in
-					let navigationViewController = ThemeNavigationController(rootViewController: SettingsViewController())
-					navigationViewController.modalPresentationStyle = .fullScreen
-					self?.present(navigationViewController, animated: true)
-				}
-
-				// self?.contentViewController = self?.firstRunCoordinator.makeInitial()
-				self?.contentViewController = welcomeViewController
+				self?.contentViewController = BookmarkSetupViewController(
+					configuration: configuration
+				)
 			} else {
-				// Account already available
-				self?.contentViewController = self?.contentBrowserController
+				if HCSettings.shared.shouldShowOnboarding {
+					let onboardingVC = OnboardingViewController()
+					onboardingVC.onFinishedOnboarding = { [weak self] in
+						self?.contentViewController = self?.contentBrowserController
+					}
+					self?.contentViewController = onboardingVC
+				} else {
+					self?.contentViewController = self?.contentBrowserController
+				}
 			}
 		})
 
