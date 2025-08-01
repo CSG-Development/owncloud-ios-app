@@ -340,7 +340,7 @@ public class ClientLocationPicker : NSObject {
 				navigationController.pushViewController(rootViewController, animated: false)
 
 				let pickerViewController = ClientLocationPickerViewController(with: self)
-				//pickerViewController.contentViewController = navigationController
+				pickerViewController.contentViewController = navigationController
 				pickerViewController.isModalInPresentation = true
 
 				return pickerViewController

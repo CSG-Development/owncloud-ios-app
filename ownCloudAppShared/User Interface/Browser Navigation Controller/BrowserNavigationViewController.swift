@@ -27,32 +27,36 @@ public protocol BrowserNavigationViewControllerDelegate: AnyObject {
 }
 
 open class BrowserNavigationViewController: EmbeddingViewController, Themeable, BrowserNavigationHistoryDelegate, ThemeCSSAutoSelector {
-	var navigationView: UINavigationBar = UINavigationBar()
-	var contentContainerView: UIView = UIView()
-	var contentContainerLidView: UIView = UIView()
-	var wrappedContentContainerView: UIView!
-	var tabBarView: ThemeCSSView = ThemeCSSView(withSelectors: [.tabBar])
-
-	var filesButton = ImageHighlightCapsuleButton(
-		image: UIImage(systemName: "star.fill"),
-		title: "Files"
-	)
-	var linksButton = ImageHighlightCapsuleButton(
-		image: UIImage(systemName: "star.fill"),
-		title: "Links"
-	)
-	var uploadsButton = ImageHighlightCapsuleButton(
-		image: UIImage(systemName: "star.fill"),
-		title: "Uploads"
-	)
-	var offlineButton = ImageHighlightCapsuleButton(
-		image: UIImage(systemName: "star.fill"),
-		title: "Offline"
-	)
-	lazy var tabBarButtons: [UIButton] = {
-		[filesButton, linksButton, uploadsButton, offlineButton]
+	lazy var contentContainerView: UIView = {
+		let view = UIView()
+		view.cssSelector = .content
+		view.focusGroupIdentifier = "com.owncloud.content"
+		return view
 	}()
 
+	lazy var wrappedContentContainerView: UIView = {
+		contentContainerView.withScreenshotProtection
+	}()
+
+	lazy var navigationView: UINavigationBar = {
+		let navigationView = UINavigationBar()
+		navigationView.delegate = self
+		return navigationView
+	}()
+
+	lazy var contentContainerLidView: UIView = {
+		let view = UIView()
+		view.backgroundColor = UIColor(white: 0.0, alpha: 0.5)
+		view.isHidden = true
+		view.addGestureRecognizer(UITapGestureRecognizer(
+			target: self,
+			action: #selector(showHideSideBar)
+		))
+		return view
+	}()
+
+	private var isTabBarHidden: Bool = false
+	var tabBarView = HCBrowserNavigationTabBarView()
 	var sideBarSeperatorView: ThemeCSSView = ThemeCSSView(withSelectors: [.separator])
 
 	lazy open var history: BrowserNavigationHistory = {
@@ -89,194 +93,178 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			// if the window width can't be determined
 			sideBarDisplayMode = .over
 		}
+		setContainerLidHidden(isSideBarHidden || effectiveSideBarDisplayMode != .over)
 	}
 
 	open override func viewDidLoad() {
 		super.viewDidLoad()
 
-		contentContainerView.cssSelector = .content
-		contentContainerView.translatesAutoresizingMaskIntoConstraints = false
-		contentContainerView.focusGroupIdentifier = "com.owncloud.content"
-
-		let wrappedContentContainerView = contentContainerView.withScreenshotProtection
-		view.addSubview(wrappedContentContainerView)
-		self.wrappedContentContainerView = wrappedContentContainerView
-
-		navigationView.translatesAutoresizingMaskIntoConstraints = false
-		navigationView.delegate = self
-
 		contentContainerView.addSubview(navigationView)
 
-		contentContainerLidView.translatesAutoresizingMaskIntoConstraints = false
-		contentContainerLidView.backgroundColor = UIColor(white: 0.0, alpha: 0.5)
-		contentContainerLidView.isHidden = true
-		contentContainerLidView.addGestureRecognizer(
-			UITapGestureRecognizer(target: self, action: #selector(showHideSideBar)))
+		view.addSubview(wrappedContentContainerView)
+		view.addSubview(sideBarSeperatorView)
+		view.addSubview(tabBarView)
 		view.addSubview(contentContainerLidView)
 
-		sideBarSeperatorView.translatesAutoresizingMaskIntoConstraints = false
-		view.addSubview(sideBarSeperatorView)
+		contentContainerLidView.snp.remakeConstraints {
+			$0.edges.equalToSuperview()
+		}
 
-		navigationBarTopConstraint = navigationBarTopConstraint(for: navigationBarHidden)
+		sideBarSeperatorView.snp.remakeConstraints {
+			$0.top.bottom.equalToSuperview()
+			$0.leading.equalToSuperview().offset(-1)
+			$0.width.equalTo(1)
+		}
 
-		tabBarView.translatesAutoresizingMaskIntoConstraints = false
-		view.addSubview(tabBarView)
-
-		let stackView = UIStackView()
-		stackView.axis = .horizontal
-		stackView.distribution = .fillEqually
-		tabBarView.addSubview(stackView)
-		stackView.snp.makeConstraints { $0.edges.equalToSuperview() }
-
-		filesButton.addTarget(self, action: #selector(didTapFiles), for: .touchUpInside)
-		linksButton.addTarget(self, action: #selector(didTapLinks), for: .touchUpInside)
-		uploadsButton.addTarget(self, action: #selector(didTapUploads), for: .touchUpInside)
-		offlineButton.addTarget(self, action: #selector(didTapOffline), for: .touchUpInside)
-
-		stackView.addArrangedSubview(filesButton)
-		stackView.addArrangedSubview(linksButton)
-		stackView.addArrangedSubview(uploadsButton)
-		stackView.addArrangedSubview(offlineButton)
-
-		NSLayoutConstraint.activate([
-			wrappedContentContainerView.topAnchor.constraint(equalTo: view.topAnchor),
-			// Leading is in the composed constraints.
-			wrappedContentContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-			tabBarView.topAnchor.constraint(equalTo: wrappedContentContainerView.bottomAnchor),
-			tabBarView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-			tabBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor).with(
-				priority: .defaultHigh),
-			tabBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			tabBarView.heightAnchor.constraint(equalToConstant: 68),
-
-			contentContainerLidView.topAnchor.constraint(
-				equalTo: wrappedContentContainerView.topAnchor),
-			contentContainerLidView.bottomAnchor.constraint(
-				equalTo: wrappedContentContainerView.bottomAnchor),
-			contentContainerLidView.leadingAnchor.constraint(
-				equalTo: wrappedContentContainerView.leadingAnchor),
-			contentContainerLidView.trailingAnchor.constraint(
-				equalTo: wrappedContentContainerView.trailingAnchor),
-
-			sideBarSeperatorView.topAnchor.constraint(
-				equalTo: wrappedContentContainerView.topAnchor),
-			sideBarSeperatorView.bottomAnchor.constraint(
-				equalTo: wrappedContentContainerView.bottomAnchor),
-			sideBarSeperatorView.leadingAnchor.constraint(
-				equalTo: wrappedContentContainerView.leadingAnchor, constant: -1),
-			sideBarSeperatorView.widthAnchor.constraint(equalToConstant: 1),
-
-			navigationBarTopConstraint!,
-			navigationView.leadingAnchor.constraint(
-				equalTo: contentContainerView.safeAreaLayoutGuide.leadingAnchor),
-			navigationView.trailingAnchor.constraint(
-				equalTo: contentContainerView.safeAreaLayoutGuide.trailingAnchor)
-		])
+		updateDynamicLayout()
+		setupTabBar()
 
 		navigationView.items = []
 	}
 
-	@objc private func didTapFiles() {
-		tabBarButtons.forEach { $0.isSelected = false }
-		filesButton.isSelected = true
+	private func updateDynamicLayout() {
+		guard let sidebarView, let view, sidebarView.superview != nil else { return }
 
-		let connection = AccountConnectionPool.shared.connectionsByBookmarkUUID.values.first!
-		guard let clientContext = clientContextProvider?() else { return }
-		let context = ClientContext(with: clientContext, accountConnection: connection)
+		sidebarView.snp.remakeConstraints {
+			guard !isSideBarHidden else {
+				$0.trailing.equalTo(view.snp.leading)
+				$0.top.equalToSuperview()
+				if UIDevice.current.isIpad {
+					$0.bottom.equalTo(tabBarView.snp.top)
+				} else {
+					$0.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
+				}
+				$0.width.equalTo(sideBarWidth)
+				return
+			}
 
-		let location = OCLocation(
-			bookmarkUUID: connection.core?.bookmark.uuid,
-			driveID: nil,
-			path: "/"
-		)
-		_ = location.openItem(
-			from: self,
-			with: context,
-			animated: true,
-			pushViewController: true
-		) { _ in }
+			switch effectiveSideBarDisplayMode {
+				case .fullWidth:
+					$0.leading.trailing.top.equalToSuperview()
+					$0.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
+
+				case .sideBySide, .over:
+					$0.leading.top.equalToSuperview()
+					$0.width.equalTo(sideBarWidth)
+					if UIDevice.current.isIpad {
+						$0.bottom.equalTo(tabBarView.snp.top)
+					} else {
+						$0.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
+					}
+			}
+		}
+
+		tabBarView.snp.remakeConstraints {
+			if isTabBarHidden {
+				$0.top.equalTo(view.snp.bottom)
+			} else {
+				$0.top.equalTo(wrappedContentContainerView.snp.bottom)
+				$0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+			}
+			$0.leading.equalTo(view.snp.leading).priority(.high)
+			$0.trailing.equalTo(view.snp.trailing)
+			$0.height.equalTo(68)
+		}
+
+		wrappedContentContainerView.snp.remakeConstraints {
+			guard !isSideBarHidden else {
+				$0.top.leading.trailing.equalToSuperview()
+				return
+			}
+			switch effectiveSideBarDisplayMode {
+				case .fullWidth:
+					$0.top.leading.trailing.equalToSuperview()
+
+				case .sideBySide:
+					$0.top.trailing.equalToSuperview()
+					$0.leading.equalTo(sidebarView.snp.trailing).offset(-1)
+
+				case .over:
+					$0.top.trailing.equalToSuperview()
+					$0.leading.equalTo(view.snp.leading)
+			}
+		}
 	}
 
-	@objc private func didTapLinks() {
-		tabBarButtons.forEach { $0.isSelected = false }
-		linksButton.isSelected = true
+	private func setupTabBar() {
+		tabBarView.onTabSelected = { [weak self] tab in
+			guard
+				let self,
+			    let tab
+			else { return }
 
-		let connection = AccountConnectionPool.shared.connectionsByBookmarkUUID.values.first!
-		guard let clientContext = clientContextProvider?() else { return }
-		let context = ClientContext(with: clientContext, accountConnection: connection)
-		let bookmarkUUID = connection.bookmark.uuid
+			let connection = AccountConnectionPool.shared.connectionsByBookmarkUUID.values.first!
+			guard let clientContext = clientContextProvider?() else { return }
+			let context = ClientContext(with: clientContext, accountConnection: connection)
 
-		guard let accountController = accountControllerProvider?(bookmarkUUID) else { return }
+			guard
+				let bookmarkUUID = connection.core?.bookmark.uuid,
+				let accountController = accountControllerProvider?(bookmarkUUID)
+			else { return }
 
-		let item = CollectionSidebarAction(
-			with: "", icon: nil,
-			viewControllerProvider: { (context, action) in
-				accountController.provideViewController(for: .sharedByLink, in: context)
-			},
-			cacheViewControllers: false
-		)
+			switch tab {
+				case .files:
+					let location = OCLocation(
+						bookmarkUUID: bookmarkUUID,
+						driveID: nil,
+						path: "/"
+					)
+					_ = location.openItem(
+						from: self,
+						with: context,
+						animated: true,
+						pushViewController: true
+					) { _ in }
 
-		_ = item.openItem(
-			from: self,
-			with: context,
-			animated: true,
-			pushViewController: true
-		) { _ in }
-	}
+				case .links:
+					let item = CollectionSidebarAction(
+						with: "", icon: nil,
+						viewControllerProvider: { (context, action) in
+							accountController.provideViewController(for: .sharedByLink, in: context)
+						},
+						cacheViewControllers: false
+					)
 
-	@objc private func didTapUploads() {
-		tabBarButtons.forEach { $0.isSelected = false }
-		uploadsButton.isSelected = true
+					_ = item.openItem(
+						from: self,
+						with: context,
+						animated: true,
+						pushViewController: true
+					) { _ in }
 
-		let connection = AccountConnectionPool.shared.connectionsByBookmarkUUID.values.first!
-		guard let clientContext = clientContextProvider?() else { return }
-		let context = ClientContext(with: clientContext, accountConnection: connection)
-		let bookmarkUUID = connection.bookmark.uuid
+				case .uploads:
+					let item = CollectionSidebarAction(
+						with: "", icon: nil,
+						viewControllerProvider: { (context, action) in
+							accountController.provideViewController(for: .activity, in: context)
+						}, cacheViewControllers: false)
 
-		guard let accountController = accountControllerProvider?(bookmarkUUID) else { return }
+					_ = item.openItem(
+						from: self,
+						with: context,
+						animated: true,
+						pushViewController: true
+					) { _ in }
 
-		let item = CollectionSidebarAction(
-			with: "", icon: nil,
-			viewControllerProvider: { (context, action) in
-				accountController.provideViewController(for: .activity, in: context)
-			}, cacheViewControllers: false)
+				case .offline:
+					let item = CollectionSidebarAction(
+						with: "", icon: nil,
+						viewControllerProvider: { (context, action) in
+							accountController.provideViewController(for: .availableOfflineItems, in: context)
+						}, cacheViewControllers: false)
 
-		_ = item.openItem(
-			from: self,
-			with: context,
-			animated: true,
-			pushViewController: true
-		) { _ in }
-	}
-
-	@objc private func didTapOffline() {
-		tabBarButtons.forEach { $0.isSelected = false }
-		offlineButton.isSelected = true
-
-		let connection = AccountConnectionPool.shared.connectionsByBookmarkUUID.values.first!
-		guard let clientContext = clientContextProvider?() else { return }
-		let context = ClientContext(with: clientContext, accountConnection: connection)
-		let bookmarkUUID = connection.bookmark.uuid
-
-		guard let accountController = accountControllerProvider?(bookmarkUUID) else { return }
-
-		let item = CollectionSidebarAction(
-			with: "", icon: nil,
-			viewControllerProvider: { (context, action) in
-				accountController.provideViewController(for: .availableOfflineItems, in: context)
-			}, cacheViewControllers: false)
-
-		_ = item.openItem(
-			from: self,
-			with: context,
-			animated: true,
-			pushViewController: true
-		) { _ in }
+					_ = item.openItem(
+						from: self,
+						with: context,
+						animated: true,
+						pushViewController: true
+					) { _ in }
+			}
+		}
 	}
 
 	func updateBottomNavigation() {
-		tabBarButtons.forEach { $0.isSelected = false }
+		//tabBarButtons.forEach { $0.isSelected = false }
 		//if let item = history.lastPushAttempt.navigationBookmark?.specialItem
 	}
 
@@ -292,27 +280,25 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	open override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		navigationController?.isNavigationBarHidden = true
+
+		setNavigationBarHidden(false, animated: false)
 	}
 
 	// MARK: - Navigation Bar
-	private var navigationBarTopConstraint: NSLayoutConstraint?
-	private func navigationBarTopConstraint(for hidden: Bool) -> NSLayoutConstraint {
-		if hidden {
-			return navigationView.bottomAnchor.constraint(equalTo: contentContainerView.topAnchor)
-		}
-
-		return navigationView.topAnchor.constraint(
-			equalTo: contentContainerView.safeAreaLayoutGuide.topAnchor)
-	}
-
-	open var navigationBarHidden: Bool = false
 	open func setNavigationBarHidden(
-		_ hidden: Bool, animated: Bool, completion: (() -> Void)? = nil
+		_ hidden: Bool,
+		animated: Bool,
+		completion: (() -> Void)? = nil
 	) {
 		let updateLayout = {
-			self.navigationBarTopConstraint?.isActive = false
-			self.navigationBarTopConstraint = self.navigationBarTopConstraint(for: hidden)
-			self.navigationBarTopConstraint?.isActive = true
+			self.navigationView.snp.remakeConstraints {
+				$0.leading.trailing.equalTo(self.contentContainerView.safeAreaLayoutGuide)
+				if hidden {
+					$0.bottom.equalTo(self.contentContainerView.snp.top)
+				} else {
+					$0.top.equalTo(self.contentContainerView.safeAreaLayoutGuide.snp.top)
+				}
+			}
 		}
 
 		OnMainThread(inline: true) {
@@ -354,7 +340,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		history.push(item: item)
 
 		if hideSideBarInOverDisplayModeOnPush, sideBarDisplayMode == .over {
-			setSideBarVisible(false, animated: true)
+			setSideBarHidden(true, animated: true)
 		}
 	}
 
@@ -386,7 +372,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	@objc func showHideSideBar() {
-		setSideBarVisible(!isSideBarVisible)
+		setSideBarHidden(!isSideBarHidden)
+
 	}
 
 	@objc func navBack() {
@@ -497,7 +484,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			updateLeftBarButtonItems(
 				for: contentNavigationItem,
 				withToggleSideBar: (effectiveSideBarDisplayMode == .sideBySide)
-				? !isSideBarVisible : true, withBackButton: hasNavigation, withForwardButton: hasNavigation)
+				? isSideBarHidden : true, withBackButton: hasNavigation, withForwardButton: hasNavigation)
 		}
 
 		updateSideBarNavigationItem()
@@ -583,6 +570,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		}
 	}
 
+	var sidebarView: UIView?
+
 	open var sidebarViewController: UIViewController? {
 		willSet {
 			sidebarViewController?.willMove(toParent: nil)
@@ -594,7 +583,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 				sidebarViewController.focusGroupIdentifier = "com.owncloud.sidebar"
 
 				updateSideBarNavigationItem()
-
+				sidebarView = sidebarViewControllerView
 				addChild(sidebarViewController)
 				view.addSubview(sidebarViewControllerView)
 				sidebarViewControllerView.translatesAutoresizingMaskIntoConstraints = false
@@ -607,19 +596,6 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	// MARK: - Constraints, state & animation
-	private var composedConstraints: [NSLayoutConstraint]? {
-		willSet {
-			if let composedConstraints {
-				NSLayoutConstraint.deactivate(composedConstraints)
-			}
-		}
-		didSet {
-			if let composedConstraints {
-				NSLayoutConstraint.activate(composedConstraints)
-				view.setNeedsLayout()
-			}
-		}
-	}
 
 	public enum SideBarDisplayMode {
 		case fullWidth
@@ -633,7 +609,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		case showEmptyHistoryViewController
 	}
 
-	public var isSideBarVisible: Bool = true {
+	public var isSideBarHidden: Bool = false {
 		didSet {
 			setNeedsStatusBarAppearanceUpdate()
 		}
@@ -658,119 +634,72 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	public var emptyHistoryBehaviour: EmptyHistoryBehaviour = .expandSideBarToFullWidth
 	public var hideSideBarInOverDisplayModeOnPush: Bool = true
 
-	open func setSideBarVisible(_ sideBarVisible: Bool, animated: Bool = true) {
-		if isSideBarVisible == sideBarVisible {
-			return
+	func setTabBarHidden(_ isHidden: Bool, animated: Bool = true) {
+		let animations = {
+			self.updateDynamicLayout()
+			self.view.layoutIfNeeded()
 		}
 
-		isSideBarVisible = sideBarVisible
+		let completion: (Bool) -> Void = { _ in
+
+		}
+
+		updateDynamicLayout()
+		self.isTabBarHidden = isHidden
+		if animated {
+			UIView.animate(withDuration: 0.3, animations: animations, completion: completion)
+		} else {
+			animations()
+			completion(true)
+		}
+	}
+
+	func setContainerLidHidden(_ isHidden: Bool, animated: Bool = true) {
+		let animations = {
+			self.contentContainerLidView.alpha = isHidden ? 0.0 : 1.0
+		}
+
+		let completion: (Bool) -> Void = { _ in
+			self.contentContainerLidView.isHidden = isHidden
+		}
+
+		self.contentContainerLidView.alpha = isHidden ? 1.0 : 0.0
+		if !isHidden {
+			self.contentContainerLidView.isHidden = false
+		}
 
 		if animated {
-			self.updateSideBarLayoutAndAppearance()
-
-			if sideBarVisible {
-				switch self.effectiveSideBarDisplayMode {
-				case .over:
-					self.contentContainerLidView.alpha = 0.0
-					self.contentContainerLidView.isHidden = false
-				default:
-					break
-				}
-			}
-
-			UIView.animate(
-				withDuration: 0.25,
-				animations: {
-					if sideBarVisible {
-						switch self.effectiveSideBarDisplayMode {
-						case .over:
-							self.contentContainerLidView.alpha = 1.0
-						default:
-							break
-						}
-					} else {
-						self.contentContainerLidView.alpha = 0.0
-					}
-					self.sidebarViewController?.view.layoutIfNeeded()
-					self.view.layoutIfNeeded()
-				},
-				completion: { _ in
-					if !sideBarVisible {
-						self.contentContainerLidView.isHidden = true
-					}
-				})
+			UIView.animate(withDuration: 0.3, animations: animations, completion: completion)
 		} else {
-			updateSideBarLayoutAndAppearance()
+			animations()
+			completion(true)
+		}
+	}
+
+	open func setSideBarHidden(_ isHidden: Bool, animated: Bool = true) {
+		let animations = {
+			self.updateSideBarLayoutAndAppearance()
+			self.sidebarViewController?.view.layoutIfNeeded()
+			self.view.layoutIfNeeded()
+		}
+
+		let completion: (Bool) -> Void = { _ in
+
+		}
+		self.updateSideBarLayoutAndAppearance()
+		self.isSideBarHidden = isHidden
+		if animated {
+			UIView.animate(withDuration: 0.3, animations: animations, completion: completion)
+		} else {
+			animations()
+			completion(true)
 		}
 	}
 
 	func updateSideBarLayoutAndAppearance() {
-		var newConstraints: [NSLayoutConstraint] = []
-
-		if let sidebarViewController, let sidebarView = sidebarViewController.view, let view {
-			if isSideBarVisible {
-				switch effectiveSideBarDisplayMode {
-					case .fullWidth:
-						// Sidebar occupies full area
-						newConstraints = [
-							sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-							sidebarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-							sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-							sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
-							wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
-						]
-
-						contentContainerLidView.isHidden = true
-
-					case .sideBySide:
-						// Sidebar + Content side-by-side
-						if UIDevice.current.isIpad {
-							newConstraints = [
-								sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-								sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-								sidebarView.bottomAnchor.constraint(equalTo: tabBarView.topAnchor),
-								sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
-								wrappedContentContainerView.leadingAnchor.constraint(equalTo: sidebarView.trailingAnchor, constant: -1)
-							]
-						} else {
-							newConstraints = [
-								sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-								sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-								sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
-								sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
-								wrappedContentContainerView.leadingAnchor.constraint(equalTo: sidebarView.trailingAnchor, constant: -1)
-							]
-						}
-
-						contentContainerLidView.isHidden = true
-
-					case .over:
-						// Sidebar over content
-						newConstraints = [
-							sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-							sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-							sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
-							sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
-							wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
-						]
-
-						contentContainerLidView.isHidden = false
-				}
-			} else {
-				// Position sidebar left outside of view
-				newConstraints = [
-					sidebarView.trailingAnchor.constraint(equalTo: view.leadingAnchor),
-					sidebarView.topAnchor.constraint(equalTo: view.topAnchor),
-					sidebarView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
-					sidebarView.widthAnchor.constraint(equalToConstant: sideBarWidth),
-					wrappedContentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
-				]
-			}
-		}
+		updateDynamicLayout()
 
 		updateContentNavigationItems()
-
-		composedConstraints = newConstraints
 	}
 
 	// MARK: - Themeing
@@ -785,7 +714,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	open override var preferredStatusBarStyle: UIStatusBarStyle {
 		var statusBarStyle: UIStatusBarStyle?
 
-		if isSideBarVisible, let sidebarViewController {
+		if !isSideBarHidden, let sidebarViewController {
 			statusBarStyle = Theme.shared.activeCollection.css.getStatusBarStyle(
 				for: sidebarViewController)
 		} else if let contentViewController {
@@ -802,6 +731,33 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 	open override var childForStatusBarStyle: UIViewController? {
 		nil
+	}
+
+	open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		let isPhone = traitCollection.userInterfaceIdiom == .phone
+		let isLandscape = traitCollection.verticalSizeClass == .compact
+
+		if isLandscape && isPhone {
+			setTabBarHidden(true)
+		} else {
+			setTabBarHidden(false)
+		}
+	}
+
+	func notifyScroll(_ direction: HCScrollDirectionProcessor.ScrollDirection) {
+		let isPhone = traitCollection.userInterfaceIdiom == .phone
+		let isLandscape = traitCollection.verticalSizeClass == .compact
+
+		guard isPhone && isLandscape else { return }
+
+		switch direction {
+			case .down:
+				setTabBarHidden(true)
+			case .up:
+				setTabBarHidden(false)
+			case .none:
+				break
+		}
 	}
 }
 

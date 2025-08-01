@@ -125,7 +125,6 @@ public extension UIButton {
 }
 
 extension UIButton {
-		/// Vertical button: image above title, with a capsule just behind the image on highlight/selection.
 		static func makeImageHighlightCapsuleButton(
 			image: UIImage?,
 			title: String,
@@ -134,14 +133,13 @@ extension UIButton {
 			imagePadding: CGFloat = 6,
 			contentPadding: CGFloat = 8
 		) -> UIButton {
-			// 1) Base configuration for vertical layout
 			var config = UIButton.Configuration.plain()
 			config.image = image
 			config.title = title
 			config.imagePlacement = .top
 			config.imagePadding = imagePadding
 			config.baseForegroundColor = tintColor
-			// 2) iOS 15+ content insets
+
 			config.contentInsets = NSDirectionalEdgeInsets(
 				top: contentPadding,
 				leading: contentPadding,
@@ -149,12 +147,10 @@ extension UIButton {
 				trailing: contentPadding
 			)
 
-			// 3) Create the button
 			let button = UIButton(configuration: config, primaryAction: nil)
 
-			// 4) On state changes, wrap imageView in a capsule fill
 			button.configurationUpdateHandler = { btn in
-				btn.layoutIfNeeded()  // ensure imageView.bounds is correct
+				btn.layoutIfNeeded()
 				guard let iv = btn.imageView else { return }
 				iv.layer.cornerRadius = iv.bounds.height / 2
 				iv.layer.masksToBounds = true
@@ -164,7 +160,6 @@ extension UIButton {
 				btn.configuration?.background.backgroundColor = .clear
 			}
 
-			// 5) Example toggle action (optional):
 			button.addAction(UIAction { action in
 				guard let btn = action.sender as? UIButton else { return }
 				btn.isSelected.toggle()
@@ -184,10 +179,8 @@ class ImageHighlightCapsuleButton: ThemeButton {
 		image: UIImage?,
 		title: String
 	) {
-		// 1) Call a designated UIButton initializer
 		super.init(frame: .zero)
 
-		// 2) Build and apply the configuration
 		var config = UIButton.Configuration.plain()
 		config.image = image
 		config.title = title
@@ -208,18 +201,10 @@ class ImageHighlightCapsuleButton: ThemeButton {
 		highlightView.isUserInteractionEnabled = false
 		insertSubview(highlightView, at: 0)
 
-		// 4) Suppress default dim/tint overlay
 		configurationUpdateHandler = { [weak self] btn in
 			btn.configuration?.background.backgroundColor = .clear
-			//btn.configuration?.titleTextAttributesTransformer
 			self?.updateHighlightVisibility()
-		}
-
-		// 5) Example action to toggle `isSelected`
-		addAction(UIAction { action in
-			guard let btn = action.sender as? UIButton else { return }
-			btn.isSelected.toggle()
-		}, for: .touchUpInside)
+		}		
 	}
 
 	@available(*, unavailable) required init?(coder: NSCoder) {
@@ -240,7 +225,6 @@ class ImageHighlightCapsuleButton: ThemeButton {
 		let highlightForegroundColor = css.getColor(.stroke, selectors: [.help], for: self)
 		let foregroundColor = css.getColor(.stroke, selectors: [], for: self)
 
-		// 3) Set up the fixed‐size capsule behind the imageView
 		highlightView.backgroundColor = highlightBackgroundColor
 		highlightView.isHidden = !(isHighlighted || isSelected)
 
