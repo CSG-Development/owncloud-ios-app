@@ -34,4 +34,11 @@ public enum HCL10n {
 			public static let subtitle = "Play your videos without downloding them. Play your videos without downloding them. Play your videos without downloding them. Play your videos without downloding them"
 		}
 	}
+
+	public enum TabBar {
+		public static let files = "Files"
+		public static let links = "Links"
+		public static let upload = "Upload"
+		public static let offline = "Offline"
+	}
 }

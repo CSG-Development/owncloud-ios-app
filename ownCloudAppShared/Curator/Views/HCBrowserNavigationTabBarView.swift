@@ -7,19 +7,28 @@ public final class HCBrowserNavigationTabBarView: ThemeCSSView {
 
 		var image: UIImage? {
 			return switch self {
-				case .files: UIImage(systemName: "star.fill")
-				case .links: UIImage(systemName: "star.fill")
-				case .uploads: UIImage(systemName: "star.fill")
-				case .offline: UIImage(systemName: "star.fill")
+				case .files: UIImage(named: "tab_bar/folder", in: Bundle.sharedAppBundle, with: nil)
+				case .links: UIImage(named: "tab_bar/link", in: Bundle.sharedAppBundle, with: nil)
+				case .uploads: UIImage(named: "tab_bar/share", in: Bundle.sharedAppBundle, with: nil)
+				case .offline: UIImage(named: "tab_bar/offline", in: Bundle.sharedAppBundle, with: nil)
+			}
+		}
+
+		var selectedImage: UIImage? {
+			return switch self {
+				case .files: UIImage(named: "tab_bar/folder_filled", in: Bundle.sharedAppBundle, with: nil)
+				case .links: UIImage(named: "tab_bar/link_filled", in: Bundle.sharedAppBundle, with: nil)
+				case .uploads: UIImage(named: "tab_bar/share_filled", in: Bundle.sharedAppBundle, with: nil)
+				case .offline: UIImage(named: "tab_bar/offline_filled", in: Bundle.sharedAppBundle, with: nil)
 			}
 		}
 
 		var title: String {
 			return switch self {
-				case .files: "Files"
-				case .links: "Links"
-				case .uploads: "Uploads"
-				case .offline: "Offline"
+				case .files: HCL10n.TabBar.files
+				case .links: HCL10n.TabBar.links
+				case .uploads: HCL10n.TabBar.upload
+				case .offline: HCL10n.TabBar.offline
 			}
 		}
 	}
@@ -41,7 +50,13 @@ public final class HCBrowserNavigationTabBarView: ThemeCSSView {
 		self.cssSelector = .tabBar
 
 		addSubview(stackView)
-		stackView.snp.remakeConstraints { $0.edges.equalToSuperview() }
+		stackView.snp.remakeConstraints {
+			$0.top.bottom.centerX.equalToSuperview()
+			$0.leading.greaterThanOrEqualTo(8)
+			$0.width.lessThanOrEqualTo(800)
+			$0.width.equalToSuperview().priority(.low)
+		}
+		stackView.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
 		reloadData()
 	}
@@ -65,7 +80,11 @@ public final class HCBrowserNavigationTabBarView: ThemeCSSView {
 		tabBarButtons = []
 		var buttons: [UIButton] = []
 		for tab in Tab.allCases {
-			let button = ImageHighlightCapsuleButton(image: tab.image, title: tab.title)
+			let button = HCImageHighlightCapsuleButton(
+				image: tab.image,
+				selectedImage: tab.selectedImage,
+				title: tab.title
+			)
 			button.tag = tab.rawValue
 			button.addAction(
 				UIAction { [weak self] action in

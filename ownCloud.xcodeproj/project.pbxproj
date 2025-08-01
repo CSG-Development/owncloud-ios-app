@@ -144,6 +144,7 @@
 		9901316B2E337AFD00B9D138 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990131672E337AF800B9D138 /* UIView+Extensions.swift */; };
 		99139B592E3CB4D90044889B /* HCBrowserNavigationTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */; };
 		99139B612E3CCCBE0044889B /* HSScrollDirectionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B602E3CCCAA0044889B /* HSScrollDirectionProcessor.swift */; };
+		99139B632E3CE1F40044889B /* HCImageHighlightCapsuleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */; };
 		99192ACF2E2A3E60000025A1 /* OnboardingContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */; };
 		99192AD52E2A408E000025A1 /* UIStackView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */; };
 		99192ADA2E2A4099000025A1 /* HCSpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD92E2A4099000025A1 /* HCSpacerView.swift */; };
@@ -1219,6 +1220,7 @@
 		990131672E337AF800B9D138 /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
 		99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCBrowserNavigationTabBarView.swift; sourceTree = "<group>"; };
 		99139B602E3CCCAA0044889B /* HSScrollDirectionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSScrollDirectionProcessor.swift; sourceTree = "<group>"; };
+		99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCImageHighlightCapsuleButton.swift; sourceTree = "<group>"; };
 		99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContentView.swift; sourceTree = "<group>"; };
 		99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extensions.swift"; sourceTree = "<group>"; };
 		99192AD92E2A4099000025A1 /* HCSpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpacerView.swift; sourceTree = "<group>"; };
@@ -2397,6 +2399,7 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */,
 				99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */,
 				99192AD92E2A4099000025A1 /* HCSpacerView.swift */,
 				99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */,
@@ -5097,6 +5100,7 @@
 				DC0A359824C0E68700FB58FC /* OCItem+AppExtension.swift in Sources */,
 				DCB330D129F0737B00BFF393 /* ShareViewController.swift in Sources */,
 				DC0A358424C0E44200FB58FC /* VectorImageView.swift in Sources */,
+				99139B632E3CE1F40044889B /* HCImageHighlightCapsuleButton.swift in Sources */,
 				DCB1B8AB29C89E0900BFF393 /* ThemeCSSLabel.swift in Sources */,
 				DCFA5645297574A60092C89F /* BrowserNavigationItem.swift in Sources */,
 				DC24E10D28B7C19F002E4F5B /* AccountSearchScope.swift in Sources */,
