@@ -25,7 +25,7 @@ extension UIColor {
 			}
 		}
 
-		self.init()
+		fatalError("Unable to parse color string.")
 	}
 }
 

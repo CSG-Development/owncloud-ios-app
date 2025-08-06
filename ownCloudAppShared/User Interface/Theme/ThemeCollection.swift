@@ -323,7 +323,7 @@ public class ThemeCollection : NSObject {
 				navigationBarSet = darkBrandSet
 				toolbarSet = darkBrandSet
 
-				cellSet = ThemeColorSet.from(backgroundColor: UIColor(hex: 0), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.lighter(0.3)), for: interfaceStyle)
+				cellSet = ThemeColorSet.from(backgroundColor: HCColor.Structure.appBackground(true), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.lighter(0.3)), for: interfaceStyle)
 				cellStateSet = ThemeColorStateSet.from(colorSet: cellSet, for: interfaceStyle)
 				collectionBackgroundColor = HCColor.Structure.menuBackground(true)
 
@@ -381,7 +381,7 @@ public class ThemeCollection : NSObject {
 				navigationBarSet = ThemeColorSet.from(backgroundColor: .systemBackground.resolvedColor(with: styleTraitCollection), tintColor: lightBrandColor, for: interfaceStyle)
 				toolbarSet = navigationBarSet
 
-				cellSet = ThemeColorSet.from(backgroundColor: .systemBackground.resolvedColor(with: styleTraitCollection), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.darker(0.3)), for: interfaceStyle)
+				cellSet = ThemeColorSet.from(backgroundColor: HCColor.Structure.appBackground(false), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.darker(0.3)), for: interfaceStyle)
 				cellStateSet = ThemeColorStateSet.from(colorSet: cellSet, for: interfaceStyle)
 				collectionBackgroundColor = HCColor.Structure.menuBackground(false)
 
@@ -390,7 +390,7 @@ public class ThemeCollection : NSObject {
 				groupedCollectionBackgroundColor = .systemGroupedBackground.resolvedColor(with: styleTraitCollection)
 
 				contentNavigationBarSet = cellSet
-				contentToolbarSet = cellSet
+				contentToolbarSet = ThemeColorSet.from(backgroundColor: HCColor.Structure.menuBackground(false), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.darker(0.3)), for: interfaceStyle)
 
 				sidebarCellStateSet = ThemeColorStateSet.from(colorSet: cellSet, for: interfaceStyle)
 				sidebarCellStateSet.regular.backgroundColor =  .secondarySystemBackground.resolvedColor(with: styleTraitCollection)
@@ -637,6 +637,13 @@ public class ThemeCollection : NSObject {
 			// ## Button
 			ThemeCSSRecord(selectors: [.button], property: .borderColor, value: UIColor.clear),
 			ThemeCSSRecord(selectors: [.button], property: .cornerRadius, value: CGFloat(1.0)),
+
+			// ### Tab bar
+			ThemeCSSRecord(selectors: [.tabBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.tabBar, .button, .help], property: .fill, value: HCColor.Interaction.primaryTransparentNormal20(isDark)),
+			ThemeCSSRecord(selectors: [.tabBar, .button, .help], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [.tabBar, .button], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+
 			// ### Plain
 			// #### Primary
 			ThemeCSSRecord(selectors: [.button, .primary, .plain], property: .stroke, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
