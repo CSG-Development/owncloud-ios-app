@@ -37,8 +37,8 @@ public enum HCL10n {
 
 	public enum TabBar {
 		public static let files = "Files"
-		public static let links = "Links"
-		public static let upload = "Upload"
+		public static let search = "Search"
+		public static let status = "Status"
 		public static let offline = "Offline"
 	}
 }

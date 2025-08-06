@@ -161,7 +161,11 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 				$0.top.equalTo(wrappedContentContainerView.snp.bottom)
 				$0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
 			}
-			$0.leading.equalTo(view.snp.leading).priority(.high)
+			if !UIDevice.current.isIpad && effectiveSideBarDisplayMode == .sideBySide {
+				$0.leading.equalTo(sidebarView.snp.trailing).priority(.high)
+			} else {
+				$0.leading.equalTo(view.snp.leading).priority(.high)
+			}
 			$0.trailing.equalTo(view.snp.trailing)
 			$0.height.equalTo(68)
 		}
@@ -204,23 +208,16 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 			switch tab {
 				case .files:
-					let location = OCLocation(
-						bookmarkUUID: bookmarkUUID,
-						driveID: nil,
-						path: "/"
-					)
-					_ = location.openItem(
-						from: self,
-						with: context,
-						animated: true,
-						pushViewController: true
-					) { _ in }
+					if let currentItem = history.currentItem {
+						history.lastPushAttempt = currentItem
+						present(item: currentItem, with: .none, completion: nil)
+					}
 
-				case .links:
+				case .search:
 					let item = CollectionSidebarAction(
 						with: "", icon: nil,
 						viewControllerProvider: { (context, action) in
-							accountController.provideViewController(for: .sharedByLink, in: context)
+							accountController.provideViewController(for: .globalSearch, in: context)
 						},
 						cacheViewControllers: false
 					)
@@ -232,7 +229,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 						pushViewController: true
 					) { _ in }
 
-				case .uploads:
+				case .status:
 					let item = CollectionSidebarAction(
 						with: "", icon: nil,
 						viewControllerProvider: { (context, action) in
@@ -261,11 +258,6 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 					) { _ in }
 			}
 		}
-	}
-
-	func updateBottomNavigation() {
-		//tabBarButtons.forEach { $0.isSelected = false }
-		//if let item = history.lastPushAttempt.navigationBookmark?.specialItem
 	}
 
 	private var _themeRegistered = false
@@ -490,6 +482,26 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		updateSideBarNavigationItem()
 	}
 
+	func updateTabBar() {
+		guard let lastPushAttempt = history.lastPushAttempt else { return }
+		if !lastPushAttempt.isSpecialTabBarItem { // Files
+			tabBarView.selectedTab = .files
+			return
+		}
+		guard let specialItem = lastPushAttempt.navigationBookmark?.specialItem else { return }
+
+		switch specialItem {
+			case .availableOfflineItems:
+				tabBarView.selectedTab = .offline
+			case .globalSearch:
+				tabBarView.selectedTab = .search
+			case .activity:
+				tabBarView.selectedTab = .status
+			default:
+				break
+		}
+	}
+
 	// MARK: - BrowserNavigationHistoryDelegate
 
 	public func updateNavigation() {
@@ -530,6 +542,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		let done = {
 			self.delegate?.browserNavigation(
 				viewController: self, contentViewControllerDidChange: self.contentViewController)
+			self.updateTabBar()
 			completion?(true)
 		}
 

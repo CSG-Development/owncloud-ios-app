@@ -46,7 +46,7 @@ open class BrowserNavigationItem: NSObject {
 		guard let specialItem = navigationBookmark?.specialItem else { return false }
 		return [
 			AccountController.SpecialItem.availableOfflineItems,
-			AccountController.SpecialItem.sharedByLink,
+			AccountController.SpecialItem.globalSearch,
 			AccountController.SpecialItem.activity
 		].contains(specialItem)
 	}

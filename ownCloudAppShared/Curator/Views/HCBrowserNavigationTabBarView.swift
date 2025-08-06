@@ -3,13 +3,13 @@ import SnapKit
 
 public final class HCBrowserNavigationTabBarView: ThemeCSSView {
 	public enum Tab: Int, CaseIterable {
-		case files, links, uploads, offline
+		case files, search, status, offline
 
 		var image: UIImage? {
 			return switch self {
 				case .files: UIImage(named: "tab_bar/folder", in: Bundle.sharedAppBundle, with: nil)
-				case .links: UIImage(named: "tab_bar/link", in: Bundle.sharedAppBundle, with: nil)
-				case .uploads: UIImage(named: "tab_bar/share", in: Bundle.sharedAppBundle, with: nil)
+				case .search: UIImage(named: "tab_bar/link", in: Bundle.sharedAppBundle, with: nil)
+				case .status: UIImage(named: "tab_bar/share", in: Bundle.sharedAppBundle, with: nil)
 				case .offline: UIImage(named: "tab_bar/offline", in: Bundle.sharedAppBundle, with: nil)
 			}
 		}
@@ -17,8 +17,8 @@ public final class HCBrowserNavigationTabBarView: ThemeCSSView {
 		var selectedImage: UIImage? {
 			return switch self {
 				case .files: UIImage(named: "tab_bar/folder_filled", in: Bundle.sharedAppBundle, with: nil)
-				case .links: UIImage(named: "tab_bar/link_filled", in: Bundle.sharedAppBundle, with: nil)
-				case .uploads: UIImage(named: "tab_bar/share_filled", in: Bundle.sharedAppBundle, with: nil)
+				case .search: UIImage(named: "tab_bar/link_filled", in: Bundle.sharedAppBundle, with: nil)
+				case .status: UIImage(named: "tab_bar/share_filled", in: Bundle.sharedAppBundle, with: nil)
 				case .offline: UIImage(named: "tab_bar/offline_filled", in: Bundle.sharedAppBundle, with: nil)
 			}
 		}
@@ -26,8 +26,8 @@ public final class HCBrowserNavigationTabBarView: ThemeCSSView {
 		var title: String {
 			return switch self {
 				case .files: HCL10n.TabBar.files
-				case .links: HCL10n.TabBar.links
-				case .uploads: HCL10n.TabBar.upload
+				case .search: HCL10n.TabBar.search
+				case .status: HCL10n.TabBar.status
 				case .offline: HCL10n.TabBar.offline
 			}
 		}

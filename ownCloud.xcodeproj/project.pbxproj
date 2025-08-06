@@ -143,7 +143,7 @@
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
 		9901316B2E337AFD00B9D138 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990131672E337AF800B9D138 /* UIView+Extensions.swift */; };
 		99139B592E3CB4D90044889B /* HCBrowserNavigationTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */; };
-		99139B612E3CCCBE0044889B /* HSScrollDirectionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B602E3CCCAA0044889B /* HSScrollDirectionProcessor.swift */; };
+		99139B612E3CCCBE0044889B /* HCScrollDirectionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */; };
 		99139B632E3CE1F40044889B /* HCImageHighlightCapsuleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */; };
 		99192ACF2E2A3E60000025A1 /* OnboardingContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */; };
 		99192AD52E2A408E000025A1 /* UIStackView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */; };
@@ -1219,7 +1219,7 @@
 		6ED1B80A21A4004900E16C95 /* CreateFolderAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderAction.swift; sourceTree = "<group>"; };
 		990131672E337AF800B9D138 /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
 		99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCBrowserNavigationTabBarView.swift; sourceTree = "<group>"; };
-		99139B602E3CCCAA0044889B /* HSScrollDirectionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSScrollDirectionProcessor.swift; sourceTree = "<group>"; };
+		99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCScrollDirectionProcessor.swift; sourceTree = "<group>"; };
 		99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCImageHighlightCapsuleButton.swift; sourceTree = "<group>"; };
 		99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContentView.swift; sourceTree = "<group>"; };
 		99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extensions.swift"; sourceTree = "<group>"; };
@@ -2411,7 +2411,7 @@
 		99F472F12E095C1500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
-				99139B602E3CCCAA0044889B /* HSScrollDirectionProcessor.swift */,
+				99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */,
 				9941528C2E2A75E800B8ADF5 /* HCSettings.swift */,
 				994E68E22E0D67F100E73D69 /* HCLocalization.swift */,
 				99F472E82E095C1500104592 /* Extensions */,
@@ -4898,7 +4898,7 @@
 				DCB6B1E6292B6BE500D27573 /* OCLocation+Interactions.swift in Sources */,
 				DC3AB2422810404000789435 /* DriveHeaderCell.swift in Sources */,
 				DC65590F28A2633C0003D130 /* UITextField+Extension.swift in Sources */,
-				99139B612E3CCCBE0044889B /* HSScrollDirectionProcessor.swift in Sources */,
+				99139B612E3CCCBE0044889B /* HCScrollDirectionProcessor.swift in Sources */,
 				DCBAEAE429A5603600BFF393 /* CollectionViewSupplementaryCellProvider+StandardImplementations.swift in Sources */,
 				DC298C9A2934D3F8009FA87F /* AlertView.swift in Sources */,
 				DC24E10728B7BFD6002E4F5B /* ItemSearchScope.swift in Sources */,
