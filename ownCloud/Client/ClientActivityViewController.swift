@@ -215,6 +215,7 @@ class ClientActivityViewController: UITableViewController, Themeable, MessageGro
 
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		self.tableView.applyThemeCollection(collection)
+		self.view.backgroundColor = collection.css.getColor(.fill, selectors: [.toolbar], for: nil)
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
