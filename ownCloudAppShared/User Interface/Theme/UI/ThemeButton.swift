@@ -108,7 +108,7 @@ open class ThemeButton : UIButton, Themeable, ThemeCSSChangeObserver {
 			case .medium: break
 
 			default:
-				updatedConfiguration.background.cornerRadius =  buttonCornerRadius.rawValue
+				updatedConfiguration.background.cornerRadius = buttonCornerRadius.rawValue
 		}
 
 		self.configuration = updatedConfiguration

@@ -141,6 +141,17 @@
 		6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5FC171221590B000F60846 /* DisplayHostViewController.swift */; };
 		6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E91F37D21ECA6FD009436D2 /* CopyAction.swift */; };
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
+		99139B702E438B670044889B /* HCSpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD92E2A4099000025A1 /* HCSpacerView.swift */; };
+		99139B742E438B6E0044889B /* HCBrowserNavigationTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */; };
+		99139B752E438B6E0044889B /* HCImageHighlightCapsuleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */; };
+		99139B762E438B860044889B /* UIStackView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */; };
+		99139B772E438B860044889B /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990131672E337AF800B9D138 /* UIView+Extensions.swift */; };
+		99139B782E438B960044889B /* HCSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9941528C2E2A75E800B8ADF5 /* HCSettings.swift */; };
+		99139B792E438B960044889B /* HCScrollDirectionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */; };
+		99139B7E2E438C0E0044889B /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99492B982E27D2F300FCF0DB /* OnboardingPage.swift */; };
+		99139B7F2E438C0E0044889B /* OnboardingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99492B9A2E27D30C00FCF0DB /* OnboardingPageViewController.swift */; };
+		99139B802E438C0E0044889B /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99492B9C2E27D32700FCF0DB /* OnboardingViewController.swift */; };
+		99139B812E438C0E0044889B /* OnboardingContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */; };
 		9915B3652E215B8D0096765C /* HCBorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9915B3612E215B870096765C /* HCBorderView.swift */; };
 		991B368E2E2199B500369B7D /* HCTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B368A2E2199B000369B7D /* HCTextFieldView.swift */; };
 		991B36902E22CCB000369B7D /* HCFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B368F2E22CCAB00369B7D /* HCFieldView.swift */; };
@@ -169,7 +180,7 @@
 		99DF68722E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68712E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift */; };
 		99DF687A2E1E67D900F1A0B9 /* HCAppLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68732E1E67D900F1A0B9 /* HCAppLogoView.swift */; };
 		99DF687B2E1E67D900F1A0B9 /* HCSpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68762E1E67D900F1A0B9 /* HCSpacerView.swift */; };
-		99F472F22E095C1500104592 /* UIColor+HexString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+HexString.swift */; };
+		99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+Extensions.swift */; };
 		99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EA2E095C1500104592 /* HCButtonStyle.swift */; };
 		99F472F72E095C1500104592 /* HCColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EB2E095C1500104592 /* HCColor.swift */; };
 		99F472F82E095C1500104592 /* UIButton+HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */; };
@@ -1222,10 +1233,21 @@
 		6EA78B8E2179B55400A5216A /* ImageScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageScrollView.swift; sourceTree = "<group>"; };
 		6EB8EDBE2114358300C2BF44 /* folder-create.tvg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "folder-create.tvg"; path = "img/filetypes-tvg/folder-create.tvg"; sourceTree = SOURCE_ROOT; };
 		6ED1B80A21A4004900E16C95 /* CreateFolderAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderAction.swift; sourceTree = "<group>"; };
+		990131672E337AF800B9D138 /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
+		99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCBrowserNavigationTabBarView.swift; sourceTree = "<group>"; };
+		99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCScrollDirectionProcessor.swift; sourceTree = "<group>"; };
+		99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCImageHighlightCapsuleButton.swift; sourceTree = "<group>"; };
 		9915B3612E215B870096765C /* HCBorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCBorderView.swift; sourceTree = "<group>"; };
+		99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContentView.swift; sourceTree = "<group>"; };
+		99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extensions.swift"; sourceTree = "<group>"; };
+		99192AD92E2A4099000025A1 /* HCSpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpacerView.swift; sourceTree = "<group>"; };
 		991B368A2E2199B000369B7D /* HCTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCTextFieldView.swift; sourceTree = "<group>"; };
 		991B368F2E22CCAB00369B7D /* HCFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCFieldView.swift; sourceTree = "<group>"; };
 		991B36912E22D54300369B7D /* HCSecureTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSecureTextFieldView.swift; sourceTree = "<group>"; };
+		9941528C2E2A75E800B8ADF5 /* HCSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSettings.swift; sourceTree = "<group>"; };
+		99492B982E27D2F300FCF0DB /* OnboardingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPage.swift; sourceTree = "<group>"; };
+		99492B9A2E27D30C00FCF0DB /* OnboardingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageViewController.swift; sourceTree = "<group>"; };
+		99492B9C2E27D32700FCF0DB /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
 		994E68E22E0D67F100E73D69 /* HCLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCLocalization.swift; sourceTree = "<group>"; };
 		99743C672E1E6A1A00DB77C2 /* UIStackView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extensions.swift"; sourceTree = "<group>"; };
 		99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
@@ -1249,7 +1271,7 @@
 		99DF68762E1E67D900F1A0B9 /* HCSpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpacerView.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
-		99F472E62E095C1500104592 /* UIColor+HexString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+HexString.swift"; sourceTree = "<group>"; };
+		99F472E62E095C1500104592 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		99F472EA2E095C1500104592 /* HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCButtonStyle.swift; sourceTree = "<group>"; };
 		99F472EB2E095C1500104592 /* HCColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCColor.swift; sourceTree = "<group>"; };
 		99F4730B2E0968EE00104592 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
@@ -2345,6 +2367,17 @@
 			path = "Actions+Extensions";
 			sourceTree = "<group>";
 		};
+		99492B942E27D2E500FCF0DB /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */,
+				99492B982E27D2F300FCF0DB /* OnboardingPage.swift */,
+				99492B9A2E27D30C00FCF0DB /* OnboardingPageViewController.swift */,
+				99492B9C2E27D32700FCF0DB /* OnboardingViewController.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
 		99DA8B6B2E127B1E00D726DC /* Telemetry */ = {
 			isa = PBXGroup;
 			children = (
@@ -2404,12 +2437,14 @@
 		99F472E82E095C1500104592 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				990131672E337AF800B9D138 /* UIView+Extensions.swift */,
+				99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */,
 				99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */,
 				99743C672E1E6A1A00DB77C2 /* UIStackView+Extensions.swift */,
 				99DF68712E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift */,
 				99F472E32E095C1500104592 /* CGRect+Geometry.swift */,
 				99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */,
-				99F472E62E095C1500104592 /* UIColor+HexString.swift */,
+				99F472E62E095C1500104592 /* UIColor+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2417,6 +2452,9 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */,
+				99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */,
+				99192AD92E2A4099000025A1 /* HCSpacerView.swift */,
 				991B368F2E22CCAB00369B7D /* HCFieldView.swift */,
 				991B368A2E2199B000369B7D /* HCTextFieldView.swift */,
 				991B36912E22D54300369B7D /* HCSecureTextFieldView.swift */,
@@ -2432,6 +2470,8 @@
 		99F472F12E095C1500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
+				99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */,
+				9941528C2E2A75E800B8ADF5 /* HCSettings.swift */,
 				994E68E22E0D67F100E73D69 /* HCLocalization.swift */,
 				99F472E82E095C1500104592 /* Extensions */,
 				99F472F02E095C1500104592 /* Views */,
@@ -2453,6 +2493,7 @@
 		99F4730E2E0968EE00104592 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				99492B942E27D2E500FCF0DB /* Onboarding */,
 				99DF68662E1E672000F1A0B9 /* FirstRunCoordinator.swift */,
 				99DF68682E1E672000F1A0B9 /* LoginViewController */,
 				99DF686A2E1E672000F1A0B9 /* ServerAddressViewController */,
@@ -4858,6 +4899,10 @@
 				DC9CE3D62D10814400979C44 /* DisableSpaceAction.swift in Sources */,
 				397754F82327A33500119FCB /* OpenSceneAction.swift in Sources */,
 				4CAF783C2282FD40000C85CF /* FileManager+Extension.swift in Sources */,
+				99139B7E2E438C0E0044889B /* OnboardingPage.swift in Sources */,
+				99139B7F2E438C0E0044889B /* OnboardingPageViewController.swift in Sources */,
+				99139B802E438C0E0044889B /* OnboardingViewController.swift in Sources */,
+				99139B812E438C0E0044889B /* OnboardingContentView.swift in Sources */,
 				99DA8B7E2E128A8700D726DC /* AnalyticsTracker.swift in Sources */,
 				DCEE1C9C23A0EADD00FE8D98 /* LicenseOfferView.swift in Sources */,
 				6E3A104D219D6F0100F90C96 /* DuplicateAction.swift in Sources */,
@@ -4918,6 +4963,8 @@
 				DC04FFC827F5B79000F22569 /* CollectionViewController.swift in Sources */,
 				DC298CA72936250D009FA87F /* ClientSidebarViewController.swift in Sources */,
 				DC9CE3B82D0C4D1400979C44 /* ThemeCSSTextField+Styled.swift in Sources */,
+				99139B762E438B860044889B /* UIStackView+Extensions.swift in Sources */,
+				99139B772E438B860044889B /* UIView+Extensions.swift in Sources */,
 				DC825E352A05083C00BFF393 /* GitInfo.swift in Sources */,
 				DC921A042966DFDC00F538EE /* OCItem+UniversalItemListCellContentProvider.swift in Sources */,
 				DCB6B1E6292B6BE500D27573 /* OCLocation+Interactions.swift in Sources */,
@@ -5042,6 +5089,8 @@
 				DCE4E48724C1F9F50051722F /* CreateFolderAction.swift in Sources */,
 				99DF687A2E1E67D900F1A0B9 /* HCAppLogoView.swift in Sources */,
 				99DF687B2E1E67D900F1A0B9 /* HCSpacerView.swift in Sources */,
+				99139B742E438B6E0044889B /* HCBrowserNavigationTabBarView.swift in Sources */,
+				99139B752E438B6E0044889B /* HCImageHighlightCapsuleButton.swift in Sources */,
 				39E6DE86233CDF1E008DAE04 /* OCItemTracker.swift in Sources */,
 				DC0A358624C0E44600FB58FC /* ThemeTVGResource.swift in Sources */,
 				DC62F57529268D710095BB5D /* OpenInWebAppAction.swift in Sources */,
@@ -5108,6 +5157,8 @@
 				DC8E99DC297E79E900594697 /* BrowserNavigationHistory.swift in Sources */,
 				DCBAEAE829A568D500BFF393 /* TitleSupplementaryCell.swift in Sources */,
 				DC0A357924C0E43700FB58FC /* CardTransitionDelegate.swift in Sources */,
+				99139B782E438B960044889B /* HCSettings.swift in Sources */,
+				99139B792E438B960044889B /* HCScrollDirectionProcessor.swift in Sources */,
 				DC0A358724C0E44600FB58FC /* ThemeImage.swift in Sources */,
 				DC0A355824C0E35B00FB58FC /* Synchronized.swift in Sources */,
 				DCB1B99729D1813D00BFF393 /* ThemeCSSTextField.swift in Sources */,
@@ -5144,7 +5195,7 @@
 				DC0A357524C0E43200FB58FC /* ProgressView.swift in Sources */,
 				DC62F57429268D710095BB5D /* ClientWebAppViewController.swift in Sources */,
 				DC24E10B28B7C185002E4F5B /* SingleFolderSearchScope.swift in Sources */,
-				99F472F22E095C1500104592 /* UIColor+HexString.swift in Sources */,
+				99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */,
 				99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */,
 				99F472F72E095C1500104592 /* HCColor.swift in Sources */,
 				99F472F82E095C1500104592 /* UIButton+HCButtonStyle.swift in Sources */,
@@ -5153,6 +5204,7 @@
 				DCE4E43F24C19D370051722F /* UIAlertController+OCIssue.swift in Sources */,
 				DC298CA929362523009FA87F /* ClientLocationPicker.swift in Sources */,
 				DCA05A622AE664F200BFF393 /* OCAction+UIAction.swift in Sources */,
+				99139B702E438B670044889B /* HCSpacerView.swift in Sources */,
 				DC0A359524C0E5F900FB58FC /* UIImage+Extension.swift in Sources */,
 				DC89EA6B29959BD200BFF393 /* AppStateActionRestoreNavigationBookmark.swift in Sources */,
 				DC66A9F8279F467200792AC8 /* UIKeyCommand+Extension.swift in Sources */,
@@ -5546,7 +5598,7 @@
 				APP_BUILD_FLAGS = "$(inherited)";
 				APP_BUILD_FLAGS_SWIFT = "$(APP_BUILD_FLAGS)";
 				APP_PRODUCT_NAME = ownCloud;
-				APP_SHORT_VERSION = 1.0.4;
+				APP_SHORT_VERSION = 1.0.6;
 				APP_VERSION = 1;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -5617,7 +5669,7 @@
 				APP_BUILD_FLAGS = "$(inherited)";
 				APP_BUILD_FLAGS_SWIFT = "$(APP_BUILD_FLAGS)";
 				APP_PRODUCT_NAME = ownCloud;
-				APP_SHORT_VERSION = 1.0.4;
+				APP_SHORT_VERSION = 1.0.6;
 				APP_VERSION = 1;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;

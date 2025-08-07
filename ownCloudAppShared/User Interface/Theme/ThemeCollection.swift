@@ -323,13 +323,9 @@ public class ThemeCollection : NSObject {
 				navigationBarSet = darkBrandSet
 				toolbarSet = darkBrandSet
 
-				cellSet = ThemeColorSet.from(
-					backgroundColor: HCColor.Structure.cardBackground(true),
-					tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.lighter(0.3)),
-					for: interfaceStyle
-				)
+				cellSet = ThemeColorSet.from(backgroundColor: HCColor.Structure.appBackground(true), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.lighter(0.3)), for: interfaceStyle)
 				cellStateSet = ThemeColorStateSet.from(colorSet: cellSet, for: interfaceStyle)
-				collectionBackgroundColor = darkBrandColor.darker(0.1)
+				collectionBackgroundColor = HCColor.Structure.menuBackground(true)
 
 				groupedCellSet = ThemeColorSet.from(backgroundColor: darkBrandColor, tintColor: lightBrandColor, for: interfaceStyle)
 				groupedCellStateSet = ThemeColorStateSet.from(colorSet: groupedCellSet, for: interfaceStyle)
@@ -385,20 +381,16 @@ public class ThemeCollection : NSObject {
 				navigationBarSet = ThemeColorSet.from(backgroundColor: .systemBackground.resolvedColor(with: styleTraitCollection), tintColor: lightBrandColor, for: interfaceStyle)
 				toolbarSet = navigationBarSet
 
-				cellSet = ThemeColorSet.from(
-					backgroundColor: HCColor.Structure.cardBackground(false),
-					tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.darker(0.3)),
-					for: interfaceStyle
-				)
+				cellSet = ThemeColorSet.from(backgroundColor: HCColor.Structure.appBackground(false), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.darker(0.3)), for: interfaceStyle)
 				cellStateSet = ThemeColorStateSet.from(colorSet: cellSet, for: interfaceStyle)
-				collectionBackgroundColor = cellSet.backgroundColor
+				collectionBackgroundColor = HCColor.Structure.menuBackground(false)
 
 				groupedCellSet = cellSet
 				groupedCellStateSet = ThemeColorStateSet.from(colorSet: groupedCellSet, for: interfaceStyle)
 				groupedCollectionBackgroundColor = .systemGroupedBackground.resolvedColor(with: styleTraitCollection)
 
 				contentNavigationBarSet = cellSet
-				contentToolbarSet = cellSet
+				contentToolbarSet = ThemeColorSet.from(backgroundColor: HCColor.Structure.menuBackground(false), tintColor: lightBrandColor.withHighContrastAlternative(lightBrandColor.darker(0.3)), for: interfaceStyle)
 
 				sidebarCellStateSet = ThemeColorStateSet.from(colorSet: cellSet, for: interfaceStyle)
 				sidebarCellStateSet.regular.backgroundColor =  .secondarySystemBackground.resolvedColor(with: styleTraitCollection)
@@ -479,7 +471,7 @@ public class ThemeCollection : NSObject {
 
 			// - Toolbar
 			ThemeCSSRecord(selectors: [.toolbar],				property: .stroke, value: toolbarSet.tintColor),
-			ThemeCSSRecord(selectors: [.toolbar],				property: .fill,   value: toolbarSet.backgroundColor),
+			ThemeCSSRecord(selectors: [.toolbar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 
 			// - Progress
 			ThemeCSSRecord(selectors: [.progress], 				property: .fill,  value: progressBackgroundColor),
@@ -496,7 +488,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.modal],     	    	   	property: .stroke, value: cellSet.labelColor),
 
 			// - Splitview
-			ThemeCSSRecord(selectors: [.splitView],     	    	   	property: .fill,   value: cellSet.backgroundColor),
+			ThemeCSSRecord(selectors: [.splitView],     	    	   	property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
 
 			// - Collection View
 			ThemeCSSRecord(selectors: [.collection],     	    	   	property: .fill,   value: cellStateSet.regular.backgroundColor),
@@ -663,6 +655,13 @@ public class ThemeCollection : NSObject {
 			// ## Button
 			ThemeCSSRecord(selectors: [.button], property: .borderColor, value: UIColor.clear),
 			ThemeCSSRecord(selectors: [.button], property: .cornerRadius, value: CGFloat(1.0)),
+
+			// ### Tab bar
+			ThemeCSSRecord(selectors: [.tabBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.tabBar, .button, .help], property: .fill, value: HCColor.Interaction.primaryTransparentNormal20(isDark)),
+			ThemeCSSRecord(selectors: [.tabBar, .button, .help], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [.tabBar, .button], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+
 			// ### Plain
 			// #### Primary
 			ThemeCSSRecord(selectors: [.button, .primary, .plain], property: .stroke, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
@@ -828,8 +827,8 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sidebar], 			   	property: .statusBarStyle, value: statusBarStyle),
 
 			// - Collection View
-			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell],  	property: .fill,   value: sidebarCellStateSet.regular.backgroundColor),
-			ThemeCSSRecord(selectors: [.sidebar, .collection],  	   	property: .fill,   value: sidebarCellStateSet.regular.backgroundColor),
+			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell],  	property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .collection],  	   	property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell], 	property: .stroke, value: sidebarCellStateSet.regular.labelColor),
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell, .highlighted], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell, .selected], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),
@@ -856,7 +855,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sidebar, .navigationBar, .logo, .label],property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// - Toolbar
-			ThemeCSSRecord(selectors: [.sidebar, .toolbar],			property: .fill,   value: sidebarCellStateSet.regular.backgroundColor),
+			ThemeCSSRecord(selectors: [.sidebar, .toolbar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .toolbar],			property: .stroke, value: lightBrandColor),
 
 			// Content Area
@@ -869,7 +868,7 @@ public class ThemeCollection : NSObject {
 
 			// - Toolbar
 			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .stroke, value: contentToolbarSet.tintColor),
-			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .fill,   value: contentToolbarSet.backgroundColor),
+			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
 
 			// - Location Bar
 			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar, .segments, .item, .plain],		property: .stroke, value: contentToolbarSet.tintColor),

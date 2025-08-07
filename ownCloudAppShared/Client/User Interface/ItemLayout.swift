@@ -53,7 +53,7 @@ public enum ItemLayout: CaseIterable {
 
 				return .fillingGrid(minimumWidth: 130, maximumWidth: 160, computeHeight: { width in
 					return (width * 3 / 4) + titleAndDetailsHeight
-				}, cellSpacing: NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5), sectionInsets: NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5), center: true)
+				}, cellSpacing: NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0), sectionInsets: NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0), center: true)
 		}
 	}
 

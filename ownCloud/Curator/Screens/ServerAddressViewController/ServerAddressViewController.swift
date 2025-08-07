@@ -30,7 +30,7 @@ final public class ServerAddressViewController: UIViewController {
 	public override func viewDidLoad() {
 		super.viewDidLoad()
 
-		view.backgroundColor = HCColor.Structure.appBackground
+		view.backgroundColor = HCColor.Structure.appBackground(true)
 
 		let scrollView = UIScrollView()
 		view.addSubview(scrollView)

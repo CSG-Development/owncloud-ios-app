@@ -109,6 +109,7 @@ public extension NSObject {
 
 			let standardAppearance = UIToolbarAppearance()
 			standardAppearance.backgroundColor = backgroundColor
+			standardAppearance.shadowColor = .clear
 			toolbar.standardAppearance = standardAppearance
 
 			let edgeAppearance = UIToolbarAppearance()

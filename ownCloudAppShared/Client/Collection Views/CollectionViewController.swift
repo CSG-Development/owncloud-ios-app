@@ -34,6 +34,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 	var compressForKeyboard: Bool
 
 	var emptyCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, CollectionViewController.ItemRef>?
+	private var scrollDirectionProcessor = HCScrollDirectionProcessor()
 
 	public init(context inContext: ClientContext?, sections inSections: [CollectionViewSection]?, useStackViewRoot: Bool = false, hierarchic: Bool = false, compressForKeyboard: Bool = false, useWrappedIdentifiers: Bool = false, highlightItemReference: OCDataItemReference? = nil) {
 		supportsHierarchicContent = hierarchic
@@ -60,6 +61,10 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 		// Add datasources
 		if let addSections = inSections {
 			add(sections: addSections)
+		}
+
+		scrollDirectionProcessor.onDirectionChange = { [weak self] direction in
+			self?.clientContext?.browserController?.notifyScroll(direction)
 		}
 	}
 
@@ -1328,5 +1333,11 @@ public extension UICollectionViewCell {
 public class CollectionViewFallbackCell : UICollectionViewCell {
 	public override var reuseIdentifier: String? {
 		return "_emptyFallbackCell"
+	}
+}
+
+extension CollectionViewController: UIScrollViewDelegate {
+	public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+		scrollDirectionProcessor.scrollViewDidScroll(scrollView)
 	}
 }

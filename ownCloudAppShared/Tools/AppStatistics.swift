@@ -46,6 +46,17 @@ public class AppStatistics {
 		}
 	}
 
+	public var firstLaunchDate: Date? {
+		get {
+			return OCAppIdentity.shared.userDefaults?.object(forKey: UserDefaultsKeys.firstLaunchDate.rawValue) as? Date
+		}
+
+		set {
+			OCAppIdentity.shared.userDefaults?.set(newValue, forKey: UserDefaultsKeys.firstLaunchDate.rawValue)
+			OCAppIdentity.shared.userDefaults?.synchronize()
+		}
+	}
+
 	public static let shared = AppStatistics()
 
 	public var timeIntervalSinceFirstLaunch: TimeInterval {

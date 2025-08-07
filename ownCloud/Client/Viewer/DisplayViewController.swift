@@ -390,7 +390,15 @@ class DisplayViewController: UIViewController, Themeable, OCQueryDelegate {
 		let actionsLocation = OCExtensionLocation(ofType: .action, identifier: .moreDetailItem)
 		let actionContext = ActionContext(viewController: self, clientContext: clientContext, core: core, items: [item], location: actionsLocation, sender: sender)
 
-		if let moreViewController = Action.cardViewController(for: item, with: actionContext, completionHandler: nil) {
+		if let moreViewController = Action.cardViewController(
+			for: item,
+			with: actionContext,
+			completionHandler: { action,_ in
+				if action is DeleteAction {
+					self.clientContext?.browserController?.deleteCurrent()
+				}
+			}
+		) {
 			self.present(asCard: moreViewController, animated: true)
 		}
 	}

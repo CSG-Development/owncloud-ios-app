@@ -106,6 +106,13 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 		sidebarViewController = ClientSidebarViewController(context: rootContext!, controllerConfiguration: controllerConfiguration)
 		sidebarViewController?.addToolbarItems(addAccount: Branding.shared.canAddAccount)
 
+		self.contentBrowserController.accountControllerProvider = { [weak self] bookmarkUUID in
+			self?.sidebarViewController?.accountController(for: bookmarkUUID)
+		}
+		self.contentBrowserController.clientContextProvider = { [weak self] in
+			self?.sidebarViewController?.clientContext
+		}
+
 		leftNavigationController = ThemeNavigationController(rootViewController: sidebarViewController!)
 		leftNavigationController?.cssSelectors = [ .sidebar ]
 		leftNavigationController?.setToolbarHidden(false, animated: false)
@@ -126,8 +133,15 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 
 				self?.contentViewController = FirstRunCoordinator(rootVC: self).makeInitial()
 			} else {
-				// Account already available
-				self?.contentViewController = self?.contentBrowserController
+				if HCSettings.shared.shouldShowOnboarding {
+					let onboardingVC = OnboardingViewController()
+					onboardingVC.onFinishedOnboarding = { [weak self] in
+						self?.contentViewController = self?.contentBrowserController
+					}
+					self?.contentViewController = onboardingVC
+				} else {
+					self?.contentViewController = self?.contentBrowserController
+				}
 			}
 		})
 
