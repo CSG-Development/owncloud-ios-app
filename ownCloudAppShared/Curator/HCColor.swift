@@ -55,7 +55,7 @@ public enum HCColor {
 	public enum Structure {
 		// Structure/App Background		
 		public static func appBackground(_ isDark: Bool) -> UIColor {
-			isDark ? UIColor(hexString: "#0A0A0AFF") : UIColor(hexString: "#F0F1F5FF")
+			isDark ? UIColor(hexString: "#3D3E41FF") : UIColor(hexString: "#F0F1F5FF")
 		}
 		// Structure/Menu Background
 		public static func menuBackground(_ isDark: Bool) -> UIColor {

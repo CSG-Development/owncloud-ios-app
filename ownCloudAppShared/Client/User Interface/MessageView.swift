@@ -39,7 +39,6 @@ open class MessageView: UIView {
 		// Observe keyboard change
 		NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(self.rotated), name: UIDevice.orientationDidChangeNotification, object: nil)
 	}
 
 	required public init?(coder aDecoder: NSCoder) {
@@ -175,8 +174,8 @@ open class MessageView: UIView {
 				}
 
 				NSLayoutConstraint.activate([
-					rootView.leftAnchor.constraint(equalTo: self.mainView.leftAnchor, constant: insets?.left ?? 0),
-					rootView.widthAnchor.constraint(equalTo: self.mainView.widthAnchor, constant: -(insets?.right ?? 0)),
+					rootView.leftAnchor.constraint(equalTo: self.mainView.safeAreaLayoutGuide.leftAnchor, constant: insets?.left ?? 0),
+					rootView.rightAnchor.constraint(equalTo: self.mainView.safeAreaLayoutGuide.rightAnchor, constant: insets?.right ?? 0),
 					rootView.topAnchor.constraint(equalTo: self.mainView.safeAreaLayoutGuide.topAnchor, constant: insets?.top ?? 0),
 					self.composeViewBottomConstraint
 				])
@@ -203,7 +202,7 @@ open class MessageView: UIView {
 		}
 	}
 
-	@objc func rotated() {
+	open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
 		render()
 	}
 

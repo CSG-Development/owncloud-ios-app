@@ -116,10 +116,10 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			$0.width.equalTo(1)
 		}
 
-		updateDynamicLayout()
 		setupTabBar()
-
+		setTabBarHidden(traitCollection.verticalSizeClass == .compact, animated: false)
 		navigationView.items = []
+		updateDynamicLayout()
 	}
 
 	private func updateDynamicLayout() {
@@ -158,7 +158,6 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			if isTabBarHidden {
 				$0.top.equalTo(view.snp.bottom)
 			} else {
-				$0.top.equalTo(wrappedContentContainerView.snp.bottom)
 				$0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
 			}
 			if !UIDevice.current.isIpad && effectiveSideBarDisplayMode == .sideBySide {
@@ -166,6 +165,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			} else {
 				$0.leading.equalTo(view.snp.leading).priority(.high)
 			}
+			$0.top.equalTo(wrappedContentContainerView.snp.bottom)
 			$0.trailing.equalTo(view.snp.trailing)
 			$0.height.equalTo(68)
 		}
@@ -175,6 +175,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 				$0.top.leading.trailing.equalToSuperview()
 				return
 			}
+
 			switch effectiveSideBarDisplayMode {
 				case .fullWidth:
 					$0.top.leading.trailing.equalToSuperview()
