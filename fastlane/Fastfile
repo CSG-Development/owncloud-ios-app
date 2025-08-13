@@ -130,7 +130,6 @@ platform :ios do
     ENTERPRISE_ACTION_EXTENSION_PROFILE = values[:ENTERPRISE_ACTION_EXTENSION_PROFILE]
     ENTERPRISE_APP_FW_ID = values[:ENTERPRISE_APP_FW_ID]
     ENTERPRISE_APP_SHARED_ID = "com.seagate.curator.stxfiles-app-shared"
-    ENTERPRISE_HC_APP_SHARED_ID = "com.seagate.curator.homeCloudAppShared"
     ENTERPRISE_TEAM = values[:ENTERPRISE_TEAM]
     ENTERPRISE_IDENTITY = values[:ENTERPRISE_IDENTITY]
     APP_GROUP_IDENTIFIERS = values[:APP_GROUP_IDENTIFIERS]
@@ -520,15 +519,6 @@ platform :ios do
       code_sign_identity: ENTERPRISE_IDENTITY,
       bundle_identifier: ENTERPRISE_APP_SHARED_ID,
       targets: ["ownCloudAppShared"]
-    )
-
-    automatic_code_signing(
-      path: "ownCloud.xcodeproj",
-      use_automatic_signing: false,
-      team_id: ENTERPRISE_TEAM,
-      code_sign_identity: ENTERPRISE_IDENTITY,
-      bundle_identifier: ENTERPRISE_HC_APP_SHARED_ID,
-      targets: ["homeCloudAppShared"]
     )
 
     # Add a badge with the latest short commit hash to the app icon

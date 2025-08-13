@@ -4,7 +4,6 @@ private enum UserDefaultsKeys {
 	static let shouldShowOnboarding = "shouldShowOnboarding"
 }
 
-
 public final class HCSettings {
 	public static let shared = HCSettings()
 

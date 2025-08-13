@@ -134,12 +134,12 @@ open class ThemeButton : UIButton, Themeable, ThemeCSSChangeObserver {
 			updateConfiguration()
 		}
 	}
-	public var buttonHorizontalPadding : CGFloat = 30 {
+	public var buttonHorizontalPadding : CGFloat = 12 {
 		didSet {
 			invalidateIntrinsicContentSize()
 		}
 	}
-	public var buttonVerticalPadding : CGFloat = 10 {
+	public var buttonVerticalPadding : CGFloat = 12 {
 	       didSet {
 		       invalidateIntrinsicContentSize()
 	       }

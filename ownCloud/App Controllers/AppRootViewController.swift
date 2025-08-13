@@ -45,7 +45,6 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 	public var contentBrowserController: BrowserNavigationViewController = BrowserNavigationViewController()
 
 	private var contentBrowserControllerObserver: NSKeyValueObservation?
-	//private var firstRunCoordinator = FirstRunCoordinator()
 
 	// MARK: - Message presentation
 	var alertQueue : OCAsyncSequentialQueue = OCAsyncSequentialQueue()
@@ -132,9 +131,8 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 				let configuration = BookmarkComposerConfiguration.newBookmarkConfiguration
 				configuration.hasIntro = true
 
-				self?.contentViewController = BookmarkSetupViewController(
-					configuration: configuration
-				)
+				self?.contentViewController = FirstRunCoordinator(rootVC: self).makeInitial()
+				//self?.contentViewController = BookmarkSetupViewController(configuration: configuration)
 			} else {
 				if HCSettings.shared.shouldShowOnboarding {
 					let onboardingVC = OnboardingViewController()
