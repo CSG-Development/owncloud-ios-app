@@ -63,12 +63,23 @@ public enum HCColor {
 		public static let gray2 = UIColor(hexString: "#B2B2B2FF")
 	}
 
-	public enum Symbolic {
-		// Symbolic/Error
-		public static func error(_ isDark: Bool) -> UIColor {
-			isDark ? UIColor(hexString: "#F44336FF") : UIColor(hexString: "#F44336FF")
+	public enum Structure {
+		// Structure/App Background		
+		public static func appBackground(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#3D3E41FF") : UIColor(hexString: "#F0F1F5FF")
 		}
+		// Structure/Menu Background
+		public static func menuBackground(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#1D1E21FF") : UIColor(hexString: "#FFFFFFFF")
+        }
 	}
+
+    public enum Symbolic {
+        // Symbolic/Error
+        public static func error(_ isDark: Bool) -> UIColor {
+            isDark ? UIColor(hexString: "#F44336FF") : UIColor(hexString: "#F44336FF")
+        }
+    }
 
 	public enum Interaction {
 		// Interaction/Primary Solid Normal

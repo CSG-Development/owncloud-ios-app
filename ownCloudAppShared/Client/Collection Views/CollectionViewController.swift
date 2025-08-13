@@ -99,7 +99,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 
 			stackView.addArrangedSubview(safeAreaView)
 		} else {
-			view.embed(toFillWith: collectionView.withScreenshotProtection, enclosingAnchors: view.defaultAnchorSet)
+			view.embed(toFillWith: collectionView.withScreenshotProtection, enclosingAnchors: view.safeAreaAnchorSet)
 		}
 	}
 
@@ -228,7 +228,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 
 		didSet {
 			if let coverRootView {
-				view.embed(toFillWith: coverRootView)
+				view.embed(toFillWith: coverRootView, enclosingAnchors: view.safeAreaAnchorSet)
 			}
 		}
 	}
@@ -257,7 +257,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 						rootView.addSubview(coverView)
 						NSLayoutConstraint.activate([
 							coverView.leadingAnchor.constraint(greaterThanOrEqualTo: rootView.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-							coverView.trailingAnchor.constraint(greaterThanOrEqualTo: rootView.safeAreaLayoutGuide.trailingAnchor, constant: 20),
+							coverView.trailingAnchor.constraint(greaterThanOrEqualTo: rootView.safeAreaLayoutGuide.trailingAnchor, constant: -20),
 							coverView.centerXAnchor.constraint(equalTo: rootView.centerXAnchor),
 							coverView.topAnchor.constraint(equalTo: rootView.safeAreaLayoutGuide.topAnchor, constant: 20),
 							coverView.bottomAnchor.constraint(lessThanOrEqualTo: rootView.safeAreaLayoutGuide.bottomAnchor, constant: -20)
@@ -1338,6 +1338,7 @@ public class CollectionViewFallbackCell : UICollectionViewCell {
 
 extension CollectionViewController: UIScrollViewDelegate {
 	public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+		guard type(of: self) != ClientSidebarViewController.self else { return }
 		scrollDirectionProcessor.scrollViewDidScroll(scrollView)
 	}
 }
