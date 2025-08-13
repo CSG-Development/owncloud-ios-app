@@ -160,12 +160,13 @@
 		99743C682E1E6A1A00DB77C2 /* UIStackView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C672E1E6A1A00DB77C2 /* UIStackView+Extensions.swift */; };
 		99743C6A2E1E6DE700DB77C2 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */; };
 		99743C6C2E1E6FF800DB77C2 /* UITextField+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */; };
-		99743C732E1E9BC800DB77C2 /* WelcomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C6F2E1E9BBF00DB77C2 /* WelcomeViewModel.swift */; };
-		99743C752E1E9D2500DB77C2 /* WelcomeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C742E1E9D2000DB77C2 /* WelcomeCoordinator.swift */; };
 		99743C772E1E9FD900DB77C2 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */; };
 		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
 		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
 		99AD431F2DF310CA00914C19 /* SidebarCollectionViewListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */; };
+		99BC9F2E2E4C72DE0004F6B2 /* HCErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */; };
+		99CE0A5E2E49F31200380EB8 /* HCKeyboardTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */; };
+		99CE0A602E4A232200380EB8 /* HCSpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */; };
 		99DA8B692E0EB4B700D726DC /* HCNavigationLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */; };
 		99DA8B712E127B5D00D726DC /* telemetry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99DA8B6F2E127B3500D726DC /* telemetry.xcframework */; };
 		99DA8B722E127B5D00D726DC /* telemetry.xcframework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 99DA8B6F2E127B3500D726DC /* telemetry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -175,7 +176,6 @@
 		99DA8B7B2E1286F500D726DC /* AnalyticsTrackerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B7A2E1286EE00D726DC /* AnalyticsTrackerType.swift */; };
 		99DA8B7E2E128A8700D726DC /* AnalyticsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B7D2E128A8100D726DC /* AnalyticsTracker.swift */; };
 		99DF686B2E1E672000F1A0B9 /* FirstRunCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68662E1E672000F1A0B9 /* FirstRunCoordinator.swift */; };
-		99DF686C2E1E672000F1A0B9 /* ServerAddressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68692E1E672000F1A0B9 /* ServerAddressViewController.swift */; };
 		99DF686D2E1E672000F1A0B9 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68672E1E672000F1A0B9 /* LoginViewController.swift */; };
 		99DF68722E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68712E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift */; };
 		99DF687A2E1E67D900F1A0B9 /* HCAppLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68732E1E67D900F1A0B9 /* HCAppLogoView.swift */; };
@@ -186,7 +186,6 @@
 		99F472F82E095C1500104592 /* UIButton+HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */; };
 		99F472FA2E095C1500104592 /* CGRect+Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E32E095C1500104592 /* CGRect+Geometry.swift */; };
 		99F473002E095CD600104592 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 99F472FF2E095CD600104592 /* SnapKit */; };
-		99F473132E0968EE00104592 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F4730B2E0968EE00104592 /* WelcomeViewController.swift */; };
 		99FC32132DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
 		99FC32142DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
 		99FC32152DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
@@ -1252,10 +1251,11 @@
 		99743C672E1E6A1A00DB77C2 /* UIStackView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extensions.swift"; sourceTree = "<group>"; };
 		99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Combine.swift"; sourceTree = "<group>"; };
-		99743C6F2E1E9BBF00DB77C2 /* WelcomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewModel.swift; sourceTree = "<group>"; };
-		99743C742E1E9D2000DB77C2 /* WelcomeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCoordinator.swift; sourceTree = "<group>"; };
 		99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
+		99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCErrorView.swift; sourceTree = "<group>"; };
+		99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCKeyboardTracker.swift; sourceTree = "<group>"; };
+		99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpinnerView.swift; sourceTree = "<group>"; };
 		99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCNavigationLogoView.swift; sourceTree = "<group>"; };
 		99DA8B6F2E127B3500D726DC /* telemetry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = telemetry.xcframework; sourceTree = "<group>"; };
 		99DA8B732E12806F00D726DC /* TelemetryAnalyticsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryAnalyticsTracker.swift; sourceTree = "<group>"; };
@@ -1265,7 +1265,6 @@
 		99DA8B7D2E128A8100D726DC /* AnalyticsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsTracker.swift; sourceTree = "<group>"; };
 		99DF68662E1E672000F1A0B9 /* FirstRunCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstRunCoordinator.swift; sourceTree = "<group>"; };
 		99DF68672E1E672000F1A0B9 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
-		99DF68692E1E672000F1A0B9 /* ServerAddressViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerAddressViewController.swift; sourceTree = "<group>"; };
 		99DF68712E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBezierPath+TrueRoundedRect.swift"; sourceTree = "<group>"; };
 		99DF68732E1E67D900F1A0B9 /* HCAppLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCAppLogoView.swift; sourceTree = "<group>"; };
 		99DF68762E1E67D900F1A0B9 /* HCSpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpacerView.swift; sourceTree = "<group>"; };
@@ -1274,7 +1273,6 @@
 		99F472E62E095C1500104592 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		99F472EA2E095C1500104592 /* HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCButtonStyle.swift; sourceTree = "<group>"; };
 		99F472EB2E095C1500104592 /* HCColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCColor.swift; sourceTree = "<group>"; };
-		99F4730B2E0968EE00104592 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		99FC32122DE9992E0011D066 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A56EA84D8AD331FFA604138B /* Pods_ownCloudTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ownCloudTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0D9C062DD1E85A838608B0F /* EarlGrey.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EarlGrey.framework; path = Pods/EarlGrey/EarlGrey/EarlGrey.framework; sourceTree = SOURCE_ROOT; };
@@ -2416,14 +2414,6 @@
 			path = LoginViewController;
 			sourceTree = "<group>";
 		};
-		99DF686A2E1E672000F1A0B9 /* ServerAddressViewController */ = {
-			isa = PBXGroup;
-			children = (
-				99DF68692E1E672000F1A0B9 /* ServerAddressViewController.swift */,
-			);
-			path = ServerAddressViewController;
-			sourceTree = "<group>";
-		};
 		99F472DE2E095BB500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
@@ -2452,6 +2442,8 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */,
+				99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */,
 				99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */,
 				99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */,
 				99192AD92E2A4099000025A1 /* HCSpacerView.swift */,
@@ -2470,6 +2462,7 @@
 		99F472F12E095C1500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
+				99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */,
 				99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */,
 				9941528C2E2A75E800B8ADF5 /* HCSettings.swift */,
 				994E68E22E0D67F100E73D69 /* HCLocalization.swift */,
@@ -2480,24 +2473,12 @@
 			path = Curator;
 			sourceTree = "<group>";
 		};
-		99F4730C2E0968EE00104592 /* WelcomeViewController */ = {
-			isa = PBXGroup;
-			children = (
-				99743C742E1E9D2000DB77C2 /* WelcomeCoordinator.swift */,
-				99743C6F2E1E9BBF00DB77C2 /* WelcomeViewModel.swift */,
-				99F4730B2E0968EE00104592 /* WelcomeViewController.swift */,
-			);
-			path = WelcomeViewController;
-			sourceTree = "<group>";
-		};
 		99F4730E2E0968EE00104592 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
 				99492B942E27D2E500FCF0DB /* Onboarding */,
 				99DF68662E1E672000F1A0B9 /* FirstRunCoordinator.swift */,
 				99DF68682E1E672000F1A0B9 /* LoginViewController */,
-				99DF686A2E1E672000F1A0B9 /* ServerAddressViewController */,
-				99F4730C2E0968EE00104592 /* WelcomeViewController */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -4789,7 +4770,6 @@
 				DC63208321FCAC1E007EC0A8 /* ClientActivityViewController.swift in Sources */,
 				DC9C1AEC247C76470067895A /* MessageGroupCell.swift in Sources */,
 				DC2323E32AA85D0300BFF393 /* BookmarkSetupStepViewController.swift in Sources */,
-				99F473132E0968EE00104592 /* WelcomeViewController.swift in Sources */,
 				DC5908772AA87ABF00BFF393 /* BookmarkSetupStepAuthenticateViewController.swift in Sources */,
 				4C464BF62187AF1500D30602 /* PDFTocItem.swift in Sources */,
 				6E3A103E219D5BBA00F90C96 /* RenameAction.swift in Sources */,
@@ -4819,10 +4799,8 @@
 				DCB7969F2BCE745500D6D759 /* INIFile+ShortcutResolution.swift in Sources */,
 				4C3E17DB234DBF9A000D7BA8 /* PendingMediaUploadTaskExtension.swift in Sources */,
 				DCC832DE242C0C3700153F8C /* DisplaySleepPreventer.swift in Sources */,
-				99743C752E1E9D2500DB77C2 /* WelcomeCoordinator.swift in Sources */,
 				6E586CFC2199A72600F680C4 /* OpenInAction.swift in Sources */,
 				3968C882239C54AD00AC28AC /* ReleaseNotesTableViewController.swift in Sources */,
-				99743C732E1E9BC800DB77C2 /* WelcomeViewModel.swift in Sources */,
 				DC4C575D233958B70098BAE9 /* FixedHeightImageView.swift in Sources */,
 				39CC8AE6228C12100020253B /* Array+Extension.swift in Sources */,
 				DCE28F602433683700879DEC /* ClientSessionManager.swift in Sources */,
@@ -4840,7 +4818,6 @@
 				DC1BEEF62C2DFE940016C94F /* HelpAndSupportViewController.swift in Sources */,
 				DC9BFBBD20A1C37B007064B5 /* PasswordManagerAccess.swift in Sources */,
 				99DF686B2E1E672000F1A0B9 /* FirstRunCoordinator.swift in Sources */,
-				99DF686C2E1E672000F1A0B9 /* ServerAddressViewController.swift in Sources */,
 				99DF686D2E1E672000F1A0B9 /* LoginViewController.swift in Sources */,
 				23D5241521491C670002C566 /* DisplayViewController.swift in Sources */,
 				DCB7969D2BCE71C300D6D759 /* OpenShortcutFileAction.swift in Sources */,
@@ -4982,6 +4959,7 @@
 				DC8E99E5297EEB2800594697 /* ClientLocationBarController.swift in Sources */,
 				DCFC9ECC28002303005D9144 /* CollectionViewSection.swift in Sources */,
 				DC89EA602993AC4F00BFF393 /* NSUserActivity+SaveRestore.swift in Sources */,
+				99CE0A5E2E49F31200380EB8 /* HCKeyboardTracker.swift in Sources */,
 				DC62F567292504060095BB5D /* AccountConnection.swift in Sources */,
 				DC16213A2B8FEEE500EB17F8 /* OCSidebarItem+Cell.swift in Sources */,
 				DC9219FD2966229100F538EE /* UniversalItemListCell.swift in Sources */,
@@ -5015,6 +4993,7 @@
 				DC89EA572992FDCD00BFF393 /* AppStateAction.swift in Sources */,
 				DC298CB029366B96009FA87F /* AccountControllerSpacesGridViewController.swift in Sources */,
 				DCB330E429F18C6800BFF393 /* OptionItem.swift in Sources */,
+				99CE0A602E4A232200380EB8 /* HCSpinnerView.swift in Sources */,
 				DCE4E48824C1FA430051722F /* NamingViewController.swift in Sources */,
 				DC01AF2128411D8400903101 /* ThemeableCollectionViewListCell.swift in Sources */,
 				DC60F2A629802ABE00905EC8 /* UINavigationItem+NavigationContent.swift in Sources */,
@@ -5187,6 +5166,7 @@
 				DCBAEAE229A55D5A00BFF393 /* ViewSupplementaryCell.swift in Sources */,
 				DCB6B203292D45AD00D27573 /* NavigationRevocationTrigger.swift in Sources */,
 				DC921A0B2968BA4D00F538EE /* ClientSharedByMeViewController.swift in Sources */,
+				99BC9F2E2E4C72DE0004F6B2 /* HCErrorView.swift in Sources */,
 				DC0A357D24C0E43C00FB58FC /* ThemeStyle.swift in Sources */,
 				DC46F3CC2844A8EA00038880 /* ViewCell.swift in Sources */,
 				DCB330D029F051B300BFF393 /* RecipientSearchScope.swift in Sources */,

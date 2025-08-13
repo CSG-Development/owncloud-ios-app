@@ -30,9 +30,15 @@ open class HCTextFieldView: HCFieldView {
 		return button
 	}()
 
+	public var title: String? {
+		didSet {
+			borderView.title = title
+			updateAppearance()
+		}
+	}
+
 	public var placeholder: String? {
 		didSet {
-			borderView.title = placeholder
 			updateAppearance()
 		}
 	}
@@ -70,9 +76,12 @@ open class HCTextFieldView: HCFieldView {
 		styledPlaceholder.foregroundColor = placeholderColor
 		styledPlaceholder.font = UIFont.systemFont(ofSize: Constants.textFontSize)
 		textField.attributedPlaceholder = NSAttributedString(styledPlaceholder)
-		let isEmpty = textField.text?.isEmpty ?? true
+	}
 
-		borderView.shouldDisplayTitle = isActive || !isEmpty
+	public override func resignFirstResponder() -> Bool {
+		super.resignFirstResponder()
+
+		return textField.resignFirstResponder()
 	}
 
 	public override func applyThemeCollection(

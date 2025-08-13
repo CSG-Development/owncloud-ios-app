@@ -35,11 +35,10 @@ public final class HCAppLogoView: ThemeCSSView {
 		titleLabel.snp.makeConstraints {
 			$0.edges.equalToSuperview()
 		}
-		snp.makeConstraints {
-			$0.height.equalTo(titleLabel.snp.width).multipliedBy(2.0 / 3.0)
-		}
+
 		backgroundColor = .clear
 		updateLabel()
+		isUserInteractionEnabled = false
 	}
 
 	private func updateLabel() {

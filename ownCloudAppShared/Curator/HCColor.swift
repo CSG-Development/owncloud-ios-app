@@ -61,24 +61,27 @@ public enum HCColor {
 
 		// Content/Gray 2
 		public static let gray2 = UIColor(hexString: "#B2B2B2FF")
-	}
 
-	public enum Structure {
-		// Structure/App Background		
-		public static func appBackground(_ isDark: Bool) -> UIColor {
-			isDark ? UIColor(hexString: "#3D3E41FF") : UIColor(hexString: "#F0F1F5FF")
+		// Content/Disabled BG
+		public static func disabledBackground(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#616161FF") : UIColor(hexString: "#EEEEEEFF")
 		}
-		// Structure/Menu Background
-		public static func menuBackground(_ isDark: Bool) -> UIColor {
-			isDark ? UIColor(hexString: "#1D1E21FF") : UIColor(hexString: "#FFFFFFFF")
-        }
+
+		// Content/SliderBG
+		public static func sliderBackground(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#616161FF") : UIColor(hexString: "#E0E0E0FF")
+		}
 	}
 
     public enum Symbolic {
         // Symbolic/Error
         public static func error(_ isDark: Bool) -> UIColor {
-            isDark ? UIColor(hexString: "#F44336FF") : UIColor(hexString: "#F44336FF")
+            isDark ? UIColor(hexString: "#F28F8CFF") : UIColor(hexString: "#F44336FF")
         }
+		// Symbolic/Error Background Transparent
+		public static func errorBackgroundTransparent(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#F28F8C3D") : UIColor(hexString: "#F443361F")
+		}
     }
 
 	public enum Interaction {
@@ -97,15 +100,14 @@ public enum HCColor {
 	}
 
 	public enum Structure {
-		// Structure/App Background		
+		// Structure/App Background
 		public static func appBackground(_ isDark: Bool) -> UIColor {
-			isDark ? UIColor(hexString: "#0A0A0AFF") : UIColor(hexString: "#F0F1F5FF")
+			isDark ? UIColor(hexString: "#3D3E41FF") : UIColor(hexString: "#F0F1F5FF")
 		}
 		// Structure/Menu Background
 		public static func menuBackground(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#1D1E21FF") : UIColor(hexString: "#FFFFFFFF")
 		}
-
 		// Structure/Card Background
 		public static func cardBackground(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#262729FF") : UIColor(hexString: "#FFFFFFFF")

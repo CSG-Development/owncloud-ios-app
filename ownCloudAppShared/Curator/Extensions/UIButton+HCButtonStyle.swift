@@ -43,7 +43,7 @@ extension UIButton {
 				case .highlighted:
 					return darkMode ? HCColor.Blue.lighten3 : HCColor.Blue.darken1
 				case .disabled:
-					return darkMode ? HCColor.Grey.darken4 : HCColor.Grey.lighten3
+					return HCColor.Content.disabledBackground(darkMode)
 				default:
 					return darkMode ? HCColor.Blue.lighten2 : HCColor.Blue.darken2
 				}
@@ -64,7 +64,7 @@ extension UIButton {
 				case .highlighted:
 					return darkMode ? HCColor.Grey.lighten3 : HCColor.Grey.darken3
 				case .disabled:
-					return darkMode ? HCColor.Grey.darken4 : HCColor.Grey.lighten3
+					return HCColor.Content.disabledBackground(darkMode)
 				default:
 					return darkMode ? HCColor.white : HCColor.Grey.darken4
 				}

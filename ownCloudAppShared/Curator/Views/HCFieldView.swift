@@ -28,7 +28,11 @@ open class HCFieldView: ThemeCSSView {
 		return label
 	}()
 
-	public let borderView = HCBorderView()
+	public lazy var borderView: HCBorderView = {
+		let borderView = HCBorderView()
+		borderView.shouldDisplayTitle = true
+		return borderView
+	}()
 
 	public var errorText: String? {
 		didSet {
@@ -70,14 +74,18 @@ open class HCFieldView: ThemeCSSView {
 		borderView.snp.makeConstraints {
 			$0.height.equalTo(56)
 		}
-		borderView.addSubview(contentView)
-
+		// To disable autoscroll to text field behavior.
+		let wrapper = UIScrollView()
+		wrapper.addSubview(contentView)
+		borderView.addSubview(wrapper)
 		contentView.snp.makeConstraints {
-			$0.top.equalToSuperview().offset(16)
-			$0.left.equalToSuperview().offset(16)
-			$0.bottom.equalToSuperview().offset(-16)
-			$0.right.equalToSuperview().offset(-16)
+			$0.top.equalTo(borderView).offset(16)
+			$0.left.equalTo(borderView).offset(16)
+			$0.bottom.equalTo(borderView).offset(-16)
+			$0.right.equalTo(borderView).offset(-16)
 		}
+
+		wrapper.snp.makeConstraints { $0.edges.equalToSuperview() }
 
 		let stackView = UIStackView()
 		stackView.axis = .vertical

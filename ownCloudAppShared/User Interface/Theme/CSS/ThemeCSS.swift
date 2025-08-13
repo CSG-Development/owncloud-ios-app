@@ -43,6 +43,7 @@ public struct ThemeCSSSelector: RawRepresentable, Equatable {
 	public static let tabBar = ThemeCSSSelector(rawValue: "tabbar")
 
 	// Content structure
+	public static let auth = ThemeCSSSelector(rawValue: "auth")
 	public static let table = ThemeCSSSelector(rawValue: "table")
 	public static let collection = ThemeCSSSelector(rawValue: "collection")
 	public static let header = ThemeCSSSelector(rawValue: "header")
@@ -57,6 +58,8 @@ public struct ThemeCSSSelector: RawRepresentable, Equatable {
 	public static let confidentialSecondaryLabel = ThemeCSSSelector(rawValue: "confidentialSecondaryLabel")
 
 	// Content Elements
+	public static let hcErrorView = ThemeCSSSelector(rawValue: "hcErrorView")
+	public static let spinner = ThemeCSSSelector(rawValue: "spinner")
 	public static let splitView = ThemeCSSSelector(rawValue: "splitView")
 	public static let alert = ThemeCSSSelector(rawValue: "alert")
 	public static let label = ThemeCSSSelector(rawValue: "label")

@@ -132,6 +132,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 				configuration.hasIntro = true
 
 				self?.contentViewController = FirstRunCoordinator(rootVC: self).makeInitial()
+				//self?.contentViewController = BookmarkSetupViewController(configuration: configuration)
 			} else {
 				if HCSettings.shared.shouldShowOnboarding {
 					let onboardingVC = OnboardingViewController()

@@ -626,6 +626,20 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.confidentialSecondaryLabel],		property: .stroke, value: tintColor.withAlphaComponent(0.4)),
 
 			// # Curator Files
+
+			// ## HCErrorView
+			ThemeCSSRecord(selectors: [.hcErrorView, .background], property: .fill, value: HCColor.Symbolic.errorBackgroundTransparent(isDark)),
+			ThemeCSSRecord(selectors: [.hcErrorView, .text], property: .fill, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.hcErrorView, .error], property: .fill, value: HCColor.Symbolic.error(isDark)),
+
+			// ## Spinner
+			ThemeCSSRecord(selectors: [.spinner], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [.spinner], property: .fill, value: HCColor.Content.sliderBackground(isDark)),
+
+			// ## Auth
+			ThemeCSSRecord(selectors: [.auth, .background], property: .fill, value: HCColor.Structure.cardBackground(isDark)),
+			ThemeCSSRecord(selectors: [.label, .auth], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+
 			// ## App logo
 			ThemeCSSRecord(selectors: [.hcAppLogo, .part1Color], property: .stroke, value: HCColor.Constant.primary(isDark)),
 			ThemeCSSRecord(selectors: [.hcAppLogo, .part2Color], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
@@ -684,7 +698,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.button, .primary, .filled], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),
 			ThemeCSSRecord(selectors: [.button, .primary, .filled], property: .fill, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
 			ThemeCSSRecord(selectors: [.button, .primary, .filled, .disabled], property: .stroke, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .primary, .filled, .disabled], property: .fill, value: isDark ? HCColor.Grey.darken4 : HCColor.Grey.lighten3),
+			ThemeCSSRecord(selectors: [.button, .primary, .filled, .disabled], property: .fill, value: HCColor.Content.disabledBackground(isDark)),
 			ThemeCSSRecord(selectors: [.button, .primary, .filled, .highlighted], property: .stroke, value: isDark ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary),
 			ThemeCSSRecord(selectors: [.button, .primary, .filled, .highlighted], property: .fill, value:  isDark ? HCColor.Blue.lighten3 : HCColor.Blue.darken1),
 
@@ -692,7 +706,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.button, .secondary, .filled], property: .stroke, value: isDark ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary),
 			ThemeCSSRecord(selectors: [.button, .secondary, .filled], property: .fill, value: isDark ? HCColor.white : HCColor.Grey.darken4),
 			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .disabled], property: .stroke, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .disabled], property: .fill, value: isDark ? HCColor.Grey.darken4 : HCColor.Grey.lighten3),
+			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .disabled], property: .fill, value: HCColor.Content.disabledBackground(isDark)),
 			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .highlighted], property: .stroke, value: isDark ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary),
 			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .highlighted], property: .fill, value:  isDark ? HCColor.Grey.lighten3 : HCColor.Grey.darken3),
 
