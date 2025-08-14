@@ -16,7 +16,15 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private var cancellables = Set<AnyCancellable>()
 
-	private let logoView = HCAppLogoView(frame: .zero)
+	private lazy var logoView: HCAppLogoView = {
+		let logoView = HCAppLogoView(frame: .zero)
+
+		let recognizer = UITapGestureRecognizer(target: self, action: #selector(fillTestInfo))
+		recognizer.numberOfTapsRequired = 5
+		logoView.addGestureRecognizer(recognizer)
+
+		return logoView
+	}()
 
 	private lazy var loadingView: UIView = {
 		let loadingLabel = ThemeCSSLabel()
@@ -190,7 +198,6 @@ final public class LoginViewController: UIViewController, Themeable {
 			HCSpacerView(),
 			settingsButton
 		])
-		
 
 		stackView.addArrangedSubviews([
 			HCSpacerView(24),
@@ -208,8 +215,12 @@ final public class LoginViewController: UIViewController, Themeable {
 
 			loginButton,
 			HCSpacerView(24),
-			loadingView,
+			loadingView
 		])
+	}
+
+	@objc private func fillTestInfo() {
+		viewModel.fillTestInfo()
 	}
 
 	@objc private func closeKeyboard() {
@@ -224,14 +235,29 @@ final public class LoginViewController: UIViewController, Themeable {
 			.assign(to: \.username, on: viewModel)
 			.store(in: &cancellables)
 
+		viewModel.$username
+			.removeDuplicates()
+			.sink { [weak emailTextField] in emailTextField?.textField.text = $0 }
+			.store(in: &cancellables)
+
 		addressTextField.textField.textPublisher
 			.receive(on: DispatchQueue.main)
 			.assign(to: \.address, on: viewModel)
 			.store(in: &cancellables)
 
+		viewModel.$address
+			.removeDuplicates()
+			.sink { [weak addressTextField] in addressTextField?.textField.text = $0 }
+			.store(in: &cancellables)
+
 		passwordTextField.textField.textPublisher
 			.receive(on: DispatchQueue.main)
 			.assign(to: \.password, on: viewModel)
+			.store(in: &cancellables)
+
+		viewModel.$password
+			.removeDuplicates()
+			.sink { [weak passwordTextField] in passwordTextField?.textField.text = $0 }
 			.store(in: &cancellables)
 
 		viewModel.$isLoginEnabled

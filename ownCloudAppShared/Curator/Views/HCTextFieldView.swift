@@ -67,7 +67,7 @@ open class HCTextFieldView: HCFieldView {
 		cssSelectors = (cssSelectors ?? []) + [.hcTextField]
 
 		textField.rightView = clearButton
-		textField.rightViewMode = .whileEditing
+		textField.rightViewMode = .never
 	}
 
 	public override func updateContentView() {
@@ -97,12 +97,18 @@ open class HCTextFieldView: HCFieldView {
 		super.applyThemeCollection(theme: theme, collection: collection, event: event)
 	}
 
+	private func updateTextField() {
+		textField.rightViewMode = (textField.text?.isEmpty ?? true) ? .never : .always
+	}
+
 	@objc private func clearTextField() {
 		textField.text = nil
+		updateTextField()
 	}
 
 	@objc private func editingChanged() {
 		updateAppearance()
+		updateTextField()
 	}
 
 	@objc private func editingDidBegin() {
