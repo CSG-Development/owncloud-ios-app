@@ -21,9 +21,9 @@ final public class LoginViewModel {
 	private let eventHandler: LoginViewModelEventHandler
 
 	// Inputs
-	@Published var username: String = "admin1"
-	@Published var password: String = "admin"
-	@Published var address: String = "http://192.168.88.29:18080"
+	@Published var username: String = ""
+	@Published var password: String = ""
+	@Published var address: String = ""
 
 	// Outputs
 	@Published private(set) var isLoginEnabled: Bool = true
@@ -58,8 +58,8 @@ final public class LoginViewModel {
 
 		// Enable login when username isn't empty and password ≥ 8 chars
 		Publishers
-			.CombineLatest($username, $password)
-			.map { !$0.0.isEmpty }
+			.CombineLatest3($username, $password, $address)
+			.map { !$0.isEmpty && !$1.isEmpty && !$2.isEmpty  }
 			.receive(on: RunLoop.main)
 			.sink(receiveValue: { [weak self] isLoginEnabled in
 				self?.isLoginEnabled = isLoginEnabled
@@ -71,6 +71,11 @@ final public class LoginViewModel {
 		// TODO: Refactor during login from invite implementation.
 		guard isLoginEnabled, !isLoading else { return }
 		isLoading = true
+
+		// For testing
+		if !address.starts(with: "https://") {
+			address = "https://" + address
+		}
 
 		bookmark.url = URL(string: address)
 		let connection = instantiateConnection(for: bookmark)
@@ -157,5 +162,9 @@ final public class LoginViewModel {
 
 	func didTapSettings() {
 		eventHandler.handle(.settingsTap)
+	}
+
+	func fillTestInfo() {
+
 	}
 }

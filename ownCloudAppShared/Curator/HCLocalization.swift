@@ -1,6 +1,6 @@
 public enum HCL10n {
 	public enum Logo {
-		public static let firstPart = "Home Cloud "
+		public static let firstPart = "Curator "
 		public static let secondPart = "Files"
 	}
 

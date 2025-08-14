@@ -38,11 +38,11 @@ public final class HCAppLogoView: ThemeCSSView {
 
 		backgroundColor = .clear
 		updateLabel()
-		isUserInteractionEnabled = false
+		
 	}
 
 	private func updateLabel() {
-		var part1 = AttributedString(HCL10n.Logo.firstPart + "\n")
+		var part1 = AttributedString(HCL10n.Logo.firstPart)
 		part1.foregroundColor = part1Color
 		part1.font = UIFont.systemFont(ofSize: 34, weight: .regular)
 
