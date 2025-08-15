@@ -166,5 +166,8 @@ final public class LoginViewModel {
 
 	// Updated in CI. If you change something be sure to change the CI script as well.
 	func fillTestInfo() {
+		username = ""
+		password = ""
+		address = ""
 	}
 }
