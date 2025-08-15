@@ -79,6 +79,7 @@ open class HCTextFieldView: HCFieldView {
 	}
 
 	public override func resignFirstResponder() -> Bool {
+		defer { updateTextField() }
 		super.resignFirstResponder()
 
 		return textField.resignFirstResponder()
@@ -98,7 +99,9 @@ open class HCTextFieldView: HCFieldView {
 	}
 
 	private func updateTextField() {
-		textField.rightViewMode = (textField.text?.isEmpty ?? true) ? .never : .always
+		let isEmpty = textField.text?.isEmpty ?? true
+		let isFirstResponder = textField.isFirstResponder
+		textField.rightViewMode = !isEmpty && isFirstResponder ? .always : .never
 	}
 
 	@objc private func clearTextField() {
@@ -113,9 +116,11 @@ open class HCTextFieldView: HCFieldView {
 
 	@objc private func editingDidBegin() {
 		updateAppearance()
+		updateTextField()
 	}
 
 	@objc private func editingDidEnd() {
 		updateAppearance()
+		updateTextField()
 	}
 }

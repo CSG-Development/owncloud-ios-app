@@ -143,7 +143,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	}
 
 	private func setupUI() {
-		view.addGestureRecognizer(UITapGestureRecognizer(target: self,action: #selector(closeKeyboard)))
+		view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(closeKeyboard)))
 
 		view.addSubview(scrollView)
 		scrollView.snp.makeConstraints {
