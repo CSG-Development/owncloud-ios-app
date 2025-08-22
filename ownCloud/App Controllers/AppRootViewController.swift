@@ -105,6 +105,31 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 		// Build sidebar
 		sidebarViewController = ClientSidebarViewController(context: rootContext!, controllerConfiguration: controllerConfiguration)
 		sidebarViewController?.addToolbarItems(addAccount: Branding.shared.canAddAccount)
+		sidebarViewController?.onSettingsTap = { [weak self] in
+			let navigationViewController = ThemeNavigationController(rootViewController: SettingsViewController())
+			navigationViewController.modalPresentationStyle = .fullScreen
+			self?.present(navigationViewController, animated: true)
+		}
+
+		sidebarViewController?.onSignoutTap = { [weak self] in
+			guard let bookmark = OCBookmarkManager.shared.bookmarks.first else { return }
+			let accountController = self?.sidebarViewController?.accountController(for: bookmark.uuid)
+			accountController?.disconnect(completion: { _ in
+				OCBookmarkManager.shared.removeBookmark(bookmark)
+			})
+		}
+
+		sidebarViewController?.onEditTap = { [weak self] in
+			guard
+				let bookmark = OCBookmarkManager.shared.bookmarks.first,
+				let sidebarViewController = self?.sidebarViewController
+			else { return }
+
+			let accountController = self?.sidebarViewController?.accountController(for: bookmark.uuid)
+			accountController?.editBookmark(on: sidebarViewController) {
+				self?.connectToFirstBookmark()
+			}
+		}
 
 		self.contentBrowserController.accountControllerProvider = { [weak self] bookmarkUUID in
 			self?.sidebarViewController?.accountController(for: bookmarkUUID)
@@ -115,7 +140,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 
 		leftNavigationController = ThemeNavigationController(rootViewController: sidebarViewController!)
 		leftNavigationController?.cssSelectors = [ .sidebar ]
-		leftNavigationController?.setToolbarHidden(false, animated: false)
+		leftNavigationController?.setToolbarHidden(true, animated: false)
 
 		focusedBookmarkObservation = sidebarViewController?.observe(\.focusedBookmark, changeHandler: { [weak self] sidebarViewController, change in
 			self?.focusedBookmark = self?.sidebarViewController?.focusedBookmark
@@ -131,8 +156,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 				let configuration = BookmarkComposerConfiguration.newBookmarkConfiguration
 				configuration.hasIntro = true
 
-				self?.contentViewController = FirstRunCoordinator(rootVC: self).makeInitial()
-				//self?.contentViewController = BookmarkSetupViewController(configuration: configuration)
+				self?.contentViewController = FirstRunCoordinator(rootVC: self).makeInitial()				
 			} else {
 				if HCSettings.shared.shouldShowOnboarding {
 					let onboardingVC = OnboardingViewController()
@@ -143,6 +167,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 				} else {
 					self?.contentViewController = self?.contentBrowserController
 				}
+				self?.connectToFirstBookmark()
 			}
 		})
 
@@ -170,6 +195,24 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 		considerLaunchPopups()
 
 		shownFirstTime = false
+	}
+
+	// MARK: - Auto-connect
+	private func connectToFirstBookmark() {
+		let bookmarks = OCBookmarkManager.shared.bookmarks
+		if let firstBookmark = bookmarks.first {
+			// Create or get connection and connect if needed
+			guard let connection = AccountConnectionPool.shared.connection(for: firstBookmark) else { return }
+			connection.connect { _ in
+				let context = ClientContext(with: self.rootContext, accountConnection: connection)
+				let bookmarkUUID = connection.core?.bookmark.uuid
+
+				let location = OCLocation(bookmarkUUID: bookmarkUUID, driveID: nil, path: "/")
+				_ = location.openItem(from: self.contentBrowserController, with: context, animated: true, pushViewController: true) { _ in }
+
+				_ = self.sidebarViewController?.updateSelection(for: BrowserNavigationBookmark(type: .dataItem, bookmarkUUID: bookmarkUUID))
+			}
+		}
 	}
 
 	open override func viewDidDisappear(_ animated: Bool) {
@@ -317,7 +360,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 // MARK: - Authentication: bookmark editing
 extension AppRootViewController: AccountAuthenticationHandlerBookmarkEditingHandler {
 	public func handleAuthError(for viewController: UIViewController, error: NSError, editBookmark: OCBookmark?, preferredAuthenticationMethods: [OCAuthenticationMethodIdentifier]?) {
-		BookmarkViewController.showBookmarkUI(on: viewController, edit: editBookmark, performContinue: true, attemptLoginOnSuccess: true, removeAuthDataFromCopy: true)
+		BookmarkViewController.showBookmarkUI(on: viewController, edit: editBookmark, performContinue: true, attemptLoginOnSuccess: true, removeAuthDataFromCopy: true, completion: nil)
 	}
 }
 
@@ -397,27 +440,27 @@ extension AppRootViewController : ClientSessionManagerDelegate {
 extension ClientSidebarViewController {
 	// MARK: - Add toolbar items
 	func addToolbarItems(addAccount: Bool = true, settings addSettings: Bool = true) {
-		var toolbarItems: [UIBarButtonItem] = []
+//		var toolbarItems: [UIBarButtonItem] = []
+//
+//		if addAccount {
+//			let addAccountBarButtonItem = UIBarButtonItem(systemItem: .add, primaryAction: UIAction(handler: { [weak self] action in
+//				self?.addBookmark()
+//			}))
+//
+//			toolbarItems.append(addAccountBarButtonItem)
+//		}
+//
+//		if addSettings {
+//			let settingsBarButtonItem = UIBarButtonItem(title: OCLocalizedString("Settings", nil), style: UIBarButtonItem.Style.plain, target: self, action: #selector(settings))
+//			settingsBarButtonItem.accessibilityIdentifier = "settingsBarButtonItem"
+//
+//			toolbarItems.append(contentsOf: [
+//				UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil),
+//				settingsBarButtonItem
+//			])
+//		}
 
-		if addAccount {
-			let addAccountBarButtonItem = UIBarButtonItem(systemItem: .add, primaryAction: UIAction(handler: { [weak self] action in
-				self?.addBookmark()
-			}))
-
-			toolbarItems.append(addAccountBarButtonItem)
-		}
-
-		if addSettings {
-			let settingsBarButtonItem = UIBarButtonItem(title: OCLocalizedString("Settings", nil), style: UIBarButtonItem.Style.plain, target: self, action: #selector(settings))
-			settingsBarButtonItem.accessibilityIdentifier = "settingsBarButtonItem"
-
-			toolbarItems.append(contentsOf: [
-				UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil),
-				settingsBarButtonItem
-			])
-		}
-
-		self.toolbarItems = toolbarItems
+		self.toolbarItems = nil
 	}
 
 	// MARK: - Open settings
@@ -429,7 +472,7 @@ extension ClientSidebarViewController {
 
 	// MARK: - Add account
 	func addBookmark() {
-		BookmarkViewController.showBookmarkUI(on: self, attemptLoginOnSuccess: true)
+		BookmarkViewController.showBookmarkUI(on: self, attemptLoginOnSuccess: true, completion: nil)
 	}
 
 	// MARK: - Update selection

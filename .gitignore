@@ -138,3 +138,5 @@ Pods/
 # End of https://www.gitignore.io/api/xcode,swift,macos,objective-c
 /fastlane/fastlane/Appfile
 /Gemfile.lock
+
+.cursor

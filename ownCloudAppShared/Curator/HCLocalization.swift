@@ -35,6 +35,13 @@ public enum HCL10n {
 		}
 	}
 
+	public enum Sidebar {
+		public static let storageSpace = "Storage space"
+		public static func used(_ a: String, of b: String) -> String { "\(a) of \(b) used" }
+		public static let unlimitedSpace = "Unlimited space"
+		public static let signOut = "Sign out"
+	}
+
 	public enum TabBar {
 		public static let files = "Files"
 		public static let search = "Search"

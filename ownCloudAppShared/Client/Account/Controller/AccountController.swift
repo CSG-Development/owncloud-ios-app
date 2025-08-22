@@ -63,7 +63,7 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 		}
 
 		public init() {
-			showAccountPill = true
+			showAccountPill = false
 			showShared = true
 			showSearch = true
 			showSavedSearches = true
@@ -191,51 +191,53 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 
 	// MARK: - Status handling
 	public func account(connection: AccountConnection, changedStatusTo status: AccountConnection.Status, initial: Bool) {
-		if let vault = connection.core?.vault {
-			// Create savedSearchesDataSource if wanted
-			if configuration.showSavedSearches, savedSearchesDataSource == nil {
-				savedSearchesDataSource = OCDataSourceKVO(object: vault, keyPath: "savedSearches", versionedItemUpdateHandler: { obj, keypath, newValue in
-					if let savedSearches = newValue as? [OCSavedSearch] {
-						return savedSearches.filter { savedSearch in return !savedSearch.isTemplate }
-					}
+		DispatchQueue.main.async {
+			if let vault = connection.core?.vault {
+				// Create savedSearchesDataSource if wanted
+				if self.configuration.showSavedSearches, self.savedSearchesDataSource == nil {
+					self.savedSearchesDataSource = OCDataSourceKVO(object: vault, keyPath: "savedSearches", versionedItemUpdateHandler: { obj, keypath, newValue in
+						if let savedSearches = newValue as? [OCSavedSearch] {
+							return savedSearches.filter { savedSearch in return !savedSearch.isTemplate }
+						}
 
-					return nil
-				})
+						return nil
+					})
+				}
+
+				// Create
+				if self.configuration.showUserSidebarItems, self.userSidebarItemsDataSource == nil {
+					self.userSidebarItemsDataSource = OCDataSourceKVO(object: vault, keyPath: "sidebarItems")
+				}
+			} else {
+				self.savedSearchesDataSource = nil
+				self.userSidebarItemsDataSource = nil
 			}
 
-			// Create
-			if configuration.showUserSidebarItems, userSidebarItemsDataSource == nil {
-				userSidebarItemsDataSource = OCDataSourceKVO(object: vault, keyPath: "sidebarItems")
+			switch status {
+				case .authenticationError(failure: let failure):
+					// Authentication failure
+					self.authFailure = failure
+
+				case .coreAvailable, .online:
+					// Begin to show account items
+					self.showAccountItems = true
+					self.showDisconnectButton = true
+					self.authFailure = nil
+
+				default:
+					// Do not show account items
+					self.showAccountItems = false
+					self.showDisconnectButton = false
+					self.authFailure = nil
 			}
-		} else {
-			savedSearchesDataSource = nil
-			userSidebarItemsDataSource = nil
-		}
 
-		switch status {
-			case .authenticationError(failure: let failure):
-				// Authentication failure
-				authFailure = failure
+			if case .noCore = status, !initial {
+				// Remove controller's error handler
+				self.removeErrorHandler()
 
-			case .coreAvailable, .online:
-				// Begin to show account items
-				showAccountItems = true
-				showDisconnectButton = true
-				authFailure = nil
-
-			default:
-				// Do not show account items
-				showAccountItems = false
-				showDisconnectButton = false
-				authFailure = nil
-		}
-
-		if case .noCore = status, !initial {
-			// Remove controller's error handler
-			removeErrorHandler()
-
-			// Send connection closed navigation event
-			NavigationRevocationEvent.connectionClosed(bookmarkUUID: connection.bookmark.uuid).send()
+				// Send connection closed navigation event
+				NavigationRevocationEvent.connectionClosed(bookmarkUUID: connection.bookmark.uuid).send()
+			}
 		}
 	}
 
@@ -342,13 +344,13 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 				}
 
 				sources = [
-					core.personalDriveDataSource,
-					spacesDataSource
+					//core.personalDriveDataSource,
+					//spacesDataSource
 				]
 			} else {
 				// OC10 Root folder
 				sources = [
-					OCDataSourceArray(items: [legacyAccountRootLocation])
+					//OCDataSourceArray(items: [legacyAccountRootLocation])
 				]
 			}
 
@@ -385,39 +387,23 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 
 				sharingItemsDataSource.setVersionedItems(sharingItems)
 
-				sources.insert(sharingFolderDataSource, at: 1)
+				sources.insert(sharingFolderDataSource, at: sources.count > 0 ? 1 : 0)
 			}
 
 			// Saved searches
 			var savedSearchesSidebarDataSource: OCDataSource?
-			var userSidebarItemsSidebarDataSource: OCDataSource?
 
-			if configuration.showSearch, let savedSearchesDataSource {
-				if useFolderForSearches {
-					// Use "Search" item in sidebar, showing saved searches when unfolded
-					let savedSearchesFolderDataSource = self.buildTopFolder(with: savedSearchesDataSource, title: OCLocalizedString("Search", nil), icon: OCSymbol.icon(forSymbolName: "magnifyingglass"), topItem: .globalSearch) { [weak self] context, action in
-						return self?.provideViewController(for: .globalSearch, in: context)
-					}
-
-					sources.append(savedSearchesFolderDataSource)
-				} else {
-					// Add "Search" item to sidebar, making saved searches standalone items
-					let globalSearchItem = CollectionSidebarAction(with: OCLocalizedString("Search", nil), icon: OCSymbol.icon(forSymbolName: "magnifyingglass"), identifier: specialItemsDataReferences[.globalSearch], viewControllerProvider: { [weak self] context, action in
-						return self?.provideViewController(for: .globalSearch, in: context)
-					}, cacheViewControllers: false)
-
-					specialItems[.globalSearch] = globalSearchItem
-
-					sources.append(OCDataSourceArray(items: [ globalSearchItem ]))
-					savedSearchesSidebarDataSource = savedSearchesDataSource // Add saved searches only after Available Offline
-				}
-			}
-
-			// User sidebar items
-			if configuration.showUserSidebarItems, let userSidebarItemsDataSource {
-				// Add user sidebar items
-				userSidebarItemsSidebarDataSource = userSidebarItemsDataSource
-			}
+//			if let savedSearchesDataSource {
+//				// Add "Search" item to sidebar, making saved searches standalone items
+//				let globalSearchItem = CollectionSidebarAction(with: OCLocalizedString("Search", nil), icon: OCSymbol.icon(forSymbolName: "magnifyingglass"), identifier: specialItemsDataReferences[.globalSearch], viewControllerProvider: { [weak self] context, action in
+//					return self?.provideViewController(for: .globalSearch, in: context)
+//				}, cacheViewControllers: false)
+//
+//				specialItems[.globalSearch] = globalSearchItem
+//
+//				sources.append(OCDataSourceArray(items: [ globalSearchItem ]))
+//				savedSearchesSidebarDataSource = savedSearchesDataSource
+//			}
 
 			// Other sidebar items
 			var otherItems: [OCDataItem & OCDataItemVersioning] = []
@@ -436,24 +422,14 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 			}
 
 			// Recents
-			if configuration.showRecents {
-				// Recents
-				addSidebarItem(.recents) {
-					return OCSavedSearch(scope: .account, location: nil, name: OCLocalizedString("Recents", nil), isTemplate: false, searchTerm: ":recent :file").withCustomIcon(name: "clock.arrow.circlepath").useNameAsTitle(true).useSortDescriptor(SortDescriptor(method: .lastUsed, direction: .ascending))
-				}
+			addSidebarItem(.recents) {
+				return OCSavedSearch(scope: .account, location: nil, name: OCLocalizedString("Recents", nil), isTemplate: false, searchTerm: ":recent :file").withCustomIcon(name: "clock.arrow.circlepath").useNameAsTitle(true).useSortDescriptor(SortDescriptor(method: .lastUsed, direction: .ascending))
 			}
 
 			// Favorites
-			if configuration.showFavorites, bookmark?.hasCapability(.favorites) == true {
+			if bookmark?.hasCapability(.favorites) == true {
 				addSidebarItem(.favoriteItems) {
 					return buildSidebarSpecialItem(with: OCLocalizedString("Favorites", nil), icon: OCSymbol.icon(forSymbolName: "star"), for: .favoriteItems)
-				}
-			}
-
-			// Available offline
-			if configuration.showAvailableOffline {
-				addSidebarItem(.availableOfflineItems) {
-					return buildSidebarSpecialItem(with: OCLocalizedString("Available Offline", nil), icon: OCItem.cloudAvailableOfflineStatusIcon, for: .availableOfflineItems)
 				}
 			}
 
@@ -463,22 +439,22 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 				sources.append(otherItemsDataSource)
 			}
 
-			// Saved searches (if not in folder)
+			// Add saved searches after other items
 			if let savedSearchesSidebarDataSource {
 				sources.append(savedSearchesSidebarDataSource)
 			}
 
 			// User sidebar items
-			if let userSidebarItemsSidebarDataSource {
-				sources.append(userSidebarItemsSidebarDataSource)
+			if let userSidebarItemsDataSource {
+				// Add user sidebar items
+				sources.append(userSidebarItemsDataSource)
 			}
 
 			// Extra items (Activity & Co via class extension in the app)
-			if let extraItemsSupport = self as? AccountControllerExtraItems {
-				extraItemsSupport.updateExtraItems(dataSource: extraItemsDataSource)
-
-				sources.append(extraItemsDataSource)
-			}
+//			if let extraItemsSupport = self as? AccountControllerExtraItems {
+//				extraItemsSupport.updateExtraItems(dataSource: extraItemsDataSource)
+//				sources.append(extraItemsDataSource)
+//			}
 
 			itemsDataSource.sources = sources
 		}

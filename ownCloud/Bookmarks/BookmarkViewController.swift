@@ -1107,7 +1107,7 @@ class BookmarkViewController: StaticTableViewController {
 
 // MARK: - Convenience for presentation
 extension BookmarkViewController {
-	static func showBookmarkUI(on hostViewController: UIViewController, edit bookmark: OCBookmark? = nil, performContinue: Bool = false, attemptLoginOnSuccess: Bool = false, autosolveErrorOnSuccess: NSError? = nil, removeAuthDataFromCopy: Bool = true) {
+	static func showBookmarkUI(on hostViewController: UIViewController, edit bookmark: OCBookmark? = nil, performContinue: Bool = false, attemptLoginOnSuccess: Bool = false, autosolveErrorOnSuccess: NSError? = nil, removeAuthDataFromCopy: Bool = true, completion: (() -> Void)?) {
 		if bookmark != nil {
 			var editBookmark = bookmark
 
@@ -1129,6 +1129,7 @@ extension BookmarkViewController {
 						AccountConnectionPool.shared.connection(for: bookmark)?.connect()
 					}
 				}
+				completion?()
 			}
 
 			let navigationController : ThemeNavigationController = ThemeNavigationController(rootViewController: bookmarkViewController)
@@ -1145,11 +1146,16 @@ extension BookmarkViewController {
 		} else {
 			let setupViewController = BookmarkSetupViewController(configuration: .newBookmarkConfiguration, cancelHandler: {
 				hostViewController.dismiss(animated: true)
+				if attemptLoginOnSuccess, let bookmark {
+					AccountConnectionPool.shared.connection(for: bookmark)?.connect()
+				}
+				completion?()
 			}, doneHandler: { bookmark in
 				hostViewController.dismiss(animated: true)
 				if attemptLoginOnSuccess, let bookmark {
 					AccountConnectionPool.shared.connection(for: bookmark)?.connect()
 				}
+				completion?()
 			})
 			setupViewController.navigationItem.titleLabelText = OCLocalizedString("Add account", nil)
 

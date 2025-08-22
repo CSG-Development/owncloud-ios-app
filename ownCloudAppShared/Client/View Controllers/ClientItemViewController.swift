@@ -676,7 +676,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 	}
 
 	// MARK: - Navigation title
-	var navigationTitle: String? {
+	public var navigationTitle: String? {
 		get {
 			return navigationItem.titleLabel?.text
 		}

@@ -28,6 +28,13 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 	public var accountsSectionSubscription: OCDataSourceSubscription?
 	public var accountsControllerSectionSource: OCDataSourceMapped?
 	public var controllerConfiguration: AccountController.Configuration
+	private var query: OCQuery?
+
+	private var footerView = HCSidebarFooterView(frame: .zero)
+	private var footerViewDouble = HCSidebarFooterView(frame: .zero)
+	private var contentSizeObservation: NSKeyValueObservation?
+
+	private var bookmarksSubscription: OCDataSourceSubscription?
 
 	public init(context inContext: ClientContext, controllerConfiguration: AccountController.Configuration) {
 		self.controllerConfiguration = controllerConfiguration
@@ -48,8 +55,28 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 	var selectionChangeObservation: NSKeyValueObservation?
 	var combinedSectionsDatasource: OCDataSourceComposition?
 
+	var shouldShowDouble: Bool = false {
+		didSet {
+			guard oldValue != shouldShowDouble else { return }
+			updateFooter()
+		}
+	}
+
+	public var onSettingsTap: (() -> Void)?
+	public var onSignoutTap: (() -> Void)?
+	public var onEditTap: (() -> Void)?
+
+	public override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+
+		updateShouldShowDouble()
+		updateAvailableSpace()
+	}
+
 	override public func viewDidLoad() {
 		super.viewDidLoad()
+
+		collectionView.delegate = self
 
 		// Disable dragging of items, so keyboard control does
 		// not include "Drag Item" in the accessibility actions
@@ -60,7 +87,11 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 		accountsControllerSectionSource = OCDataSourceMapped(source: nil, creator: { [weak self] (_, bookmarkDataItem) in
 			if let bookmark = bookmarkDataItem as? OCBookmark, let self = self, let clientContext = self.clientContext {
 				let controller = AccountController(bookmark: bookmark, context: clientContext, configuration: self.controllerConfiguration)
-
+				self.headerView.bookmark = bookmark
+				self.headerView.onEditTap = self.onEditTap
+				DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+					self.updateAvailableSpace()
+				}
 				return AccountControllerSection(with: controller)
 			}
 
@@ -87,6 +118,14 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 				sources.append(sidebarLinksDataSource)
 			}
 
+			if let customActionsDataSource {
+				sources.append(customActionsDataSource)
+			}
+
+			if let footerDataSource {
+				sources.append(footerDataSource)
+			}
+
 			if sources.count > 1 {
 				combinedSectionsDatasource = OCDataSourceComposition(sources: sources)
 			}
@@ -100,12 +139,19 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 		// Add 10pt space at the top so that the first section's account doesn't "stick" to the top
 		collectionView.contentInset.top += 10
 
+		view.addSubview(footerView)
+		footerView.snp.makeConstraints {
+			$0.leading.equalToSuperview().offset(16)
+			$0.trailing.equalToSuperview().offset(-16)
+			$0.bottom.equalToSuperview().offset(-12)
+		}
+
 		// Temporary, ugly fix for "empty bookmarks list in sidebar"
 		// Actual issue, as far as understood, is that if that error occurs, the created AccountControllerSections
 		// have no items in them - despite the underlying data sources having them. Until that mystery isn't fully solved
 		// a force-refresh of the underlying (root) datasource is a way to mitigate the issue's negative outcome (no accounts in list)
 		OnMainThread { // Wait for first, regular main thread iteraton
-			OnMainThread(after: 1.0) { // wait one more second
+			OnMainThread(after: 0.1) { // wait one more second
 				// Force refresh the bookmarks data source
 				if self.collectionView.numberOfSections < OCBookmarkManager.shared.bookmarks.count ||
 				   ((self.collectionView.numberOfSections > 0) && (self.collectionView.numberOfItems(inSection: 0) == 0)) {
@@ -115,10 +161,39 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 				}
 			}
 		}
+
+		contentSizeObservation = collectionView.observe(\.contentSize, options: [.new]) { [weak self] _, _ in
+			self?.updateShouldShowDouble()
+		}
+		updateFooter()
+
+		bookmarksSubscription = OCBookmarkManager.shared.bookmarksDatasource.subscribe(updateHandler: { _ in
+			DispatchQueue.main.async {
+				self.headerView.bookmark = OCBookmarkManager.shared.bookmarks.first
+			}
+		}, on: nil, trackDifferences: false, performInitialUpdate: true)
 	}
 
 	deinit {
 		accountsControllerSectionSource?.source = nil // Clear all AccountController instances from the controller and make OCDataSourceMapped call the destroyer
+	}
+
+	public func updateAvailableSpace() {
+		guard
+			let connection = AccountConnectionPool.shared.connectionsByBookmarkUUID.values.first,
+			let ocConnection = connection.core?.connection
+		else { return }
+
+		ocConnection.retrieveItemList(at: OCLocation(driveID: nil, path: "/"), depth: 0, options: [:]) { error, item in
+			if let item = item?.first {
+				DispatchQueue.main.async {
+					self.footerView.bytesUsed = item.quotaBytesUsed?.int64Value
+					self.footerViewDouble.bytesUsed = item.quotaBytesUsed?.int64Value
+					self.footerView.bytesRemaining = item.quotaBytesRemaining?.int64Value
+					self.footerViewDouble.bytesRemaining = item.quotaBytesRemaining?.int64Value
+				}
+			}
+		}
 	}
 
 	// MARK: - NavigationRevocationHandler
@@ -189,6 +264,74 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 
 	public var brandingElementDataSource: OCDataSourceArray? {
 		nil
+	}
+
+	public var customActionsDataSource: OCDataSourceArray? {
+		// Create custom actions
+		let settingsAction = OCAction(
+			title: OCLocalizedString("Settings", nil),
+			icon: UIImage(named: "settings_thin", in: Bundle.sharedAppBundle, with: nil),
+			action: { [weak self] _, _, completion in
+			self?.onSettingsTap?()
+			completion(nil)
+		})
+		settingsAction.automaticDeselection = true
+
+		let signOutAction = OCAction(title: HCL10n.Sidebar.signOut, icon: UIImage(named: "sign_out", in: Bundle.sharedAppBundle, with: nil), action: { [weak self] _, _, completion in
+			self?.onSignoutTap?()
+			completion(nil)
+		})
+		signOutAction.automaticDeselection = true
+
+		// Create section with actions
+		let actionsDataSource = OCDataSourceArray(items: [settingsAction, signOutAction])
+		let actionsSection = CollectionViewSection(identifier: "custom-actions-section",
+												 dataSource: actionsDataSource,
+												 cellStyle: CollectionViewCellStyle(with: .sideBar),
+												 cellLayout: .list(appearance: .sidebar),
+												 clientContext: clientContext)
+
+		let separatorView = HCSeparatorView(frame: .zero)
+		let separatorContainerView = UIView()
+		separatorContainerView.backgroundColor = .clear
+		separatorContainerView.addSubview(separatorView)
+		separatorContainerView.snp.makeConstraints {
+			$0.height.equalTo(25)
+		}
+		separatorView.snp.makeConstraints {
+			$0.height.equalTo(1)
+			$0.center.leading.equalToSuperview()
+		}
+
+		let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(1))
+		let supplementaryItem = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: CollectionViewSupplementaryItem.ElementKind.view, alignment: .top)
+		supplementaryItem.pinToVisibleBounds = false
+		supplementaryItem.zIndex = 200
+		actionsSection.boundarySupplementaryItems = [
+			CollectionViewSupplementaryItem(supplementaryItem: supplementaryItem, content: separatorContainerView)
+		]
+		return OCDataSourceArray(items: [actionsSection])
+	}
+
+	public var footerDataSource: OCDataSourceArray? {
+		let supplementaryFooterItem = NSCollectionLayoutBoundarySupplementaryItem(
+			layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(1)),
+			elementKind: CollectionViewSupplementaryItem.ElementKind.view,
+			alignment: .bottom
+		)
+		supplementaryFooterItem.pinToVisibleBounds = false
+		let footerSection = CollectionViewSection(
+			identifier: "footer-section",
+			dataSource: nil,
+			cellStyle: CollectionViewCellStyle(with: .footer),
+			cellLayout: .list(appearance: .sidebar),
+			clientContext: clientContext
+		)
+
+		footerSection.boundarySupplementaryItems = [
+			CollectionViewSupplementaryItem(supplementaryItem: supplementaryFooterItem, content: footerViewDouble)
+		]
+		return OCDataSourceArray(items: [footerSection])
 	}
 
 	public var sidebarLinksDataSource: OCDataSourceArray? {
@@ -268,6 +411,28 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 			if OCBookmarkManager.shared.bookmarks.count == reorderedBookmarks.count {
 				OCBookmarkManager.shared.replaceBookmarks(reorderedBookmarks)
 			}
+		}
+	}
+
+	public override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+		super.scrollViewDidScroll(scrollView)
+
+		updateShouldShowDouble()
+	}
+
+	private func updateShouldShowDouble() {
+		let viewportHeight = collectionView.bounds.size.height
+		let contentHeight = collectionView.contentSize.height
+		shouldShowDouble = viewportHeight < contentHeight
+	}
+
+	private func updateFooter() {
+		UIView.animate(withDuration: 0.3) {
+			self.footerView.alpha = self.shouldShowDouble ? 0 : 1
+			self.footerViewDouble.alpha = 1 - self.footerView.alpha
+			var insets = self.collectionView.contentInset
+			insets.bottom = self.shouldShowDouble ? 12 : 0
+			self.collectionView.contentInset = insets
 		}
 	}
 }

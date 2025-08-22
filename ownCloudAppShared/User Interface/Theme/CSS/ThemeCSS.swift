@@ -81,6 +81,7 @@ public struct ThemeCSSSelector: RawRepresentable, Equatable {
 	public static let border = ThemeCSSSelector(rawValue: "border")
 	public static let shadow = ThemeCSSSelector(rawValue: "shadow")
 	public static let text = ThemeCSSSelector(rawValue: "text")
+	public static let secondaryText = ThemeCSSSelector(rawValue: "secondaryText")
 
 	// Purpose
 	public static let title = ThemeCSSSelector(rawValue: "title")
