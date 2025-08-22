@@ -23,9 +23,13 @@ open class CollectionSidebarViewController: CollectionViewController {
 	open var originalContext: ClientContext
 	open var sidebarContext: ClientContext
 
+	private var backgroundPatchView = UIView()
+
 	public typealias ViewControllerNavigationPusher = (_ sideBarViewController: CollectionSidebarViewController, _ viewController: UIViewController, _ animated: Bool) -> Void
 
 	open var navigationPusher: ViewControllerNavigationPusher?
+
+	public var headerView = HCSidebarHeaderView(frame: .zero)
 
 	public init(context inContext: ClientContext, sections: [CollectionViewSection]?, navigationPusher: ViewControllerNavigationPusher? = nil, highlightItemReference: OCDataItemReference? = nil) {
 		originalContext = inContext
@@ -56,7 +60,25 @@ open class CollectionSidebarViewController: CollectionViewController {
 		if usesStackViewRoot, let stackView = stackView {
 			stackView.addArrangedSubview(collectionView)
 		} else if let collectionView = collectionView {
-			view.embed(toFillWith: collectionView, enclosingAnchors: view.safeAreaAnchorSet)
+			view.addSubview(headerView)
+			headerView.snp.makeConstraints {
+				$0.top.equalToSuperview()
+				$0.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+			}
+
+			view.addSubview(collectionView)
+			collectionView.snp.makeConstraints {
+				$0.top.equalTo(headerView.snp.bottom)
+				$0.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+				$0.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
+			}
+
+			view.addSubview(backgroundPatchView)
+			backgroundPatchView.snp.makeConstraints {
+				$0.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+				$0.top.equalTo(view.keyboardLayoutGuide)
+				$0.bottom.equalToSuperview()
+			}
 		}
 	}
 
@@ -74,7 +96,8 @@ open class CollectionSidebarViewController: CollectionViewController {
 
 	public override func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		super.applyThemeCollection(theme: theme, collection: collection, event: event)
-		view.backgroundColor = collection.css.getColor(.fill, for: collectionView) // collection.tableGroupBackgroundColor
+		view.backgroundColor = collection.css.getColor(.fill, selectors: [.sidebar, .background], for: nil)
+		backgroundPatchView.backgroundColor = collection.css.getColor(.fill, selectors: [.sidebar, .collection], for: nil)
 	}
 
 	open override var cssAutoSelectors: [ThemeCSSSelector] {

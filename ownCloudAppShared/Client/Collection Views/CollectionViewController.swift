@@ -166,7 +166,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 	}
 
 	// MARK: - Collection View
-	var collectionView : UICollectionView! = nil
+	public var collectionView : UICollectionView! = nil
 	var collectionViewDataSource: UICollectionViewDiffableDataSource<CollectionViewSection.SectionIdentifier, CollectionViewController.ItemRef>! = nil
 
 	public override func loadView() {

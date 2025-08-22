@@ -85,6 +85,7 @@ FOUNDATION_EXPORT const unsigned char ownCloudAppVersionString[];
 #import <ownCloudApp/OCImage+ViewProvider.h>
 #import <ownCloudApp/OCResourceTextPlaceholder+ViewProvider.h>
 #import <ownCloudApp/OCCircularContentView.h>
+#import <ownCloudApp/OCCircularTextView.h>
 #import <ownCloudApp/OCCircularImageView.h>
 #import <ownCloudApp/UIImage+ViewProvider.h>
 

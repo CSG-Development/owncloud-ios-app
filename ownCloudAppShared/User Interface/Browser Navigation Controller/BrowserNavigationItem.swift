@@ -63,7 +63,7 @@ open class BrowserNavigationItem: NSObject {
 
 	open var navigationBookmark: BrowserNavigationBookmark?
 
-	init(viewController: UIViewController? = nil, builder: Builder? = nil, bookmark: BrowserNavigationBookmark? = nil) {
+	public init(viewController: UIViewController? = nil, builder: Builder? = nil, bookmark: BrowserNavigationBookmark? = nil) {
 		super.init()
 
 		_viewController = viewController

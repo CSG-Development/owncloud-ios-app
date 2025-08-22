@@ -25,12 +25,22 @@ extension AccountController {
 		return VendorServices.shared.isBranded ? OCLocalizedString("Log out", nil) : OCLocalizedString("Delete", nil)
 	}
 
-	public func editBookmark(on hostViewController: UIViewController, completion completionHandler: (() -> Void)? = nil) {
+	public func editBookmark(
+		on hostViewController: UIViewController,
+		completion completionHandler: (() -> Void)? = nil
+	) {
 		if let bookmark = connection?.bookmark {
-			self.disconnect { _ in
-				BookmarkViewController.showBookmarkUI(on: hostViewController, edit: bookmark, removeAuthDataFromCopy: false)
-				completionHandler?()
-			}
+			// TODO: Do we really need a disconect here?
+			//self.disconnect { _ in
+				BookmarkViewController.showBookmarkUI(
+					on: hostViewController,
+					edit: bookmark,
+					attemptLoginOnSuccess: true,
+					removeAuthDataFromCopy: false
+				) {
+					completionHandler?()
+				}
+			//}
 		} else {
 			completionHandler?()
 		}

@@ -458,8 +458,6 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.all], 			   	property: .activityIndicatorStyle, value: UIActivityIndicatorView.Style.medium),
 
 			// General
-			// - Seperator
-			ThemeCSSRecord(selectors: [.separator], 			property: .fill,  value: separatorColor),
 
 			// - Navigation Bar
 			ThemeCSSRecord(selectors: [.navigationBar], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
@@ -627,6 +625,19 @@ public class ThemeCollection : NSObject {
 
 			// # Curator Files
 
+			// ## Text
+			ThemeCSSRecord(selectors: [.text], property: .fill, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.secondaryText], property: .fill, value: HCColor.Content.gray2(isDark)),
+
+			// ## Separator
+			ThemeCSSRecord(selectors: [.separator], property: .fill, value: HCColor.Content.border2(isDark)),
+
+			// ## Sidebar			
+			ThemeCSSRecord(selectors: [.sidebar, .background], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .border], property: .fill, value: HCColor.Content.border2(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .header, .accessory], property: .fill, value: HCColor.Content.iconBackground(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .header, .accessory], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+
 			// ## HCErrorView
 			ThemeCSSRecord(selectors: [.hcErrorView, .background], property: .fill, value: HCColor.Symbolic.errorBackgroundTransparent(isDark)),
 			ThemeCSSRecord(selectors: [.hcErrorView, .text], property: .fill, value: HCColor.Content.textPrimary(isDark)),
@@ -653,7 +664,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.hcField, .text], property: .stroke, value: HCColor.Content.labels(isDark)),
 
 			// ## HCTextField
-			ThemeCSSRecord(selectors: [.hcTextField, .placeholder], property: .stroke, value: HCColor.Content.gray2),
+			ThemeCSSRecord(selectors: [.hcTextField, .placeholder], property: .stroke, value: HCColor.Content.gray3),
 			ThemeCSSRecord(selectors: [.hcTextField, .text], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// ## Sort bar
@@ -841,8 +852,8 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sidebar], 			   	property: .statusBarStyle, value: statusBarStyle),
 
 			// - Collection View
-			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell],  	property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
-			ThemeCSSRecord(selectors: [.sidebar, .collection],  	   	property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell],  	property: .fill,   value: HCColor.Structure.appBackground(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .collection],  	   	property: .fill,   value: HCColor.Structure.appBackground(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell], 	property: .stroke, value: sidebarCellStateSet.regular.labelColor),
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell, .highlighted], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .collection, .cell, .selected], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),

@@ -16,13 +16,16 @@
  *
  */
 
+#import <UIKit/UIKit.h>
 #import "OCCircularContentView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OCCircularTextView : OCCircularContentView
 
-@property(strong,nonatomic,nullable) NSString *text;
+@property(strong, nonatomic, nullable) NSString *text;
+@property(strong, nonatomic, nullable) UIColor *bgColor;
+@property(strong, nonatomic, nullable) UIColor *fgColor;
 
 @end
 

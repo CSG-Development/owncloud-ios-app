@@ -49,6 +49,11 @@ public enum HCColor {
 			isDark ? UIColor(hexString: "#616161FF") : UIColor(hexString: "#CBCDD3FF")
 		}
 
+		// Content/Border 2
+		public static func border2(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#616161FF") : UIColor(hexString: "#E0E0E0FF")
+		}
+
 		// Content/Text primary
 		public static func textPrimary(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#FFFFFFDE") : UIColor(hexString: "#000000DE")
@@ -60,7 +65,10 @@ public enum HCColor {
 		}
 
 		// Content/Gray 2
-		public static let gray2 = UIColor(hexString: "#B2B2B2FF")
+		public static func gray2(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#B2B2B2FF") : UIColor(hexString: "#7A7A7AFF")
+		}
+		public static let gray3 = UIColor(hexString: "#B2B2B2FF")
 
 		// Content/Disabled BG
 		public static func disabledBackground(_ isDark: Bool) -> UIColor {
@@ -70,6 +78,11 @@ public enum HCColor {
 		// Content/SliderBG
 		public static func sliderBackground(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#616161FF") : UIColor(hexString: "#E0E0E0FF")
+		}
+
+		// Content/Icon Background
+		public static func iconBackground(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#64B5F63D") : UIColor(hexString: "#1976D21F")
 		}
 	}
 

@@ -17,6 +17,9 @@ open class SidebarCollectionViewListCell: ThemeableCollectionViewListCell {
 				content.imageProperties.tintColor = collection.css.getColor(.stroke, selectors: [], for: self)
 			}
 			content.image = content.image?.withRenderingMode(.alwaysTemplate)
+			content.imageToTextPadding = 24
+			content.imageProperties.maximumSize = CGSize(width: 24, height: 24)
+
 			self.contentConfiguration = content
 		}
 	}
@@ -25,5 +28,13 @@ open class SidebarCollectionViewListCell: ThemeableCollectionViewListCell {
 		super.applyThemeCollection(theme: theme, collection: collection, event: event)
 
 		setNeedsUpdateConfiguration()
+	}
+
+	open override func preferredLayoutAttributesFitting(_ attrs: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+		let attrs = super.preferredLayoutAttributesFitting(attrs)
+		if attrs.size.height < 48 {
+			attrs.size.height = 48
+		}
+		return attrs
 	}
 }

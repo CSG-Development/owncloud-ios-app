@@ -141,7 +141,6 @@
 		6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5FC171221590B000F60846 /* DisplayHostViewController.swift */; };
 		6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E91F37D21ECA6FD009436D2 /* CopyAction.swift */; };
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
-		99139B702E438B670044889B /* HCSpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD92E2A4099000025A1 /* HCSpacerView.swift */; };
 		99139B742E438B6E0044889B /* HCBrowserNavigationTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */; };
 		99139B752E438B6E0044889B /* HCImageHighlightCapsuleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */; };
 		99139B762E438B860044889B /* UIStackView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */; };
@@ -153,6 +152,11 @@
 		99139B802E438C0E0044889B /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99492B9C2E27D32700FCF0DB /* OnboardingViewController.swift */; };
 		99139B812E438C0E0044889B /* OnboardingContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */; };
 		9915B3652E215B8D0096765C /* HCBorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9915B3612E215B870096765C /* HCBorderView.swift */; };
+		991727772E55C37500AD9C54 /* HCSidebarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991727732E55C36E00AD9C54 /* HCSidebarHeaderView.swift */; };
+		991727792E55D87300AD9C54 /* HCSeparatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991727782E55D86D00AD9C54 /* HCSeparatorView.swift */; };
+		9917277B2E55F28F00AD9C54 /* HCSidebarFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */; };
+		9917277D2E571A7E00AD9C54 /* HCBytesFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9917277C2E571A7700AD9C54 /* HCBytesFormatter.swift */; };
+		9917277F2E571CBE00AD9C54 /* HCProgressBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9917277E2E571CB700AD9C54 /* HCProgressBarView.swift */; };
 		991B368E2E2199B500369B7D /* HCTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B368A2E2199B000369B7D /* HCTextFieldView.swift */; };
 		991B36902E22CCB000369B7D /* HCFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B368F2E22CCAB00369B7D /* HCFieldView.swift */; };
 		991B36922E22D54B00369B7D /* HCSecureTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B36912E22D54300369B7D /* HCSecureTextFieldView.swift */; };
@@ -686,7 +690,7 @@
 		DCF072D82798559900E0B01D /* OCCircularImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = DCF072D4279850CC00E0B01D /* OCCircularImageView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DCF072DC279857A300E0B01D /* OCCircularContentView.h in Headers */ = {isa = PBXBuildFile; fileRef = DCF072D9279856A700E0B01D /* OCCircularContentView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DCF072DD279857C800E0B01D /* OCCircularContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = DCF072DA279856A700E0B01D /* OCCircularContentView.m */; };
-		DCF072E02798592100E0B01D /* OCCircularTextView.h in Headers */ = {isa = PBXBuildFile; fileRef = DCF072DE2798592100E0B01D /* OCCircularTextView.h */; };
+		DCF072E02798592100E0B01D /* OCCircularTextView.h in Headers */ = {isa = PBXBuildFile; fileRef = DCF072DE2798592100E0B01D /* OCCircularTextView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DCF072E12798592100E0B01D /* OCCircularTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = DCF072DF2798592100E0B01D /* OCCircularTextView.m */; };
 		DCF072EC27986CCA00E0B01D /* OCResourceTextPlaceholder+ViewProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = DCF072EA27986CCA00E0B01D /* OCResourceTextPlaceholder+ViewProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DCF072ED27986CCA00E0B01D /* OCResourceTextPlaceholder+ViewProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = DCF072EB27986CCA00E0B01D /* OCResourceTextPlaceholder+ViewProvider.m */; };
@@ -1237,9 +1241,13 @@
 		99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCScrollDirectionProcessor.swift; sourceTree = "<group>"; };
 		99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCImageHighlightCapsuleButton.swift; sourceTree = "<group>"; };
 		9915B3612E215B870096765C /* HCBorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCBorderView.swift; sourceTree = "<group>"; };
+		991727732E55C36E00AD9C54 /* HCSidebarHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSidebarHeaderView.swift; sourceTree = "<group>"; };
+		991727782E55D86D00AD9C54 /* HCSeparatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSeparatorView.swift; sourceTree = "<group>"; };
+		9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSidebarFooterView.swift; sourceTree = "<group>"; };
+		9917277C2E571A7700AD9C54 /* HCBytesFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCBytesFormatter.swift; sourceTree = "<group>"; };
+		9917277E2E571CB700AD9C54 /* HCProgressBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCProgressBarView.swift; sourceTree = "<group>"; };
 		99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContentView.swift; sourceTree = "<group>"; };
 		99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extensions.swift"; sourceTree = "<group>"; };
-		99192AD92E2A4099000025A1 /* HCSpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpacerView.swift; sourceTree = "<group>"; };
 		991B368A2E2199B000369B7D /* HCTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCTextFieldView.swift; sourceTree = "<group>"; };
 		991B368F2E22CCAB00369B7D /* HCFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCFieldView.swift; sourceTree = "<group>"; };
 		991B36912E22D54300369B7D /* HCSecureTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSecureTextFieldView.swift; sourceTree = "<group>"; };
@@ -2442,11 +2450,13 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */,
+				991727782E55D86D00AD9C54 /* HCSeparatorView.swift */,
+				991727732E55C36E00AD9C54 /* HCSidebarHeaderView.swift */,
 				99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */,
 				99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */,
 				99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */,
 				99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */,
-				99192AD92E2A4099000025A1 /* HCSpacerView.swift */,
 				991B368F2E22CCAB00369B7D /* HCFieldView.swift */,
 				991B368A2E2199B000369B7D /* HCTextFieldView.swift */,
 				991B36912E22D54300369B7D /* HCSecureTextFieldView.swift */,
@@ -2455,6 +2465,7 @@
 				99DF68762E1E67D900F1A0B9 /* HCSpacerView.swift */,
 				99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */,
 				99F472EA2E095C1500104592 /* HCButtonStyle.swift */,
+				9917277E2E571CB700AD9C54 /* HCProgressBarView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2462,6 +2473,7 @@
 		99F472F12E095C1500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
+				9917277C2E571A7700AD9C54 /* HCBytesFormatter.swift */,
 				99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */,
 				99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */,
 				9941528C2E2A75E800B8ADF5 /* HCSettings.swift */,
@@ -4016,7 +4028,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC7C101124B5FA7700227085 /* OCBookmark+AppExtensions.h in Headers */,
-				DCF072E02798592100E0B01D /* OCCircularTextView.h in Headers */,
 				DCDC20AB2399A8CF003CFF5B /* OCLicenseEnterpriseProvider.h in Headers */,
 				DCD8109A23984AF2003B0053 /* OCLicenseDuration.h in Headers */,
 				DCFEFE2A236876BD009A142F /* OCLicenseManager.h in Headers */,
@@ -4068,6 +4079,7 @@
 				DCB458ED2604A7D4006A02AB /* OCQueryCondition+SearchSegmenter.h in Headers */,
 				DCC5E4472326564F002E5B84 /* NSObject+AnnotatedProperties.h in Headers */,
 				DC66F3AB23965C9C00CF4812 /* OCLicenseAppStoreReceiptInAppPurchase.h in Headers */,
+				DCF072E02798592100E0B01D /* OCCircularTextView.h in Headers */,
 				DC049156258C00C400DEDC27 /* OCFileProviderServiceStandby.h in Headers */,
 				39D091B42D079640001329DF /* ConfidentialManager.h in Headers */,
 				3912D8AD29958BF400EDCB9A /* OCThemeValues.h in Headers */,
@@ -4979,6 +4991,7 @@
 				DC0A355724C0E35B00FB58FC /* UIDevice+UIUserInterfaceIdiom.swift in Sources */,
 				DC0A359224C0E55800FB58FC /* UIColor+Extension.swift in Sources */,
 				DCE4E45024C1E0400051722F /* UIButton+Extension.swift in Sources */,
+				9917277F2E571CBE00AD9C54 /* HCProgressBarView.swift in Sources */,
 				DC89EA672995456A00BFF393 /* BrowserNavigationBookmark+AccountController.swift in Sources */,
 				DC0A357024C0E42700FB58FC /* StaticTableViewSection.swift in Sources */,
 				DC0A357624C0E43200FB58FC /* ProgressHUDViewController.swift in Sources */,
@@ -5109,11 +5122,13 @@
 				DCB6B20A292E296800D27573 /* CollectionSidebarAction.swift in Sources */,
 				DC0A358D24C0E44B00FB58FC /* ThemedAlertController.swift in Sources */,
 				39D091AD2D073498001329DF /* ConfidentialContentView.swift in Sources */,
+				991727772E55C37500AD9C54 /* HCSidebarHeaderView.swift in Sources */,
 				DC24E10F28B7D2B9002E4F5B /* PopupButtonController.swift in Sources */,
 				DCE4E43C24C19B660051722F /* FrameViewController.swift in Sources */,
 				DC0A35A124C1091400FB58FC /* UserInterfaceContext.swift in Sources */,
 				DC0A357824C0E43700FB58FC /* CardPresentationController.swift in Sources */,
 				393D2B3F23FEB6DC00ED4F8C /* DispatchQueueTools.swift in Sources */,
+				991727792E55D87300AD9C54 /* HCSeparatorView.swift in Sources */,
 				DC66A9F6279EEC3100792AC8 /* ResourceViewHost.swift in Sources */,
 				DC65592E28A644E10003D130 /* SearchTokenizer.swift in Sources */,
 				DC24E0F828B41694002E4F5B /* OCQueryCondition+SearchToken.swift in Sources */,
@@ -5132,6 +5147,7 @@
 				DC0A357C24C0E43C00FB58FC /* ThemeCollection.swift in Sources */,
 				DC28F828294BB5ED00AC4013 /* SortedItemDataSource.swift in Sources */,
 				DCA05A602AE6603E00BFF393 /* ClientLocationPopupButton.swift in Sources */,
+				9917277B2E55F28F00AD9C54 /* HCSidebarFooterView.swift in Sources */,
 				DC298C992934D3F8009FA87F /* AlertViewController.swift in Sources */,
 				DC8E99DC297E79E900594697 /* BrowserNavigationHistory.swift in Sources */,
 				DCBAEAE829A568D500BFF393 /* TitleSupplementaryCell.swift in Sources */,
@@ -5166,6 +5182,7 @@
 				DCBAEAE229A55D5A00BFF393 /* ViewSupplementaryCell.swift in Sources */,
 				DCB6B203292D45AD00D27573 /* NavigationRevocationTrigger.swift in Sources */,
 				DC921A0B2968BA4D00F538EE /* ClientSharedByMeViewController.swift in Sources */,
+				9917277D2E571A7E00AD9C54 /* HCBytesFormatter.swift in Sources */,
 				99BC9F2E2E4C72DE0004F6B2 /* HCErrorView.swift in Sources */,
 				DC0A357D24C0E43C00FB58FC /* ThemeStyle.swift in Sources */,
 				DC46F3CC2844A8EA00038880 /* ViewCell.swift in Sources */,
@@ -5184,7 +5201,6 @@
 				DCE4E43F24C19D370051722F /* UIAlertController+OCIssue.swift in Sources */,
 				DC298CA929362523009FA87F /* ClientLocationPicker.swift in Sources */,
 				DCA05A622AE664F200BFF393 /* OCAction+UIAction.swift in Sources */,
-				99139B702E438B670044889B /* HCSpacerView.swift in Sources */,
 				DC0A359524C0E5F900FB58FC /* UIImage+Extension.swift in Sources */,
 				DC89EA6B29959BD200BFF393 /* AppStateActionRestoreNavigationBookmark.swift in Sources */,
 				DC66A9F8279F467200792AC8 /* UIKeyCommand+Extension.swift in Sources */,

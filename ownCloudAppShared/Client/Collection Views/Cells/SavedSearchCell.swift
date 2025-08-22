@@ -227,7 +227,7 @@ extension SavedSearchCell {
 					var icon: UIImage?
 
 					if let customIconName = savedSearch.customIconName {
-						icon = OCSymbol.icon(forSymbolName: customIconName)
+						icon = OCSymbol.icon(forSymbolName: customIconName) ?? UIImage(named: customIconName, in: Bundle.sharedAppBundle, with: nil)
 					}
 
 					if icon == nil {
@@ -268,7 +268,7 @@ extension SavedSearchCell {
 				if let savedSearch = OCDataRenderer.default.renderItem(item, asType: .savedSearch, error: nil, withOptions: nil) as? OCSavedSearch {
 					content.text = savedSearch.sideBarDisplayName
 					if let customIconName = savedSearch.customIconName {
-						content.image = OCSymbol.icon(forSymbolName: customIconName)
+						content.image = OCSymbol.icon(forSymbolName: customIconName) ?? UIImage(named: customIconName, in: Bundle.sharedAppBundle, with: nil)
 					} else {
 						content.image = savedSearch.isTemplate ? savedTemplateIcon : savedSearchIcon
 					}

@@ -34,7 +34,7 @@
 
 - (UIFont *)fontForSize:(CGSize)size
 {
-	return ([UIFont systemFontOfSize:(size.height / 2.0) weight:UIFontWeightSemibold]);
+	return ([UIFont systemFontOfSize:(size.height / 3.0) weight:UIFontWeightSemibold]);
 }
 
 - (CGSize)circularContentSizeForSize:(CGSize)size
@@ -52,12 +52,23 @@
 {
 	CGRect viewBounds = self.bounds;
 
-	[[UIColor grayColor] setFill];
+	if (_bgColor != nil) {
+		[_bgColor setFill];
+	} else {
+		[[UIColor grayColor] setFill];
+	}
 	UIRectFill(rect);
+
+	UIColor *textColor;
+	if (_fgColor != nil) {
+		textColor = _fgColor;
+	} else {
+		textColor = UIColor.whiteColor;
+	}
 
 	[self.text drawAtPoint:CGPointMake((viewBounds.size.width - _textSize.width) / 2.0, (viewBounds.size.height - _textSize.height) / 2.0) withAttributes:@{
 		NSFontAttributeName : [self fontForSize:size],
-		NSForegroundColorAttributeName : UIColor.whiteColor
+		NSForegroundColorAttributeName : textColor
 	}];
 }
 
