@@ -501,20 +501,19 @@ extension ClientSidebarViewController {
 	}
 
 	func updateSelection(for navigationBookmark: BrowserNavigationBookmark?) {
+		// Always clear previous selection first to reflect current content accurately
+		var actions: [CollectionViewAction] = [
+			CollectionViewAction(kind: .unhighlightAll(animated: false))
+		]
+
 		if let sideBarItemRefs = navigationBookmark?.representationSideBarItemRefs,
 		   let bookmarkUUID = navigationBookmark?.bookmarkUUID,
 		   let selectionItemRefs = itemReferences(for: sideBarItemRefs, inSectionFor: bookmarkUUID),
 		   let highlightAction = CollectionViewAction(kind: .highlight(animated: false, scrollPosition: []), itemReferences: selectionItemRefs) {
-			// Highlight all
-			addActions([
-				highlightAction
-			])
-		} else {
-			// Unhighlight all
-			addActions([
-				CollectionViewAction(kind: .unhighlightAll(animated: false))
-			])
+			actions.append(highlightAction)
 		}
+
+		addActions(actions)
 	}
 }
 
