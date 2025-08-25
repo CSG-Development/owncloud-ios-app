@@ -874,7 +874,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sidebar, .account, .disconnect],	property: .fill,   value: sidebarAccountCellSet.labelColor),
 
 			// - Navigation Bar
-			ThemeCSSRecord(selectors: [.sidebar, .navigationBar],		property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .navigationBar],		property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .navigationBar],		property: .fill,   value: nil),
 			ThemeCSSRecord(selectors: [.sidebar, .navigationBar, .logo],	property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .navigationBar, .logo, .label],property: .stroke, value: HCColor.Content.textPrimary(isDark)),
@@ -888,7 +888,7 @@ public class ThemeCollection : NSObject {
 
 			// - Navigation Bar
 			ThemeCSSRecord(selectors: [.content, .navigationBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
-			ThemeCSSRecord(selectors: [.content, .navigationBar],			property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.content, .navigationBar],			property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
 			ThemeCSSRecord(selectors: [.content, .navigationBar, .label, .title],	property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// - Toolbar
@@ -959,7 +959,7 @@ extension ThemeCollection {
 			appearance.largeTitleTextAttributes = [ .foregroundColor : labelColor  ]
 		}
 
-		appearance.backgroundColor = css.getColor(.fill, for: navigationBar)
+		appearance.backgroundColor = css.getColor(.fill, for: navigationBar)		
 		appearance.shadowColor = .clear
 
 		return appearance

@@ -105,6 +105,9 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 		return connection?.bookmark
 	}
 
+	// Observe bookmark updates (e.g., capabilities toggling after connect)
+	private var bookmarkUpdatedObserver: Any?
+
 	public init(bookmark: OCBookmark, context: ClientContext, configuration: Configuration) {
 		let accountConnection = AccountConnectionPool.shared.connection(for: bookmark)
 
@@ -145,6 +148,14 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 		connection?.add(consumer: consumer)
 
 		addErrorHandler()
+
+		// Listen for bookmark updates to recompute items when capabilities change
+		bookmarkUpdatedObserver = NotificationCenter.default.addObserver(forName: Notification.Name("OCBookmarkUpdatedNotification"), object: nil, queue: .main, using: { [weak self] notification in
+			guard let self = self, let updatedBookmark = notification.object as? OCBookmark else { return }
+			if updatedBookmark.uuid == self.bookmark?.uuid {
+				self.composeItemsDataSource()
+			}
+		})
 	}
 
 	func destroy() {
@@ -154,6 +165,9 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 
 	deinit {
 		connection?.remove(consumer: consumer)
+		if let observer = bookmarkUpdatedObserver {
+			NotificationCenter.default.removeObserver(observer)
+		}
 	}
 
 	// MARK: - Connection
@@ -223,6 +237,8 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 					self.showAccountItems = true
 					self.showDisconnectButton = true
 					self.authFailure = nil
+					// Ensure sidebar gets recomposed after core/capabilities become available
+					self.composeItemsDataSource()
 
 				default:
 					// Do not show account items
