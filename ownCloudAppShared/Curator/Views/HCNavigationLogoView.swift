@@ -1,6 +1,14 @@
 import UIKit
 
-public class HCNavigationLogoView: ThemeCSSView {
+open class FullWidthTitleView: ThemeCSSView {
+	open override var intrinsicContentSize: CGSize {
+		// make it as wide as the screen so centering doesn't matter
+		let w = window?.bounds.width ?? UIScreen.main.bounds.width
+		return CGSize(width: w, height: 44)
+	}
+}
+
+public class HCNavigationLogoView: FullWidthTitleView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		commonInit()

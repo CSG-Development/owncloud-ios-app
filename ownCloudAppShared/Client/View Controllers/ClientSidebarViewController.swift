@@ -33,6 +33,7 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 	private var footerView = HCSidebarFooterView(frame: .zero)
 	private var footerViewDouble = HCSidebarFooterView(frame: .zero)
 	private var contentSizeObservation: NSKeyValueObservation?
+	private var isUpdatingAvailableSpace: Bool = false
 
 	private var bookmarksSubscription: OCDataSourceSubscription?
 
@@ -179,13 +180,27 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 	}
 
 	public func updateAvailableSpace() {
-		guard
-			let connection = AccountConnectionPool.shared.connectionsByBookmarkUUID.values.first,
-			let ocConnection = connection.core?.connection
-		else { return }
+		guard !isUpdatingAvailableSpace else { return }
+		isUpdatingAvailableSpace = true
 
-		ocConnection.retrieveItemList(at: OCLocation(driveID: nil, path: "/"), depth: 0, options: [:]) { error, item in
-			if let item = item?.first {
+		let bookmark = focusedBookmark ?? OCBookmarkManager.shared.bookmarks.first
+
+		guard
+			let bookmark,
+			let connection = AccountConnectionPool.shared.connection(for: bookmark),
+			let ocConnection = connection.core?.connection
+		else {
+			isUpdatingAvailableSpace = false
+			return
+		}
+
+		let rootLocation = OCLocation.legacyRoot
+
+		ocConnection.retrieveItemList(at: rootLocation, depth: 0, options: [:]) { [weak self] error, items in
+			guard let self = self else { return }
+			defer { self.isUpdatingAvailableSpace = false }
+
+			if let item = items?.first {
 				DispatchQueue.main.async {
 					self.footerView.bytesUsed = item.quotaBytesUsed?.int64Value
 					self.footerViewDouble.bytesUsed = item.quotaBytesUsed?.int64Value
