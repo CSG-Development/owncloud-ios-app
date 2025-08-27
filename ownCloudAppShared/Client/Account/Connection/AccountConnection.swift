@@ -88,6 +88,7 @@ open class AccountConnection: NSObject {
 	public typealias CompletionHandler = (_ error: Error?) -> Void
 
 	public init(bookmark: OCBookmark) {
+		Log.log("[CONN_DEBUG]: Init connection for bookmark: \(bookmark.uuid)")
 		self.bookmark = bookmark
 		self.taskQueue = OCAsyncSequentialQueue(queue: AccountConnectionPool.shared.serialQueue)
 		self.progressSummarizer = ProgressSummarizer.shared(forBookmark: bookmark)
@@ -182,9 +183,12 @@ open class AccountConnection: NSObject {
 	}
 
 	public func connect(consumer: AccountConnectionConsumer? = nil, completion: CompletionHandler? = nil) {
+		Log.log("[CONN_DEBUG]: connect called")
+
 		queue(completion: completion) { (connection, jobDone) in
 			guard connection.core == nil else {
 				// Already has a core - nothing to do
+				Log.log("[CONN_DEBUG]: Already has a core - nothing to do")
 				OnMainThread {
 					completion?(nil)
 				}
@@ -194,10 +198,11 @@ open class AccountConnection: NSObject {
 
 			// No core yet - request one
 			connection.status = .connecting
-
+			Log.log("[CONN_DEBUG]: Requesting core")
 			OCCoreManager.shared.requestCore(for: connection.bookmark, setup: { (core, error) in
 				// Setup core for AccountConnection
 				if core != nil {
+					Log.log("[CONN_DEBUG]: Got core")
 					connection.core = core
 
 					// Install hooks
@@ -226,6 +231,8 @@ open class AccountConnection: NSObject {
 
 					// Remove skip available offline when user opens the bookmark
 					core?.vault.keyValueStore?.storeObject(nil, forKey: .coreSkipAvailableOfflineKey)
+				} else {
+					Log.log("[CONN_DEBUG]: Core is nil")
 				}
 			}, completionHandler: { (core, error) in
 				if error == nil {
@@ -252,6 +259,7 @@ open class AccountConnection: NSObject {
 
 							if let connectionStatus = connection?.core?.connectionStatus,
 							   connectionStatus == .online {
+								Log.log("[CONN_DEBUG]: Core connection status \(connectionStatus)")
 								// Start FP service standby after it's clear that authentication worked
 								// (or above: after 5 seconds regardless of connnection status)
 								connection?.startFPServiceStandbyIfNotRunning()
@@ -266,6 +274,7 @@ open class AccountConnection: NSObject {
 
 				// Done
 				OnMainThread {
+					Log.log("[CONN_DEBUG]: Done connecting. Error: \(error)")
 					completion?(error)
 				}
 				jobDone()
@@ -274,6 +283,7 @@ open class AccountConnection: NSObject {
 	}
 
 	public func disconnect(consumer: AccountConnectionConsumer? = nil, completion: CompletionHandler? = nil) {
+		Log.log("[CONN_DEBUG]: Disconnect requested")
 		queue(completion: completion) { (connection, jobDone) in
 			guard connection.core != nil else {
 				// Has no core - nothing to do
@@ -299,7 +309,7 @@ open class AccountConnection: NSObject {
 				connection.richStatus = nil
 				connection.core = nil
 				connection.status = .noCore
-
+				Log.log("[CONN_DEBUG]: Returned core on disconnection.")
 				self?.progressSummarizer.resetPrioritySummaries()
 
 				OnMainThread {

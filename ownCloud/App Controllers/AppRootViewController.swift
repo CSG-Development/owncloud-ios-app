@@ -210,18 +210,26 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 
 	// MARK: - Auto-connect
 	private func connectToFirstBookmark() {
+		Log.log("[CONN_DEBUG]: connectToFirstBookmark called")
 		let bookmarks = OCBookmarkManager.shared.bookmarks
 		if let firstBookmark = bookmarks.first {
 			// Create or get connection and connect if needed
 			guard let connection = AccountConnectionPool.shared.connection(for: firstBookmark) else { return }
-			connection.connect { _ in
+			connection.connect { error in
+				if let error {
+					Log.log("[CONN_DEBUG]: Connection error \(error)")
+				}
 				let context = ClientContext(with: self.rootContext, accountConnection: connection)
 				let bookmarkUUID = connection.core?.bookmark.uuid
 
-				let location = OCLocation(bookmarkUUID: bookmarkUUID, driveID: nil, path: "/")
-				_ = location.openItem(from: self.contentBrowserController, with: context, animated: true, pushViewController: true) { _ in }
-
-				_ = self.sidebarViewController?.updateSelection(for: BrowserNavigationBookmark(type: .dataItem, bookmarkUUID: bookmarkUUID))
+				DispatchQueue.main.async {
+					let location = OCLocation(bookmarkUUID: bookmarkUUID, driveID: nil, path: "/")
+					Log.log("[CONN_DEBUG]: Opening root location")
+					_ = location.openItem(from: self.contentBrowserController, with: context, animated: true, pushViewController: true) { _ in
+						Log.log("[CONN_DEBUG]: Updating sidebar selection")
+						_ = self.sidebarViewController?.updateSelection(for: BrowserNavigationBookmark(type: .dataItem, bookmarkUUID: bookmarkUUID))
+					}
+				}
 			}
 		}
 	}
