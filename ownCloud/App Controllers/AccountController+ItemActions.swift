@@ -30,17 +30,25 @@ extension AccountController {
 		completion completionHandler: (() -> Void)? = nil
 	) {
 		if let bookmark = connection?.bookmark {
-			// TODO: Do we really need a disconect here?
-			//self.disconnect { _ in
+			self.disconnect { _ in
 				BookmarkViewController.showBookmarkUI(
 					on: hostViewController,
 					edit: bookmark,
 					attemptLoginOnSuccess: true,
 					removeAuthDataFromCopy: false
-				) {
-					completionHandler?()
+				) { [weak self] in
+					// Force-refresh the bookmarks data source so the sidebar repopulates
+					DispatchQueue.main.async { [weak self] in
+						// Reconnect this account controller so its items repopulate
+						self?.connect(completion: nil)
+
+						if let bookmarks = OCBookmarkManager.shared.bookmarks as? [OCDataItem & OCDataItemVersioning] {
+							(OCBookmarkManager.shared.bookmarksDatasource as? OCDataSourceArray)?.setVersionedItems(bookmarks)
+						}
+						completionHandler?()
+					}
 				}
-			//}
+			}
 		} else {
 			completionHandler?()
 		}

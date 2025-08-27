@@ -127,7 +127,18 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 
 			let accountController = self?.sidebarViewController?.accountController(for: bookmark.uuid)
 			accountController?.editBookmark(on: sidebarViewController) {
+				// Reconnect to ensure files can refresh
 				self?.connectToFirstBookmark()
+
+				// Force-refresh the bookmarks data source so the sidebar repopulates
+				DispatchQueue.main.async {
+					if let bookmarks = OCBookmarkManager.shared.bookmarks as? [OCDataItem & OCDataItemVersioning] {
+						(OCBookmarkManager.shared.bookmarksDatasource as? OCDataSourceArray)?.setVersionedItems(bookmarks)
+					}
+					// Reload sidebar UI to reflect any changes
+					self?.sidebarViewController?.collectionView.reloadData()
+					self?.sidebarViewController?.updateAvailableSpace()
+				}
 			}
 		}
 
