@@ -120,9 +120,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	@discardableResult func configure(window: ThemeWindow?, with activity: NSUserActivity) -> Bool {
 		if activity.isRestorableActivity {
 			OnMainThread(after: 0.5) {
-				activity.restore(with: [
-					UserActivityOption.clientContext.rawValue : self.sceneClientContext
-				])
+//				activity.restore(with: [
+//					UserActivityOption.clientContext.rawValue : self.sceneClientContext
+//				])
 			}
 
 			return true

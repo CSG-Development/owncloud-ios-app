@@ -157,6 +157,7 @@
 		9917277B2E55F28F00AD9C54 /* HCSidebarFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */; };
 		9917277D2E571A7E00AD9C54 /* HCBytesFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9917277C2E571A7700AD9C54 /* HCBytesFormatter.swift */; };
 		9917277F2E571CBE00AD9C54 /* HCProgressBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9917277E2E571CB700AD9C54 /* HCProgressBarView.swift */; };
+		9917278A2E5DC3F500AD9C54 /* RunGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991727862E5DC3F100AD9C54 /* RunGate.swift */; };
 		991B368E2E2199B500369B7D /* HCTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B368A2E2199B000369B7D /* HCTextFieldView.swift */; };
 		991B36902E22CCB000369B7D /* HCFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B368F2E22CCAB00369B7D /* HCFieldView.swift */; };
 		991B36922E22D54B00369B7D /* HCSecureTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B36912E22D54300369B7D /* HCSecureTextFieldView.swift */; };
@@ -1246,6 +1247,7 @@
 		9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSidebarFooterView.swift; sourceTree = "<group>"; };
 		9917277C2E571A7700AD9C54 /* HCBytesFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCBytesFormatter.swift; sourceTree = "<group>"; };
 		9917277E2E571CB700AD9C54 /* HCProgressBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCProgressBarView.swift; sourceTree = "<group>"; };
+		991727862E5DC3F100AD9C54 /* RunGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunGate.swift; sourceTree = "<group>"; };
 		99192ACE2E2A3E56000025A1 /* OnboardingContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContentView.swift; sourceTree = "<group>"; };
 		99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extensions.swift"; sourceTree = "<group>"; };
 		991B368A2E2199B000369B7D /* HCTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCTextFieldView.swift; sourceTree = "<group>"; };
@@ -2473,6 +2475,7 @@
 		99F472F12E095C1500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
+				991727862E5DC3F100AD9C54 /* RunGate.swift */,
 				9917277C2E571A7700AD9C54 /* HCBytesFormatter.swift */,
 				99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */,
 				99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */,
@@ -5188,6 +5191,7 @@
 				DC46F3CC2844A8EA00038880 /* ViewCell.swift in Sources */,
 				DCB330D029F051B300BFF393 /* RecipientSearchScope.swift in Sources */,
 				DC298C982934D381009FA87F /* OCIssue+DisplayIssues.swift in Sources */,
+				9917278A2E5DC3F500AD9C54 /* RunGate.swift in Sources */,
 				DCB6B20F292F843800D27573 /* CollectionViewAction.swift in Sources */,
 				DC0A357524C0E43200FB58FC /* ProgressView.swift in Sources */,
 				DC62F57429268D710095BB5D /* ClientWebAppViewController.swift in Sources */,

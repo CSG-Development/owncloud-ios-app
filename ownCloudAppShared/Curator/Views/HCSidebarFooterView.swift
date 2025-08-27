@@ -65,7 +65,14 @@ final class HCSidebarFooterView: ThemeCSSView {
 	}
 
 	private func updateView() {
-		guard let bytesUsed else { return }
+		guard let bytesUsed else {
+			// Clear when no data available
+			spaceLabel.text = nil
+			remainingLabel.text = nil
+			progressView.isHidden = true
+			progressView.fraction = 0
+			return
+		}
 
 		spaceLabel.text = HCL10n.Sidebar.storageSpace
 
@@ -80,6 +87,7 @@ final class HCSidebarFooterView: ThemeCSSView {
 		} else {
 			remainingLabel.text = HCL10n.Sidebar.unlimitedSpace
 			progressView.isHidden = true
+			progressView.fraction = 0
 		}
 	}
 

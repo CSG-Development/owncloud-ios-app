@@ -33,9 +33,37 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 	private var footerView = HCSidebarFooterView(frame: .zero)
 	private var footerViewDouble = HCSidebarFooterView(frame: .zero)
 	private var contentSizeObservation: NSKeyValueObservation?
-	private var isUpdatingAvailableSpace: Bool = false
+
+	private let updateAvailableSpaceGate = RunGate()
 
 	private var bookmarksSubscription: OCDataSourceSubscription?
+	private var statusNotificationObserver: NSObjectProtocol?
+	private var connectionClosedGateResetAction: NavigationRevocationAction?
+
+	private func installConnectionClosedGateResetAction() {
+		// Unregister any previous action
+		connectionClosedGateResetAction?.unregister(for: self, globally: true)
+
+		// Create a fresh action that will re-install itself after firing
+		let action = NavigationRevocationAction(eventMatcher: { event in
+			if case .connectionClosed(_) = event { return true }
+			return false
+		}, action: { [weak self] _, _ in
+			guard let self else { return }
+			self.updateAvailableSpaceGate.reset()
+			DispatchQueue.main.async {
+				self.footerView.bytesUsed = nil
+				self.footerView.bytesRemaining = nil
+				self.footerViewDouble.bytesUsed = nil
+				self.footerViewDouble.bytesRemaining = nil
+			}
+			// Install again for subsequent events
+			self.installConnectionClosedGateResetAction()
+		})
+
+		connectionClosedGateResetAction = action
+		action.register(for: self, globally: true)
+	}
 
 	public init(context inContext: ClientContext, controllerConfiguration: AccountController.Configuration) {
 		self.controllerConfiguration = controllerConfiguration
@@ -152,13 +180,11 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 		// have no items in them - despite the underlying data sources having them. Until that mystery isn't fully solved
 		// a force-refresh of the underlying (root) datasource is a way to mitigate the issue's negative outcome (no accounts in list)
 		OnMainThread { // Wait for first, regular main thread iteraton
-			OnMainThread(after: 0.1) { // wait one more second
+			OnMainThread(after: 1) { // wait one more second
 				// Force refresh the bookmarks data source
 				if self.collectionView.numberOfSections < OCBookmarkManager.shared.bookmarks.count ||
 				   ((self.collectionView.numberOfSections > 0) && (self.collectionView.numberOfItems(inSection: 0) == 0)) {
-					if let bookmarks = OCBookmarkManager.shared.bookmarks as? [OCDataItem & OCDataItemVersioning] {
-						(OCBookmarkManager.shared.bookmarksDatasource as? OCDataSourceArray)?.setVersionedItems(bookmarks)
-					}
+					self.forceReloadBookmarks()
 				}
 			}
 		}
@@ -171,42 +197,72 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 		bookmarksSubscription = OCBookmarkManager.shared.bookmarksDatasource.subscribe(updateHandler: { _ in
 			DispatchQueue.main.async {
 				self.headerView.bookmark = OCBookmarkManager.shared.bookmarks.first
+				self.updateAvailableSpace()
 			}
 		}, on: nil, trackDifferences: false, performInitialUpdate: true)
+
+		// Observe connection status changes (e.g., after login) to refresh quota
+		statusNotificationObserver = NotificationCenter.default.addObserver(forName: AccountConnection.StatusChangedNotification, object: nil, queue: .main, using: { [weak self] _ in
+			self?.updateAvailableSpace()
+			self?.forceReloadBookmarks()
+		})
+
+		// Reset the gate and clear footer when a connection is closed (e.g., during logout)
+		installConnectionClosedGateResetAction()
 	}
 
 	deinit {
 		accountsControllerSectionSource?.source = nil // Clear all AccountController instances from the controller and make OCDataSourceMapped call the destroyer
+		connectionClosedGateResetAction?.unregister(for: self, globally: true)
+		connectionClosedGateResetAction = nil
+	}
+
+	public func forceReloadBookmarks() {
+		guard let bookmarks = OCBookmarkManager.shared.bookmarks as? [OCDataItem & OCDataItemVersioning] else { return }
+		(OCBookmarkManager.shared.bookmarksDatasource as? OCDataSourceArray)?.setVersionedItems(bookmarks)
 	}
 
 	public func updateAvailableSpace() {
-		guard !isUpdatingAvailableSpace else { return }
-		isUpdatingAvailableSpace = true
-
-		let bookmark = focusedBookmark ?? OCBookmarkManager.shared.bookmarks.first
-
-		guard
-			let bookmark,
-			let connection = AccountConnectionPool.shared.connection(for: bookmark),
-			let ocConnection = connection.core?.connection
-		else {
-			isUpdatingAvailableSpace = false
-			return
-		}
-
-		let rootLocation = OCLocation.legacyRoot
-
-		ocConnection.retrieveItemList(at: rootLocation, depth: 0, options: [:]) { [weak self] error, items in
-			guard let self = self else { return }
-			defer { self.isUpdatingAvailableSpace = false }
-
-			if let item = items?.first {
+		updateAvailableSpaceGate.runIfIdle { [weak self] done in
+			let bookmark = self?.focusedBookmark ?? OCBookmarkManager.shared.bookmarks.first
+			guard
+				let bookmark,
+				let connection = AccountConnectionPool.shared.connection(for: bookmark),
+				let ocConnection = connection.core?.connection
+			else {
 				DispatchQueue.main.async {
-					self.footerView.bytesUsed = item.quotaBytesUsed?.int64Value
-					self.footerViewDouble.bytesUsed = item.quotaBytesUsed?.int64Value
-					self.footerView.bytesRemaining = item.quotaBytesRemaining?.int64Value
-					self.footerViewDouble.bytesRemaining = item.quotaBytesRemaining?.int64Value
+					self?.footerView.bytesUsed = nil
+					self?.footerView.bytesRemaining = nil
+					self?.footerViewDouble.bytesUsed = nil
+					self?.footerViewDouble.bytesRemaining = nil
 				}
+				done()
+				return
+			}
+
+			let rootLocation = OCLocation.legacyRoot
+			ocConnection.retrieveItemList(at: rootLocation, depth: 0, options: [:]) { [weak self] error, items in
+				guard let self = self else {
+					done()
+					return
+				}
+
+				if let item = items?.first {
+					DispatchQueue.main.async {
+						self.footerView.bytesUsed = item.quotaBytesUsed?.int64Value
+						self.footerViewDouble.bytesUsed = item.quotaBytesUsed?.int64Value
+						self.footerView.bytesRemaining = item.quotaBytesRemaining?.int64Value
+						self.footerViewDouble.bytesRemaining = item.quotaBytesRemaining?.int64Value
+					}
+				} else {
+					DispatchQueue.main.async {
+						self.footerView.bytesUsed = nil
+						self.footerView.bytesRemaining = nil
+						self.footerViewDouble.bytesUsed = nil
+						self.footerViewDouble.bytesRemaining = nil
+					}
+				}
+				done()
 			}
 		}
 	}
@@ -253,6 +309,7 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 	@objc public dynamic var focusedBookmark: OCBookmark? {
 		didSet {
 			Log.debug("New focusedBookmark:: \(focusedBookmark?.displayName ?? "-")")
+			updateAvailableSpace()
 		}
 	}
 
