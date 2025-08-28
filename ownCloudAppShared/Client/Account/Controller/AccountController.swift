@@ -206,6 +206,7 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 	// MARK: - Status handling
 	public func account(connection: AccountConnection, changedStatusTo status: AccountConnection.Status, initial: Bool) {
 		DispatchQueue.main.async {
+			Log.log("[CONN_DEBUG]: Connection status changed to \(status)")
 			if let vault = connection.core?.vault {
 				// Create savedSearchesDataSource if wanted
 				if self.configuration.showSavedSearches, self.savedSearchesDataSource == nil {

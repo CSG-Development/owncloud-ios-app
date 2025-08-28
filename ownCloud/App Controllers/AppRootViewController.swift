@@ -210,18 +210,29 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 
 	// MARK: - Auto-connect
 	private func connectToFirstBookmark() {
-		let bookmarks = OCBookmarkManager.shared.bookmarks
-		if let firstBookmark = bookmarks.first {
-			// Create or get connection and connect if needed
-			guard let connection = AccountConnectionPool.shared.connection(for: firstBookmark) else { return }
-			connection.connect { _ in
-				let context = ClientContext(with: self.rootContext, accountConnection: connection)
-				let bookmarkUUID = connection.core?.bookmark.uuid
+		Log.log("[CONN_DEBUG]: connectToFirstBookmark called")
+		guard
+			let bookmark = OCBookmarkManager.shared.bookmarks.first,
+			let sidebarViewController = sidebarViewController
+		else { return }
 
-				let location = OCLocation(bookmarkUUID: bookmarkUUID, driveID: nil, path: "/")
-				_ = location.openItem(from: self.contentBrowserController, with: context, animated: true, pushViewController: true) { _ in }
+		// So... This appears to be the simplest way to connect to a first bookmark and trigger all
+		// of the necessary side effects. The thing is that `accountController(for: bookmark.uuid)`
+		// gets the accountController from the related bookmark section object which is only
+		// available when the collection view did all of necessary preparations. Therefore we
+		// trigger viewDidLoad and wait until it finishes(hopefully 1 second is enough).
+		// TODO: Refactor this madness.
+		_ = sidebarViewController.view
+		DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+			guard let accountController = sidebarViewController.accountController(for: bookmark.uuid) else { return }
 
-				_ = self.sidebarViewController?.updateSelection(for: BrowserNavigationBookmark(type: .dataItem, bookmarkUUID: bookmarkUUID))
+			accountController.connect { _ in
+				let location = OCLocation(bookmarkUUID: bookmark.uuid, driveID: nil, path: "/")
+				Log.log("[CONN_DEBUG]: Opening root location")
+				_ = location.openItem(from: self.contentBrowserController, with: accountController.clientContext, animated: true, pushViewController: true) { _ in
+					Log.log("[CONN_DEBUG]: Updating sidebar selection")
+					_ = self.sidebarViewController?.updateSelection(for: BrowserNavigationBookmark(type: .dataItem, bookmarkUUID: bookmark.uuid))
+				}
 			}
 		}
 	}
