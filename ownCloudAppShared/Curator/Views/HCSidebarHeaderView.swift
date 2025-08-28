@@ -81,13 +81,6 @@ public final class HCSidebarHeaderView: ThemeCSSView {
 			$0.trailing.equalToSuperview().offset(-20)
 			$0.bottom.equalToSuperview().offset(-24)
 		}
-
-		addSubview(editButton)
-		editButton.snp.makeConstraints {
-			$0.width.height.equalTo(30)
-			$0.centerY.equalTo(nameLabel)
-			$0.trailing.equalToSuperview().offset(-16)
-		}
 	}
 
 	private func updateView() {
