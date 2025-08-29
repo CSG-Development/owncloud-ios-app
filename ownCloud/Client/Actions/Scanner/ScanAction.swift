@@ -53,10 +53,6 @@ class ScanAction: Action, VNDocumentCameraViewControllerDelegate {
 			return
 		}
 
-		guard self.proceedWithLicensing(from: viewController) else {
-			return
-		}
-
 		guard context.items.count > 0 else {
 			completed(with: NSError(ocError: .itemNotFound))
 			return

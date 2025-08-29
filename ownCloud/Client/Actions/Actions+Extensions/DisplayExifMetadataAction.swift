@@ -65,10 +65,6 @@ class DisplayExifMetadataAction : Action {
 			return
 		}
 
-		guard self.proceedWithLicensing(from: hostViewController) else {
-			return
-		}
-
 		let hudViewController = DownloadItemsHUDViewController(core: core, downloadItems: context.items) { [weak hostViewController] (error, files) in
 			if let error = error {
 				if (error as NSError).isOCError(withCode: .cancelled) {
