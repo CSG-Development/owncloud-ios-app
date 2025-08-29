@@ -78,7 +78,7 @@ public class SegmentViewItem: NSObject {
 			if isAccessibilityElement {
 				_view?.isAccessibilityElement = isAccessibilityElement
 				_view?.accessibilityTraits = accessibilityTraits
-			}
+			}			
 		}
 		return _view
 	}

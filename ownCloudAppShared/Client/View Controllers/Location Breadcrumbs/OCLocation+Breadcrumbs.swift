@@ -211,6 +211,7 @@ extension OCLocation {
 	static func composeSegments(breadcrumbs: [OCAction], in clientContext: ClientContext, segmentConfigurator: ((_ breadcrumb: OCAction, _ segment: SegmentViewItem) -> Void)? = nil) -> [SegmentViewItem] {
 		var segments: [SegmentViewItem] = []
 
+		var isFirst = true
 		for breadcrumb in breadcrumbs {
 			if !segments.isEmpty {
 				let seperatorSegment = SegmentViewItem(with: OCSymbol.icon(forSymbolName: "chevron.right"), style: .chevron)
@@ -218,15 +219,18 @@ extension OCLocation {
 				seperatorSegment.insets.trailing = 0
 				segments.append(seperatorSegment)
 			}
-			
-			let title = (breadcrumb.properties[.location] as? OCLocation) != nil ? breadcrumb.title.redacted() : breadcrumb.title
+
+			var title = (breadcrumb.properties[.location] as? OCLocation) != nil ? breadcrumb.title.redacted() : breadcrumb.title
+			if isFirst {
+				title = HCL10n.TabBar.files
+			}
 
 			let segment = SegmentViewItem(with: breadcrumb.icon, title: title, style: .plain, titleTextStyle: .footnote)
 
 			if let segmentConfigurator {
 				segmentConfigurator(breadcrumb, segment)
 			}
-
+			isFirst = false
 			segments.append(segment)
 		}
 

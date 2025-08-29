@@ -380,7 +380,10 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 		}
 		didSet {
 			if let locationBarViewController {
-				addStacked(child: locationBarViewController, position: .bottom)
+				// If embedded in BrowserNavigationViewController, the breadcrumb is shown under the nav bar
+				if browserNavigationViewController == nil {
+					addStacked(child: locationBarViewController, position: .bottom)
+				}
 			}
 		}
 	}
@@ -403,6 +406,9 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 		} else {
 			self.locationBarViewController = nil
 		}
+
+		// Refresh breadcrumb position when embedded in BrowserNavigationViewController
+		browserNavigationViewController?.updateTopAccessory()
 	}
 
 	public override func viewWillAppear(_ animated: Bool) {

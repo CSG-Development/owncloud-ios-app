@@ -27,7 +27,6 @@ open class ClientLocationBarController: UIViewController, Themeable {
 	public var location: OCLocation
 	public var clientContext: ClientContext
 
-	public var seperatorView: ThemeCSSView?
 	public var segmentView: SegmentView?
 
 	public init(clientContext: ClientContext, location: OCLocation) {
@@ -49,31 +48,13 @@ open class ClientLocationBarController: UIViewController, Themeable {
 	open override func viewDidLoad() {
 		super.viewDidLoad()
 
-		seperatorView = ThemeCSSView(withSelectors: [.separator])
-		seperatorView?.translatesAutoresizingMaskIntoConstraints = false
-
 		segmentView = SegmentView(with: composeSegments(location: location, in: clientContext), truncationMode: .truncateTail, scrollable: true, limitVerticalSpaceUsage: true)
-		segmentView?.translatesAutoresizingMaskIntoConstraints = false
-
 		segmentView?.itemSpacing = 0
 
-		if let segmentView, let seperatorView {
-			let seperatorThickness: CGFloat = 0.5
-
+		if let segmentView {
 			view.addSubview(segmentView)
-			view.addSubview(seperatorView)
 
-			NSLayoutConstraint.activate([
-				seperatorView.topAnchor.constraint(equalTo: view.topAnchor),
-				seperatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-				seperatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-				seperatorView.heightAnchor.constraint(equalToConstant: seperatorThickness),
-
-				segmentView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
-				segmentView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
-				segmentView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 9 + seperatorThickness), // + 1 for the seperatorView
-				segmentView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
-			])
+			segmentView.snp.makeConstraints { $0.edges.equalToSuperview() }
 		}
 	}
 
@@ -98,16 +79,14 @@ open class ClientLocationBarController: UIViewController, Themeable {
 					})
 				]
 				segment.isAccessibilityElement = true
-				segment.accessibilityTraits = .button
+				segment.accessibilityTraits = .button				
 			}
 		})
 	}
 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		seperatorView?.apply(css: collection.css, properties: [.fill])
-
-		if let backgroundFillColor = collection.css.getColor(.fill, for: view) {
-			segmentView?.scrollViewOverlayGradientColor = backgroundFillColor.cgColor
-		}
+//		if let backgroundFillColor = collection.css.getColor(.fill, for: view) {
+//
+//		}
 	}
 }

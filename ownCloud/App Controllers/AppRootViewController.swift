@@ -230,8 +230,8 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 				let location = OCLocation(bookmarkUUID: bookmark.uuid, driveID: nil, path: "/")
 				Log.log("[CONN_DEBUG]: Opening root location")
 				_ = location.openItem(from: self.contentBrowserController, with: accountController.clientContext, animated: true, pushViewController: true) { _ in
-					Log.log("[CONN_DEBUG]: Updating sidebar selection")
-					_ = self.sidebarViewController?.updateSelection(for: BrowserNavigationBookmark(type: .dataItem, bookmarkUUID: bookmark.uuid))
+					// Log.log("[CONN_DEBUG]: Updating sidebar selection")
+					//_ = self.sidebarViewController?.updateSelection(for: BrowserNavigationBookmark(type: .dataItem, bookmarkUUID: bookmark.uuid))
 				}
 			}
 		}

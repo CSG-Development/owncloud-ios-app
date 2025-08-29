@@ -60,12 +60,12 @@ open class BrowserNavigationHistory {
 	open func push(item: BrowserNavigationItem, completion: CompletionHandler? = nil) {
 		lastPushAttempt = item
 
-		if !item.isSpecialTabBarItem {
+		if !item.isSpecialTabBarItem && !item.isSavedSearchItem {
 			OCSynchronized(self) {
 				if position < items.count - 1 {
 					items.removeSubrange((position+1)...items.count-1)
 				}
-				
+
 				items.append(item)
 				position += 1
 			}
