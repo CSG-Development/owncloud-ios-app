@@ -896,9 +896,9 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
 
 			// - Location Bar
-			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar, .segments, .item, .plain],		property: .stroke, value: contentToolbarSet.tintColor),
-			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar, .segments, .item, .separator],	property: .stroke, value: contentToolbarSet.secondaryLabelColor),
-			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar],					property: .fill,   value: contentToolbarSet.backgroundColor)
+			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar, .segments, .item, .plain],		property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar, .button],	property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar],					property: .fill,   value: UIColor.clear)
 		])
 
 		// System colors

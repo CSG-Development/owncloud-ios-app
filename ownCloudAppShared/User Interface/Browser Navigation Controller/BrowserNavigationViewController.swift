@@ -44,6 +44,40 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		return navigationView
 	}()
 
+	// Container placed directly under the navigation bar to host contextual accessories (e.g., location breadcrumb bar)
+	lazy var topAccessoryContainerView: UIStackView = {
+		let stackView = UIStackView()
+		stackView.axis = .vertical
+		stackView.spacing = 0
+		stackView.distribution = .fill
+		return stackView
+	}()
+
+	// Holds the currently installed accessory view controller
+	private var topAccessoryViewController: UIViewController?
+	private var topAccessoryView = UIView()
+
+	// Horizontal layout hosting history buttons + accessory (breadcrumbs)
+	lazy var topAccessoryStackView: UIStackView = {
+		let sv = UIStackView()
+		sv.axis = .horizontal
+		sv.alignment = .center
+		sv.spacing = 8
+		return sv
+	}()
+
+	lazy var navArrowsStackView: UIStackView = {
+		let sv = UIStackView()
+		sv.axis = .horizontal
+		sv.alignment = .center
+		sv.spacing = 12
+		return sv
+	}()
+
+	private var backButton: UIButton = UIButton(type: .system)
+	private var forwardButton: UIButton = UIButton(type: .system)
+	private var hasNavigationHistory: Bool = false
+
 	lazy var contentContainerLidView: UIView = {
 		let view = UIView()
 		view.backgroundColor = UIColor(white: 0.0, alpha: 0.5)
@@ -58,6 +92,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	private var isTabBarHidden: Bool = false
 	var tabBarView = HCBrowserNavigationTabBarView()
 	var sideBarSeperatorView = HCSeparatorView(frame: .zero)
+
+	private var hasCompletedInitialLayout: Bool = false
 
 	lazy open var history: BrowserNavigationHistory = {
 		let history = BrowserNavigationHistory()
@@ -93,13 +129,14 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			// if the window width can't be determined
 			sideBarDisplayMode = .over
 		}
-		setContainerLidHidden(isSideBarHidden || effectiveSideBarDisplayMode != .over)
+		setContainerLidHidden(isSideBarHidden || effectiveSideBarDisplayMode != .over, animated: hasCompletedInitialLayout)
 	}
 
 	open override func viewDidLoad() {
 		super.viewDidLoad()
 
 		contentContainerView.addSubview(navigationView)
+		contentContainerView.addSubview(topAccessoryContainerView)
 
 		view.addSubview(wrappedContentContainerView)
 		view.addSubview(tabBarView)
@@ -114,7 +151,33 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		setupTabBar()
 		setTabBarHidden(traitCollection.verticalSizeClass == .compact, animated: false)
 		navigationView.items = []
+
+		// Layout accessory container just below the navigation bar; keep height 0 when empty
+		topAccessoryContainerView.snp.remakeConstraints {
+			$0.leading.trailing.equalTo(self.contentContainerView.safeAreaLayoutGuide)
+			$0.top.equalTo(self.navigationView.snp.bottom)
+		}
+
+		topAccessoryView.backgroundColor = .clear
+		topAccessoryView.snp.makeConstraints {
+			$0.height.equalTo(40)
+		}
+		topAccessoryView.addSubview(navArrowsStackView)
+		navArrowsStackView.snp.makeConstraints {
+			$0.top.bottom.equalToSuperview()
+			$0.leading.equalToSuperview().offset(12)
+		}
+		topAccessoryView.addSubview(topAccessoryStackView)
+		topAccessoryStackView.snp.makeConstraints {
+			$0.top.bottom.equalToSuperview()
+			$0.leading.equalTo(navArrowsStackView.snp.trailing).offset(10)
+			$0.trailing.equalToSuperview().offset(-12)
+		}
+		topAccessoryContainerView.addArrangedSubview(topAccessoryView)
+
+		setupHistoryButtons()
 		updateDynamicLayout()
+		view.layoutIfNeeded()
 	}
 
 	private func updateDynamicLayout() {
@@ -292,6 +355,9 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		navigationController?.isNavigationBarHidden = true
 
 		setNavigationBarHidden(false, animated: false)
+
+		// Enable animations after first appearance to avoid launch-time reflow animations
+		hasCompletedInitialLayout = true
 	}
 
 	// MARK: - Navigation Bar
@@ -350,7 +416,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		history.push(item: item)
 
 		if hideSideBarInOverDisplayModeOnPush, sideBarDisplayMode == .over {
-			setSideBarHidden(true, animated: true)
+			setSideBarHidden(true, animated: hasCompletedInitialLayout)
 		}
 	}
 
@@ -371,7 +437,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		-> [NSLayoutConstraint] {
 		if let contentView = contentViewController.view {
 			return [
-				contentView.topAnchor.constraint(equalTo: navigationView.bottomAnchor),
+				contentView.topAnchor.constraint(equalTo: topAccessoryContainerView.bottomAnchor),
 				contentView.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor),
 				contentView.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor),
 				contentView.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor)
@@ -396,6 +462,30 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 	@objc func navForward() {
 		moveForward()
+	}
+
+	private func setupHistoryButtons() {
+		// Configure buttons
+		backButton.setImage(UIImage(named: "arrow-left", in: Bundle.sharedAppBundle, with: nil), for: .normal)
+		forwardButton.setImage(UIImage(named: "arrow-right", in: Bundle.sharedAppBundle, with: nil), for: .normal)
+		backButton.addTarget(self, action: #selector(navBack), for: .touchUpInside)
+		forwardButton.addTarget(self, action: #selector(navForward), for: .touchUpInside)
+		backButton.accessibilityLabel = OCLocalizedString("Back", nil)
+		forwardButton.accessibilityLabel = OCLocalizedString("Forward", nil)
+
+		// Add to stack
+		navArrowsStackView.addArrangedSubview(backButton)
+		navArrowsStackView.addArrangedSubview(forwardButton)
+
+		updateHistoryButtons()
+	}
+
+	private func updateHistoryButtons() {
+		let hasNavigation = !(history.lastPushAttempt?.isSpecialTabBarItem ?? false)
+		backButton.isEnabled = hasNavigation && history.canMoveBack
+		forwardButton.isEnabled = hasNavigation && history.canMoveForward
+		// Show or hide the arrows stack depending on need
+		navArrowsStackView.isHidden = false
 	}
 
 	func buildSideBarToggleBarButtonItem() -> UIBarButtonItem {
@@ -492,15 +582,14 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	func updateContentNavigationItems() {
-		let hasNavigation = !(history.lastPushAttempt?.isSpecialTabBarItem ?? false)
-
 		if let contentNavigationItem = contentViewController?.navigationItem {
 			updateLeftBarButtonItems(
 				for: contentNavigationItem,
 				withToggleSideBar: (effectiveSideBarDisplayMode == .sideBySide)
-				? isSideBarHidden : true, withBackButton: hasNavigation, withForwardButton: hasNavigation)
+				? isSideBarHidden : true)
 		}
 
+		updateHistoryButtons()
 		updateSideBarNavigationItem()
 	}
 
@@ -532,6 +621,74 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 			navigationView.items = [ navigationItem ]
 		}
+
+		updateTopAccessory()
+	}
+
+	// MARK: - Top accessory (breadcrumb) management
+	open func updateTopAccessory() {
+		// Remove existing accessory controller
+		if let accessoryVC = topAccessoryViewController {
+			accessoryVC.willMove(toParent: nil)
+			accessoryVC.view.removeFromSuperview()
+			accessoryVC.removeFromParent()
+			topAccessoryViewController = nil
+		}
+
+		topAccessoryView.isHidden = true
+		topAccessoryStackView.arrangedSubviews.forEach { view in
+			if view !== navArrowsStackView {
+				topAccessoryStackView.removeArrangedSubview(view)
+				view.removeFromSuperview()
+			}
+		}
+
+		// Install a location bar when the content is a ClientItemViewController with a non-root location
+		if let itemVC = contentViewController as? ClientItemViewController, let clientContext = itemVC.clientContext {
+			var effectiveLocation: OCLocation?
+			if let loc = itemVC.location {
+				effectiveLocation = loc
+			} else if let queryLoc = itemVC.query?.queryLocation {
+				effectiveLocation = queryLoc
+			} else if let rootItem = clientContext.rootItem as? OCItem {
+				effectiveLocation = rootItem.location
+			}
+
+			if let location = effectiveLocation, history.items.count > 1 {
+				let accessoryVC = ClientLocationBarController(clientContext: clientContext, location: location)
+				addChild(accessoryVC)
+				topAccessoryStackView.addArrangedSubview(accessoryVC.view)
+				accessoryVC.view.translatesAutoresizingMaskIntoConstraints = false
+				accessoryVC.didMove(toParent: self)
+				topAccessoryViewController = accessoryVC
+
+				topAccessoryView.isHidden = false
+			}
+		} else if let displayHost = contentViewController as? UIPageViewController {
+			// Viewer: use location popup added by DisplayHostViewController to supply the breadcrumb
+			if let popup = displayHost.navigationItem.titleView as? ClientLocationPopupButton,
+			   let clientContext = popup.clientContext,
+			   let location = popup.location {
+				let accessoryVC = ClientLocationBarController(clientContext: clientContext, location: location)
+				addChild(accessoryVC)
+				topAccessoryStackView.addArrangedSubview(accessoryVC.view)
+				accessoryVC.view.translatesAutoresizingMaskIntoConstraints = false
+				accessoryVC.didMove(toParent: self)
+				topAccessoryViewController = accessoryVC
+
+				topAccessoryView.isHidden = false
+			}
+		}
+
+		// If nothing added, still keep the accessory row visible for nav arrows when history exists
+		if topAccessoryView.isHidden == true {
+			if history.canMoveBack || history.canMoveForward || history.items.count > 1 {
+				topAccessoryView.isHidden = false
+			}
+		}
+
+		view.setNeedsLayout()
+		view.layoutIfNeeded()
 	}
 
 	public func present(
@@ -559,6 +716,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			contentViewController = nil
 		}
 
+		updateTopAccessory()
+
 		self.view.layoutIfNeeded()
 
 		let done = {
@@ -569,16 +728,22 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		}
 
 		if needsSideBarLayout {
-			OnMainThread {
-				UIView.animate(
-					withDuration: 0.3,
-					animations: {
-						self.updateSideBarLayoutAndAppearance()
-						self.view.layoutIfNeeded()
-					},
-					completion: { _ in
-						done()
-					})
+			if hasCompletedInitialLayout {
+				OnMainThread {
+					UIView.animate(
+						withDuration: 0.3,
+						animations: {
+							self.updateSideBarLayoutAndAppearance()
+							self.view.layoutIfNeeded()
+						},
+						completion: { _ in
+							done()
+						})
+				}
+			} else {
+				self.updateSideBarLayoutAndAppearance()
+				self.view.layoutIfNeeded()
+				done()
 			}
 		} else {
 			done()
@@ -726,7 +891,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		}
 		self.updateSideBarLayoutAndAppearance()
 		self.isSideBarHidden = isHidden
-		if animated {
+		let shouldAnimate = animated && hasCompletedInitialLayout
+		if shouldAnimate {
 			UIView.animate(withDuration: 0.3, animations: animations, completion: completion)
 		} else {
 			animations()
@@ -744,6 +910,9 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		navigationView.applyThemeCollection(collection)
 		view.apply(css: collection.css, properties: [.fill])
+
+		forwardButton.apply(css: collection.css, selectors: [.content, .toolbar, .locationBar, .button], properties: [.stroke])
+		backButton.apply(css: collection.css, selectors: [.content, .toolbar, .locationBar, .button], properties: [.stroke])
 	}
 
 	public var cssAutoSelectors: [ThemeCSSSelector] = [.splitView]
@@ -776,9 +945,9 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		let isLandscape = traitCollection.verticalSizeClass == .compact
 
 		if isLandscape && isPhone {
-			setTabBarHidden(true)
+			setTabBarHidden(true, animated: hasCompletedInitialLayout)
 		} else {
-			setTabBarHidden(false)
+			setTabBarHidden(false, animated: hasCompletedInitialLayout)
 		}
 	}
 

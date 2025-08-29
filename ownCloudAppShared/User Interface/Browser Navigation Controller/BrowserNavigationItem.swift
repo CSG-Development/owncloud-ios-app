@@ -42,12 +42,26 @@ open class BrowserNavigationItem: NSObject {
 		return _viewController
 	}
 
+	open var isSavedSearchItem: Bool {
+		if let navigationBookmark = navigationBookmark {
+			navigationBookmark.savedSearch != nil
+		} else {
+			false
+		}
+	}
+
 	open var isSpecialTabBarItem: Bool {
 		guard let specialItem = navigationBookmark?.specialItem else { return false }
 		return [
 			AccountController.SpecialItem.availableOfflineItems,
 			AccountController.SpecialItem.globalSearch,
-			AccountController.SpecialItem.activity
+			AccountController.SpecialItem.activity,
+			AccountController.SpecialItem.recents,
+			AccountController.SpecialItem.favoriteItems,
+			AccountController.SpecialItem.sharedByMe,
+			AccountController.SpecialItem.sharedByLink,
+			AccountController.SpecialItem.sharedWithMe,
+			AccountController.SpecialItem.sharingFolder
 		].contains(specialItem)
 	}
 
