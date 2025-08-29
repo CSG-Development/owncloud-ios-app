@@ -452,7 +452,7 @@ open class Action : NSObject {
 
 	// MARK: - Action UI elements
 	public static let staticRowImageWidth : CGFloat = 32
-	private let proLabel = "ᴾᴿᴼ" // "🅿🆁🅾"
+	private let proLabel = "" // "🅿🆁🅾"
 
 	open func provideStaticRow() -> StaticTableViewRow? {
 		var name = actionExtension.name
