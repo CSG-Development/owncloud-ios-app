@@ -543,7 +543,8 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 					let availableOfflineFilesDataSource = core.availableOfflineFilesDataSource
 					let sortedDataSource = SortedItemDataSource(itemDataSource: availableOfflineFilesDataSource)
 
-					let availableOfflineViewController = ClientItemViewController(context: context, query: nil, itemsDatasource: sortedDataSource, showRevealButtonForItems: true, emptyItemListIcon: OCItem.cloudAvailableOfflineStatusIcon, emptyItemListTitleLocalized: OCLocalizedString("No files available offline", nil), emptyItemListMessageLocalized: OCLocalizedString("Files selected and downloaded for offline availability will show up here.", nil))
+					let availableOfflineViewController = ClientItemViewController(context: context, query: nil, itemsDatasource: sortedDataSource, showRevealButtonForItems: true, emptyItemListIcon: UIImage(named: "offline-empty", in: Bundle.sharedAppBundle, with: nil)!, emptyItemListTitleLocalized: HCL10n.Offline.Empty.title, emptyItemListMessageLocalized: HCL10n.Offline.Empty.subtitle)
+					availableOfflineViewController.useOverlayEmptyState = true
 					availableOfflineViewController.navigationTitle = OCLocalizedString("Available Offline", nil)
 
 					sortedDataSource.sortingFollowsContext = availableOfflineViewController.clientContext
@@ -582,6 +583,7 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 
 					let favoritesViewController = ClientItemViewController(context: favoritesContext, query: nil, itemsDatasource: sortedDataSource, showRevealButtonForItems: true, emptyItemListIcon: OCSymbol.icon(forSymbolName: "star.fill"), emptyItemListTitleLocalized: OCLocalizedString("No favorites found", nil), emptyItemListMessageLocalized: OCLocalizedString("If you make an item a favorite, it will turn up here.", nil))
 					favoritesViewController.navigationTitle = OCLocalizedString("Favorites", nil)
+					favoritesViewController.useOverlayEmptyState = true
 
 					sortedDataSource.sortingFollowsContext = favoritesViewController.clientContext
 

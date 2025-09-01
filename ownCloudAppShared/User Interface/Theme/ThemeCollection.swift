@@ -575,13 +575,13 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.segments, .item, .separator],	property: .stroke, value: cellSet.secondaryLabelColor),
 
 			// - Messages
-			ThemeCSSRecord(selectors: [.infoBox, .background],		property: .fill, value: groupedCollectionBackgroundColor),
+			ThemeCSSRecord(selectors: [.infoBox, .background],		property: .fill, value: UIColor.clear),
 			ThemeCSSRecord(selectors: [.infoBox, .icon],			property: .fill, value: secondaryLabelColor),
 			ThemeCSSRecord(selectors: [.infoBox, .subtitle],		property: .fill, value: secondaryLabelColor),
 
-			ThemeCSSRecord(selectors: [.title],				property: .stroke, value: primaryLabelColor),
-			ThemeCSSRecord(selectors: [.subtitle],				property: .stroke, value: secondaryLabelColor),
-			ThemeCSSRecord(selectors: [.message],				property: .stroke, value: tertiaryLabelColor),
+			ThemeCSSRecord(selectors: [.title],	property: .stroke, value: HCColor.Content.gray2(isDark)),
+			ThemeCSSRecord(selectors: [.subtitle], property: .stroke, value: HCColor.Content.gray2(isDark)),
+			ThemeCSSRecord(selectors: [.message], property: .stroke, value: HCColor.Content.gray2(isDark)),
 
 			ThemeCSSRecord(selectors: [.primary],				property: .stroke, value: primaryLabelColor),
 			ThemeCSSRecord(selectors: [.secondary],				property: .stroke, value: secondaryLabelColor),

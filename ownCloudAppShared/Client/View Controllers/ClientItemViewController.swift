@@ -55,6 +55,14 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 	public var emptySectionDataSource: OCDataSourceComposition?
 	public var emptySection: CollectionViewSection?
 
+	// Overlay-based empty state support (not a collection view cell)
+	public var useOverlayEmptyState: Bool = false
+	private var emptyOverlayView: ComposedMessageView?
+	private var noResultsOverlayView: ComposedMessageView?
+	private var emptyOverlayIcon: UIImage?
+	private var emptyOverlayTitle: String?
+	private var emptyOverlayMessage: String?
+
 	public var loadingListItem: ComposedMessageView?
 	public var folderRemovedListItem: ComposedMessageView?
 	public var footerItem: UIView?
@@ -251,11 +259,16 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 		if let queryDatasource = query?.queryResultsDataSource ?? inDataSource {
 			let emptyFolderMessage = emptyItemListMessageLocalized ?? OCLocalizedString("This folder is empty.", nil) // OCLocalizedString("This folder is empty. Fill it with content:", nil)
 
+			// Store overlay content and build list-cell variant (still used in non-overlay contexts)
+			emptyOverlayIcon = emptyItemListIcon ?? OCSymbol.icon(forSymbolName: "folder.fill")!
+			emptyOverlayTitle = emptyItemListTitleLocalized ?? OCLocalizedString("No contents", nil)
+			emptyOverlayMessage = emptyFolderMessage
+
 			emptyItemListItem = ComposedMessageView(elements: [
-				.image(emptyItemListIcon ?? OCSymbol.icon(forSymbolName: "folder.fill")!, size: CGSize(width: 64, height: 48), alignment: .centered),
-				.title(emptyItemListTitleLocalized ?? OCLocalizedString("No contents", nil), alignment: .centered),
+				.image(emptyOverlayIcon!, size: CGSize(width: 64, height: 48), alignment: .centered),
+				.title(emptyOverlayTitle!, alignment: .centered),
 				.spacing(5),
-				.subtitle(emptyFolderMessage, alignment: .centered)
+				.subtitle(emptyOverlayMessage!, alignment: .centered)
 			])
 
 			emptyItemListItem?.elementInsets = NSDirectionalEdgeInsets(top: 20, leading: 0, bottom: 2, trailing: 0)
@@ -366,6 +379,9 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 		let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
 		tapGesture.cancelsTouchesInView = false
 		view.addGestureRecognizer(tapGesture)
+
+		// Prepare overlay views
+		configureOverlayViewsIfNeeded()
 	}
 
 	@objc private func dismissKeyboard() {
@@ -557,6 +573,12 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 					refreshEmptyActions()
 					sortBar?.isHidden = true
 					footerSectionDataSource.setVersionedItems([ ])
+					if useOverlayEmptyState {
+						emptySectionHiddenNew = true
+						showEmptyOverlay(true)
+					} else {
+						showEmptyOverlay(false)
+					}
 
 				case .loading:
 					var loadingItems : [OCDataItem] = [ ]
@@ -567,6 +589,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 					emptyItemListDataSource.setItems(loadingItems, updated: nil)
 					sortBar?.isHidden = true
 					footerSectionDataSource.setVersionedItems([ ])
+					showEmptyOverlay(false)
 
 				case .removed:
 					var folderRemovedItems : [OCDataItem] = [ ]
@@ -577,6 +600,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 					emptyItemListDataSource.setItems(folderRemovedItems, updated: nil)
 					sortBar?.isHidden = true
 					footerSectionDataSource.setVersionedItems([ ])
+					showEmptyOverlay(false)
 
 				case .hasContent:
 					emptyItemListDataSource.setItems(nil, updated: nil)
@@ -591,12 +615,24 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 					}
 
 					emptySectionHiddenNew = true
+					showEmptyOverlay(false)
 
 				case .searchNonItemContent:
 					emptyItemListDataSource.setItems(nil, updated: nil)
 					sortBar?.isHidden = true
 					footerSectionDataSource.setVersionedItems([ ])
 					itemSectionHiddenNew = true
+					// Use overlays for search states: noResults and suggestions
+					if (searchResultsContent?.type == .noResults) {
+						emptySectionHiddenNew = true
+						showNoResultsOverlay(true)
+						showEmptyOverlay(false)
+					} else {
+						// Suggestion state -> standard empty overlay
+						emptySectionHiddenNew = true
+						showNoResultsOverlay(false)
+						showEmptyOverlay(true)
+					}
 			}
 
 			if changeFromOrToRemoved {
@@ -610,6 +646,68 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 				}, animated: false)
 			}
 		}
+	}
+
+	// MARK: - Overlay helpers
+	private func configureOverlayViewsIfNeeded() {
+		if useOverlayEmptyState, emptyOverlayView == nil {
+			if let icon = emptyOverlayIcon, let title = emptyOverlayTitle {
+				let message = emptyOverlayMessage
+				emptyOverlayView = ComposedMessageView(elements: [
+					.image(icon, size: CGSize(width: 64, height: 48), alignment: .centered),
+					.title(title, alignment: .centered),
+					.spacing(5)
+				])
+				if let message = message {
+					emptyOverlayView?.elements?.append(.subtitle(message, alignment: .centered))
+				}
+			}
+		}
+
+		if let emptyOverlayView = emptyOverlayView, emptyOverlayView.superview == nil {
+			emptyOverlayView.translatesAutoresizingMaskIntoConstraints = false
+			view.addSubview(emptyOverlayView)
+			NSLayoutConstraint.activate([
+				emptyOverlayView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+				emptyOverlayView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+				emptyOverlayView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor)
+			])
+			emptyOverlayView.isHidden = true
+		}
+	}
+
+	private func showEmptyOverlay(_ show: Bool) {
+		configureOverlayViewsIfNeeded()
+		emptyOverlayView?.isHidden = !show
+		if show, let emptyOverlayView = emptyOverlayView {
+			view.bringSubviewToFront(emptyOverlayView)
+		}
+		if show { noResultsOverlayView?.isHidden = true }
+	}
+
+	private func ensureNoResultsOverlay() {
+		if noResultsOverlayView == nil {
+			noResultsOverlayView = ComposedMessageView.infoBox(image: UIImage(named: "search-empty", in: Bundle.sharedAppBundle, with: nil)!, title: OCLocalizedString("No matches", nil), subtitle: OCLocalizedString("The search term you entered did not match any item in the selected scope.", nil))
+		}
+		if let noResultsOverlayView = noResultsOverlayView, noResultsOverlayView.superview == nil {
+			noResultsOverlayView.translatesAutoresizingMaskIntoConstraints = false
+			view.addSubview(noResultsOverlayView)
+			NSLayoutConstraint.activate([
+				noResultsOverlayView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+				noResultsOverlayView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+				noResultsOverlayView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor)
+			])
+			noResultsOverlayView.isHidden = true
+		}
+	}
+
+	private func showNoResultsOverlay(_ show: Bool) {
+		ensureNoResultsOverlay()
+		noResultsOverlayView?.isHidden = !show
+		if show, let noResultsOverlayView = noResultsOverlayView {
+			view.bringSubviewToFront(noResultsOverlayView)
+		}
+		if show { emptyOverlayView?.isHidden = true }
 	}
 
 	// MARK: - Navigation Bar
@@ -1046,7 +1144,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 				// No results
 				let noResultContent = SearchViewController.Content(type: .noResults, source: OCDataSourceArray(), style: emptySection!.cellStyle)
-				let noResultsView = ComposedMessageView.infoBox(image: OCSymbol.icon(forSymbolName: "magnifyingglass"), title: OCLocalizedString("No matches", nil), subtitle: OCLocalizedString("The search term you entered did not match any item in the selected scope.", nil))
+				let noResultsView = ComposedMessageView.infoBox(image: UIImage(named: "search-empty", in: Bundle.sharedAppBundle, with: nil)!, title: OCLocalizedString("No matches", nil), subtitle: OCLocalizedString("The search term you entered did not match any item in the selected scope.", nil))
 
 				(noResultContent.source as? OCDataSourceArray)?.setVersionedItems([
 					noResultsView
@@ -1212,6 +1310,12 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 		updateSections(with: { sections in
 			self.driveSection?.hidden = true
 		}, animated: true)
+
+		// When search starts with empty text/tokens, show the empty overlay immediately
+		if useOverlayEmptyState == true {
+			showEmptyOverlay(true)
+			showNoResultsOverlay(false)
+		}
 	}
 
 	public func search(for viewController: SearchViewController, content: SearchViewController.Content?) {
@@ -1232,6 +1336,10 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 		endSearch()
 
 		recomputeContentState()
+
+		// Hide overlays when leaving search
+		showEmptyOverlay(false)
+		showNoResultsOverlay(false)
 	}
 
 	// MARK: - Statistics

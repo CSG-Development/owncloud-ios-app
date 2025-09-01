@@ -41,6 +41,7 @@ extension OCItem : DataItemSelectionInteraction {
 							}
 
 							let viewController = ClientItemViewController(context: context, query: query, location: location)
+							viewController.useOverlayEmptyState = true
 							viewController.navigationBookmark = BrowserNavigationBookmark.from(dataItem: self, clientContext: context, restoreAction: .open)
 							viewController.revoke(in: context, when: [.connectionClosed, .driveRemoved])
 							return viewController
@@ -93,6 +94,7 @@ extension OCItem : DataItemSelectionInteraction {
 
 				if let queryViewController = context.pushViewControllerToNavigation(context: context, provider: { context in
 					let viewController = ClientItemViewController(context: context, query: query, location: parentLocation, highlightItemReference: self.dataItemReference)
+					viewController.useOverlayEmptyState = true
 					viewController.navigationBookmark = BrowserNavigationBookmark.from(dataItem: parentLocation, clientContext: context, restoreAction: .open)
 					viewController.revoke(in: context, when: [.connectionClosed, .driveRemoved])
 					return viewController

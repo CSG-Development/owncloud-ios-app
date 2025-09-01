@@ -507,7 +507,7 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 
 				// No results
 				let noResultContent = SearchViewController.Content(type: .noResults, source: OCDataSourceArray(), style: placeholderCellStyle)
-				let noResultsView = ComposedMessageView.infoBox(image: OCSymbol.icon(forSymbolName: "magnifyingglass"), title: OCLocalizedString("No matches", nil), subtitle: OCLocalizedString("No user or group matches your search.", nil), withRoundedBackgroundView: false)
+				let noResultsView = ComposedMessageView.infoBox(image: UIImage(named: "search-empty", in: Bundle.sharedAppBundle, with: nil)!, title: OCLocalizedString("No matches", nil), subtitle: OCLocalizedString("No user or group matches your search.", nil), withRoundedBackgroundView: false)
 
 				(noResultContent.source as? OCDataSourceArray)?.setVersionedItems([
 					noResultsView

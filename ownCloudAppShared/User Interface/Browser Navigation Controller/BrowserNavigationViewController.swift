@@ -362,12 +362,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		NotificationCenter.default.addObserver(self, selector: #selector(handleDisplayHostLocationDidChange(_:)), name: Notification.Name("DisplayHostLocationDidChange"), object: nil)
 	}
 
-	@objc private func handleDisplayHostLocationDidChange(_ note: Notification) {
+	@objc private func
+	handleDisplayHostLocationDidChange(_ note: Notification) {
 		if let ctx = note.userInfo?["clientContext"] as? ClientContext,
 		   let location = note.userInfo?["location"] as? OCLocation {
 			self.topAccessoryViewController?.clientContext = ctx
 			self.topAccessoryViewController?.location = location
-			self.topAccessoryView.isHidden = false
 		}
 	}
 

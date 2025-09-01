@@ -189,15 +189,12 @@ class ClientActivityViewController: UITableViewController, Themeable, MessageGro
 
 			self.tableView.reloadData()
 
-			if (activities?.count ?? 0) == 0, (messageGroups?.count ?? 0) == 0 {
-				self.messageView?.message(show: true, imageName: "status-flash", title: OCLocalizedString("All done", nil), message: OCLocalizedString("No pending messages or ongoing actions.", nil))
-			} else {
-				self.messageView?.message(show: false)
-			}
+			let isEmpty = (activities?.count ?? 0) == 0 && (messageGroups?.count ?? 0) == 0
+			self.emptyStatusView?.isHidden = !isEmpty
 		}
 	}
 
-	var messageView : MessageView?
+	var emptyStatusView: ComposedMessageView?
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -210,12 +207,30 @@ class ClientActivityViewController: UITableViewController, Themeable, MessageGro
 
 		Theme.shared.register(client: self, applyImmediately: true)
 
-		messageView = MessageView(add: self.view)
+		// Unified empty state overlay
+		emptyStatusView = ComposedMessageView(elements: [
+			.image(UIImage(named: "status-empty", in: Bundle.sharedAppBundle, with: nil)!, size: CGSize(width: 64, height: 48), alignment: .centered),
+			.title(OCLocalizedString("All done", nil), alignment: .centered),
+			.spacing(5),
+			.subtitle(OCLocalizedString("No pending messages or ongoing actions.", nil), alignment: .centered)
+		])
+		emptyStatusView?.translatesAutoresizingMaskIntoConstraints = false
+		if let emptyStatusView = emptyStatusView {
+			view.addSubview(emptyStatusView)
+			NSLayoutConstraint.activate([
+				emptyStatusView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+				emptyStatusView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+				emptyStatusView.leadingAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+				emptyStatusView.trailingAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20)
+			])
+			emptyStatusView.isHidden = true
+		}
 	}
 
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		self.tableView.applyThemeCollection(collection)
-		self.view.backgroundColor = collection.css.getColor(.fill, selectors: [.toolbar], for: nil)
+		// Align status screen background with other screens, not toolbar
+		self.view.backgroundColor = collection.css.getColor(.fill, for: self.view)
 	}
 
 	override func viewWillAppear(_ animated: Bool) {

@@ -202,7 +202,8 @@ extension OCSavedSearch: DataItemSelectionInteraction {
 				}
 			})
 
-			let viewController = ClientItemViewController(context: resultsContext, query: query, showRevealButtonForItems: true, emptyItemListIcon: OCSymbol.icon(forSymbolName: "magnifyingglass"), emptyItemListTitleLocalized: OCLocalizedString("No matches", nil), emptyItemListMessageLocalized: OCLocalizedString("No items found matching the search criteria.", nil))
+			let viewController = ClientItemViewController(context: resultsContext, query: query, showRevealButtonForItems: true, emptyItemListIcon: UIImage(named: "search-empty", in: Bundle.sharedAppBundle, with: nil)!, emptyItemListTitleLocalized: OCLocalizedString("No matches", nil), emptyItemListMessageLocalized: OCLocalizedString("No items found matching the search criteria.", nil))
+			viewController.useOverlayEmptyState = true
 			if self.useNameAsTitle == true {
 				viewController.navigationTitle = sideBarDisplayName
 			} else {

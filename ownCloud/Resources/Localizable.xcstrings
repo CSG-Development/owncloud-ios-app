@@ -8391,6 +8391,7 @@
       }
     },
     "Audios" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -23830,6 +23831,7 @@
       }
     },
     "Documents" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -30838,6 +30840,7 @@
       }
     },
     "Files selected and downloaded for offline availability will show up here." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -36084,6 +36087,7 @@
 
     },
     "Images" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -54934,6 +54938,7 @@
 
     },
     "PDF Documents" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -60466,6 +60471,7 @@
     },
     "Quick Access" : {
       "comment" : "Quick Access search suggestions",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -86830,6 +86836,7 @@
       }
     },
     "Videos" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

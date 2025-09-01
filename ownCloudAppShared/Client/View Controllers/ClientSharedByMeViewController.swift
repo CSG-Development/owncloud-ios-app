@@ -118,6 +118,6 @@ class ClientSharedByMeViewController: CollectionViewController {
 			coverView = noShareMessage
 		}
 
-		setCoverView(coverView, layout: .top)
+		setCoverView(coverView, layout: .center)
 	}
 }
