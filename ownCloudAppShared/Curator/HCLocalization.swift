@@ -48,4 +48,17 @@ public enum HCL10n {
 		public static let status = "Status"
 		public static let offline = "Offline"
 	}
+
+	public enum Search {
+		public enum Empty {
+			public static let title = "Search for your files"
+		}
+	}
+
+	public enum Offline {
+		public enum Empty {
+			public static let title = "No files available offline"
+			public static let subtitle = "Files and folders you mark as available offline will show up here."
+		}
+	}
 }

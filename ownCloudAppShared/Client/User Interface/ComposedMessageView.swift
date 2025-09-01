@@ -76,12 +76,19 @@ public class ComposedMessageElement: NSObject {
 
 					textView?.text = text
 					textView?.setContentCompressionResistancePriority(.required, for: .vertical)
-					textView?.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+					textView?.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 					textView?.setContentHuggingPriority(.required, for: .vertical)
 
 					add(applier: { [weak self] theme, collection, event in
-						if let self = self, let style = self.style, let label = self.textView {
-							label.applyThemeCollection(collection, itemStyle: style, itemState: .normal)
+						if let self = self, let label = self.textView {
+							if let style = self.style {
+								label.applyThemeCollection(collection, itemStyle: style, itemState: .normal)
+							}
+							// Enforce requested styling: title font size 20 and text color matching icon (stroke)
+							if let font = self.font {
+								label.font = font
+							}
+							label.textColor = collection.css.getColor(.stroke, for: label)
 						}
 					})
 
@@ -345,7 +352,9 @@ public class ComposedMessageElement: NSObject {
 	static public func title(_ title: String, alignment: Alignment = .leading, cssSelectors: [ThemeCSSSelector]? = [.title], insets altInsets: NSDirectionalEdgeInsets? = nil) -> ComposedMessageElement {
 		let element = ComposedMessageElement(kind: .title, alignment: alignment, insets: altInsets)
 		element.text = title
-		element.style = .system(textStyle: .title3, weight: .bold)
+		// Use explicit 20pt font size per requirement
+		element.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
+		element.style = .system(textStyle: .title3, weight: .semibold)
 		element.cssSelectors = cssSelectors
 
 		return element
@@ -354,6 +363,7 @@ public class ComposedMessageElement: NSObject {
 	static public func subtitle(_ subtitle: String, alignment: Alignment = .leading, cssSelectors: [ThemeCSSSelector]? = [.subtitle], insets altInsets: NSDirectionalEdgeInsets? = nil) -> ComposedMessageElement {
 		let element = ComposedMessageElement(kind: .subtitle, alignment: alignment, insets: altInsets)
 		element.text = subtitle
+		// Color will be aligned to icon via applier; keep readable body sizing
 		element.style = .systemSecondary(textStyle: .body, weight: nil)
 		element.cssSelectors = cssSelectors
 
@@ -565,6 +575,7 @@ public extension ComposedMessageView {
 		}
 
 		if let title {
+			elements.append(.spacing(8))
 			elements.append(.title(title, alignment: .centered))
 		}
 
