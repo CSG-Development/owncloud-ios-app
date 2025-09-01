@@ -24,15 +24,20 @@ extension ThemeCSSSelector {
 }
 
 open class ClientLocationBarController: UIViewController, Themeable {
-	public var location: OCLocation
-	public var clientContext: ClientContext
+	public var location: OCLocation? {
+		didSet {
+			updateView()
+		}
+	}
+	public var clientContext: ClientContext? {
+		didSet {
+			updateView()
+		}
+	}
 
 	public var segmentView: SegmentView?
 
-	public init(clientContext: ClientContext, location: OCLocation) {
-		self.location = location
-		self.clientContext = clientContext
-
+	public init() {
 		super.init(nibName: nil, bundle: nil)
 	}
 
@@ -48,14 +53,7 @@ open class ClientLocationBarController: UIViewController, Themeable {
 	open override func viewDidLoad() {
 		super.viewDidLoad()
 
-		segmentView = SegmentView(with: composeSegments(location: location, in: clientContext), truncationMode: .truncateTail, scrollable: true, limitVerticalSpaceUsage: true)
-		segmentView?.itemSpacing = 0
-
-		if let segmentView {
-			view.addSubview(segmentView)
-
-			segmentView.snp.makeConstraints { $0.edges.equalToSuperview() }
-		}
+		updateView()
 	}
 
 	var _themeRegistered: Bool = false
@@ -67,7 +65,10 @@ open class ClientLocationBarController: UIViewController, Themeable {
 		}
 	}
 
-	func composeSegments(location: OCLocation, in clientContext: ClientContext) -> [SegmentViewItem] {
+	func composeSegments(location: OCLocation?, in clientContext: ClientContext) -> [SegmentViewItem] {
+		guard let location else {
+			return []
+		}
 		return OCLocation.composeSegments(breadcrumbs: location.breadcrumbs(in: clientContext), in: clientContext, segmentConfigurator: { breadcrumb, segment in
 			// Make breadcrumbs tappable using the provided action's .actionBlock
 			if breadcrumb.actionBlock != nil {
@@ -79,14 +80,31 @@ open class ClientLocationBarController: UIViewController, Themeable {
 					})
 				]
 				segment.isAccessibilityElement = true
-				segment.accessibilityTraits = .button				
+				segment.accessibilityTraits = .button
 			}
 		})
 	}
 
+	private func updateView() {
+		view.subviews.forEach { $0.removeFromSuperview() }
+
+		guard let clientContext else { return }
+		segmentView = SegmentView(
+			with: composeSegments(location: location, in: clientContext),
+			truncationMode: .truncateTail,
+			scrollable: true,
+			limitVerticalSpaceUsage: true
+		)
+		segmentView?.itemSpacing = 0
+
+		if let segmentView {
+			view.addSubview(segmentView)
+
+			segmentView.snp.makeConstraints { $0.edges.equalToSuperview() }
+		}
+	}
+
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-//		if let backgroundFillColor = collection.css.getColor(.fill, for: view) {
-//
-//		}
+
 	}
 }

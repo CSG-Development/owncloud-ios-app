@@ -211,6 +211,10 @@ class DisplayHostViewController: UIPageViewController {
 				if let itemLocation = displayViewController.item?.location, let clientContext = displayViewController.clientContext {
 					OnMainThread(inline: true) {
 						self?.navigationItem.titleView = ClientLocationPopupButton(clientContext: clientContext, location: itemLocation)
+						NotificationCenter.default.post(name: .displayHostLocationDidChange, object: self, userInfo: [
+							"clientContext": clientContext as Any,
+							"location": itemLocation as Any
+						])
 					}
 				}
 			})
@@ -489,11 +493,22 @@ extension DisplayHostViewController: UIPageViewControllerDataSource {
 	}
 }
 
+extension Notification.Name {
+	static let displayHostLocationDidChange = Notification.Name("DisplayHostLocationDidChange")
+}
+
 extension DisplayHostViewController: UIPageViewControllerDelegate {
 	func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
 		if completed, let newActiveDisplayViewController = self.viewControllers?.first as? DisplayViewController {
 			activeDisplayViewController = newActiveDisplayViewController
 			updateButtonsVisibility()
+
+			if let location = newActiveDisplayViewController.item?.location, let ctx = newActiveDisplayViewController.clientContext {
+				NotificationCenter.default.post(name: .displayHostLocationDidChange, object: self, userInfo: [
+					"clientContext": ctx as Any,
+					"location": location as Any
+				])
+			}
 		}
 	}
 }

@@ -54,16 +54,11 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}()
 
 	// Holds the currently installed accessory view controller
-	private var topAccessoryViewController: UIViewController?
-	private var topAccessoryView = UIView()
-
-	// Horizontal layout hosting history buttons + accessory (breadcrumbs)
-	lazy var topAccessoryStackView: UIStackView = {
-		let sv = UIStackView()
-		sv.axis = .horizontal
-		sv.alignment = .center
-		sv.spacing = 8
-		return sv
+	private var topAccessoryViewController: ClientLocationBarController?
+	private lazy var topAccessoryView = {
+		let view = UIView()
+		view.isHidden = true
+		return view
 	}()
 
 	lazy var navArrowsStackView: UIStackView = {
@@ -152,6 +147,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		setTabBarHidden(traitCollection.verticalSizeClass == .compact, animated: false)
 		navigationView.items = []
 
+		let accessoryVC = ClientLocationBarController()
+		addChild(accessoryVC)
+		topAccessoryView.addSubview(accessoryVC.view)
+		accessoryVC.didMove(toParent: self)
+		topAccessoryViewController = accessoryVC
+
 		// Layout accessory container just below the navigation bar; keep height 0 when empty
 		topAccessoryContainerView.snp.remakeConstraints {
 			$0.leading.trailing.equalTo(self.contentContainerView.safeAreaLayoutGuide)
@@ -167,8 +168,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			$0.top.bottom.equalToSuperview()
 			$0.leading.equalToSuperview().offset(12)
 		}
-		topAccessoryView.addSubview(topAccessoryStackView)
-		topAccessoryStackView.snp.makeConstraints {
+
+		accessoryVC.view.snp.makeConstraints {
 			$0.top.bottom.equalToSuperview()
 			$0.leading.equalTo(navArrowsStackView.snp.trailing).offset(10)
 			$0.trailing.equalToSuperview().offset(-12)
@@ -278,14 +279,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			    let tab
 			else { return }
 
-			let connection = AccountConnectionPool.shared.connectionsByBookmarkUUID.values.first!
-			guard let clientContext = clientContextProvider?() else { return }
-			let context = ClientContext(with: clientContext, accountConnection: connection)
-
 			guard
-				let bookmarkUUID = connection.core?.bookmark.uuid,
+				let bookmarkUUID = OCBookmarkManager.shared.bookmarks.first?.uuid,
 				let accountController = accountControllerProvider?(bookmarkUUID)
 			else { return }
+
+			let context = accountController.clientContext
 
 			switch tab {
 				case .files:
@@ -358,6 +357,18 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 		// Enable animations after first appearance to avoid launch-time reflow animations
 		hasCompletedInitialLayout = true
+
+		// Observe DisplayHost location changes (cross-target safe via notification)
+		NotificationCenter.default.addObserver(self, selector: #selector(handleDisplayHostLocationDidChange(_:)), name: Notification.Name("DisplayHostLocationDidChange"), object: nil)
+	}
+
+	@objc private func handleDisplayHostLocationDidChange(_ note: Notification) {
+		if let ctx = note.userInfo?["clientContext"] as? ClientContext,
+		   let location = note.userInfo?["location"] as? OCLocation {
+			self.topAccessoryViewController?.clientContext = ctx
+			self.topAccessoryViewController?.location = location
+			self.topAccessoryView.isHidden = false
+		}
 	}
 
 	// MARK: - Navigation Bar
@@ -627,24 +638,16 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 	// MARK: - Top accessory (breadcrumb) management
 	open func updateTopAccessory() {
-		// Remove existing accessory controller
-		if let accessoryVC = topAccessoryViewController {
-			accessoryVC.willMove(toParent: nil)
-			accessoryVC.view.removeFromSuperview()
-			accessoryVC.removeFromParent()
-			topAccessoryViewController = nil
-		}
-
 		topAccessoryView.isHidden = true
-		topAccessoryStackView.arrangedSubviews.forEach { view in
-			if view !== navArrowsStackView {
-				topAccessoryStackView.removeArrangedSubview(view)
-				view.removeFromSuperview()
-			}
-		}
+		topAccessoryViewController?.clientContext = nil
+		topAccessoryViewController?.location = nil
 
 		// Install a location bar when the content is a ClientItemViewController with a non-root location
 		if let itemVC = contentViewController as? ClientItemViewController, let clientContext = itemVC.clientContext {
+			guard
+				!(history.lastPushAttempt?.isSpecialTabBarItem ?? true),
+				itemVC.query?.queryLocation != nil
+			else { return }
 			var effectiveLocation: OCLocation?
 			if let loc = itemVC.location {
 				effectiveLocation = loc
@@ -655,13 +658,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			}
 
 			if let location = effectiveLocation, history.items.count > 1 {
-				let accessoryVC = ClientLocationBarController(clientContext: clientContext, location: location)
-				addChild(accessoryVC)
-				topAccessoryStackView.addArrangedSubview(accessoryVC.view)
-				accessoryVC.view.translatesAutoresizingMaskIntoConstraints = false
-				accessoryVC.didMove(toParent: self)
-				topAccessoryViewController = accessoryVC
-
+				topAccessoryViewController?.clientContext = clientContext
+				topAccessoryViewController?.location = location
 				topAccessoryView.isHidden = false
 			}
 		} else if let displayHost = contentViewController as? UIPageViewController {
@@ -669,20 +667,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			if let popup = displayHost.navigationItem.titleView as? ClientLocationPopupButton,
 			   let clientContext = popup.clientContext,
 			   let location = popup.location {
-				let accessoryVC = ClientLocationBarController(clientContext: clientContext, location: location)
-				addChild(accessoryVC)
-				topAccessoryStackView.addArrangedSubview(accessoryVC.view)
-				accessoryVC.view.translatesAutoresizingMaskIntoConstraints = false
-				accessoryVC.didMove(toParent: self)
-				topAccessoryViewController = accessoryVC
-
-				topAccessoryView.isHidden = false
-			}
-		}
-
-		// If nothing added, still keep the accessory row visible for nav arrows when history exists
-		if topAccessoryView.isHidden == true {
-			if history.canMoveBack || history.canMoveForward || history.items.count > 1 {
+				topAccessoryViewController?.clientContext = clientContext
+				topAccessoryViewController?.location = location
 				topAccessoryView.isHidden = false
 			}
 		}

@@ -402,7 +402,9 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 	func updateLocationBarViewController() {
 		if let location, let clientContext {
-			self.locationBarViewController = ClientLocationBarController(clientContext: clientContext, location: location)
+			self.locationBarViewController = ClientLocationBarController()
+			self.locationBarViewController?.location = location
+			self.locationBarViewController?.clientContext = clientContext
 		} else {
 			self.locationBarViewController = nil
 		}
