@@ -35,7 +35,7 @@ open class ClientLocationPopupButton: ThemeCSSButton {
 		self.location = location
 
 		titleLabel?.adjustsFontForContentSizeCategory = true
-		semanticContentAttribute = (effectiveUserInterfaceLayoutDirection == .leftToRight) ? .forceRightToLeft : .forceLeftToRight
+		semanticContentAttribute = .forceLeftToRight
 		setContentHuggingPriority(.defaultHigh, for: .horizontal)
 		setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 		showsMenuAsPrimaryAction = true
@@ -46,9 +46,20 @@ open class ClientLocationPopupButton: ThemeCSSButton {
 				var menuItems : [UIMenuElement] = []
 				let breadcrumbLocation = excludeLastPathComponent ? self?.location?.parent : self?.location
 
-				if let clientContext = self?.clientContext, let breadcrumbs = breadcrumbLocation?.breadcrumbs(in: clientContext, includeServerName: false, action: .reveal).reversed() {
+				if let clientContext = self?.clientContext, let breadcrumbs = breadcrumbLocation?.breadcrumbs(in: clientContext, includeServerName: false, action: .reveal) {
 					for crumbAction in breadcrumbs {
-						menuItems.append(crumbAction.uiAction(redacted: true))
+						let title = crumbAction.title.redacted()
+						var image = crumbAction.icon
+						if let location = crumbAction.properties[.location] as? OCLocation {
+							// Use outline icons (e.g., "folder") for the dropdown list
+							image = location.displayIcon(in: clientContext, forSidebar: true)
+						}
+
+						let action = UIAction(title: title, image: image, attributes: []) { _ in
+							crumbAction.run(options: nil)
+						}
+
+						menuItems.append(action)
 					}
 				}
 
@@ -67,14 +78,18 @@ open class ClientLocationPopupButton: ThemeCSSButton {
 
 	func updateButton() {
 		let title = location?.displayName(in: clientContext).redacted() ?? "-"
-		let attributedTitle = AttributedString(NSAttributedString(string: title, attributes: [.font : UIFont.systemFont(ofSize: UIFont.buttonFontSize, weight: .semibold)]))
+		let attributedTitle = AttributedString(NSAttributedString(string: title, attributes: [
+			.font : UIFont.systemFont(ofSize: UIFont.buttonFontSize, weight: .semibold),
+			.foregroundColor: Theme.shared.activeCollection.css.getColor(.fill, selectors: [.text], for: nil) ?? .white
+		]))
 		let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 0.7 * UIFont.buttonFontSize)
 		let chevronBackgroundColor = Theme.shared.activeThemeCSS.getColor(.fill, selectors: [.popupButton, .icon], for: self) ?? .lightGray
 		let chevronForegroundColor = Theme.shared.activeThemeCSS.getColor(.stroke, selectors: [.popupButton, .icon], for: self) ?? .tintColor
-		let chevronImage = UIImage(systemName: "chevron.down.circle.fill", withConfiguration: symbolConfiguration)?.applyingSymbolConfiguration(UIImage.SymbolConfiguration(paletteColors: [chevronForegroundColor, chevronBackgroundColor]))
+		let chevronImage = UIImage(systemName: "chevron.down", withConfiguration: symbolConfiguration)?.applyingSymbolConfiguration(UIImage.SymbolConfiguration(paletteColors: [chevronForegroundColor, chevronBackgroundColor]))
 
 		var buttonConfig = configuration ?? .plain()
 		buttonConfig.imagePadding = 5
+		buttonConfig.imagePlacement = .trailing
 		buttonConfig.attributedTitle = attributedTitle
 		#if swift(>=5.9) // workaround build issue on Xcode 14.2 (GitHub actions)
 		buttonConfig.titleLineBreakMode = .byTruncatingMiddle
@@ -86,5 +101,15 @@ open class ClientLocationPopupButton: ThemeCSSButton {
 
 	required public init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+
+	public override func applyThemeCollection(
+		theme: Theme,
+		collection: ThemeCollection,
+		event: ThemeEvent
+	) {
+		super.applyThemeCollection(theme: theme, collection: collection, event: event)
+
+		updateButton()
 	}
 }

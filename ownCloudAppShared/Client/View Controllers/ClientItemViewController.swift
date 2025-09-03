@@ -795,7 +795,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 	}
 
 	var useNavigationLocationBreadcrumbDropdown: Bool {
-		return UIDevice.current.userInterfaceIdiom == .pad
+		return true
 	}
 
 	var navigationLocation: OCLocation? {
