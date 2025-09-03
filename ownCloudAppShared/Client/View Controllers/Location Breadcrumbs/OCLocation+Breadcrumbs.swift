@@ -59,7 +59,7 @@ public extension OCLocation {
 		return ""
 	}
 
-	func displayIcon(in context: ClientContext?, forSidebar: Bool = false) -> UIImage? {
+	func displayIcon(in context: ClientContext?, forSidebar: Bool = false, forTopNavMenu: Bool = false) -> UIImage? {
 		switch type {
 			case .drive:
 				if let core = context?.core, let driveID, let drive = core.drive(withIdentifier: driveID, attachedOnly: false), let specialType = drive.specialType {
@@ -77,7 +77,7 @@ public extension OCLocation {
 				return OCSymbol.icon(forSymbolName: forSidebar ? "square.grid.2x2" : "square.grid.2x2.fill")
 
 			case .folder:
-				return OCSymbol.icon(forSymbolName: forSidebar ? "folder" : "folder.fill")
+				return OCSymbol.icon(forSymbolName: forSidebar || forTopNavMenu ? "folder" : "folder.fill")
 
 			case .file:
 				return OCSymbol.icon(forSymbolName: forSidebar ? "doc" : "doc.fill")
@@ -171,7 +171,7 @@ public extension OCLocation {
 		if currentLocation.type == .folder || currentLocation.type == .file {
 			while !currentLocation.isRoot, currentLocation.path != nil {
 				if currentLocation.type == .folder || currentLocation.type == .file {
-					addCrumb(title: currentLocation.displayName(in: clientContext), icon: currentLocation.displayIcon(in: clientContext), location: currentLocation)
+					addCrumb(title: currentLocation.displayName(in: clientContext), icon: currentLocation.displayIcon(in: clientContext, forTopNavMenu: true), location: currentLocation)
 				}
 
 				if let parent = currentLocation.parent {
@@ -189,8 +189,9 @@ public extension OCLocation {
 			if let driveID = self.driveID {
 				location = OCLocation(driveID: driveID, path: "/")
 			} else {
-				// avoid duplicate OC10 root breadcrumb when the server name is also included
-				effectiveIncludeServername = true // alternative would be: location = .legacyRoot - but then there's Files /and/ the server name in the breadcrumbs if includeServername already == true; so for consistency, instead of a "Files" breadcrumb the server name is shown
+				// OC10 root (no drive) → always show a "Files" crumb and never the server/login
+				addCrumb(title: OCLocalizedString("Files", nil), icon: OCLocation.legacyRoot.displayIcon(in: clientContext), location: .legacyRoot)
+				effectiveIncludeServername = false
 			}
 
 			if let location {
@@ -221,11 +222,16 @@ extension OCLocation {
 			}
 
 			var title = (breadcrumb.properties[.location] as? OCLocation) != nil ? breadcrumb.title.redacted() : breadcrumb.title
+			var icon = breadcrumb.icon
+			if let crumbLocation = breadcrumb.properties[.location] as? OCLocation {
+				// Ensure filled icons in the breadcrumb bar
+				icon = crumbLocation.displayIcon(in: clientContext, forSidebar: false)
+			}
 			if isFirst {
 				title = HCL10n.TabBar.files
 			}
 
-			let segment = SegmentViewItem(with: breadcrumb.icon, title: title, style: .plain, titleTextStyle: .footnote)
+			let segment = SegmentViewItem(with: icon, title: title, style: .plain, titleTextStyle: .footnote)
 
 			if let segmentConfigurator {
 				segmentConfigurator(breadcrumb, segment)
