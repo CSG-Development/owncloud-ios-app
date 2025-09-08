@@ -800,7 +800,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 	var navigationLocation: OCLocation? {
 		didSet {
-			if let clientContext, let navigationLocation, !navigationLocation.isRoot {
+			if let clientContext, let navigationLocation {
 				navigationItem.navigationContent.add(items: [NavigationContentItem(identifier: "navigation-location", area: .title, priority: .standard, position: .leading, titleView:
 					ClientLocationPopupButton(clientContext: clientContext, location: navigationLocation)
 				)])

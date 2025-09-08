@@ -162,6 +162,15 @@
 		991B36902E22CCB000369B7D /* HCFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B368F2E22CCAB00369B7D /* HCFieldView.swift */; };
 		991B36922E22D54B00369B7D /* HCSecureTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B36912E22D54300369B7D /* HCSecureTextFieldView.swift */; };
 		994E68E62E0D67FA00E73D69 /* HCLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994E68E22E0D67F100E73D69 /* HCLocalization.swift */; };
+		995611852E6B6C3D00FA252D /* LocationTreeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995611842E6B6C3200FA252D /* LocationTreeViewController.swift */; };
+		995611872E6B6DFD00FA252D /* LocationTreeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995611862E6B6DF600FA252D /* LocationTreeCell.swift */; };
+		9956118A2E6B6E5100FA252D /* Reusable in Frameworks */ = {isa = PBXBuildFile; productRef = 995611892E6B6E5100FA252D /* Reusable */; };
+		9956118C2E6B738E00FA252D /* LocationTreeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9956118B2E6B738000FA252D /* LocationTreeViewModel.swift */; };
+		9956118F2E6B766900FA252D /* LocationTreeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9956118E2E6B765E00FA252D /* LocationTreeRepository.swift */; };
+		995611932E6B76C200FA252D /* LocationTreeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995611922E6B76BC00FA252D /* LocationTreeItem.swift */; };
+		995611952E6B7C3500FA252D /* LocationTreeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995611942E6B7C2E00FA252D /* LocationTreeNode.swift */; };
+		9956119A2E6C5B1C00FA252D /* OCLocationTreeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995611992E6C5B1400FA252D /* OCLocationTreeRepository.swift */; };
+		9956119D2E6C707D00FA252D /* SharedOCItemsStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9956119C2E6C706D00FA252D /* SharedOCItemsStream.swift */; };
 		99743C682E1E6A1A00DB77C2 /* UIStackView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C672E1E6A1A00DB77C2 /* UIStackView+Extensions.swift */; };
 		99743C6A2E1E6DE700DB77C2 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */; };
 		99743C6C2E1E6FF800DB77C2 /* UITextField+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */; };
@@ -1258,6 +1267,14 @@
 		99492B9A2E27D30C00FCF0DB /* OnboardingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageViewController.swift; sourceTree = "<group>"; };
 		99492B9C2E27D32700FCF0DB /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
 		994E68E22E0D67F100E73D69 /* HCLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCLocalization.swift; sourceTree = "<group>"; };
+		995611842E6B6C3200FA252D /* LocationTreeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTreeViewController.swift; sourceTree = "<group>"; };
+		995611862E6B6DF600FA252D /* LocationTreeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTreeCell.swift; sourceTree = "<group>"; };
+		9956118B2E6B738000FA252D /* LocationTreeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTreeViewModel.swift; sourceTree = "<group>"; };
+		9956118E2E6B765E00FA252D /* LocationTreeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTreeRepository.swift; sourceTree = "<group>"; };
+		995611922E6B76BC00FA252D /* LocationTreeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTreeItem.swift; sourceTree = "<group>"; };
+		995611942E6B7C2E00FA252D /* LocationTreeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTreeNode.swift; sourceTree = "<group>"; };
+		995611992E6C5B1400FA252D /* OCLocationTreeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCLocationTreeRepository.swift; sourceTree = "<group>"; };
+		9956119C2E6C706D00FA252D /* SharedOCItemsStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedOCItemsStream.swift; sourceTree = "<group>"; };
 		99743C672E1E6A1A00DB77C2 /* UIStackView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Extensions.swift"; sourceTree = "<group>"; };
 		99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Combine.swift"; sourceTree = "<group>"; };
@@ -1832,6 +1849,7 @@
 				998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */,
 				DC04920B258CB06A00DEDC27 /* PocketSVG in Frameworks */,
 				99F473002E095CD600104592 /* SnapKit in Frameworks */,
+				9956118A2E6B6E5100FA252D /* Reusable in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2386,6 +2404,28 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		995611832E6B6C1500FA252D /* LocationTreePicker */ = {
+			isa = PBXGroup;
+			children = (
+				995611992E6C5B1400FA252D /* OCLocationTreeRepository.swift */,
+				995611942E6B7C2E00FA252D /* LocationTreeNode.swift */,
+				995611922E6B76BC00FA252D /* LocationTreeItem.swift */,
+				9956118E2E6B765E00FA252D /* LocationTreeRepository.swift */,
+				995611842E6B6C3200FA252D /* LocationTreeViewController.swift */,
+				9956118B2E6B738000FA252D /* LocationTreeViewModel.swift */,
+				995611862E6B6DF600FA252D /* LocationTreeCell.swift */,
+			);
+			path = LocationTreePicker;
+			sourceTree = "<group>";
+		};
+		9956119B2E6C706600FA252D /* Combine */ = {
+			isa = PBXGroup;
+			children = (
+				9956119C2E6C706D00FA252D /* SharedOCItemsStream.swift */,
+			);
+			path = Combine;
+			sourceTree = "<group>";
+		};
 		99DA8B6B2E127B1E00D726DC /* Telemetry */ = {
 			isa = PBXGroup;
 			children = (
@@ -2475,6 +2515,8 @@
 		99F472F12E095C1500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
+				9956119B2E6C706600FA252D /* Combine */,
+				995611832E6B6C1500FA252D /* LocationTreePicker */,
 				991727862E5DC3F100AD9C54 /* RunGate.swift */,
 				9917277C2E571A7700AD9C54 /* HCBytesFormatter.swift */,
 				99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */,
@@ -4202,6 +4244,7 @@
 				DC04920A258CB06A00DEDC27 /* PocketSVG */,
 				DC9B4FC929413B480037F8F8 /* Down */,
 				99F472FF2E095CD600104592 /* SnapKit */,
+				995611892E6B6E5100FA252D /* Reusable */,
 			);
 			productName = ownCloudAppShared;
 			productReference = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */;
@@ -4456,6 +4499,7 @@
 				DCEAF08B28084B3800980B6D /* XCRemoteSwiftPackageReference "Down" */,
 				99FC321C2DE99A1C0011D066 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				998CC82D2DF97A9700BDA4CB /* XCRemoteSwiftPackageReference "SnapKit" */,
+				995611882E6B6E5100FA252D /* XCRemoteSwiftPackageReference "Reusable" */,
 			);
 			productRefGroup = 233BDE9D204FEFE500C06732 /* Products */;
 			projectDirPath = "";
@@ -4958,6 +5002,7 @@
 				99139B762E438B860044889B /* UIStackView+Extensions.swift in Sources */,
 				99139B772E438B860044889B /* UIView+Extensions.swift in Sources */,
 				DC825E352A05083C00BFF393 /* GitInfo.swift in Sources */,
+				995611952E6B7C3500FA252D /* LocationTreeNode.swift in Sources */,
 				DC921A042966DFDC00F538EE /* OCItem+UniversalItemListCellContentProvider.swift in Sources */,
 				DCB6B1E6292B6BE500D27573 /* OCLocation+Interactions.swift in Sources */,
 				9915B3652E215B8D0096765C /* HCBorderView.swift in Sources */,
@@ -5021,6 +5066,7 @@
 				DC0A356D24C0E42200FB58FC /* PasscodeViewController.swift in Sources */,
 				DC24B2AB25BA316D005783E2 /* Branding+App.swift in Sources */,
 				991B36902E22CCB000369B7D /* HCFieldView.swift in Sources */,
+				995611872E6B6DFD00FA252D /* LocationTreeCell.swift in Sources */,
 				0234EF0E2515138B00AE921A /* PasscodeSetupCoordinator.swift in Sources */,
 				DCB32FE829E704D600BFF393 /* SelectionCheckmarkButton.swift in Sources */,
 				DCA35DA724D309B600DBE2B0 /* OCFileProviderServiceSession+UploadByFileProvider.swift in Sources */,
@@ -5099,9 +5145,11 @@
 				DC0A358524C0E44600FB58FC /* ThemeResource.swift in Sources */,
 				99DF68722E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift in Sources */,
 				DC99154C28E636A500DA0AB8 /* SegmentView.swift in Sources */,
+				995611852E6B6C3D00FA252D /* LocationTreeViewController.swift in Sources */,
 				DCD864122811FC5700CA6631 /* GradientView.swift in Sources */,
 				DC99154E28E6371500DA0AB8 /* SegmentViewItem.swift in Sources */,
 				99743C682E1E6A1A00DB77C2 /* UIStackView+Extensions.swift in Sources */,
+				9956118F2E6B766900FA252D /* LocationTreeRepository.swift in Sources */,
 				DCFC9ED528002F33005D9144 /* CollectionViewCellConfiguration.swift in Sources */,
 				DC0074112D52685000C1C6F7 /* OCDrive+ManagementActions.swift in Sources */,
 				DCBAEADB29A3674700BFF393 /* OCItemPolicy+UniversalItemListCellContentProvider.swift in Sources */,
@@ -5129,6 +5177,7 @@
 				DC24E10F28B7D2B9002E4F5B /* PopupButtonController.swift in Sources */,
 				DCE4E43C24C19B660051722F /* FrameViewController.swift in Sources */,
 				DC0A35A124C1091400FB58FC /* UserInterfaceContext.swift in Sources */,
+				995611932E6B76C200FA252D /* LocationTreeItem.swift in Sources */,
 				DC0A357824C0E43700FB58FC /* CardPresentationController.swift in Sources */,
 				393D2B3F23FEB6DC00ED4F8C /* DispatchQueueTools.swift in Sources */,
 				991727792E55D87300AD9C54 /* HCSeparatorView.swift in Sources */,
@@ -5148,6 +5197,7 @@
 				DCB1B89F29C7378200BFF393 /* ThemeCSS.swift in Sources */,
 				99743C6C2E1E6FF800DB77C2 /* UITextField+Combine.swift in Sources */,
 				DC0A357C24C0E43C00FB58FC /* ThemeCollection.swift in Sources */,
+				9956119A2E6C5B1C00FA252D /* OCLocationTreeRepository.swift in Sources */,
 				DC28F828294BB5ED00AC4013 /* SortedItemDataSource.swift in Sources */,
 				DCA05A602AE6603E00BFF393 /* ClientLocationPopupButton.swift in Sources */,
 				9917277B2E55F28F00AD9C54 /* HCSidebarFooterView.swift in Sources */,
@@ -5162,6 +5212,7 @@
 				DCB1B99729D1813D00BFF393 /* ThemeCSSTextField.swift in Sources */,
 				DCA2EDE4279B1789001F04E6 /* ResourceItemIcon.swift in Sources */,
 				DC8E99E8297F3BA700594697 /* ActionTapGestureRecognizer.swift in Sources */,
+				9956119D2E6C707D00FA252D /* SharedOCItemsStream.swift in Sources */,
 				99DA8B692E0EB4B700D726DC /* HCNavigationLogoView.swift in Sources */,
 				DCB5D56B2861BEBE004AF425 /* SearchViewController.swift in Sources */,
 				DCC73F2E2B86BC960009A210 /* PasswordComposerViewController.swift in Sources */,
@@ -5211,6 +5262,7 @@
 				DC46F3CE2844A92A00038880 /* ActionCell.swift in Sources */,
 				DCE4E43724C19A910051722F /* LicenseRequirements.swift in Sources */,
 				DCE4E43A24C19ADC0051722F /* MoreViewHeader.swift in Sources */,
+				9956118C2E6B738E00FA252D /* LocationTreeViewModel.swift in Sources */,
 				DC298C9C2934D47D009FA87F /* ThemeCertificateViewController.swift in Sources */,
 				399EA74625E6575B00B6FF11 /* NotificationHUDViewController.swift in Sources */,
 				DC0A357B24C0E43C00FB58FC /* Theme.swift in Sources */,
@@ -6591,6 +6643,14 @@
 				version = 1.12.0;
 			};
 		};
+		995611882E6B6E5100FA252D /* XCRemoteSwiftPackageReference "Reusable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AliSoftware/Reusable";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.1.2;
+			};
+		};
 		998CC82D2DF97A9700BDA4CB /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit";
@@ -6643,6 +6703,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 024F3A1F24A3AB410083E11E /* XCRemoteSwiftPackageReference "plcrashreporter" */;
 			productName = CrashReporter;
+		};
+		995611892E6B6E5100FA252D /* Reusable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 995611882E6B6E5100FA252D /* XCRemoteSwiftPackageReference "Reusable" */;
+			productName = Reusable;
 		};
 		99F472FF2E095CD600104592 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
