@@ -125,6 +125,10 @@ public enum HCColor {
 		public static func cardBackground(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#262729FF") : UIColor(hexString: "#FFFFFFFF")
 		}
+		// Structure/White Background
+		public static func whiteBackground(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#000000FF") : UIColor(hexString: "#FFFFFFFF")
+		}
 	}
 
 	public enum Constant {

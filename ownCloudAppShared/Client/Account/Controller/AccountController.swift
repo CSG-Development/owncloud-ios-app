@@ -107,6 +107,7 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 
 	// Observe bookmark updates (e.g., capabilities toggling after connect)
 	private var bookmarkUpdatedObserver: Any?
+	private var treeRepository: OCLocationTreeRepository?
 
 	public init(bookmark: OCBookmark, context: ClientContext, configuration: Configuration) {
 		let accountConnection = AccountConnectionPool.shared.connection(for: bookmark)
@@ -116,8 +117,7 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 			context.progressSummarizer = accountConnection?.progressSummarizer
 			context.actionProgressHandlerProvider = accountConnection
 			context.inlineMessageCenter = accountConnection
-		})
-
+		})		
 		self.configuration = configuration
 
 		itemsDataSource = OCDataSourceComposition(sources: [])
