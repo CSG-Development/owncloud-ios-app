@@ -801,9 +801,37 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 	var navigationLocation: OCLocation? {
 		didSet {
 			if let clientContext, let navigationLocation {
-				navigationItem.navigationContent.add(items: [NavigationContentItem(identifier: "navigation-location", area: .title, priority: .standard, position: .leading, titleView:
-					ClientLocationPopupButton(clientContext: clientContext, location: navigationLocation)
-				)])
+				if navigationLocation.isRoot {
+					navigationItem.navigationContent.add(items: [
+						NavigationContentItem(
+							identifier: "navigation-location",
+							area: .title,
+							priority: .standard,
+							position: .leading,
+							titleView: ClientLocationPopupButton(
+								clientContext: clientContext,
+								location: navigationLocation
+							)
+						)
+					])
+				} else {
+					let navigationTitleLabel = ThemeCSSLabel(withSelectors: [.title])
+					navigationTitleLabel.font = UIFont.systemFont(ofSize: UIFont.buttonFontSize, weight: .semibold)
+					navigationTitleLabel.lineBreakMode = .byTruncatingMiddle
+					navigationTitleLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+					navigationTitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+					navigationTitleLabel.text = navigationLocation.displayName(in: clientContext)
+
+					navigationItem.navigationContent.add(items: [
+						NavigationContentItem(
+							identifier: "navigation-location",
+							area: .title,
+							priority: .standard,
+							position: .middle,
+							titleView: navigationTitleLabel
+						)
+					])
+				}
 			} else {
 				navigationItem.navigationContent.remove(itemsWithIdentifier: "navigation-location")
 			}
