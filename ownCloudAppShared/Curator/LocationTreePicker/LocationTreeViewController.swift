@@ -163,4 +163,13 @@ final class LocationTreeViewController: UIViewController, UITableViewDelegate {
 		let targetHeight = min(maxHeight, max(44, contentHeight))
 		preferredContentSize = CGSize(width: targetWidth, height: targetHeight)
 	}
+
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		super.traitCollectionDidChange(previousTraitCollection)
+		guard let prev = previousTraitCollection else { return }
+		let sizeClassChanged = (prev.horizontalSizeClass != traitCollection.horizontalSizeClass) || (prev.verticalSizeClass != traitCollection.verticalSizeClass)
+		if sizeClassChanged {
+			presentingViewController?.dismiss(animated: false, completion: nil)
+		}
+	}
 }
