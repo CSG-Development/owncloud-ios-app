@@ -56,6 +56,7 @@ final class LocationTreeCell: ThemeTableViewCell, Reusable {
 		titleLabel.translatesAutoresizingMaskIntoConstraints = false
 		expandButton.translatesAutoresizingMaskIntoConstraints = false
 		activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+		titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
 		iconLeading = iconView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
 
