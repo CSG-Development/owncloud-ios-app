@@ -143,7 +143,7 @@ class CreateShortcutFileViewController: CollectionViewController {
 		// Target actions
 		let targetSection = CollectionViewSection(identifier: "target", dataSource: targetSectionDatasource, cellStyle: managementCellStyle, cellLayout: .list(appearance: .insetGrouped, contentInsets: .insetGroupedSectionInsets), clientContext: controllerContext)
 		targetSection.boundarySupplementaryItems = [
-			.mediumTitle(OCLocalizedString("URL of webpage or item", nil))
+			.smallTitle(OCLocalizedString("URL of webpage or item", nil))
 		]
 
 		sections.append(targetSection)
@@ -166,14 +166,14 @@ class CreateShortcutFileViewController: CollectionViewController {
 		let nameSectionDatasource = OCDataSourceArray(items: [nameSpacerView])
 		let nameSection = CollectionViewSection(identifier: "name", dataSource: nameSectionDatasource, cellStyle: managementCellStyle, cellLayout: .list(appearance: .insetGrouped, contentInsets: .insetGroupedSectionInsets), clientContext: controllerContext)
 		nameSection.boundarySupplementaryItems = [
-			.mediumTitle(OCLocalizedString("Name", nil))
+			.smallTitle(OCLocalizedString("Name", nil))
 		]
 
 		sections.append(nameSection)
 
 		super.init(context: controllerContext, sections: sections, useStackViewRoot: true, compressForKeyboard: true)
 
-		self.cssSelector = .grouped
+		self.cssSelector = .insetGrouped
 
 		targetSectionDatasource.setVersionedItems([targetFieldSpacerView, pickAnItemAction])
 
@@ -217,6 +217,16 @@ class CreateShortcutFileViewController: CollectionViewController {
 		}), for: .allEditingEvents)
 
 		updateState()
+	}
+
+	public override func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
+		super.applyThemeCollection(theme: theme, collection: collection, event: event)
+
+		view.backgroundColor = collection.css.getColor(.fill, selectors: [.grouped, .collection], for: nil)
+
+		if let color = collection.css.getColor(.fill, selectors: [.separator], for: nil) {
+			oc_ensureTopNavigationSeparator(color: color)
+		}
 	}
 
 	func pickAnItem() {

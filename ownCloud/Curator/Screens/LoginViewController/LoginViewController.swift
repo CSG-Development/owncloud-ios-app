@@ -130,6 +130,10 @@ final public class LoginViewController: UIViewController, Themeable {
 		passwordTextField.textField.text = viewModel.password
 	}
 
+	deinit {
+		Theme.shared.unregister(client: self)
+	}
+
 	public required init?(coder: NSCoder) {
 		fatalError("Not implemented")
 	}

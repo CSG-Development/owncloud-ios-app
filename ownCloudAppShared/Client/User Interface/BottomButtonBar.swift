@@ -180,14 +180,18 @@ open class BottomButtonBar: ThemeCSSView {
 			let leadingButtonAnchor = hasAlternativeButton ? alternativeButton.leadingAnchor : (hasCancelButton ? cancelButton.leadingAnchor : selectButton.leadingAnchor)
 			let leadingPromptAnchor = hasAlternativeButton && hasCancelButton ? cancelButton.trailingAnchor : safeAreaLayoutGuide.leadingAnchor
 
+			let bottomConstraint = UIDevice.current.isIpad ?
+				selectButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20) :
+				selectButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
+
 			constraints.append(contentsOf: [
 				promptLabel.leadingAnchor.constraint(equalTo: leadingPromptAnchor, constant: 20),
 				promptLabel.trailingAnchor.constraint(lessThanOrEqualTo: leadingButtonAnchor, constant: -20),
 				promptLabel.centerYAnchor.constraint(equalTo: selectButton.centerYAnchor),
 
 				selectButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -20),
-				selectButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-				selectButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
+				selectButton.topAnchor.constraint(equalTo: topAnchor, constant: 20),
+				bottomConstraint
 			])
 
 			if hasCancelButton {
@@ -207,15 +211,20 @@ open class BottomButtonBar: ThemeCSSView {
 			// Place promptLabel above buttons:
 			// [Prompt]
 			// [Cancel] ... (Alternative) [Select]
+
+			let bottomConstraint = UIDevice.current.isIpad ?
+				selectButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20) :
+				selectButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
+
 			constraints.append(contentsOf: [
 				promptLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 20),
 				promptLabel.trailingAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.trailingAnchor, constant: -20),
-				promptLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+				promptLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
 
 				selectButton.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 20).with(priority: .defaultHigh),
 				selectButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -20),
 				selectButton.topAnchor.constraint(equalTo: promptLabel.bottomAnchor, constant: 8),
-				selectButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
+				bottomConstraint
 			])
 
 			if hasCancelButton {

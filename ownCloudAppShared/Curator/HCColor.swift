@@ -59,6 +59,11 @@ public enum HCColor {
 			isDark ? UIColor(hexString: "#FFFFFFDE") : UIColor(hexString: "#000000DE")
 		}
 
+		// Content/Text secondary
+		public static func textSecondary(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#FFFFFFB2") : UIColor(hexString: "#00000099")
+		}
+
 		// Content/Labels
 		public static func labels(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#FFFFFFCC") : UIColor(hexString: "#000000CC")

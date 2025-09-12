@@ -42,6 +42,7 @@ open class SharingViewController: CollectionViewController {
 			itemSectionDatasource.setVersionedItems([item])
 		}
 	}
+
 	public var itemIsDriveRoot: Bool
 
 	var itemSharesQuery: OCShareQuery?
@@ -50,6 +51,8 @@ open class SharingViewController: CollectionViewController {
 
 	private var recipientsSubscription: OCDataSourceSubscription?
 	private var recipientsIdentifiers: [String]?
+
+	private var navigationSeparatorView: UIView?
 
 	public init(clientContext: ClientContext, item: OCItem) {
 		var sections: [CollectionViewSection] = []
@@ -63,7 +66,7 @@ open class SharingViewController: CollectionViewController {
 		})
 
 		itemSectionDatasource = OCDataSourceArray(items: [item])
-		itemSection = CollectionViewSection(identifier: "item", dataSource: itemSectionDatasource, cellStyle: .init(with: .header), cellLayout: .list(appearance: .plain, contentInsets: NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)), clientContext: itemSectionContext)
+		itemSection = CollectionViewSection(identifier: "item", dataSource: itemSectionDatasource, cellStyle: .init(with: .header), cellLayout: .list(appearance: .plain, contentInsets: .zero), clientContext: itemSectionContext)
 		sections.append(itemSection)
 
 		// Management section cell style
@@ -114,7 +117,7 @@ open class SharingViewController: CollectionViewController {
 
 			recipientsSection = CollectionViewSection(identifier: "recipients", dataSource: recipientsSectionDatasource, cellStyle: managementCellStyle, cellLayout: .list(appearance: .insetGrouped, contentInsets: .insetGroupedSectionInsets), clientContext: managementClientContext)
 			recipientsSection?.boundarySupplementaryItems = [
-				.mediumTitle(itemIsDriveRoot ? OCLocalizedString("Members", nil) : OCLocalizedString("Shared with", nil))
+				.smallTitle(itemIsDriveRoot ? OCLocalizedString("Members", nil) : OCLocalizedString("Shared with", nil))
 			]
 			sections.append(recipientsSection!)
 		}
@@ -156,7 +159,7 @@ open class SharingViewController: CollectionViewController {
 
 				linksSection = CollectionViewSection(identifier: "links", dataSource: linksSectionDatasource, cellStyle: managementCellStyle, cellLayout: .list(appearance: .insetGrouped, contentInsets: .insetGroupedSectionInsets), clientContext: managementClientContext)
 				linksSection?.boundarySupplementaryItems = [
-					.mediumTitle(OCLocalizedString("Public Links", nil))
+					.smallTitle(OCLocalizedString("Public Links", nil))
 				]
 				linksSection?.hideIfEmptyDataSource = linksSectionDatasource
 				sections.append(linksSection!)
@@ -175,7 +178,7 @@ open class SharingViewController: CollectionViewController {
 		}
 		managementCellStyle.options[.sharedItemProvider] = itemProvider
 
-		self.cssSelector = .grouped
+		self.cssSelector = .insetGrouped
 
 		if let location = item.location {
 			itemTracker = clientContext.core?.trackItem(at: location, trackingHandler: { [weak self] error, latestItem, initial in
@@ -186,14 +189,14 @@ open class SharingViewController: CollectionViewController {
 		}
 
 		addRecipientDataSource?.setVersionedItems([
-			OCAction(title: OCLocalizedString("Invite", nil), icon: OCSymbol.icon(forSymbolName: "plus.circle.fill"), action: { [weak self] action, options, completion in
+			OCAction(title: OCLocalizedString("Invite", nil), icon: UIImage(named: "plus-in-circle", in: Bundle.sharedAppBundle, with: nil), action: { [weak self] action, options, completion in
 				self?.createShare(type: .share)
 				completion(nil)
 			})
 		])
 
 		var linkActions = [
-			OCAction(title: OCLocalizedString("Create link", nil), icon: OCSymbol.icon(forSymbolName: "plus.circle.fill"), action: { [weak self] (action, options, completion) in
+			OCAction(title: OCLocalizedString("Create link", nil), icon: UIImage(named: "plus-in-circle", in: Bundle.sharedAppBundle, with: nil), action: { [weak self] (action, options, completion) in
 				self?.createShare(type: .link)
 				completion(nil)
 			})
@@ -201,7 +204,7 @@ open class SharingViewController: CollectionViewController {
 
 		if managementClientContext.core?.connection.capabilities?.supportsPrivateLinks == true {
 			linkActions.append(
-				OCAction(title: OCLocalizedString("Copy Private Link", nil), icon: OCSymbol.icon(forSymbolName: "list.clipboard"), action: { [weak self] _, _, completion in
+				OCAction(title: OCLocalizedString("Copy Private Link", nil), icon: UIImage(named: "copy-clipboard", in: Bundle.sharedAppBundle, with: nil), action: { [weak self] _, _, completion in
 					if let item = self?.item, let core = self?.clientContext?.core {
 						core.retrievePrivateLink(for: item, completionHandler: { (error, url) in
 							guard let url = url else { return }
@@ -362,7 +365,31 @@ open class SharingViewController: CollectionViewController {
 		})
 
 		let navigationController = ThemeNavigationController(rootViewController: shareViewController)
+		navigationController.sheetPresentationController?.preferredCornerRadius = 28
+		if UIDevice.current.isIpad {
+			navigationController.modalPresentationStyle = .pageSheet
+			navigationController.preferredContentSize = CGSize(width: 704, height: 944)
+		}
 		self.present(navigationController, animated: true)
+	}
+
+	public override func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
+		super.applyThemeCollection(theme: theme, collection: collection, event: event)
+
+		if let titleLabel = navigationItem.titleLabel {
+			titleLabel.textColor = collection.css.getColor(.stroke, selectors: [.navigationBar], for: nil)
+			titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+		}
+
+		let buttonTint = collection.css.getColor(.fill, selectors: [.navigationBar, .button], for: nil)
+		navigationItem.rightBarButtonItem?.tintColor = buttonTint
+		navigationItem.leftBarButtonItems?.forEach { $0.tintColor = buttonTint }
+		view.backgroundColor = collection.css.getColor(.fill, selectors: [.grouped, .collection], for: nil)
+
+		// Add/update 1px separator line under the navigation bar
+		if let color = collection.css.getColor(.fill, selectors: [.separator], for: nil) {
+			oc_ensureTopNavigationSeparator(color: color)
+		}
 	}
 
 	var allowedPermissionActions: [OCShareActionID]? {

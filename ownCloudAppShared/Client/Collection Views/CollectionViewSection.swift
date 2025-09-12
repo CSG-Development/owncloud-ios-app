@@ -67,6 +67,14 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 
 					config.backgroundColor = themedBackgroundColor
 
+					// Apply themed separator color
+					if #available(iOS 15.0, *), let collectionViewController = collectionViewController,
+					   let separatorColor = css.getColor(.fill, selectors: [.separator], for: collectionViewController) {
+						var separatorConfig = UIListSeparatorConfiguration(listAppearance: listAppearance)
+						separatorConfig.color = separatorColor
+						config.separatorConfiguration = separatorConfig
+					}
+
 					// Leading and trailing swipe actions
 					if let collectionViewController = collectionViewController {
 						config.leadingSwipeActionsConfigurationProvider = { [weak collectionViewController] (_ indexPath: IndexPath) in

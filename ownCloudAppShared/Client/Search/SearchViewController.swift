@@ -36,6 +36,7 @@ public protocol SearchViewControllerHost: AnyObject {
 open class SearchViewController: UIViewController, UITextFieldDelegate, Themeable {
 	private var resultsSourceObservation: NSKeyValueObservation?
 	private var resultsCellStyleObservation: NSKeyValueObservation?
+	private weak var cancelToolbarButton: UIBarButtonItem?
 
 	open var clientContext: ClientContext
 
@@ -151,6 +152,7 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 
 	// MARK: - Views
 	var searchField: UISearchTextField = UISearchTextField()
+	var searchContainerView: UIView = UIView()
 	var scopePopup: PopupButtonController?
 	var scopeViewController: UIViewController? {
 		willSet {
@@ -184,8 +186,8 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 		scopePopup?.button.configuration = scopePopupButtonConfiguration
 
 		NSLayoutConstraint.activate([
-			rootView.heightAnchor.constraint(equalToConstant: 10).with(priority: .defaultHigh), // Shrink to 10 points height if no scopeViewController is set
-			searchField.widthAnchor.constraint(equalToConstant: 10000).with(priority: .defaultHigh) // maximize width of searchField in UINavigationBar
+			rootView.heightAnchor.constraint(equalToConstant: 0).with(priority: .defaultHigh), // Shrink to 10 points height if no scopeViewController is set
+			searchContainerView.widthAnchor.constraint(equalToConstant: 10000).with(priority: .defaultHigh) // maximize width of container in UINavigationBar
 		])
 
 		view = rootView
@@ -197,6 +199,20 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 		searchField.translatesAutoresizingMaskIntoConstraints = false
 		searchField.addTarget(self, action: #selector(searchFieldContentsChanged), for: .editingChanged)
 		searchField.delegate = self
+		// Ensure the text field itself has no background; we render background in the container
+		searchField.backgroundColor = .clear
+		searchField.borderStyle = .none
+
+		// Prepare container for background and vertical padding in navigation bar
+		searchContainerView.translatesAutoresizingMaskIntoConstraints = false
+		searchContainerView.addSubview(searchField)
+		NSLayoutConstraint.activate([
+			searchField.leadingAnchor.constraint(equalTo: searchContainerView.leadingAnchor),
+			searchField.trailingAnchor.constraint(equalTo: searchContainerView.trailingAnchor),
+			searchField.topAnchor.constraint(equalTo: searchContainerView.topAnchor),
+			searchField.bottomAnchor.constraint(equalTo: searchContainerView.bottomAnchor),
+			searchContainerView.heightAnchor.constraint(equalToConstant: 36)
+		])
 
 		if let scopesCount = scopes?.count, scopesCount > 1 {
 			searchField.leftView = scopePopup?.button
@@ -213,8 +229,14 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 		}
 	}
 
+	private var _registered = false
 	open override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+
+		if !_registered {
+			_registered = true
+			Theme.shared.register(client: self, applyImmediately: true)
+		}
 
 		if let _defaultScope {
 			activeScope = _defaultScope
@@ -222,14 +244,8 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 		}
 	}
 
-	private var _registered = false
 	open override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
-
-		if !_registered {
-			_registered = true
-			Theme.shared.register(client: self, applyImmediately: true)
-		}
 
 		OnMainThread {
 			self.searchField.becomeFirstResponder()
@@ -258,14 +274,15 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 				navigationContentItems.append(NavigationContentItem(identifier: "search-left", area: .left, priority: .highest, position: .trailing, items: [ ]))
 			}
 
-			// - add search field
-			navigationContentItems.append(NavigationContentItem(identifier: "search-field", area: .title, priority: .highest, position: .leading, titleView: searchField))
+			// - add search field (container provides background + 8pt vertical padding)
+			navigationContentItems.append(NavigationContentItem(identifier: "search-field", area: .title, priority: .highest, position: .leading, titleView: searchContainerView))
 
 			// - add X (cancel) button
 			if showCancelButton {
 				// Alternative implementation as a standard "Cancel" button, more convention compliant, but needs more space: let cancelToolbarButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(endSearch))
 				let cancelToolbarButton = UIBarButtonItem(image: OCSymbol.icon(forSymbolName: "xmark"), style: .done, target: self, action: #selector(endSearch))
 				navigationContentItems.append(NavigationContentItem(identifier: "search-right", area: .right, priority: .highest, position: .trailing, items: [ cancelToolbarButton ]))
+				self.cancelToolbarButton = cancelToolbarButton
 			}
 
 			// Overwrite content
@@ -463,7 +480,33 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 
 	// MARK: - Theme support
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		searchField.applyThemeCollection(collection)
+		// Keep the search field transparent so only the container provides background
+		searchField.backgroundColor = .clear
+
+		// Left icon tint (magnifier) to gray2
+		if let glassIconView = searchField.leftView as? UIImageView {
+			glassIconView.image = glassIconView.image?.withRenderingMode(.alwaysTemplate)
+			glassIconView.tintColor = collection.css.getColor(.fill, selectors: [.secondaryText], for: nil)
+		} else if let leftView = searchField.leftView {
+			if let imageView = leftView.subviews.compactMap({ $0 as? UIImageView }).first {
+				imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
+				imageView.tintColor = collection.css.getColor(.fill, selectors: [.secondaryText], for: nil)
+			}
+		}
+
+		// Placeholder color to gray3
+		if let placeholderString = searchField.placeholder {
+			searchField.attributedPlaceholder = NSAttributedString(string: placeholderString, attributes: [.foregroundColor : HCColor.Content.gray3])
+		}
+
+		// Container background color
+		searchContainerView.backgroundColor = collection.css.getColor(.fill, selectors: [.insetGrouped, .collection], for: nil)
+		searchContainerView.layer.cornerRadius = 10
+		searchContainerView.layer.masksToBounds = true
+		searchContainerView.backgroundColor = collection.css.getColor(.fill, selectors: [.insetGrouped, .collection], for: nil)
+
+		view.backgroundColor = collection.css.getColor(.fill, selectors: [.insetGrouped, .collection], for: nil)
+		cancelToolbarButton?.tintColor = collection.css.getColor(.fill, selectors: [.navigationBar, .button], for: nil)
 	}
 }
 

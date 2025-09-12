@@ -87,7 +87,7 @@ class DeleteAction : Action {
 			with: name,
 			message: message,
 			destructiveLabel: OCLocalizedString("Delete", nil),
-			preferredStyle: UIDevice.current.isIpad ? UIAlertController.Style.alert : UIAlertController.Style.actionSheet,
+			preferredStyle: UIAlertController.Style.alert,
 			destructiveAction: {
 				deleteItemAndPublishProgress(items)
 		})

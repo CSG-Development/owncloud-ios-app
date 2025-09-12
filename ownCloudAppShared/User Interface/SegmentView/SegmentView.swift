@@ -105,6 +105,7 @@ public class SegmentView: ThemeView, ThemeCSSAutoSelector, ThemeCSSChangeObserve
 		if let lastSegmentView = (itemViews.last as? SegmentViewItemView) {
 			// If the last view is a label, allow it to stretch and fill the space
 			lastSegmentView.titleViewHugging = .defaultHigh
+			lastSegmentView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 		}
 
 		// Scroll View
@@ -131,16 +132,16 @@ public class SegmentView: ThemeView, ThemeCSSAutoSelector, ThemeCSSChangeObserve
 				case .none: break
 
 				case .clipTail:
-					constraintSet.lastTrailingOrBottomConstraint?.priority = .defaultHigh
+					constraintSet.lastTrailingOrBottomConstraint?.priority = .required
 
 				case .truncateHead:
 					if !self.isScrollable {
-						constraintSet.firstLeadingOrTopConstraint?.priority = .defaultHigh
+						constraintSet.firstLeadingOrTopConstraint?.priority = .required
 					}
 
 				case .truncateTail:
 					if !self.isScrollable {
-						constraintSet.lastTrailingOrBottomConstraint?.priority = .defaultHigh
+						constraintSet.lastTrailingOrBottomConstraint?.priority = .required
 					}
 			}
 			return constraintSet

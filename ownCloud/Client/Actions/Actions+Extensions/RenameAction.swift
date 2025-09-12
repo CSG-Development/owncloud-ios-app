@@ -87,7 +87,11 @@ class RenameAction : Action {
 		renameViewController.navigationItem.title = OCLocalizedString("Rename", nil)
 
 		let navigationController = ThemeNavigationController(rootViewController: renameViewController)
-		navigationController.modalPresentationStyle = .formSheet
+		navigationController.sheetPresentationController?.preferredCornerRadius = 28
+		if UIDevice.current.isIpad {
+			navigationController.modalPresentationStyle = .pageSheet
+			navigationController.preferredContentSize = CGSize(width: 704, height: 944)
+		}
 
 		viewController.present(navigationController, animated: true)
 	}
