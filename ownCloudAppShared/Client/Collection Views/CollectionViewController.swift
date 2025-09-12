@@ -1288,7 +1288,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 	}
 
 	// MARK: - Themeing
-	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
+	open func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		if event != .initial {
 			updateCellLayout(animated: false)
 		}

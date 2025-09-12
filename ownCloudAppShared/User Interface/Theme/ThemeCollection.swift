@@ -462,8 +462,9 @@ public class ThemeCollection : NSObject {
 			// - Navigation Bar
 			ThemeCSSRecord(selectors: [.navigationBar], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.navigationBar, .label], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
-			ThemeCSSRecord(selectors: [.navigationBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
-
+			ThemeCSSRecord(selectors: [.navigationBar, .label, .title], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.navigationBar], property: .fill, value: HCColor.Structure.cardBackground(isDark)),
+			ThemeCSSRecord(selectors: [.navigationBar, .button], property: .fill, value: HCColor.Interaction.primarySolidNormal(isDark)),
 			ThemeCSSRecord(selectors: [.navigationBar, .popupButton, .icon],property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.navigationBar, .popupButton, .icon],property: .fill,   value: UIColor(white: 0.5, alpha: 0.3)),
 
@@ -510,14 +511,19 @@ public class ThemeCollection : NSObject {
 
 			ThemeCSSRecord(selectors: [.collection, .selected, .selectionCheckmark], 		property: .stroke,   value: UIColor.white),
 
-			ThemeCSSRecord(selectors: [.grouped, .collection],  	   			property: .fill,   value: groupedCollectionBackgroundColor),
-			ThemeCSSRecord(selectors: [.insetGrouped, .collection],    			property: .fill,   value: groupedCollectionBackgroundColor),
-			ThemeCSSRecord(selectors: [.grouped, .collection, .sectionHeader],  		property: .fill,   value: groupedCollectionBackgroundColor),
-			ThemeCSSRecord(selectors: [.grouped, .collection, .sectionHeader, .cell],	property: .fill,   value: groupedCollectionBackgroundColor),
-			ThemeCSSRecord(selectors: [.grouped, .collection, .cell],  			property: .fill,   value: groupedCellStateSet.regular.backgroundColor),
+			ThemeCSSRecord(selectors: [.grouped, .collection],  	   			property: .fill,   value: HCColor.Structure.appBackground(isDark)),
+			ThemeCSSRecord(selectors: [.insetGrouped, .collection],    			property: .fill,   value: HCColor.Structure.appBackground(isDark)),
+			ThemeCSSRecord(selectors: [.grouped, .collection, .sectionHeader],  		property: .fill,   value: HCColor.Structure.appBackground(isDark)),
+			ThemeCSSRecord(selectors: [.grouped, .collection, .sectionHeader, .cell],	property: .fill,   value: UIColor.clear),
+			ThemeCSSRecord(selectors: [.grouped, .collection, .cell],  			property: .fill,   value: HCColor.Structure.appBackground(isDark)),
 			ThemeCSSRecord(selectors: [.grouped, .collection, .cell, .action],  		property: .fill,   value: cellStateSet.regular.backgroundColor),
-			ThemeCSSRecord(selectors: [.insetGrouped, .collection, .sectionHeader], 	property: .fill,   value: groupedCollectionBackgroundColor),
-			ThemeCSSRecord(selectors: [.insetGrouped, .collection, .cell, .action], 	property: .fill,   value: cellStateSet.regular.backgroundColor),
+			ThemeCSSRecord(selectors: [.insetGrouped, .collection, .sectionHeader], 	property: .fill,   value: HCColor.Structure.appBackground(isDark)),
+			ThemeCSSRecord(selectors: [.insetGrouped, .collection, .sectionHeader, .cell, .title],	property: .fill,   value: UIColor.clear),
+			ThemeCSSRecord(selectors: [.insetGrouped, .collection, .sectionHeader, .cell, .mediumTitle],	property: .fill,   value: UIColor.clear),
+			ThemeCSSRecord(selectors: [.insetGrouped, .collection, .sectionHeader, .cell, .smallTitle],	property: .fill,   value: UIColor.clear),
+
+			ThemeCSSRecord(selectors: [.insetGrouped, .collection, .cell, .action], 	property: .fill,   value: HCColor.Structure.cardBackground(isDark)),
+			ThemeCSSRecord(selectors: [.insetGrouped, .collection, .cell], property: .fill,   value: HCColor.Structure.cardBackground(isDark)),
 
 			// - Table View
 			ThemeCSSRecord(selectors: [.table],     	    	   	property: .fill,   value: cellStateSet.regular.backgroundColor),
@@ -597,10 +603,13 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.tertiary],				property: .fill, value: tertiaryBackgroundColor),
 
 			// - Text Field
-			ThemeCSSRecord(selectors: [.textField],				property: .fill,   value: collectionBackgroundColor), // Background color
-			ThemeCSSRecord(selectors: [.textField, .label],			property: .stroke, value: cellSet.labelColor), // Text color
+			ThemeCSSRecord(selectors: [.textField],				property: .fill,   value: HCColor.Structure
+				.appBackground(isDark)), // Background color
+			ThemeCSSRecord(selectors: [.textField],				property: .stroke, value: HCColor.Content.textSecondary(isDark)), // Tint/caret color for generic text fields
+			ThemeCSSRecord(selectors: [.textField, .label],			property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.textField, .disabled, .label],	property: .stroke, value: cellSet.secondaryLabelColor), // Disabled text color
 			ThemeCSSRecord(selectors: [.textField, .placeholder],		property: .stroke, value: placeholderTextColor), // Text field placeholder
+			ThemeCSSRecord(selectors: [.textField, .secondary],		property: .stroke, value: HCColor.Content.textSecondary(isDark)), // Text field placeholder
 
 			// - Search Field
 			ThemeCSSRecord(selectors: [.textField, .searchField],			property: .stroke, value: lightBrandColor), // Search tint color (UI elements other than text)
@@ -695,7 +704,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.button, .primary, .plain], property: .stroke, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
 			ThemeCSSRecord(selectors: [.button, .primary, .plain], property: .fill, value: UIColor.clear),
 			ThemeCSSRecord(selectors: [.button, .primary, .plain, .disabled], property: .stroke, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .primary, .plain, .disabled], property: .fill, value: UIColor.clear),
+			ThemeCSSRecord(selectors: [.button, .primary, .plain, .disabled], property: .fill, value: HCColor.Content.disabledBackground(isDark)),
 			ThemeCSSRecord(selectors: [.button, .primary, .plain, .highlighted], property: .stroke, value: isDark ? HCColor.Blue.lighten3 : HCColor.Blue.darken1),
 			ThemeCSSRecord(selectors: [.button, .primary, .plain, .highlighted], property: .fill, value: isDark ? HCColor.Transparencies.blueLighten3_12 : HCColor.Transparencies.blueDarken1_12),
 

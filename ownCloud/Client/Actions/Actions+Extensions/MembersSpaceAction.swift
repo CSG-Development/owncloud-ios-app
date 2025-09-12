@@ -44,6 +44,11 @@ class MembersSpaceAction: Action {
 
 		let sharingViewController = SharingViewController(clientContext: clientContext, item: item)
 		let navigationController = ThemeNavigationController(rootViewController: sharingViewController)
+		navigationController.sheetPresentationController?.preferredCornerRadius = 28
+		if UIDevice.current.isIpad {
+			navigationController.modalPresentationStyle = .pageSheet
+			navigationController.preferredContentSize = CGSize(width: 704, height: 944)
+		}
 		viewController.present(navigationController, animated: true)
 	}
 

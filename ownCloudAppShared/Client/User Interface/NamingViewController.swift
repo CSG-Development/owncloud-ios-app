@@ -22,15 +22,13 @@ import ownCloudSDK
 public typealias StringValidatorResult = (Bool, String?, String?) // (validationPassed, validationErrorTitle, validationErrorMessage)
 public typealias StringValidatorHandler = (_ stringToCheck: String) -> StringValidatorResult
 
-open class NamingViewController: UIViewController {
+open class NamingViewController: UIViewController, Themeable {
 	weak open var item: OCItem?
 	weak open var core: OCCore?
 	open var completion: (String?, NamingViewController) -> Void
 	open var stringValidator: StringValidatorHandler?
 	open var defaultName: String?
 	open var requiredFileExtension: String?
-
-	private var blurView: UIVisualEffectView
 
 	private var stackView: UIStackView
 
@@ -63,8 +61,6 @@ open class NamingViewController: UIViewController {
 		self.defaultName = defaultName
 		self.fallbackIcon = fallbackIcon
 
-		blurView = UIVisualEffectView(effect: UIBlurEffect(style: Theme.shared.activeCollection.css.getBlurEffectStyle()))
-
 		stackView = UIStackView(frame: .zero)
 
 		thumbnailContainer = UIView(frame: .zero)
@@ -75,7 +71,7 @@ open class NamingViewController: UIViewController {
 		nameTextField = ThemeCSSTextField()
 		nameTextField.accessibilityIdentifier = "name-text-field"
 
-		textfieldCenterYAnchorConstraint = nameTextField.centerYAnchor.constraint(equalTo: nameContainer.centerYAnchor)
+		textfieldCenterYAnchorConstraint = nameTextField.leadingAnchor.constraint(equalTo: nameContainer.leadingAnchor, constant: 16)
 		textfieldTopAnchorConstraint = nameTextField.topAnchor.constraint(equalTo: nameContainer.topAnchor, constant: 15)
 		thumbnailContainerWidthAnchorConstraint = thumbnailContainer.widthAnchor.constraint(equalToConstant: 200)
 		thumbnailContainerWidthAnchorConstraint.priority = .init(999)
@@ -97,7 +93,24 @@ open class NamingViewController: UIViewController {
 	}
 
 	deinit {
+		Theme.shared.unregister(client: self)
 		NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardDidShowNotification, object: nil)
+	}
+
+	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
+		view.backgroundColor = collection.css.getColor(.fill, selectors: [.insetGrouped, .collection], for: nil)
+		nameTextField.borderStyle = .none
+		nameTextField.layer.cornerRadius = 8
+		nameTextField.backgroundColor = .clear
+		nameTextField.backgroundColor = collection.css.getColor(.fill, selectors: [.insetGrouped, .collection, .cell], for: nil)
+		nameTextField.tintColor = collection.css.getColor(.stroke, for: nameTextField)
+
+		if let color = collection.css.getColor(.fill, selectors: [.separator], for: nil) {
+			oc_ensureTopNavigationSeparator(color: color)
+		}
+
+		cancelButton?.tintColor = collection.css.getColor(.fill, selectors: [.navigationBar, .button], for: nil)
+		doneButton?.tintColor = collection.css.getColor(.fill, selectors: [.navigationBar, .button], for: nil)
 	}
 
 	override open func viewDidLoad() {
@@ -127,16 +140,6 @@ open class NamingViewController: UIViewController {
 		doneButton?.accessibilityIdentifier = "done-button"
 		navigationItem.rightBarButtonItem = doneButton
 
-		//Blur View
-		blurView.translatesAutoresizingMaskIntoConstraints = false
-		view.addSubview(blurView)
-		NSLayoutConstraint.activate([
-			blurView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-			blurView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-			blurView.leftAnchor.constraint(equalTo: view.leftAnchor),
-			blurView.rightAnchor.constraint(equalTo: view.rightAnchor)
-			])
-
 		// Thumbnail image view
 		thumbnailImageView.translatesAutoresizingMaskIntoConstraints = false
 		thumbnailContainer.addSubview(thumbnailImageView)
@@ -156,18 +159,23 @@ open class NamingViewController: UIViewController {
 		nameTextField.requiredFileExtension = requiredFileExtension
 		nameContainer.addSubview(nameTextField)
 		NSLayoutConstraint.activate([
-			nameTextField.heightAnchor.constraint(equalToConstant: 40),
-			nameTextField.leftAnchor.constraint(equalTo: nameContainer.leftAnchor, constant: 30),
-			nameTextField.rightAnchor.constraint(equalTo: nameContainer.rightAnchor, constant: -20)
+			nameTextField.heightAnchor.constraint(equalToConstant: 44),
+			nameTextField.leftAnchor.constraint(equalTo: nameContainer.leftAnchor, constant: 16),
+			nameTextField.rightAnchor.constraint(equalTo: nameContainer.rightAnchor, constant: -16)
 			])
 
 		nameTextField.delegate = self
-		nameTextField.textAlignment = .center
+		nameTextField.textAlignment = .left
+		// Add internal left padding
+		let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 1))
+		leftPaddingView.isUserInteractionEnabled = false
+		nameTextField.leftView = leftPaddingView
+		nameTextField.leftViewMode = .always
 		nameTextField.becomeFirstResponder()
 		nameTextField.addTarget(self, action: #selector(textfieldDidChange(_:)), for: .editingChanged)
 		nameTextField.enablesReturnKeyAutomatically = true
 		nameTextField.autocorrectionType = .no
-		nameTextField.borderStyle = .roundedRect
+		nameTextField.borderStyle = .none
 		nameTextField.clearButtonMode = .always
 		nameTextField.accessibilityLabel = OCLocalizedString("Folder name", nil)
 
@@ -186,6 +194,8 @@ open class NamingViewController: UIViewController {
 			])
 		render(newTraitCollection: traitCollection)
 		stackView.alignment = .fill
+
+		Theme.shared.register(client: self, applyImmediately: true)
 	}
 
 	private func render(newTraitCollection: UITraitCollection) {
@@ -218,14 +228,14 @@ open class NamingViewController: UIViewController {
 				textfieldCenterYAnchorConstraint,
 				thumbnailContainerWidthAnchorConstraint
 				])
-			stackView.axis = .horizontal
-			stackView.distribution = .fill
+				stackView.axis = .vertical
+				stackView.distribution = .fillEqually
 		}
 
 		switch (newTraitCollection.horizontalSizeClass, newTraitCollection.verticalSizeClass) {
 		case (.regular, .regular):
-			stackViewLeftAnchorConstraint?.constant = 100
-			stackViewRightAnchorConstraint?.constant = -100
+			stackViewLeftAnchorConstraint?.constant = 0
+			stackViewRightAnchorConstraint?.constant = 0
 			thumbnailHeightAnchorConstraint.constant = 150
 
 			// Tweak for small PPI devices

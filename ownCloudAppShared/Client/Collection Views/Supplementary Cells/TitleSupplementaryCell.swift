@@ -50,7 +50,7 @@ class TitleSupplementaryCell: UICollectionReusableView, Themeable {
 	var itemStyle: ThemeItemStyle {
 		switch elementKind {
 			case .smallTitle:
-				return .system(textStyle: .footnote, weight: .regular)
+				return .system(textStyle: .footnote, weight: .bold)
 
 			case .mediumTitle:
 				return .system(textStyle: .subheadline, weight: .bold)

@@ -135,7 +135,7 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 				context.permissions = []
 			})
 			let itemSectionDatasource = OCDataSourceArray(items: [item])
-			let itemSection = CollectionViewSection(identifier: "item", dataSource: itemSectionDatasource, cellStyle: .init(with: .header), cellLayout: .list(appearance: .plain, contentInsets: NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)), clientContext: itemSectionContext)
+			let itemSection = CollectionViewSection(identifier: "item", dataSource: itemSectionDatasource, cellStyle: .init(with: .header), cellLayout: .list(appearance: .plain, contentInsets: .zero), clientContext: itemSectionContext)
 			sections.append(itemSection)
 		}
 
@@ -233,7 +233,7 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 
 		super.init(context: shareControllerContext, sections: sections, useStackViewRoot: true, compressForKeyboard: true)
 
-		self.cssSelector = .grouped
+		self.cssSelector = .insetGrouped
 
 		linksSectionContext.originatingViewController = self
 
@@ -259,11 +259,6 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 		// not include "Drag Item" in the accessibility actions
 		// invoked with Tab + Z
 		dragInteractionEnabled = false
-
-		// Add extra content inset on top
-		var extraContentInset = collectionView.contentInset
-		extraContentInset.top += 10
-		collectionView.contentInset = extraContentInset
 
 		// Set navigation bar title
 		var navigationTitle: String?
@@ -1098,6 +1093,15 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 		})
 	}
 
+	public override func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
+		super.applyThemeCollection(theme: theme, collection: collection, event: event)
+
+		view.backgroundColor = collection.css.getColor(.fill, selectors: [.grouped, .collection], for: nil)
+
+		if let color = collection.css.getColor(.fill, selectors: [.separator], for: nil) {
+			oc_ensureTopNavigationSeparator(color: color)
+		}
+	}
 	func showError(_ error: Error) {
 		OnMainThread {
 			let alertController = ThemedAlertController(with: OCLocalizedString("An error occurred", nil), message: error.localizedDescription, okLabel: OCLocalizedString("OK", nil), action: nil)

@@ -153,6 +153,11 @@ extension OCShare: DataItemSelectionInteraction {
 
 				if let editViewController {
 					let navigationController = ThemeNavigationController(rootViewController: editViewController)
+					navigationController.sheetPresentationController?.preferredCornerRadius = 28
+					if UIDevice.current.isIpad {
+						navigationController.modalPresentationStyle = .pageSheet
+						navigationController.preferredContentSize = CGSize(width: 704, height: 944)
+					}
 					context.present(navigationController, animated: true)
 				}
 			}

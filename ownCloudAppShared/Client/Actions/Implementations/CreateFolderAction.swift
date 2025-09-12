@@ -98,10 +98,13 @@ open class CreateFolderAction : Action {
 
 				createFolderVC.navigationItem.title = OCLocalizedString("Create folder", nil)
 
-				let createFolderNavigationVC = ThemeNavigationController(rootViewController: createFolderVC)
-				createFolderNavigationVC.modalPresentationStyle = .formSheet
-
-				viewController.present(createFolderNavigationVC, animated: true)
+				let navigationController = ThemeNavigationController(rootViewController: createFolderVC)
+				navigationController.sheetPresentationController?.preferredCornerRadius = 28
+				if UIDevice.current.isIpad {
+					navigationController.modalPresentationStyle = .pageSheet
+					navigationController.preferredContentSize = CGSize(width: 704, height: 944)
+				}
+				viewController.present(navigationController, animated: true)
 			}
 		})
 	}

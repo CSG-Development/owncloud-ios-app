@@ -51,6 +51,11 @@ class CreateShortcutFileAction: Action {
 		}
 
 		let navigationController = ThemeNavigationController(rootViewController: CreateShortcutFileViewController(parentItem: parentItem, clientContext: clientContext))
+		navigationController.sheetPresentationController?.preferredCornerRadius = 28
+		if UIDevice.current.isIpad {
+			navigationController.modalPresentationStyle = .pageSheet
+			navigationController.preferredContentSize = CGSize(width: 704, height: 944)
+		}
 		clientContext.present(navigationController, animated: true)
 
 		self.completed()

@@ -309,7 +309,7 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 				titleLabel.numberOfLines = 1
 				titleLabel.textAlignment = .left
 				titleLabel.lineBreakMode = .byTruncatingTail
-				titleLabel.font = UIFont.systemFont(ofSize: UIFont.labelFontSize)
+				titleLabel.font = UIFont.boldSystemFont(ofSize: 16)
 
 				if hasSecondaryDetailView {
 					detailSegmentSecondaryView?.removeFromSuperview()
@@ -393,6 +393,25 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 
 				let iconWidthConstraint = updateIconWidth(content?.iconWidth, defaultWidth: iconViewWidth)
 
+				// This is a terrible hack but does the job.
+				let detailSegmentPrimaryViewTrailingConstraint = if accessories.contains(where: { if case let .customView(view) = $0.accessoryType {
+					if let button = view as? UIButton {
+						return (button.title(for: .normal) ?? "") == OCLocalizedString("Copy", nil)
+					} else {
+						return false
+					}
+				} else {
+					return false
+				} }) {
+					if UIDevice.current.isIpad {
+						detailSegmentPrimaryView.widthAnchor.constraint(equalTo: self.contentView.widthAnchor, multiplier: 0.8)
+					} else {
+						detailSegmentPrimaryView.widthAnchor.constraint(equalTo: self.contentView.widthAnchor, multiplier: 0.6)
+					}
+				} else {
+					detailSegmentPrimaryView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor)
+				}
+
 				constraints = [
 					iconView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: horizontalMargin),
 					iconView.trailingAnchor.constraint(equalTo: titleLabel.leadingAnchor, constant: -spacing),
@@ -401,9 +420,9 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 					iconView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -verticalIconMargin),
 
 					titleLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
-					detailSegmentPrimaryView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
-					detailSegmentPrimaryView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
 
+					detailSegmentPrimaryView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+					detailSegmentPrimaryViewTrailingConstraint,
 					titleLabel.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: verticalLabelMargin),
 					titleLabel.bottomAnchor.constraint(equalTo: self.contentView.centerYAnchor, constant: -verticalLabelMarginFromCenter),
 					detailSegmentPrimaryView.topAnchor.constraint(equalTo: self.contentView.centerYAnchor, constant: verticalLabelMarginFromCenter),
@@ -655,6 +674,7 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 
 			self.accessibilityLabel = accessibilityLabelContent
 			contentView.secureView(core: clientContext?.core)
+			updateLayoutConstraints()
 		}
 	}
 

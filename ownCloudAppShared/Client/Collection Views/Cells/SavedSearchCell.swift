@@ -240,7 +240,7 @@ extension SavedSearchCell {
 
 					let clientContext = cellConfiguration.clientContext
 
-					cell.sideButtonAction = savedSearch.isQuickAccess == true && savedSearch.isTemplate ? OCAction(title: OCLocalizedString("Add to sidebar", nil), icon: OCSymbol.icon(forSymbolName: "plus.circle.fill"), action: { [weak clientContext] _, _, completed in
+					cell.sideButtonAction = savedSearch.isQuickAccess == true && savedSearch.isTemplate ? OCAction(title: OCLocalizedString("Add to sidebar", nil), icon: UIImage(named: "plus-in-circle", in: Bundle.sharedAppBundle, with: nil), action: { [weak clientContext] _, _, completed in
 						// Make a copy of the saved search object, so it has a different UUID (avoiding ID clashes in collection views) and can be modified
 						if let saveSearch = savedSearch.copy() as? OCSavedSearch {
 							saveSearch.isQuickAccess = true
