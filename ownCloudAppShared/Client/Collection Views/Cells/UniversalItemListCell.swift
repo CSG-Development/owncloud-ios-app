@@ -211,7 +211,7 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 			titleLabel.lineBreakMode = .byTruncatingMiddle
 			titleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
 			titleLabel.setContentHuggingPriority(.defaultLow, for: .vertical)
-			titleLabel.font = UIFont.systemFont(ofSize: UIFont.labelFontSize * 0.8)
+			titleLabel.font = UIFont.boldSystemFont(ofSize: UIFont.labelFontSize * 0.8)
 
 			detailSegmentPrimaryView.setContentHuggingPriority(.required, for: .vertical)
 
@@ -346,7 +346,7 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 				titleLabel.numberOfLines = 1
 				titleLabel.textAlignment = .left
 				titleLabel.lineBreakMode = .byTruncatingTail
-				titleLabel.font = UIFont.systemFont(ofSize: UIFont.labelFontSize)
+				titleLabel.font = UIFont.boldSystemFont(ofSize: UIFont.labelFontSize)
 
 				if hasSecondaryDetailView {
 					detailSegmentSecondaryView?.removeFromSuperview()
@@ -382,7 +382,7 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 				titleLabel.numberOfLines = 1
 				titleLabel.textAlignment = .left
 				titleLabel.lineBreakMode = .byTruncatingTail
-				titleLabel.font = UIFont.systemFont(ofSize: UIFont.labelFontSize)
+				titleLabel.font = UIFont.boldSystemFont(ofSize: UIFont.labelFontSize)
 
 				if hasSecondaryDetailView {
 					detailSegmentSecondaryView?.removeFromSuperview()

@@ -402,6 +402,7 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 			rolesSectionOptionGroup?.items = roleOptions
 			rolesSectionOptionGroup?.changeAction = { [weak self] (group, selectedItem) in
 				self?.role = selectedItem.value as? OCShareRole
+				self?.updateState()
 			}
 			if let role {
 				rolesSectionOptionGroup?.chosenValues = [ role ]
@@ -453,6 +454,7 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 						self?.permissions?.remove(permission)
 					}
 				}
+				self?.updateState()
 			}
 
 			customPermissionsDatasource?.setVersionedItems(permissionOptions)
@@ -576,16 +578,16 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 			case .share:
 				createIsEnabled = (location != nil) && (recipient != nil) && (role != nil) && (permissions != nil)
 		}
-
-		// Enforce password requirements
-		if hasPasswordOption && passwordRequired && !hasPassword {
-			createIsEnabled = false
-		}
-
-		// Enforce expiration date requirements
-		if hasExpirationOption && expirationDateRequired && (expirationDate == nil) {
-			createIsEnabled = false
-		}
+//
+//		// Enforce password requirements
+//		if hasPasswordOption && passwordRequired && !hasPassword {
+//			createIsEnabled = false
+//		}
+//
+//		// Enforce expiration date requirements
+//		if hasExpirationOption && expirationDateRequired && (expirationDate == nil) {
+//			createIsEnabled = false
+//		}
 
 		bottomButtonBar?.selectButton.isEnabled = createIsEnabled
 		bottomButtonBar?.alternativeButton.isEnabled = createIsEnabled
