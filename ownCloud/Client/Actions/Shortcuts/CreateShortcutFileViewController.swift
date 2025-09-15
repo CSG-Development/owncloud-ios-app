@@ -26,6 +26,9 @@ class CreateShortcutFileViewController: CollectionViewController {
 	var targetSectionDatasource: OCDataSourceArray = OCDataSourceArray()
 	var targetFieldSpacerView: UIView
 
+	private weak var itemHeaderView: MoreViewHeader?
+	private weak var targetSectionRef: CollectionViewSection?
+
 	var targetURLTextField: UITextField?
 	var targetURLString: String? {
 		didSet {
@@ -44,13 +47,13 @@ class CreateShortcutFileViewController: CollectionViewController {
 			} else {
 				if let core = clientContext?.core, let targetItem {
 					let itemView = MoreViewHeader(for: targetItem, with: core)
+					self.itemHeaderView = itemView
 					itemView.translatesAutoresizingMaskIntoConstraints = false
 
 					let containerView = UIView()
 					containerView.translatesAutoresizingMaskIntoConstraints = false
 
 					let clearButton = UIButton(configuration: .plain())
-					clearButton.translatesAutoresizingMaskIntoConstraints = false
 					clearButton.setImage(OCSymbol.icon(forSymbolName: "xmark.circle.fill"), for: .normal)
 					clearButton.addAction(UIAction(handler: { [weak self]_ in
 						self?.targetItem = nil
@@ -60,15 +63,20 @@ class CreateShortcutFileViewController: CollectionViewController {
 					}), for: .primaryActionTriggered)
 					clearButton.accessibilityLabel = OCLocalizedString("Clear", nil)
 
-					containerView.embed(toFillWith: itemView, insets: NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 30))
-					containerView.addSubview(clearButton)
-
-					NSLayoutConstraint.activate([
-						clearButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
-						clearButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
-					])
+					containerView.embed(toFillWith: itemView, insets: NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+					itemView.rightContainer.addArrangedSubview(clearButton)
+					clearButton.snp.makeConstraints { $0.width.height.equalTo(24) }
 
 					targetSectionDatasource.setVersionedItems([containerView])
+
+					// Ensure correct initial sizing (avoid intrinsic invalidation loops)
+					itemView.setNeedsLayout()
+					itemView.layoutIfNeeded()
+
+					// Force section to recompute cell height after inserting header
+					if let section = self.targetSectionRef {
+						self.reload(sections: [section], animated: false)
+					}
 
 					if name == "" || name == nil {
 						var baseName = targetItem.baseName
@@ -142,6 +150,7 @@ class CreateShortcutFileViewController: CollectionViewController {
 
 		// Target actions
 		let targetSection = CollectionViewSection(identifier: "target", dataSource: targetSectionDatasource, cellStyle: managementCellStyle, cellLayout: .list(appearance: .insetGrouped, contentInsets: .insetGroupedSectionInsets), clientContext: controllerContext)
+		self.targetSectionRef = targetSection
 		targetSection.boundarySupplementaryItems = [
 			.smallTitle(OCLocalizedString("URL of webpage or item", nil))
 		]
@@ -227,6 +236,21 @@ class CreateShortcutFileViewController: CollectionViewController {
 		if let color = collection.css.getColor(.fill, selectors: [.separator], for: nil) {
 			oc_ensureTopNavigationSeparator(color: color)
 		}
+	}
+
+	override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+		super.viewWillTransition(to: size, with: coordinator)
+
+		coordinator.animate(alongsideTransition: { _ in
+			// Invalidate layout during rotation
+			self.collectionView?.collectionViewLayout.invalidateLayout()
+		}, completion: { _ in
+			// After rotation, reload the target section to remeasure cell heights
+			if let section = self.targetSectionRef {
+				self.reload(sections: [section], animated: false)
+			}
+			// Avoid direct UICollectionView mutations; rely on diffable reload above
+		})
 	}
 
 	func pickAnItem() {

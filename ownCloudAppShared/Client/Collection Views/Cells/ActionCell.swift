@@ -127,7 +127,7 @@ class ActionCell: ThemeableCollectionViewCell {
 
 			case .horizontal:
 				iconInsets = UIEdgeInsets(top: 8, left: 10, bottom: 8, right: 5)
-				titleInsets = UIEdgeInsets(top: 13, left: 3, bottom: 13, right: 10)
+				titleInsets = UIEdgeInsets(top: 10, left: 3, bottom: 10, right: 10)
 
 				titleLabel.textAlignment = .left
 
@@ -231,6 +231,7 @@ extension ActionCell {
 
 						let button: UIButton = UIButton()
 						button.configuration = buttonConfig
+						button.titleLabel?.baselineAdjustment = .none
 						button.addAction(UIAction(handler: { [weak action, weak context] _ in
 							var options: [OCActionRunOptionKey:Any] = [:]
 

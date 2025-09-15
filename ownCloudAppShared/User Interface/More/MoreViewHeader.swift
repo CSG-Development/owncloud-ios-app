@@ -20,15 +20,82 @@ import UIKit
 import ownCloudSDK
 
 open class MoreViewHeader: UIView {
-	private var iconView: ResourceViewHost
-	private var labelContainerView : UIView
-	private var titleLabel: UILabel
-	private var detailLabel: UILabel
-	private var favoriteButton: UIButton
-	public var activityIndicator : UIActivityIndicatorView
+	private lazy var iconView: ResourceViewHost = {
+		let view = ResourceViewHost()
+		view.contentMode = .scaleAspectFit
+		view.setContentHuggingPriority(.required, for: .horizontal)
+		view.setContentHuggingPriority(.required, for: .vertical)
+		view.setContentCompressionResistancePriority(.required, for: .horizontal)
+		view.setContentCompressionResistancePriority(.required, for: .vertical)
+		return view
+	}()
+
+	private lazy var labelContainerView: UIView = {
+		let view = UIView()
+		view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+		view.setContentCompressionResistancePriority(.required, for: .vertical)
+		return view
+	}()
+
+	private lazy var contentContainerView: UIView = {
+		let view = UIView()
+
+		return view
+	}()
+
+	private lazy var titleLabel: UILabel = {
+		let label = UILabel()
+		label.font = UIFont.systemFont(ofSize: 17, weight: UIFont.Weight.semibold)
+		label.lineBreakMode = .byWordWrapping
+		label.numberOfLines = 0
+		label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+		label.setContentCompressionResistancePriority(.required, for: .vertical)
+		label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+		label.setContentHuggingPriority(.defaultLow, for: .vertical)
+		return label
+	}()
+
+	private lazy var detailLabel: UILabel = {
+		let label = UILabel()
+		label.font = UIFont.systemFont(ofSize: 14)
+		label.lineBreakMode = .byTruncatingTail
+		label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+		label.setContentCompressionResistancePriority(.required, for: .vertical)
+		label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+		label.setContentHuggingPriority(.defaultLow, for: .vertical)
+		return label
+	}()
+
+	public lazy var rightContainer: UIStackView = {
+		let stackView = UIStackView()
+		stackView.translatesAutoresizingMaskIntoConstraints = false
+		stackView.axis = .horizontal
+		stackView.spacing = 8
+		stackView.alignment = .center
+		stackView.setContentCompressionResistancePriority(.required, for: .horizontal)
+		stackView.setContentCompressionResistancePriority(.required, for: .vertical)
+		return stackView
+	}()
+
+	private lazy var favoriteButton: UIButton = {
+		let button = UIButton()
+		button.addTarget(self, action: #selector(toogleFavoriteState), for: UIControl.Event.touchUpInside)
+		button.isPointerInteractionEnabled = true
+		button.setContentCompressionResistancePriority(.required, for: .horizontal)
+		button.setContentCompressionResistancePriority(.required, for: .vertical)
+		button.snp.makeConstraints { $0.width.height.equalTo(24) }
+		return button
+	}()
+
+	public lazy var activityIndicator: UIActivityIndicatorView = {
+		let activityIndicator = UIActivityIndicatorView(style: .medium)
+		activityIndicator.setContentCompressionResistancePriority(.required, for: .horizontal)
+		activityIndicator.setContentCompressionResistancePriority(.required, for: .vertical)
+		activityIndicator.snp.makeConstraints { $0.width.height.equalTo(24) }
+		return activityIndicator
+	}()
 
 	public var thumbnailSize = CGSize(width: 60, height: 60)
-	public let favoriteSize = CGSize(width: 44, height: 44)
 
 	public var showFavoriteButton: Bool
 	public var showActivityIndicator: Bool
@@ -44,132 +111,75 @@ open class MoreViewHeader: UIView {
 		self.showFavoriteButton = favorite && core.bookmark.hasCapability(.favorites)
 		self.showActivityIndicator = showActivityIndicator
 
-		iconView = ResourceViewHost()
-		titleLabel = UILabel()
-		detailLabel = UILabel()
-		labelContainerView = UIView()
-		favoriteButton = UIButton()
-		activityIndicator = UIActivityIndicatorView(style: .medium)
 		self.adaptBackgroundColor = adaptBackgroundColor
 
 		super.init(frame: .zero)
 
-		self.translatesAutoresizingMaskIntoConstraints = false
-
-		render()
+		setupView()
 	}
 
-	public init(url : URL) {
+	public init(url: URL) {
 		self.showFavoriteButton = false
 		self.showActivityIndicator = false
 		self.adaptBackgroundColor = false
 		self.item = OCItem()
 		self.url = url
 
-		iconView = ResourceViewHost()
-		titleLabel = UILabel()
-		detailLabel = UILabel()
-		labelContainerView = UIView()
-		favoriteButton = UIButton()
-		activityIndicator = UIActivityIndicatorView(style: .medium)
-
 		super.init(frame: .zero)
 
-		self.translatesAutoresizingMaskIntoConstraints = false
-
-		render()
+		setupView()
 	}
 
 	deinit {
 		Theme.shared.unregister(client: self)
 	}
 
-	private func render() {
+	private func setupView() {
 		cssSelectors = [.more, .header]
 
-		let contentContainerView = UIView()
-		contentContainerView.translatesAutoresizingMaskIntoConstraints = false
+		contentContainerView.addSubview(iconView)
+		iconView.snp.makeConstraints {
+			$0.width.equalTo(thumbnailSize.width)
+			$0.height.equalTo(thumbnailSize.height)
+			$0.leading.equalToSuperview().offset(20)
+			$0.top.equalToSuperview().offset(20)
+			$0.bottom.lessThanOrEqualToSuperview().offset(-20)
+		}
 
-		let wrappedContentContainerView = contentContainerView.withScreenshotProtection
-		self.addSubview(wrappedContentContainerView)
+		contentContainerView.addSubview(rightContainer)
+		rightContainer.snp.makeConstraints {
+			$0.centerY.equalToSuperview()
+			$0.trailing.equalToSuperview().offset(-20)
+		}
+		rightContainer.addArrangedSubview(favoriteButton)
+		rightContainer.addArrangedSubview(activityIndicator)
 
-		titleLabel.translatesAutoresizingMaskIntoConstraints = false
-		detailLabel.translatesAutoresizingMaskIntoConstraints = false
-		iconView.translatesAutoresizingMaskIntoConstraints = false
-		labelContainerView.translatesAutoresizingMaskIntoConstraints = false
-		favoriteButton.translatesAutoresizingMaskIntoConstraints = false
-		activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-		iconView.contentMode = .scaleAspectFit
-
-		titleLabel.font = UIFont.systemFont(ofSize: 17, weight: UIFont.Weight.semibold)
-		detailLabel.font = UIFont.systemFont(ofSize: 14)
-
+		contentContainerView.addSubview(labelContainerView)
 		labelContainerView.addSubview(titleLabel)
 		labelContainerView.addSubview(detailLabel)
 
-		titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
-		detailLabel.setContentCompressionResistancePriority(.required, for: .vertical)
-		labelContainerView.setContentCompressionResistancePriority(.required, for: .vertical)
-
-		NSLayoutConstraint.activate([
-			wrappedContentContainerView.topAnchor.constraint(equalTo: self.topAnchor),
-			wrappedContentContainerView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-			wrappedContentContainerView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-			wrappedContentContainerView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-
-			titleLabel.leadingAnchor.constraint(equalTo: labelContainerView.leadingAnchor),
-			titleLabel.trailingAnchor.constraint(equalTo: labelContainerView.trailingAnchor),
-			titleLabel.topAnchor.constraint(equalTo: labelContainerView.topAnchor),
-
-			detailLabel.leadingAnchor.constraint(equalTo: labelContainerView.leadingAnchor),
-			detailLabel.trailingAnchor.constraint(equalTo: labelContainerView.trailingAnchor),
-			detailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
-			detailLabel.bottomAnchor.constraint(equalTo: labelContainerView.bottomAnchor)
-		])
-
-		contentContainerView.addSubview(iconView)
-		contentContainerView.addSubview(labelContainerView)
-
-		NSLayoutConstraint.activate([
-			iconView.widthAnchor.constraint(equalToConstant: thumbnailSize.width),
-			iconView.heightAnchor.constraint(equalToConstant: thumbnailSize.height),
-
-			iconView.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-			iconView.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
-			iconView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -20).with(priority: .defaultHigh),
-
-			labelContainerView.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 15),
-			labelContainerView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-			labelContainerView.topAnchor.constraint(greaterThanOrEqualTo: self.topAnchor, constant: 20),
-			labelContainerView.bottomAnchor.constraint(lessThanOrEqualTo: self.bottomAnchor, constant: -20).with(priority: .defaultHigh)
-		])
-
-		if showFavoriteButton {
-			updateFavoriteButtonImage()
-			favoriteButton.addTarget(self, action: #selector(toogleFavoriteState), for: UIControl.Event.touchUpInside)
-			contentContainerView.addSubview(favoriteButton)
-			favoriteButton.isPointerInteractionEnabled = true
-
-			NSLayoutConstraint.activate([
-				favoriteButton.widthAnchor.constraint(equalToConstant: favoriteSize.width),
-				favoriteButton.heightAnchor.constraint(equalToConstant: favoriteSize.height),
-				favoriteButton.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -10),
-				favoriteButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-				favoriteButton.leadingAnchor.constraint(equalTo: labelContainerView.trailingAnchor, constant: 10)
-				])
-		} else if showActivityIndicator {
-			contentContainerView.addSubview(activityIndicator)
-
-			NSLayoutConstraint.activate([
-				activityIndicator.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-				activityIndicator.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -15),
-				activityIndicator.leadingAnchor.constraint(equalTo: labelContainerView.trailingAnchor, constant: 10)
-				])
-		} else {
-			NSLayoutConstraint.activate([
-				labelContainerView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -20)
-			])
+		titleLabel.snp.makeConstraints {
+			$0.leading.trailing.top.equalToSuperview()
 		}
+		detailLabel.snp.makeConstraints {
+			$0.top.equalTo(titleLabel.snp.bottom).offset(5)
+			$0.leading.trailing.bottom.equalToSuperview()
+		}
+
+		labelContainerView.snp.makeConstraints {
+			$0.top.equalToSuperview().offset(20)
+			$0.bottom.equalToSuperview().offset(-20)
+			$0.leading.equalTo(iconView.snp.trailing).offset(10)
+			$0.trailing.equalTo(rightContainer.snp.leading).offset(-10)
+		}
+
+		let wrappedContentContainerView = contentContainerView.withScreenshotProtection
+		self.addSubview(wrappedContentContainerView)
+		wrappedContentContainerView.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+		favoriteButton.isHidden = !showFavoriteButton
+		activityIndicator.isHidden = !showActivityIndicator
+		updateFavoriteButtonImage()
 
 		if let url = url {
 			titleLabel.attributedText = NSAttributedString(string: url.lastPathComponent, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17, weight: .semibold)])
@@ -221,9 +231,31 @@ open class MoreViewHeader: UIView {
 		self.iconView.request = iconRequest
 		core?.vault.resourceManager?.start(iconRequest)
 
-		titleLabel.numberOfLines = 0
-
 		self.secureView(core: core)
+	}
+
+	open override func layoutSubviews() {
+		super.layoutSubviews()
+
+		// Update wrapping widths without triggering another layout pass
+		let availableLabelWidth = labelContainerView.bounds.width
+		if availableLabelWidth > 0 {
+			if titleLabel.preferredMaxLayoutWidth != availableLabelWidth {
+				titleLabel.preferredMaxLayoutWidth = availableLabelWidth
+			}
+			if detailLabel.preferredMaxLayoutWidth != availableLabelWidth {
+				detailLabel.preferredMaxLayoutWidth = availableLabelWidth
+			}
+		}
+	}
+
+	open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		super.traitCollectionDidChange(previousTraitCollection)
+
+		// Defer a light layout pass only to avoid nested layout/invalidation loops
+		DispatchQueue.main.async { [weak self] in
+			self?.setNeedsLayout()
+		}
 	}
 
 	public func updateHeader(title: String, subtitle: String) {

@@ -76,7 +76,7 @@ public class ComposedMessageElement: NSObject {
 
 					textView?.text = text
 					textView?.setContentCompressionResistancePriority(.required, for: .vertical)
-					textView?.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+					textView?.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 					textView?.setContentHuggingPriority(.required, for: .vertical)
 
 					add(applier: { [weak self] theme, collection, event in
