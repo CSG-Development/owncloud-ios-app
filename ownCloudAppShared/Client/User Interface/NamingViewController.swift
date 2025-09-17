@@ -171,7 +171,6 @@ open class NamingViewController: UIViewController, Themeable {
 		leftPaddingView.isUserInteractionEnabled = false
 		nameTextField.leftView = leftPaddingView
 		nameTextField.leftViewMode = .always
-		nameTextField.becomeFirstResponder()
 		nameTextField.addTarget(self, action: #selector(textfieldDidChange(_:)), for: .editingChanged)
 		nameTextField.enablesReturnKeyAutomatically = true
 		nameTextField.autocorrectionType = .no
@@ -343,6 +342,8 @@ open class NamingViewController: UIViewController, Themeable {
 
 	override open func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
+
+		nameTextField.becomeFirstResponder()
 		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardDidShowNotification, object: nil)
 	}
 

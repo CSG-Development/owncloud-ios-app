@@ -37,6 +37,7 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 	private var resultsSourceObservation: NSKeyValueObservation?
 	private var resultsCellStyleObservation: NSKeyValueObservation?
 	private weak var cancelToolbarButton: UIBarButtonItem?
+	private weak var clearButton: UIButton?
 
 	open var clientContext: ClientContext
 
@@ -227,6 +228,46 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 		if activeScope == nil {
 			activeScope = scopes?.first
 		}
+
+		searchField.clearButtonMode = .never
+
+		var cfg = UIButton.Configuration.plain()
+		cfg.image = UIImage(systemName: "xmark.circle.fill")
+		cfg.preferredSymbolConfigurationForImage = .init(pointSize: 12, weight: .regular)
+		cfg.contentInsets = .init(top: 10, leading: 8, bottom: 10, trailing: 0)
+
+		let clearButton = UIButton(configuration: cfg)
+
+		self.clearButton = clearButton
+		clearButton.addTarget(self, action: #selector(clearTextField), for: .touchUpInside)
+		searchField.rightView = clearButton
+		searchField.rightViewMode = .never
+		searchField.addTarget(self, action: #selector(editingChanged), for: .editingChanged)
+		searchField.addTarget(self, action: #selector(editingDidBegin), for: .editingDidBegin)
+		searchField.addTarget(self, action: #selector(editingDidEnd), for: .editingDidEnd)
+	}
+
+	private func updateTextField() {
+		let isEmpty = searchField.text?.isEmpty ?? true
+		let isFirstResponder = searchField.isFirstResponder
+		searchField.rightViewMode = !isEmpty && isFirstResponder ? .always : .never
+	}
+
+	@objc private func clearTextField() {
+		searchField.text = nil
+		updateTextField()
+	}
+
+	@objc private func editingChanged() {
+		updateTextField()
+	}
+
+	@objc private func editingDidBegin() {
+		updateTextField()
+	}
+
+	@objc private func editingDidEnd() {
+		updateTextField()
 	}
 
 	private var _registered = false
@@ -486,13 +527,24 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 		// Left icon tint (magnifier) to gray2
 		if let glassIconView = searchField.leftView as? UIImageView {
 			glassIconView.image = glassIconView.image?.withRenderingMode(.alwaysTemplate)
-			glassIconView.tintColor = collection.css.getColor(.fill, selectors: [.secondaryText], for: nil)
+			glassIconView.tintColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
 		} else if let leftView = searchField.leftView {
 			if let imageView = leftView.subviews.compactMap({ $0 as? UIImageView }).first {
 				imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-				imageView.tintColor = collection.css.getColor(.fill, selectors: [.secondaryText], for: nil)
+				imageView.tintColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
 			}
 		}
+
+//		if let clearButton = searchField.value(forKey: "_clearButton") as? UIButton {
+//		   // Create a template copy of the original button image
+//			let templateImage =  clearButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
+//		   // Set the template image copy as the button image
+//			clearButton.setImage(templateImage, for: .normal)
+//		   // Finally, set the image color
+//		   clearButton.tintColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
+//		}
+		clearButton?.tintColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
+		searchField.textColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
 
 		// Placeholder color to gray3
 		if let placeholderString = searchField.placeholder {

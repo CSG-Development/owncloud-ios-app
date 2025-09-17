@@ -44,6 +44,7 @@ public extension UINavigationItem {
 			}
 
 			titleLabel?.text = newValue
+			titleLabel?.sizeToFit()
 		}
 	}
 }
