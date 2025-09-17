@@ -216,7 +216,7 @@ extension OCShare: UniversalItemListCellContentProvider {
 
 		if category == .byMe {
 			if type == .link {
-				let (_, copyToClipboardAccessory) = cell.makeAccessoryButton(accessibilityLabel: OCLocalizedString("Copy to clipboard", nil), cssSelectors: [.accessory, .copyToClipboard], provideAccessibilityCustomAction: true, action: OCAction(title: OCLocalizedString("Copy", nil), icon: OCSymbol.icon(forSymbolName: "list.clipboard"), action: { [weak self, weak context] _, _, done in
+				let (_, copyToClipboardAccessory) = cell.makeAccessoryButton(accessibilityLabel: OCLocalizedString("Copy to clipboard", nil), cssSelectors: [.accessory, .copyToClipboard], provideAccessibilityCustomAction: true, action: OCAction(title: OCLocalizedString("Copy", nil), icon: UIImage(named: "copy-clipboard", in: Bundle.sharedAppBundle, with: nil), action: { [weak self, weak context] _, _, done in
 					if let self {
 						if self.copyToClipboard(), let presentationViewController = context?.presentationViewController {
 							_ = NotificationHUDViewController(on: presentationViewController, title: self.name ?? OCLocalizedString("Public Link", nil), subtitle: OCLocalizedString("URL was copied to the clipboard", nil))

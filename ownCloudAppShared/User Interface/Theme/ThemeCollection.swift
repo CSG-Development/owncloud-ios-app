@@ -634,6 +634,8 @@ public class ThemeCollection : NSObject {
 
 			// # Curator Files
 
+			ThemeCSSRecord(selectors: [.primaryText], property: .fill, value: HCColor.Content.textPrimary(isDark)),
+
 			// ## Location popover
 			ThemeCSSRecord(selectors: [.locationDropDown], property: .fill, value: HCColor.Structure.whiteBackground(isDark)),
 

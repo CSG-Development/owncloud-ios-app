@@ -327,6 +327,23 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 		updateState()
 	}
 
+	open override func viewSafeAreaInsetsDidChange() {
+		super.viewSafeAreaInsetsDidChange()
+
+		let desiredPadding: CGFloat = 16
+
+		// Base bottom safe area, excluding our own additions
+		let baseBottom = max(0, view.safeAreaInsets.bottom - additionalSafeAreaInsets.bottom)
+
+		// If the system/container already provides a bottom inset, don't add padding.
+		let targetAdditional = (baseBottom > 0) ? 0 : desiredPadding
+
+		// Avoid thrashing / re-entrant loops
+		if abs(additionalSafeAreaInsets.bottom - targetAdditional) > 0.5 {
+			additionalSafeAreaInsets.bottom = targetAdditional
+		}
+	}
+
 	// MARK: - Share Role & permissions
 	public var permissions: OCSharePermissionsMask? {
 		didSet {
