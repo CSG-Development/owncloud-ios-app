@@ -220,11 +220,11 @@ class ClientActivityViewController: UITableViewController, Themeable, MessageGro
 			NSLayoutConstraint.activate([
 				emptyStatusView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
 				emptyStatusView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
-				emptyStatusView.leadingAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-				emptyStatusView.trailingAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20)
+				emptyStatusView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
 			])
 			emptyStatusView.isHidden = true
 		}
+		emptyStatusView?.layoutIfNeeded()
 	}
 
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
