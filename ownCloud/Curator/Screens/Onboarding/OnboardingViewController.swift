@@ -31,6 +31,7 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 		)
 	]
 	private var currentPage = 0
+	private var seenPageIndices: Set<Int> = HCSettings.shared.onboardingSeenPageIndices
 
 	private lazy var imageView: UIImageView = {
 		let imageView = UIImageView(image: UIImage(named: "onboarding/background"))
@@ -103,6 +104,8 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
+		// Resume from the first unseen page if onboarding was interrupted
+		currentPage = firstUnseenPageIndex()
 		configureViews()
 		updateButtons()
 	}
@@ -168,6 +171,9 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 		currentPage = index
 		pageControl.currentPage = index
 		updateButtons()
+
+		// Persist progress whenever a page is explicitly set
+		markPageSeen(index: index)
 	}
 
 	private func updateButtons() {
@@ -178,6 +184,7 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 	}
 
 	@objc private func skipTapped() {
+		completeOnboarding()
 		onFinishedOnboarding?()
 	}
 
@@ -185,6 +192,7 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 		if currentPage < pages.count - 1 {
 			setPage(index: currentPage + 1, animated: true)
 		} else {
+			completeOnboarding()
 			onFinishedOnboarding?()
 		}
 	}
@@ -224,5 +232,36 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 		currentPage = index
 		pageControl.currentPage = index
 		updateButtons()
+
+		// Persist progress when the user swipes between pages
+		markPageSeen(index: index)
+	}
+
+	// MARK: - Progress persistence
+	private func markPageSeen(index: Int) {
+		if seenPageIndices.contains(index) == false {
+			seenPageIndices.insert(index)
+			HCSettings.shared.onboardingSeenPageIndices = seenPageIndices
+			checkIfCompleted()
+		}
+	}
+
+	private func checkIfCompleted() {
+		if seenPageIndices.count >= pages.count {
+			HCSettings.shared.shouldShowOnboarding = false
+		}
+	}
+
+	private func completeOnboarding() {
+		HCSettings.shared.shouldShowOnboarding = false
+	}
+
+	private func firstUnseenPageIndex() -> Int {
+		for index in 0..<pages.count {
+			if seenPageIndices.contains(index) == false {
+				return index
+			}
+		}
+		return 0
 	}
 }
