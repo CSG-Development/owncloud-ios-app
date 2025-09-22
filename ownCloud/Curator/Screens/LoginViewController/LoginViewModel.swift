@@ -58,8 +58,8 @@ final public class LoginViewModel {
 
 		// Enable login when username isn't empty and password ≥ 8 chars
 		Publishers
-			.CombineLatest4($username, $password, $address, $errors)
-			.map { !$0.isEmpty && !$1.isEmpty && !$2.isEmpty && $3.isEmpty }
+			.CombineLatest3($username, $password, $address)
+			.map { !$0.isEmpty && !$1.isEmpty && !$2.isEmpty }
 			.receive(on: RunLoop.main)
 			.sink(receiveValue: { [weak self] isLoginEnabled in
 				self?.isLoginEnabled = isLoginEnabled

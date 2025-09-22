@@ -105,7 +105,10 @@ open class HCTextFieldView: HCFieldView {
 	}
 
 	@objc private func clearTextField() {
-		textField.text = nil
+		textField.text = ""
+
+		NotificationCenter.default.post(name: UITextField.textDidChangeNotification, object: textField)
+
 		updateTextField()
 	}
 
