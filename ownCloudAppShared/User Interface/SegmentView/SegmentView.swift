@@ -79,6 +79,7 @@ public class SegmentView: ThemeView, ThemeCSSAutoSelector, ThemeCSSChangeObserve
 	private var itemViews: [UIView] = []
 	private var borderMaskView: UIView?
 	private var scrollView: UIScrollView?
+	private var hasAutoScrolledToTruncationTarget: Bool = false
 
 	override open func setupSubviews() {
 		super.setupSubviews()
@@ -86,6 +87,7 @@ public class SegmentView: ThemeView, ThemeCSSAutoSelector, ThemeCSSChangeObserve
 	}
 
 	func recreateAndLayoutItemViews() {
+		hasAutoScrolledToTruncationTarget = false
 		// Remove existing views
 		for itemView in itemViews {
 			itemView.removeFromSuperview()
@@ -111,21 +113,37 @@ public class SegmentView: ThemeView, ThemeCSSAutoSelector, ThemeCSSChangeObserve
 		// Scroll View
 		var hostView: UIView = self
 
-		if isScrollable, scrollView == nil {
-			scrollView = UIScrollView(frame: .zero)
-			scrollView?.showsVerticalScrollIndicator = false
-			scrollView?.showsHorizontalScrollIndicator = false
-			scrollView?.translatesAutoresizingMaskIntoConstraints = false
+		if isScrollable {
+			if scrollView == nil {
+				scrollView = UIScrollView(frame: .zero)
+				scrollView?.showsVerticalScrollIndicator = false
+				scrollView?.showsHorizontalScrollIndicator = false
+				scrollView?.translatesAutoresizingMaskIntoConstraints = false
+			}
 
 			if let scrollView {
 				hostView = scrollView
-
-				embed(toFillWith: scrollView)
+				if scrollView.superview == nil {
+					embed(toFillWith: scrollView)
+				}
 			}
 		}
 
 		// Embed
-		hostView.embedHorizontally(views: itemViews, insets: insets, limitHeight: limitVerticalSpaceUsage, spacingProvider: { _, _ in
+		var enclosingAnchors: UIView.AnchorSet?
+		if let scrollView, isScrollable {
+			// Use contentLayoutGuide for horizontal content sizing and frameLayoutGuide for vertical alignment
+			enclosingAnchors = UIView.AnchorSet(
+				leadingAnchor: scrollView.contentLayoutGuide.leadingAnchor,
+				trailingAnchor: scrollView.contentLayoutGuide.trailingAnchor,
+				topAnchor: scrollView.frameLayoutGuide.topAnchor,
+				bottomAnchor: scrollView.frameLayoutGuide.bottomAnchor,
+				centerXAnchor: scrollView.frameLayoutGuide.centerXAnchor,
+				centerYAnchor: scrollView.frameLayoutGuide.centerYAnchor
+			)
+		}
+
+		hostView.embedHorizontally(views: itemViews, insets: insets, enclosingAnchors: enclosingAnchors, limitHeight: limitVerticalSpaceUsage, spacingProvider: { _, _ in
 			return self.itemSpacing
 		}, constraintsModifier: { constraintSet in
 			switch self.truncationMode {
@@ -152,20 +170,28 @@ public class SegmentView: ThemeView, ThemeCSSAutoSelector, ThemeCSSChangeObserve
 			layoutIfNeeded()
 
 			if isScrollable {
-				scrollToTruncationTarget()
+				// Ensure scroll after current layout pass, when contentSize is final
+				DispatchQueue.main.async {
+					self.scrollToTruncationTarget()
+					self.hasAutoScrolledToTruncationTarget = true
+				}
 			}
 		}
 	}
 
 	func scrollToTruncationTarget() {
+		guard let scrollView, isScrollable else { return }
 		switch truncationMode {
 			case .truncateTail:
-				if let contentWidth = scrollView?.contentSize.width {
-					scrollView?.scrollRectToVisible(CGRect(x: contentWidth-1, y: 0, width: 1, height: 1), animated: false)
-				}
+				let contentWidth = scrollView.contentSize.width
+				let boundsWidth = scrollView.bounds.width
+				let rightInset = scrollView.contentInset.right
+				let leftInset = scrollView.contentInset.left
+				let maxOffsetX = max(-leftInset, contentWidth - boundsWidth + rightInset)
+				scrollView.setContentOffset(CGPoint(x: maxOffsetX, y: -scrollView.contentInset.top), animated: false)
 
 			case .truncateHead:
-				scrollView?.scrollRectToVisible(CGRect(x: 0, y: 0, width: 1, height: 1), animated: false)
+				scrollView.setContentOffset(CGPoint(x: -scrollView.contentInset.left, y: -scrollView.contentInset.top), animated: false)
 
 			default: break
 		}
@@ -173,8 +199,11 @@ public class SegmentView: ThemeView, ThemeCSSAutoSelector, ThemeCSSChangeObserve
 
 	public override var bounds: CGRect {
 		didSet {
-			OnMainThread {
-				self.scrollToTruncationTarget()
+			if isScrollable && !hasAutoScrolledToTruncationTarget {
+				OnMainThread {
+					self.scrollToTruncationTarget()
+					self.hasAutoScrolledToTruncationTarget = true
+				}
 			}
 		}
 	}

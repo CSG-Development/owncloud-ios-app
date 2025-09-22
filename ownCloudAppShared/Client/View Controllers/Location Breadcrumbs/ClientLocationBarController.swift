@@ -35,7 +35,16 @@ open class ClientLocationBarController: UIViewController, Themeable {
 		}
 	}
 
-	public var segmentView: SegmentView?
+	public lazy var segmentView: SegmentView = {
+		let view = SegmentView(
+			with: [],
+			truncationMode: .truncateTail,
+			scrollable: true,
+			limitVerticalSpaceUsage: true
+		)
+		view.itemSpacing = 0
+		return view
+	}()
 
 	public init() {
 		super.init(nibName: nil, bundle: nil)
@@ -52,6 +61,9 @@ open class ClientLocationBarController: UIViewController, Themeable {
 
 	open override func viewDidLoad() {
 		super.viewDidLoad()
+
+		view.addSubview(segmentView)
+		segmentView.snp.makeConstraints { $0.edges.equalToSuperview() }
 
 		updateView()
 	}
@@ -86,22 +98,9 @@ open class ClientLocationBarController: UIViewController, Themeable {
 	}
 
 	private func updateView() {
-		view.subviews.forEach { $0.removeFromSuperview() }
-
 		guard let clientContext else { return }
-		segmentView = SegmentView(
-			with: composeSegments(location: location, in: clientContext),
-			truncationMode: .truncateTail,
-			scrollable: true,
-			limitVerticalSpaceUsage: true
-		)
-		segmentView?.itemSpacing = 0
 
-		if let segmentView {
-			view.addSubview(segmentView)
-
-			segmentView.snp.makeConstraints { $0.edges.equalToSuperview() }
-		}
+		segmentView.items = composeSegments(location: location, in: clientContext)
 	}
 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
