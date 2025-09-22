@@ -210,10 +210,21 @@ class DisplayHostViewController: UIPageViewController {
 			_navigationItemObservation = activeDisplayViewController?.observe(\DisplayViewController.item, options: .initial, changeHandler: { [weak self] (displayViewController, _) in
 				if let itemLocation = displayViewController.item?.location, let clientContext = displayViewController.clientContext {
 					OnMainThread(inline: true) {
-						self?.navigationItem.titleView = ClientLocationPopupButton(clientContext: clientContext, location: itemLocation)
-						NotificationCenter.default.post(name: .displayHostLocationDidChange, object: self, userInfo: [
-							"clientContext": clientContext as Any,
-							"location": itemLocation as Any
+						let navigationTitleLabel = ThemeCSSLabel(withSelectors: [.title])
+						navigationTitleLabel.font = UIFont.systemFont(ofSize: UIFont.buttonFontSize, weight: .semibold)
+						navigationTitleLabel.lineBreakMode = .byTruncatingMiddle
+						navigationTitleLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+						navigationTitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+						navigationTitleLabel.text = itemLocation.displayName(in: clientContext)
+
+						self?.navigationItem.navigationContent.add(items: [
+							NavigationContentItem(
+								identifier: "navigation-location",
+								area: .title,
+								priority: .standard,
+								position: .middle,
+								titleView: navigationTitleLabel
+							)
 						])
 					}
 				}
