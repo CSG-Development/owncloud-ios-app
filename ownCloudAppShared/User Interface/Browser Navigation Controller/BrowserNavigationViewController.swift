@@ -657,7 +657,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 				effectiveLocation = rootItem.location
 			}
 
-			if let location = effectiveLocation, history.items.count > 1 {
+			if let location = effectiveLocation, history.items.count > 1, !location.isRoot {
 				topAccessoryViewController?.clientContext = clientContext
 				topAccessoryViewController?.location = location
 				topAccessoryView.isHidden = false
