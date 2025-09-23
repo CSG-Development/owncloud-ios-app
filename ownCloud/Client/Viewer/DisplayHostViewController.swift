@@ -24,7 +24,7 @@ class DisplayExtensionContext: OCExtensionContext {
 	public var clientContext: ClientContext?
 }
 
-class DisplayHostViewController: UIPageViewController {
+class DisplayHostViewController: UIPageViewController, DisplayHostType {
 	enum PagePosition {
 		case before, after
 	}
@@ -34,6 +34,10 @@ class DisplayHostViewController: UIPageViewController {
 
 	// MARK: - Instance Variables
 	public var clientContext : ClientContext?
+
+	public var location: OCLocation? {
+		activeDisplayViewController?.item?.location
+	}
 
 	private var initialItem: OCItem
 
@@ -216,15 +220,11 @@ class DisplayHostViewController: UIPageViewController {
 						navigationTitleLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
 						navigationTitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 						navigationTitleLabel.text = itemLocation.displayName(in: clientContext)
-
-						self?.navigationItem.navigationContent.add(items: [
-							NavigationContentItem(
-								identifier: "navigation-location",
-								area: .title,
-								priority: .standard,
-								position: .middle,
-								titleView: navigationTitleLabel
-							)
+						self?.navigationItem.titleView = navigationTitleLabel
+						// Notify BrowserNavigationViewController to display breadcrumbs via ClientLocationBarController
+						NotificationCenter.default.post(name: .displayHostLocationDidChange, object: self, userInfo: [
+							"clientContext": clientContext as Any,
+							"location": itemLocation as Any
 						])
 					}
 				}
