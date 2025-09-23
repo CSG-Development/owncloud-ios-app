@@ -78,7 +78,7 @@ open class ClientLocationBarController: UIViewController, Themeable {
 	}
 
 	func composeSegments(location: OCLocation?, in clientContext: ClientContext) -> [SegmentViewItem] {
-		guard let location else {
+		guard let location, !location.isRoot else {
 			return []
 		}
 		return OCLocation.composeSegments(breadcrumbs: location.breadcrumbs(in: clientContext), in: clientContext, segmentConfigurator: { breadcrumb, segment in
