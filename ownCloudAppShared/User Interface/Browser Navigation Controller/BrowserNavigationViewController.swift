@@ -364,11 +364,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 	@objc private func
 	handleDisplayHostLocationDidChange(_ note: Notification) {
-		if let ctx = note.userInfo?["clientContext"] as? ClientContext,
-		   let location = note.userInfo?["location"] as? OCLocation {
-			self.topAccessoryViewController?.clientContext = ctx
-			self.topAccessoryViewController?.location = location
-		}
+		self.updateNavigation()
 	}
 
 	// MARK: - Navigation Bar
@@ -662,15 +658,10 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 				topAccessoryViewController?.location = location
 				topAccessoryView.isHidden = false
 			}
-		} else if let displayHost = contentViewController as? UIPageViewController {
-			// Viewer: use location popup added by DisplayHostViewController to supply the breadcrumb
-			if let popup = displayHost.navigationItem.titleView as? ClientLocationPopupButton,
-			   let clientContext = popup.clientContext,
-			   let location = popup.location {
-				topAccessoryViewController?.clientContext = clientContext
-				topAccessoryViewController?.location = location
-				topAccessoryView.isHidden = false
-			}
+		} else if let displayHost = contentViewController as? DisplayHostType {
+			topAccessoryViewController?.clientContext = displayHost.clientContext
+			topAccessoryViewController?.location = displayHost.location
+			topAccessoryView.isHidden = false
 		}
 
 		view.setNeedsLayout()

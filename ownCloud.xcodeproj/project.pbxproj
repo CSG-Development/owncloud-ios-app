@@ -201,6 +201,7 @@
 		99F472F82E095C1500104592 /* UIButton+HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */; };
 		99F472FA2E095C1500104592 /* CGRect+Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E32E095C1500104592 /* CGRect+Geometry.swift */; };
 		99F473002E095CD600104592 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 99F472FF2E095CD600104592 /* SnapKit */; };
+		99F9CC1F2E82D0EF000BC8E0 /* DisplayHostType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F9CC1E2E82D0E9000BC8E0 /* DisplayHostType.swift */; };
 		99FC32132DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
 		99FC32142DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
 		99FC32152DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
@@ -1302,6 +1303,7 @@
 		99F472E62E095C1500104592 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		99F472EA2E095C1500104592 /* HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCButtonStyle.swift; sourceTree = "<group>"; };
 		99F472EB2E095C1500104592 /* HCColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCColor.swift; sourceTree = "<group>"; };
+		99F9CC1E2E82D0E9000BC8E0 /* DisplayHostType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayHostType.swift; sourceTree = "<group>"; };
 		99FC32122DE9992E0011D066 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A56EA84D8AD331FFA604138B /* Pods_ownCloudTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ownCloudTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0D9C062DD1E85A838608B0F /* EarlGrey.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EarlGrey.framework; path = Pods/EarlGrey/EarlGrey/EarlGrey.framework; sourceTree = SOURCE_ROOT; };
@@ -2518,6 +2520,7 @@
 		99F472F12E095C1500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
+				99F9CC1E2E82D0E9000BC8E0 /* DisplayHostType.swift */,
 				9956119B2E6C706600FA252D /* Combine */,
 				995611832E6B6C1500FA252D /* LocationTreePicker */,
 				991727862E5DC3F100AD9C54 /* RunGate.swift */,
@@ -5222,6 +5225,7 @@
 				DCC73F2E2B86BC960009A210 /* PasswordComposerViewController.swift in Sources */,
 				DCB1B8A729C75EBD00BFF393 /* ThemeCSS+AutoSelectors.swift in Sources */,
 				0287DD7D249131E000C912CA /* AppStatistics.swift in Sources */,
+				99F9CC1F2E82D0EF000BC8E0 /* DisplayHostType.swift in Sources */,
 				DCB1B8A429C73DB800BFF393 /* ThemeCSSRecord.swift in Sources */,
 				DC60F2A829802B0900905EC8 /* NavigationContent.swift in Sources */,
 				DC49C22128524D6C00BAA910 /* ThemeableCollectionViewCell.swift in Sources */,
