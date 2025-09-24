@@ -880,10 +880,19 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 	public func sortBar(_ sortBar: SortBar, itemLayout: ItemLayout) {
 		if itemLayout != clientContext?.itemLayout {
+			// Preserve top position if we're already at the very top
+			let adjustedTopInset = collectionView.adjustedContentInset.top
+			let wasAtTop = collectionView.contentOffset.y <= -adjustedTopInset + 0.5
+
 			clientContext?.itemLayout = itemLayout
 
 			itemSection?.clientContext?.itemLayout = itemLayout
 			itemSection?.adopt(itemLayout: itemLayout)
+
+			if wasAtTop {
+				// Enforce staying at top after layout switch
+				collectionView.setContentOffset(CGPoint(x: 0, y: -adjustedTopInset), animated: false)
+			}
 		}
 	}
 
