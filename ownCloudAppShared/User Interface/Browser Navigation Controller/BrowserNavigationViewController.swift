@@ -177,16 +177,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		topAccessoryContainerView.addArrangedSubview(topAccessoryView)
 
 		setupHistoryButtons()
-		updateTabBarRelatedDynamicLayout()
-		updateSideBarRelatedDynamicLayout()
+		updateDynamicLayout()
 		view.layoutIfNeeded()
 	}
 
-	private func updateSideBarRelatedDynamicLayout() {
-		guard
-			let sidebarView,
-			let view, sidebarView.superview != nil
-		else { return }
+	private func updateDynamicLayout() {
+		guard let sidebarView, let view, sidebarView.superview != nil else { return }
 
 		sidebarView.snp.remakeConstraints {
 			guard !isSideBarHidden else {
@@ -220,33 +216,6 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 					}
 			}
 		}
-
-		sideBarSeperatorView.snp.remakeConstraints {
-			$0.top.equalToSuperview()
-			$0.trailing.equalTo(sidebarView.snp.trailing)
-			$0.width.equalTo(1)
-			if UIDevice.current.isIpad {
-				$0.bottom.equalTo(tabBarView.snp.top)
-			} else {
-				$0.bottom.equalToSuperview()
-			}
-		}
-
-		switch effectiveSideBarDisplayMode {
-			case .fullWidth, .over:
-				sideBarSeperatorView.isHidden = true
-
-			case .sideBySide:
-				sideBarSeperatorView.isHidden = false
-		}
-	}
-
-	private func updateTabBarRelatedDynamicLayout() {
-		guard
-			let sidebarView,
-			let view, sidebarView.superview != nil
-		else { return }
-
 		tabBarView.snp.remakeConstraints {
 			if isTabBarHidden {
 				$0.top.equalTo(view.snp.bottom)
@@ -258,7 +227,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			} else {
 				$0.leading.equalTo(view.snp.leading).priority(.high)
 			}
-			$0.bottom.equalTo(wrappedContentContainerView.snp.bottom)
+			$0.top.equalTo(wrappedContentContainerView.snp.bottom)
 			$0.trailing.equalTo(view.snp.trailing)
 			$0.height.equalTo(68)
 		}
@@ -282,13 +251,32 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 					$0.leading.equalTo(view.snp.leading)
 			}
 		}
+
+		sideBarSeperatorView.snp.remakeConstraints {
+			$0.top.equalToSuperview()
+			$0.trailing.equalTo(sidebarView.snp.trailing)
+			$0.width.equalTo(1)
+			if UIDevice.current.isIpad {
+				$0.bottom.equalTo(tabBarView.snp.top)
+			} else {
+				$0.bottom.equalToSuperview()
+			}
+		}
+
+		switch effectiveSideBarDisplayMode {
+			case .fullWidth, .over:
+				sideBarSeperatorView.isHidden = true
+
+			case .sideBySide:
+				sideBarSeperatorView.isHidden = false
+		}
 	}
 
 	private func setupTabBar() {
 		tabBarView.onTabSelected = { [weak self] tab in
 			guard
 				let self,
-			    let tab
+				let tab
 			else { return }
 
 			guard
@@ -809,7 +797,6 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	var preferredSideBarDisplayMode: SideBarDisplayMode?
 	var sideBarDisplayMode: SideBarDisplayMode = .over {
 		didSet {
-			guard oldValue != sideBarDisplayMode else { return }
 			updateSideBarLayoutAndAppearance()
 		}
 	}
@@ -827,7 +814,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 	func setTabBarHidden(_ isHidden: Bool, animated: Bool = true) {
 		let animations = {
-			self.updateTabBarRelatedDynamicLayout()
+			self.updateDynamicLayout()
 			self.tabBarView.layoutIfNeeded()
 		}
 
@@ -835,7 +822,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 		}
 
-		updateTabBarRelatedDynamicLayout()
+		updateDynamicLayout()
 		self.isTabBarHidden = isHidden
 		if animated {
 			UIView.animate(withDuration: 0.3, animations: animations, completion: completion)
@@ -891,7 +878,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	func updateSideBarLayoutAndAppearance() {
-		updateSideBarRelatedDynamicLayout()
+		updateDynamicLayout()
 
 		updateContentNavigationItems()
 	}
