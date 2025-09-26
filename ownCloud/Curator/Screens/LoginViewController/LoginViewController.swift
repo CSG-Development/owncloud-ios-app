@@ -69,6 +69,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		textField.textField.returnKeyType = .next
 		textField.textField.autocorrectionType = .no
 		textField.textField.autocapitalizationType = .none
+		textField.textField.textContentType = .username
 		textField.placeholder = "Enter email address"
 		textField.textField.delegate = self
 		return textField
@@ -93,6 +94,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		textField.textField.returnKeyType = .done
 		textField.textField.autocorrectionType = .no
 		textField.textField.autocapitalizationType = .none
+		textField.textField.textContentType = .password
 		textField.textField.delegate = self
 		return textField
 	}()
@@ -207,9 +209,9 @@ final public class LoginViewController: UIViewController, Themeable {
 			HCSpacerView(24),
 			logoView,
 			HCSpacerView(24),
-			emailTextField,
-			HCSpacerView(12),
 			addressTextField,
+			HCSpacerView(12),
+			emailTextField,
 			HCSpacerView(12),
 			passwordTextField,
 			HCSpacerView(4),
@@ -349,11 +351,11 @@ extension LoginViewController: UITextFieldDelegate {
 	}
 
 	public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-		if textField === emailTextField.textField {
-			addressTextField.textField.becomeFirstResponder()
+		if textField === addressTextField.textField {
+			emailTextField.textField.becomeFirstResponder()
 			return true
 		}
-		if textField === addressTextField.textField {
+		if textField === emailTextField.textField {
 			passwordTextField.textField.becomeFirstResponder()
 			return true
 		}
