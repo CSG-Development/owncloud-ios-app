@@ -24,7 +24,7 @@ class AvailableOfflineAction: Action {
 	override class var identifier : OCExtensionIdentifier? { return OCExtensionIdentifier("com.owncloud.action.availableOffline") }
 	override class var category : ActionCategory? { return .normal }
 	override class var name : String? { return OCLocalizedString("Make available offline", nil) }
-	override class var locations : [OCExtensionLocationIdentifier]? { return [.moreItem, .moreDetailItem, .moreFolder, .keyboardShortcut, .contextMenuItem, .accessibilityCustomAction] }
+    override class var locations : [OCExtensionLocationIdentifier]? { return [.moreItem, .moreDetailItem, .moreFolder, .multiSelection, .keyboardShortcut, .contextMenuItem, .accessibilityCustomAction] }
 	override class var keyCommand : String? { return "O" }
 	override class var keyModifierFlags: UIKeyModifierFlags? { return [.command, .alternate] }
 
