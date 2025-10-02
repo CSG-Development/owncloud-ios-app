@@ -61,4 +61,15 @@ public enum HCL10n {
 			public static let subtitle = "Files and folders you mark as available offline will show up here."
 		}
 	}
+
+	public enum ImageCropAction {
+		public static let name = "Crop/rotate image"
+
+		public enum SaveAlert {
+			public static let title = "Save File"
+			public static let overwrite = "Overwrite original"
+			public static let saveACopy = "Save as copy"
+			public static let discard = "Discard changes"
+		}
+	}
 }
