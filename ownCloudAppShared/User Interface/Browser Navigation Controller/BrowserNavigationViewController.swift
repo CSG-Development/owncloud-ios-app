@@ -923,8 +923,10 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 		if isLandscape && isPhone {
 			setTabBarHidden(true, animated: hasCompletedInitialLayout)
+			setNavigationBarHidden(true, animated: hasCompletedInitialLayout)
 		} else {
 			setTabBarHidden(false, animated: hasCompletedInitialLayout)
+			setNavigationBarHidden(false, animated: hasCompletedInitialLayout)
 		}
 	}
 
@@ -937,8 +939,10 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		switch direction {
 			case .down:
 				setTabBarHidden(true)
+				setNavigationBarHidden(true, animated: true)
 			case .up:
 				setTabBarHidden(false)
+				setNavigationBarHidden(false, animated: true)
 			case .none:
 				break
 		}
