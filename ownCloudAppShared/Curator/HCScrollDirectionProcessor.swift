@@ -10,6 +10,7 @@ public final class HCScrollDirectionProcessor {
 	private var previousOffset: CGFloat = 0
 	private var accumulatedDelta: CGFloat = 0
 	private var lastDirection: ScrollDirection = .none
+	private var lastEmittedDirection: ScrollDirection = .none
 	private let scrollThreshold: CGFloat = 100 // Minimum scroll before triggering
 
 	var onDirectionChange: ((ScrollDirection) -> Void)?
@@ -35,7 +36,10 @@ public final class HCScrollDirectionProcessor {
 		}
 
 		if abs(accumulatedDelta) >= scrollThreshold {
-			onDirectionChange?(newDirection)
+			if newDirection != lastEmittedDirection {
+				onDirectionChange?(newDirection)
+				lastEmittedDirection = newDirection
+			}
 			accumulatedDelta = 0
 		}
 
