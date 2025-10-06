@@ -113,7 +113,7 @@ class ImageCropAction: Action {
             }))
         }
 
-		alertController.addAction(UIAlertAction(title: HCL10n.ImageCropAction.SaveAlert.overwrite, style: .destructive, handler: { _ in
+		alertController.addAction(UIAlertAction(title: HCL10n.ImageCropAction.SaveAlert.discard, style: .destructive, handler: { _ in
             completion(.disabled)
         }))
 
