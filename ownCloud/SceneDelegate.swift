@@ -26,7 +26,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 	// MARK: - Scene Context
 	lazy var sceneClientContext: ClientContext = {
-		return ClientContext(scene: scene)
+		let context = ClientContext(scene: scene)
+		// Adopt preferred item layout so all descendants inherit it
+		context.itemLayout = ItemLayoutPreference.preferred
+		return context
 	}()
 
 	// MARK: - AppRootViewController
