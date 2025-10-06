@@ -291,6 +291,7 @@ public class SortBar: ThemeCSSView {
 
 	private func switchItemLayout(to newItemLayout: ItemLayout) {
 		itemLayout = newItemLayout
+		ItemLayoutPreference.preferred = newItemLayout
 		delegate?.sortBar(self, itemLayout: newItemLayout)
 	}
 }

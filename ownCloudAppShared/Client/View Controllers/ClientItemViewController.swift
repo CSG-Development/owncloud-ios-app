@@ -190,7 +190,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 			itemSectionDataSource = OCDataSourceComposition(sources: [contentsDataSource])
 
-			let itemLayout = itemControllerContext.itemLayout ?? .list
+			let itemLayout = itemControllerContext.itemLayout ?? ItemLayoutPreference.preferred
 			let itemSectionCellStyle = CollectionViewCellStyle(from: itemLayout.cellStyle, changing: { cellStyle in
 				if showRevealButtonForItems {
 					cellStyle.showRevealButton = true
@@ -354,7 +354,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 		sortBar = SortBar(sortDescriptor: sortDescriptor)
 		sortBar?.translatesAutoresizingMaskIntoConstraints = false
 		sortBar?.delegate = self
-		sortBar?.itemLayout = clientContext?.itemLayout ?? .list
+		sortBar?.itemLayout = clientContext?.itemLayout ?? ItemLayoutPreference.preferred
 		sortBar?.showSelectButton = true
 
 		if let sortBar {
@@ -434,6 +434,21 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 		if let query {
 			clientContext?.core?.start(query)
+		}
+
+		let latestLayout = ItemLayoutPreference.preferred
+		if latestLayout != itemSection?.clientContext?.itemLayout {
+			clientContext?.itemLayout = latestLayout
+			var ancestorContext = clientContext
+			while let parent = ancestorContext?.parent {
+				parent.itemLayout = latestLayout
+				ancestorContext = parent
+			}
+
+			itemSection?.clientContext?.itemLayout = latestLayout
+			itemSection?.adopt(itemLayout: latestLayout)
+			sortBar?.itemLayout = latestLayout
+			collectionView.collectionViewLayout.invalidateLayout()
 		}
 
 		if locationBarViewController == nil {
@@ -886,6 +901,12 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 			clientContext?.itemLayout = itemLayout
 
+			var ancestorContext = clientContext
+			while let parent = ancestorContext?.parent {
+				parent.itemLayout = itemLayout
+				ancestorContext = parent
+			}
+
 			itemSection?.clientContext?.itemLayout = itemLayout
 			itemSection?.adopt(itemLayout: itemLayout)
 
@@ -893,6 +914,8 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 				// Enforce staying at top after layout switch
 				collectionView.setContentOffset(CGPoint(x: 0, y: -adjustedTopInset), animated: false)
 			}
+
+			collectionView.collectionViewLayout.invalidateLayout()
 		}
 	}
 

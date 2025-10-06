@@ -180,6 +180,7 @@
 		99AD431F2DF310CA00914C19 /* SidebarCollectionViewListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */; };
 		99B8B1DE2E7330F000535240 /* UIViewController+NavSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */; };
 		99BC9F2E2E4C72DE0004F6B2 /* HCErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */; };
+		99BD2B882E93C62C00DFBDF0 /* ItemLayoutPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BD2B872E93C62C00DFBDF0 /* ItemLayoutPreference.swift */; };
 		99CE0A5E2E49F31200380EB8 /* HCKeyboardTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */; };
 		99CE0A602E4A232200380EB8 /* HCSpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */; };
 		99DA8B692E0EB4B700D726DC /* HCNavigationLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */; };
@@ -1286,6 +1287,7 @@
 		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
 		99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+NavSeparator.swift"; sourceTree = "<group>"; };
 		99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCErrorView.swift; sourceTree = "<group>"; };
+		99BD2B872E93C62C00DFBDF0 /* ItemLayoutPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemLayoutPreference.swift; sourceTree = "<group>"; };
 		99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCKeyboardTracker.swift; sourceTree = "<group>"; };
 		99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpinnerView.swift; sourceTree = "<group>"; };
 		99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCNavigationLogoView.swift; sourceTree = "<group>"; };
@@ -3701,6 +3703,7 @@
 		DCE4E42F24C1963F0051722F /* User Interface */ = {
 			isa = PBXGroup;
 			children = (
+				99BD2B872E93C62C00DFBDF0 /* ItemLayoutPreference.swift */,
 				DC24B31C25BB6FC4005783E2 /* IssuesCardViewController.swift */,
 				DCFE682D28D9CEDD00091D2A /* ComposedMessageView.swift */,
 				DCD864112811FC5700CA6631 /* GradientView.swift */,
@@ -5113,6 +5116,7 @@
 				DC0A358F24C0E46000FB58FC /* PointerEffect.swift in Sources */,
 				DC921A022966D5F800F538EE /* OCShare+UniversalItemListCellContentProvider.swift in Sources */,
 				DC0A358924C0E44B00FB58FC /* ThemeNavigationController.swift in Sources */,
+				99BD2B882E93C62C00DFBDF0 /* ItemLayoutPreference.swift in Sources */,
 				DCBD8EA824B3751900D92E1F /* OCItem+Extension.swift in Sources */,
 				391C79A824E186DC00CB6333 /* OCBookmark+Extension.swift in Sources */,
 				DC0A358A24C0E44B00FB58FC /* ThemeButton.swift in Sources */,
