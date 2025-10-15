@@ -113,6 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 		OCExtensionManager.shared.addExtension(ScanAction.actionExtension)
 		OCExtensionManager.shared.addExtension(DocumentEditingAction.actionExtension)
+		OCExtensionManager.shared.addExtension(ImageCropAction.actionExtension)
 
 		OCExtensionManager.shared.addExtension(ManageSpaceAction.actionExtension)
 		OCExtensionManager.shared.addExtension(MembersSpaceAction.actionExtension)
