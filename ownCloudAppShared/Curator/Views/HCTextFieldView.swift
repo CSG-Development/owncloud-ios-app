@@ -30,14 +30,14 @@ open class HCTextFieldView: HCFieldView {
 		return button
 	}()
 
-	public var title: String? {
+	open var title: String? {
 		didSet {
 			borderView.title = title
 			updateAppearance()
 		}
 	}
 
-	public var placeholder: String? {
+	open var placeholder: String? {
 		didSet {
 			updateAppearance()
 		}
@@ -96,6 +96,8 @@ open class HCTextFieldView: HCFieldView {
 		updateAppearance()
 
 		super.applyThemeCollection(theme: theme, collection: collection, event: event)
+
+		backgroundColor = .clear
 	}
 
 	private func updateTextField() {

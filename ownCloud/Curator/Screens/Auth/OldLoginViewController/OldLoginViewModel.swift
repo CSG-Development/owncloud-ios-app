@@ -3,23 +3,23 @@ import Combine
 import ownCloudSDK
 import ownCloudAppShared
 
-protocol LoginViewModelEventHandler: AnyObject {
-	func handle(_ event: LoginViewModel.Event)
+protocol OldLoginViewModelEventHandler: AnyObject {
+	func handle(_ event: OldLoginViewModel.Event)
 }
 
-final public class LoginViewModel {
+final public class OldLoginViewModel {
 	enum Event {
 		case loginTap
 		case resetPasswordTap
 		case settingsTap
 	}
 
-	enum LoginError {
+	enum OldLoginError {
 		case authenticationFailed
 		case serverNotFound
 	}
 
-	private let eventHandler: LoginViewModelEventHandler
+	private let eventHandler: OldLoginViewModelEventHandler
 
 	// Inputs
 	@Published var username: String = ""
@@ -29,7 +29,7 @@ final public class LoginViewModel {
 	// Outputs
 	@Published private(set) var isLoginEnabled: Bool = true
 	@Published private(set) var isLoading: Bool = false
-	@Published private(set) var errors: [LoginError] = []
+	@Published private(set) var errors: [OldLoginError] = []
 
 	private var cancellables = Set<AnyCancellable>()
 
@@ -53,7 +53,7 @@ final public class LoginViewModel {
 		return connection
 	}
 
-	init(eventHandler: LoginViewModelEventHandler) {
+	init(eventHandler: OldLoginViewModelEventHandler) {
 		self.eventHandler = eventHandler
 		self.bookmark = OCBookmark()
 
@@ -69,59 +69,58 @@ final public class LoginViewModel {
 	}
 
 	func login() {
-		Log.debug("[STXFILES]: Starting login")
-		// TODO: Refactor during login from invite implementation.
+		Log.debug("[STX]: Starting login")		
 		guard isLoginEnabled, !isLoading else { return }
 		isLoading = true
 
 		// For testing
 		if !address.starts(with: "https://") && !address.starts(with: "http://") {
 			address = "https://" + address
-			Log.debug("[STXFILES]: Appending https:// to entered address. Result: \(address)")
+			Log.debug("[STX]: Appending https:// to entered address. Result: \(address)")
 		}
 
 		bookmark.url = URL(string: address)
 		let connection = instantiateConnection(for: bookmark)
 		OCConnection.setupHTTPPolicy = .allow
-		Log.debug("[STXFILES]: Calling OCConnection.prepareForSetup")
+		Log.debug("[STX]: Calling OCConnection.prepareForSetup")
 		connection.prepareForSetup(options: nil) { [weak self] (issue, _, supportedMethods, preferredAuthenticationMethods, generationOptions) in
-			Log.debug("[STXFILES]: prepareForSetup completion.")
+			Log.debug("[STX]: prepareForSetup completion.")
 			if let issues = issue?.issues {
 				let issuesString = issues.map {
 					"\($0.localizedTitle ?? "no title") - \($0.localizedDescription ?? "no description")"
 				}.joined(separator: "\n")
-				Log.debug("[STXFILES]: Issues: \(issuesString)")
+				Log.debug("[STX]: Issues: \(issuesString)")
 			}
 
 			if let issues = issue?.issues, issues.contains(where: { $0.type == .error }) {
 				self?.errors = [.serverNotFound]
-				Log.debug("[STXFILES]: There was an error preparing login. Aborting.")
+				Log.debug("[STX]: There was an error preparing login. Aborting.")
 				self?.isLoading = false
 				return
 			}
 
-			Log.debug("[STXFILES]: Checking supported authentication methods.")
+			Log.debug("[STX]: Checking supported authentication methods.")
 			guard let supportedMethods else {
-				Log.debug("[STXFILES]: No supported methods found. Aborting.")
+				Log.debug("[STX]: No supported methods found. Aborting.")
 				self?.errors = [.serverNotFound]
 				self?.isLoading = false
 				return
 			}
 
-			Log.debug("[STXFILES]: Supported methods: \(supportedMethods.map(\.rawValue).joined(separator: "\n"))")
+			Log.debug("[STX]: Supported methods: \(supportedMethods.map(\.rawValue).joined(separator: "\n"))")
 			if let preferredAuthenticationMethods {
-				Log.debug("[STXFILES]: Preferred methods: \(preferredAuthenticationMethods.map(\.rawValue).joined(separator: "\n"))")
+				Log.debug("[STX]: Preferred methods: \(preferredAuthenticationMethods.map(\.rawValue).joined(separator: "\n"))")
 			}
 			if let generationOptions {
-				Log.debug("[STXFILES]: Generation options: \(generationOptions)")
+				Log.debug("[STX]: Generation options: \(generationOptions)")
 			}
 
 			if supportedMethods.contains(.basicAuth) {
 				self?.bookmark.authenticationMethodIdentifier = .basicAuth
-				Log.debug("[STXFILES]: Authenticating with basic auth method.")
+				Log.debug("[STX]: Authenticating with basic auth method.")
 				self?.authenticate(username: self?.username, password: self?.password)
 			} else {
-				Log.debug("[STXFILES]: Basic auth is not supported. Aborting.")
+				Log.debug("[STX]: Basic auth is not supported. Aborting.")
 				self?.errors = [.serverNotFound]
 				self?.isLoading = false
 			}
@@ -135,14 +134,14 @@ final public class LoginViewModel {
 
 		if let authMethodIdentifier = bookmark.authenticationMethodIdentifier {
 			if OCAuthenticationMethod.isAuthenticationMethodPassphraseBased(authMethodIdentifier as OCAuthenticationMethodIdentifier) {
-				Log.debug("[STXFILES]: Authentication method passphrase based, providing username and password.")
+				Log.debug("[STX]: Authentication method passphrase based, providing username and password.")
 				options[.usernameKey] = username ?? ""
 				options[.passphraseKey] = password ?? ""
 			} else {
-				Log.debug("[STXFILES]: Authentication method is not passphrase based.")
+				Log.debug("[STX]: Authentication method is not passphrase based.")
 			}
 		} else {
-			Log.debug("[STXFILES]: Bookmark doesnt have authentication method identifier.")
+			Log.debug("[STX]: Bookmark doesnt have authentication method identifier.")
 		}
 
 		options[.requiredUsernameKey] = bookmark.userName
@@ -155,36 +154,35 @@ final public class LoginViewModel {
 		guard let bookmarkAuthenticationMethodIdentifier = bookmark.authenticationMethodIdentifier else {
 			self.errors = [.serverNotFound]
 			self.isLoading = false
-			Log.debug("[STXFILES]: Bookmark doesnt have authentication method identifier.")
+			Log.debug("[STX]: Bookmark doesnt have authentication method identifier.")
 			return
 		}
 
-		Log.debug("[STXFILES]: Starting generation of authentication data.")
+		Log.debug("[STX]: Starting generation of authentication data.")
 		connection.generateAuthenticationData(withMethod: bookmarkAuthenticationMethodIdentifier, options: options) { (error, authMethodIdentifier, authMethodData) in
 			if error == nil, let authMethodIdentifier, let authMethodData {
-				Log.debug("[STXFILES]: Authentication generation succeeded.")
+				Log.debug("[STX]: Authentication generation succeeded.")
 				self.bookmark.authenticationMethodIdentifier = authMethodIdentifier
 				self.bookmark.authenticationData = authMethodData
 				self.bookmark.scanForAuthenticationMethodsRequired = false
 
-				Log.debug("[STXFILES]: Retreiving available instances.")
+				Log.debug("[STX]: Retreiving available instances.")
 				connection.retrieveAvailableInstances(options: options, authenticationMethodIdentifier: authMethodIdentifier, authenticationData: authMethodData, completionHandler: { error, instances in
 					if error == nil, let instances, instances.count > 0 {
-//						self.instances = instances
-						Log.debug("[STXFILES]: Instances: \(instances)")
+						Log.debug("[STX]: Instances: \(instances)")
 					}
 
 					if self.bookmark.isComplete {
-						Log.debug("[STXFILES]: Bookmark is complete. Adding bookmark")
+						Log.debug("[STX]: Bookmark is complete. Adding bookmark")
 						self.bookmark.authenticationDataStorage = .keychain // Commit auth changes to keychain
 						OCBookmarkManager.shared.addBookmark(self.bookmark)
 					} else {
-						Log.debug("[STXFILES]: Bookmark is not complete")
+						Log.debug("[STX]: Bookmark is not complete")
 					}
 
 				})
 			} else {
-				Log.debug("[STXFILES]: Authentication generation failed with error: \(error)")
+				Log.debug("[STX]: Authentication generation failed with error: \(error?.localizedDescription ?? "")")
 				self.errors = [.authenticationFailed]
 				self.isLoading = false
 			}

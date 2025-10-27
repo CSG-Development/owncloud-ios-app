@@ -222,7 +222,7 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 		(OCBookmarkManager.shared.bookmarksDatasource as? OCDataSourceArray)?.setVersionedItems(bookmarks)
 	}
 
-	public func updateAvailableSpace() {
+	public func updateAvailableSpace() {		
 		updateAvailableSpaceGate.runIfIdle { [weak self] done in
 			let bookmark = self?.focusedBookmark ?? OCBookmarkManager.shared.bookmarks.first
 			guard

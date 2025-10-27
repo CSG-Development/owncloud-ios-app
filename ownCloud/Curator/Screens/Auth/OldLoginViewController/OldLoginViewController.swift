@@ -3,16 +3,12 @@ import UIKit
 import SnapKit
 import ownCloudAppShared
 
-extension ThemeCSSSelector {
-	public static let loginNavbar = ThemeCSSSelector(rawValue: "loginNavbar")
-}
-
-final public class LoginViewController: UIViewController, Themeable {
+final public class OldLoginViewController: UIViewController, Themeable {
 	private enum Constants {
 		static let navbarHeight: CGFloat = 64.0
 	}
 
-	private let viewModel: LoginViewModel
+	private let viewModel: OldLoginViewModel
 
 	private var cancellables = Set<AnyCancellable>()
 
@@ -29,7 +25,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	private lazy var loadingView: UIView = {
 		let loadingLabel = ThemeCSSLabel()
 		loadingLabel.cssSelector = .auth
-		loadingLabel.text = "Logging in to your account"
+		loadingLabel.text = HCL10n.Auth.OldLogin.loadingViewTitle
 		let loadingView = UIStackView(arrangedSubviews: [
 			HCSpinnerView(frame: .zero),
 			HCSpacerView(16, .vertical),
@@ -43,7 +39,7 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private lazy var errorView: UIView = {
 		let errorCardView = HCErrorView(frame: .zero)
-		errorCardView.subtitle = "Incorrect email or password"
+		errorCardView.subtitle = HCL10n.Auth.OldLogin.incorrectEmailPassword
 		let errorView = UIStackView(arrangedSubviews: [
 			errorCardView,
 			HCSpacerView(24, .vertical)
@@ -64,21 +60,21 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private lazy var emailTextField: HCTextFieldView = {
 		let textField = HCTextFieldView(frame: .zero)
-		textField.title = "Email"
+		textField.title = HCL10n.Auth.OldLogin.EmailField.title
 		textField.textField.keyboardType = .emailAddress
 		textField.textField.returnKeyType = .next
 		textField.textField.autocorrectionType = .no
 		textField.textField.autocapitalizationType = .none
 		textField.textField.textContentType = .username
-		textField.placeholder = "Enter email address"
+		textField.placeholder = HCL10n.Auth.OldLogin.EmailField.placeholder
 		textField.textField.delegate = self
 		return textField
 	}()
 
 	private lazy var addressTextField: HCTextFieldView = {
 		let textField = HCTextFieldView(frame: .zero)
-		textField.title = "Connecting to"
-		textField.placeholder = "No device detected"
+		textField.title = HCL10n.Auth.OldLogin.AddressField.title
+		textField.placeholder = HCL10n.Auth.OldLogin.AddressField.placeholder
 		textField.textField.keyboardType = .URL
 		textField.textField.returnKeyType = .next
 		textField.textField.autocorrectionType = .no
@@ -89,8 +85,8 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private lazy var passwordTextField: HCSecureTextFieldView = {
 		let textField = HCSecureTextFieldView(frame: .zero)
-		textField.title = "Password"
-		textField.placeholder = "Enter password"
+		textField.title = HCL10n.Auth.OldLogin.PasswordField.title
+		textField.placeholder = HCL10n.Auth.OldLogin.PasswordField.placeholder
 		textField.textField.returnKeyType = .done
 		textField.textField.autocorrectionType = .no
 		textField.textField.autocapitalizationType = .none
@@ -101,7 +97,7 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private lazy var loginButton: UIButton = {
 		let button = ThemeRoundedButton(withSelectors: [.primary, .filled])
-		button.setTitle("Login", for: .normal)
+		button.setTitle(HCL10n.Auth.OldLogin.loginButtonTitle, for: .normal)
 		button.snp.makeConstraints { $0.height.equalTo(40) }
 		button.addTarget(self, action: #selector(didTapLogin), for: .touchUpInside)
 		return button
@@ -109,7 +105,7 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private lazy var resetPasswordButton: UIButton = {
 		let button = ThemeRoundedButton(withSelectors: [.primary, .plain])
-		button.setTitle("Reset Password", for: .normal)
+		button.setTitle(HCL10n.Auth.OldLogin.resetPasswordButtonTitle, for: .normal)
 		button.snp.makeConstraints { $0.height.equalTo(40) }
 		button.addTarget(self, action: #selector(didTapResetPassword), for: .touchUpInside)
 		return button
@@ -117,12 +113,12 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private lazy var settingsButton: UIButton = {
 		let button = UIButton(type: .custom)
-		button.setImage(UIImage(named: "settings", in: Bundle.sharedAppBundle, with: nil), for: .normal)
+		button.setImage(HCIcon.settings, for: .normal)
 		button.addTarget(self, action: #selector(didTapSettings), for: .touchUpInside)
 		return button
 	}()
 
-	init(viewModel: LoginViewModel) {
+	init(viewModel: OldLoginViewModel) {
 		self.viewModel = viewModel
 
 		super.init(nibName: nil, bundle: nil)
@@ -286,7 +282,7 @@ final public class LoginViewController: UIViewController, Themeable {
 							self?.passwordTextField.errorText = " "
 							self?.errorView.isHidden = false
 						case .serverNotFound:
-							self?.addressTextField.errorText = "An error ocurred while connecting to the server."
+							self?.addressTextField.errorText = HCL10n.Auth.OldLogin.serverNotFoundError
 					}
 				}
 			}
@@ -320,7 +316,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	}
 }
 
-extension LoginViewController: UITextFieldDelegate {
+extension OldLoginViewController: UITextFieldDelegate {
 	public func textFieldDidBeginEditing(_ textField: UITextField) {
 		viewModel.resetErrors()
 		let scrollToField = {

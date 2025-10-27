@@ -1,13 +1,6 @@
 import UIKit
 
 public final class HCSpinnerView: ThemeCSSView {
-	private var lineWidth: CGFloat = 4.0 {
-		didSet {
-			[arcA, arcB].forEach { $0.lineWidth = lineWidth }
-			setNeedsLayout()
-		}
-	}
-
 	private var primaryColor: UIColor = .systemBlue {
 		didSet { arcA.strokeColor = primaryColor.cgColor }
 	}
@@ -52,9 +45,7 @@ public final class HCSpinnerView: ThemeCSSView {
 	}
 	private func commonInit() {
 		cssSelector = .spinner
-		[arcA, arcB].forEach {
-			$0.lineWidth = lineWidth
-		}
+
 		arcA.strokeColor = primaryColor.cgColor
 		arcB.strokeColor = secondaryColor.cgColor
 
@@ -62,13 +53,19 @@ public final class HCSpinnerView: ThemeCSSView {
 		containerLayer.addSublayer(arcA)
 		containerLayer.addSublayer(arcB)
 		snp.makeConstraints {
-			$0.width.height.equalTo(48)
+			$0.width.height.equalTo(48).priority(.high)
 		}
 	}
 
 	// MARK: - Layout
 	public override func layoutSubviews() {
 		super.layoutSubviews()
+
+		let lineWidth = min(bounds.size.width, bounds.size.height) / 10
+
+		[arcA, arcB].forEach {
+			$0.lineWidth = lineWidth
+		}
 
 		containerLayer.frame = bounds
 		arcA.frame = bounds
