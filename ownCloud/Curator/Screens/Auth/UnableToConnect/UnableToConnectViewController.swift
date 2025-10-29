@@ -3,6 +3,7 @@ import SnapKit
 import ownCloudAppShared
 
 public final class UnableToConnectViewController: UIViewController, Themeable {
+    public var onRetry: (() -> Void)?
 	private lazy var backButton: UIButton = {
 		let b = UIButton(type: .system)
 		b.setImage(HCIcon.arrowBack, for: .normal)
@@ -195,9 +196,10 @@ public final class UnableToConnectViewController: UIViewController, Themeable {
 		dismiss(animated: true)
 	}
 
-	@objc private func didTapRetry() {
-		dismiss(animated: true)
-	}
+    @objc private func didTapRetry() {
+        onRetry?()
+        dismiss(animated: true)
+    }
 
 	@objc private func didTapSupport() {
 		UIApplication.shared.open(HCConfig.supportLink)

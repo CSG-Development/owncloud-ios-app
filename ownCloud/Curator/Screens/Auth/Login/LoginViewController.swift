@@ -158,6 +158,9 @@ final public class LoginViewController: UIViewController, Themeable {
 		dropdown.onFooterTap = { [weak self] in
 			guard let self else { return }
 			let vc = UnableToConnectViewController()
+			vc.onRetry = { [weak self] in
+				self?.viewModel.refreshDevices()
+			}
 			self.present(vc, animated: true)
 		}
 		self.addressDropdown = dropdown
