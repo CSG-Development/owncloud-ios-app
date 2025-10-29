@@ -657,6 +657,12 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.hcErrorView, .text], property: .fill, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.hcErrorView, .error], property: .fill, value: HCColor.Symbolic.error(isDark)),
 
+			// # HCCardView
+			ThemeCSSRecord(selectors: [.hcCardView, .background], property: .fill, value: HCColor.Structure.cardBackground(isDark)),
+
+			// # HCOverlayView
+			ThemeCSSRecord(selectors: [.hcOverlayView, .background], property: .fill, value: HCColor.Mockups.overlayDefault(isDark)),
+
 			// ## Spinner
 			ThemeCSSRecord(selectors: [.spinner], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
 			ThemeCSSRecord(selectors: [.spinner], property: .fill, value: HCColor.Content.sliderBackground(isDark)),
@@ -681,6 +687,11 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.hcTextField, .placeholder], property: .stroke, value: HCColor.Content.gray3),
 			ThemeCSSRecord(selectors: [.hcTextField, .text], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
+			// ## HCDropdownView
+
+			ThemeCSSRecord(selectors: [.hcDropdownView], property: .fill, value: HCColor.Interaction.primaryTransparentNormal20(isDark)),
+			ThemeCSSRecord(selectors: [.hcDropdownView], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+
 			// ## Sort bar
 			ThemeCSSRecord(selectors: [.sortBar], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.sortBar, .sorting], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
@@ -689,7 +700,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sortBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 
 			// ## Login navbar
-			ThemeCSSRecord(selectors: [ThemeCSSSelector(rawValue: "loginNavbar")], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [ThemeCSSSelector(rawValue: "loginNavbar")], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
 
 			// ## Button
 			ThemeCSSRecord(selectors: [.button], property: .borderColor, value: UIColor.clear),

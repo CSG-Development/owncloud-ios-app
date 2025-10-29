@@ -72,7 +72,7 @@ open class HCFieldView: ThemeCSSView {
 		cssSelectors = (cssSelectors ?? []) + [.hcField]
 
 		borderView.snp.makeConstraints {
-			$0.height.equalTo(56)
+			$0.height.equalTo(56).priority(.high)
 		}
 		// To disable autoscroll to text field behavior.
 		let wrapper = UIScrollView()

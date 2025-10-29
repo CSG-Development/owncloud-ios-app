@@ -141,6 +141,15 @@
 		6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5FC171221590B000F60846 /* DisplayHostViewController.swift */; };
 		6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E91F37D21ECA6FD009436D2 /* CopyAction.swift */; };
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
+		9905DFAD2EA5380D00FF70B7 /* RemoteAccessAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFAC2EA5380300FF70B7 /* RemoteAccessAPI.swift */; };
+		9905DFC12EA53EA400FF70B7 /* Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFC02EA53EA100FF70B7 /* Status.swift */; };
+		9905DFC32EA53EB500FF70B7 /* About.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFC22EA53EB100FF70B7 /* About.swift */; };
+		9905DFC52EA53ECB00FF70B7 /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFC42EA53EC200FF70B7 /* AuthResponse.swift */; };
+		9905DFC82EA53EEE00FF70B7 /* RAInitiateResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFC72EA53EE600FF70B7 /* RAInitiateResponse.swift */; };
+		9905DFCA2EA53F0F00FF70B7 /* RATokenResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFC92EA53F0B00FF70B7 /* RATokenResponse.swift */; };
+		9905DFCC2EA53F2400FF70B7 /* RADevicePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFCB2EA53F1B00FF70B7 /* RADevicePath.swift */; };
+		9905DFCE2EA53F6C00FF70B7 /* RADevicePaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFCD2EA53F6300FF70B7 /* RADevicePaths.swift */; };
+		9905DFD02EA53F8900FF70B7 /* RADevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFCF2EA53F8700FF70B7 /* RADevice.swift */; };
 		99139B742E438B6E0044889B /* HCBrowserNavigationTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */; };
 		99139B752E438B6E0044889B /* HCImageHighlightCapsuleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */; };
 		99139B762E438B860044889B /* UIStackView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */; };
@@ -177,10 +186,27 @@
 		99743C772E1E9FD900DB77C2 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */; };
 		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
 		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
+		99AAAAAA2EA53B9E00FF70B7 /* DeviceAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */; };
 		99AD431F2DF310CA00914C19 /* SidebarCollectionViewListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */; };
 		99B8B1DE2E7330F000535240 /* UIViewController+NavSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */; };
 		99BC9F2E2E4C72DE0004F6B2 /* HCErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */; };
 		99BD2B882E93C62C00DFBDF0 /* ItemLayoutPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BD2B872E93C62C00DFBDF0 /* ItemLayoutPreference.swift */; };
+		99C42DD92EA6670600E36414 /* HCCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DD82EA6670200E36414 /* HCCardView.swift */; };
+		99C42DDB2EA667FE00E36414 /* HCOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DDA2EA667F800E36414 /* HCOverlayView.swift */; };
+		99C42DDF2EA6692E00E36414 /* HCDropdownTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DDD2EA668AA00E36414 /* HCDropdownTextFieldView.swift */; };
+		99C42DF32EA8CCB200E36414 /* CodeVerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DD22EA65E0000E36414 /* CodeVerificationViewController.swift */; };
+		99C42DF42EA8CCB200E36414 /* CodeVerificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DD42EA65E4700E36414 /* CodeVerificationViewModel.swift */; };
+		99C42DF62EA91F7F00E36414 /* fake-device-noveo.cer in Resources */ = {isa = PBXBuildFile; fileRef = 99C42DF52EA91F7F00E36414 /* fake-device-noveo.cer */; };
+		99C42DF82EA9423B00E36414 /* RemoteAccessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */; };
+		99C42DFC2EAA5C7400E36414 /* RemoteAccessTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */; };
+		99C42DFF2EAFA5BA00E36414 /* UnableToConnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */; };
+		99C42E062EAFC22600E36414 /* OldLoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */; };
+		99C42E072EAFC22600E36414 /* OldLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */; };
+		99C42E082EAFC22600E36414 /* OldLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E032EAFC22600E36414 /* OldLoginViewController.swift */; };
+		99C42E0D2EAFC88B00E36414 /* OldFirstRunCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */; };
+		99C42E0F2EB0CDC900E36414 /* HCConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E0E2EB0CDC100E36414 /* HCConfig.swift */; };
+		99C42E112EB0F38400E36414 /* HCIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E102EB0F37D00E36414 /* HCIcon.swift */; };
+		99C42E132EB10E1D00E36414 /* Network+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E122EB10E0800E36414 /* Network+Extensions.swift */; };
 		99CE0A5E2E49F31200380EB8 /* HCKeyboardTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */; };
 		99CE0A602E4A232200380EB8 /* HCSpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */; };
 		99DA8B692E0EB4B700D726DC /* HCNavigationLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */; };
@@ -196,6 +222,7 @@
 		99DF68722E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68712E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift */; };
 		99DF687A2E1E67D900F1A0B9 /* HCAppLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68732E1E67D900F1A0B9 /* HCAppLogoView.swift */; };
 		99DF687B2E1E67D900F1A0B9 /* HCSpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68762E1E67D900F1A0B9 /* HCSpacerView.swift */; };
+		99E53F9C2E96853500454E4F /* MDNSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E53F982E96852D00454E4F /* MDNSService.swift */; };
 		99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F175312E8C001500FE7DEC /* ImageCropAction.swift */; };
 		99F175342E8C063E00FE7DEC /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = 99F175332E8C063E00FE7DEC /* Mantis */; };
 		99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+Extensions.swift */; };
@@ -1252,6 +1279,15 @@
 		6EB8EDBE2114358300C2BF44 /* folder-create.tvg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "folder-create.tvg"; path = "img/filetypes-tvg/folder-create.tvg"; sourceTree = SOURCE_ROOT; };
 		6ED1B80A21A4004900E16C95 /* CreateFolderAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderAction.swift; sourceTree = "<group>"; };
 		990131672E337AF800B9D138 /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
+		9905DFAC2EA5380300FF70B7 /* RemoteAccessAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessAPI.swift; sourceTree = "<group>"; };
+		9905DFC02EA53EA100FF70B7 /* Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Status.swift; sourceTree = "<group>"; };
+		9905DFC22EA53EB100FF70B7 /* About.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = About.swift; sourceTree = "<group>"; };
+		9905DFC42EA53EC200FF70B7 /* AuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
+		9905DFC72EA53EE600FF70B7 /* RAInitiateResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAInitiateResponse.swift; sourceTree = "<group>"; };
+		9905DFC92EA53F0B00FF70B7 /* RATokenResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RATokenResponse.swift; sourceTree = "<group>"; };
+		9905DFCB2EA53F1B00FF70B7 /* RADevicePath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RADevicePath.swift; sourceTree = "<group>"; };
+		9905DFCD2EA53F6300FF70B7 /* RADevicePaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RADevicePaths.swift; sourceTree = "<group>"; };
+		9905DFCF2EA53F8700FF70B7 /* RADevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RADevice.swift; sourceTree = "<group>"; };
 		99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCBrowserNavigationTabBarView.swift; sourceTree = "<group>"; };
 		99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCScrollDirectionProcessor.swift; sourceTree = "<group>"; };
 		99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCImageHighlightCapsuleButton.swift; sourceTree = "<group>"; };
@@ -1284,10 +1320,28 @@
 		99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Combine.swift"; sourceTree = "<group>"; };
 		99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
+		99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAPIClient.swift; sourceTree = "<group>"; };
 		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
 		99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+NavSeparator.swift"; sourceTree = "<group>"; };
+		99BBBBB12EA5400000FF70B7 /* TokenSecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSecureStorage.swift; sourceTree = "<group>"; };
 		99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCErrorView.swift; sourceTree = "<group>"; };
 		99BD2B872E93C62C00DFBDF0 /* ItemLayoutPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemLayoutPreference.swift; sourceTree = "<group>"; };
+		99C42DD22EA65E0000E36414 /* CodeVerificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationViewController.swift; sourceTree = "<group>"; };
+		99C42DD42EA65E4700E36414 /* CodeVerificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationViewModel.swift; sourceTree = "<group>"; };
+		99C42DD82EA6670200E36414 /* HCCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCCardView.swift; sourceTree = "<group>"; };
+		99C42DDA2EA667F800E36414 /* HCOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCOverlayView.swift; sourceTree = "<group>"; };
+		99C42DDD2EA668AA00E36414 /* HCDropdownTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCDropdownTextFieldView.swift; sourceTree = "<group>"; };
+		99C42DF52EA91F7F00E36414 /* fake-device-noveo.cer */ = {isa = PBXFileReference; lastKnownFileType = text; path = "fake-device-noveo.cer"; sourceTree = "<group>"; };
+		99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessService.swift; sourceTree = "<group>"; };
+		99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessTokenStore.swift; sourceTree = "<group>"; };
+		99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnableToConnectViewController.swift; sourceTree = "<group>"; };
+		99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginCoordinator.swift; sourceTree = "<group>"; };
+		99C42E032EAFC22600E36414 /* OldLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginViewController.swift; sourceTree = "<group>"; };
+		99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginViewModel.swift; sourceTree = "<group>"; };
+		99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldFirstRunCoordinator.swift; sourceTree = "<group>"; };
+		99C42E0E2EB0CDC100E36414 /* HCConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCConfig.swift; sourceTree = "<group>"; };
+		99C42E102EB0F37D00E36414 /* HCIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCIcon.swift; sourceTree = "<group>"; };
+		99C42E122EB10E0800E36414 /* Network+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network+Extensions.swift"; sourceTree = "<group>"; };
 		99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCKeyboardTracker.swift; sourceTree = "<group>"; };
 		99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpinnerView.swift; sourceTree = "<group>"; };
 		99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCNavigationLogoView.swift; sourceTree = "<group>"; };
@@ -1302,6 +1356,7 @@
 		99DF68712E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBezierPath+TrueRoundedRect.swift"; sourceTree = "<group>"; };
 		99DF68732E1E67D900F1A0B9 /* HCAppLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCAppLogoView.swift; sourceTree = "<group>"; };
 		99DF68762E1E67D900F1A0B9 /* HCSpacerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpacerView.swift; sourceTree = "<group>"; };
+		99E53F982E96852D00454E4F /* MDNSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDNSService.swift; sourceTree = "<group>"; };
 		99F175312E8C001500FE7DEC /* ImageCropAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropAction.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
@@ -2405,6 +2460,48 @@
 			path = "Actions+Extensions";
 			sourceTree = "<group>";
 		};
+		9905DFA82EA537B800FF70B7 /* RemoteAccessAPI */ = {
+			isa = PBXGroup;
+			children = (
+				9905DFC62EA53EDA00FF70B7 /* Models */,
+				9905DFAC2EA5380300FF70B7 /* RemoteAccessAPI.swift */,
+				99BBBBB12EA5400000FF70B7 /* TokenSecureStorage.swift */,
+				99C42DF52EA91F7F00E36414 /* fake-device-noveo.cer */,
+			);
+			path = RemoteAccessAPI;
+			sourceTree = "<group>";
+		};
+		9905DFB92EA53BED00FF70B7 /* DeviceAPI */ = {
+			isa = PBXGroup;
+			children = (
+				9905DFBC2EA53E9500FF70B7 /* Models */,
+				99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */,
+			);
+			path = DeviceAPI;
+			sourceTree = "<group>";
+		};
+		9905DFBC2EA53E9500FF70B7 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9905DFC42EA53EC200FF70B7 /* AuthResponse.swift */,
+				9905DFC22EA53EB100FF70B7 /* About.swift */,
+				9905DFC02EA53EA100FF70B7 /* Status.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		9905DFC62EA53EDA00FF70B7 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9905DFCF2EA53F8700FF70B7 /* RADevice.swift */,
+				9905DFCD2EA53F6300FF70B7 /* RADevicePaths.swift */,
+				9905DFCB2EA53F1B00FF70B7 /* RADevicePath.swift */,
+				9905DFC92EA53F0B00FF70B7 /* RATokenResponse.swift */,
+				9905DFC72EA53EE600FF70B7 /* RAInitiateResponse.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		99492B942E27D2E500FCF0DB /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
@@ -2438,6 +2535,64 @@
 			path = Combine;
 			sourceTree = "<group>";
 		};
+		99C42DCD2EA65DC800E36414 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				99C42E052EAFC22600E36414 /* OldLoginViewController */,
+				99C42DFD2EAFA56E00E36414 /* UnableToConnect */,
+				99C42DD12EA65DDA00E36414 /* CodeVerification */,
+				99DF68682E1E672000F1A0B9 /* Login */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		99C42DD12EA65DDA00E36414 /* CodeVerification */ = {
+			isa = PBXGroup;
+			children = (
+				99C42DD22EA65E0000E36414 /* CodeVerificationViewController.swift */,
+				99C42DD42EA65E4700E36414 /* CodeVerificationViewModel.swift */,
+			);
+			path = CodeVerification;
+			sourceTree = "<group>";
+		};
+		99C42DD62EA666C000E36414 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				9905DFB92EA53BED00FF70B7 /* DeviceAPI */,
+				9905DFA82EA537B800FF70B7 /* RemoteAccessAPI */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		99C42DD72EA666CD00E36414 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */,
+				99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */,
+				99E53F982E96852D00454E4F /* MDNSService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		99C42DFD2EAFA56E00E36414 /* UnableToConnect */ = {
+			isa = PBXGroup;
+			children = (
+				99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */,
+			);
+			path = UnableToConnect;
+			sourceTree = "<group>";
+		};
+		99C42E052EAFC22600E36414 /* OldLoginViewController */ = {
+			isa = PBXGroup;
+			children = (
+				99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */,
+				99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */,
+				99C42E032EAFC22600E36414 /* OldLoginViewController.swift */,
+				99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */,
+			);
+			path = OldLoginViewController;
+			sourceTree = "<group>";
+		};
 		99DA8B6B2E127B1E00D726DC /* Telemetry */ = {
 			isa = PBXGroup;
 			children = (
@@ -2466,14 +2621,14 @@
 			path = Analytics;
 			sourceTree = "<group>";
 		};
-		99DF68682E1E672000F1A0B9 /* LoginViewController */ = {
+		99DF68682E1E672000F1A0B9 /* Login */ = {
 			isa = PBXGroup;
 			children = (
 				99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */,
 				99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */,
 				99DF68672E1E672000F1A0B9 /* LoginViewController.swift */,
 			);
-			path = LoginViewController;
+			path = Login;
 			sourceTree = "<group>";
 		};
 		99F472DE2E095BB500104592 /* Curator */ = {
@@ -2489,6 +2644,7 @@
 		99F472E82E095C1500104592 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				99C42E122EB10E0800E36414 /* Network+Extensions.swift */,
 				990131672E337AF800B9D138 /* UIView+Extensions.swift */,
 				99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */,
 				99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */,
@@ -2504,6 +2660,8 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				99C42DDA2EA667F800E36414 /* HCOverlayView.swift */,
+				99C42DD82EA6670200E36414 /* HCCardView.swift */,
 				9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */,
 				991727782E55D86D00AD9C54 /* HCSeparatorView.swift */,
 				991727732E55C36E00AD9C54 /* HCSidebarHeaderView.swift */,
@@ -2514,6 +2672,7 @@
 				991B368F2E22CCAB00369B7D /* HCFieldView.swift */,
 				991B368A2E2199B000369B7D /* HCTextFieldView.swift */,
 				991B36912E22D54300369B7D /* HCSecureTextFieldView.swift */,
+				99C42DDD2EA668AA00E36414 /* HCDropdownTextFieldView.swift */,
 				9915B3612E215B870096765C /* HCBorderView.swift */,
 				99DF68732E1E67D900F1A0B9 /* HCAppLogoView.swift */,
 				99DF68762E1E67D900F1A0B9 /* HCSpacerView.swift */,
@@ -2527,6 +2686,8 @@
 		99F472F12E095C1500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
+				99C42DD72EA666CD00E36414 /* Services */,
+				99C42DD62EA666C000E36414 /* API */,
 				99F9CC1E2E82D0E9000BC8E0 /* DisplayHostType.swift */,
 				9956119B2E6C706600FA252D /* Combine */,
 				995611832E6B6C1500FA252D /* LocationTreePicker */,
@@ -2536,9 +2697,11 @@
 				99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */,
 				9941528C2E2A75E800B8ADF5 /* HCSettings.swift */,
 				994E68E22E0D67F100E73D69 /* HCL10n.swift */,
+				99C42E0E2EB0CDC100E36414 /* HCConfig.swift */,
 				99F472E82E095C1500104592 /* Extensions */,
 				99F472F02E095C1500104592 /* Views */,
 				99F472EB2E095C1500104592 /* HCColor.swift */,
+				99C42E102EB0F37D00E36414 /* HCIcon.swift */,
 			);
 			path = Curator;
 			sourceTree = "<group>";
@@ -2546,9 +2709,9 @@
 		99F4730E2E0968EE00104592 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				99C42DCD2EA65DC800E36414 /* Auth */,
 				99492B942E27D2E500FCF0DB /* Onboarding */,
 				99DF68662E1E672000F1A0B9 /* FirstRunCoordinator.swift */,
-				99DF68682E1E672000F1A0B9 /* LoginViewController */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -4657,6 +4820,7 @@
 				DCB7967F2BC83E6E00D6D759 /* text-uri-list.tvg in Resources */,
 				DCE4E49824C1FB750051722F /* owncloud-logo.tvg in Resources */,
 				DC0492B1258CC4EE00DEDC27 /* PocketSVG.LICENSE in Resources */,
+				99C42DF62EA91F7F00E36414 /* fake-device-noveo.cer in Resources */,
 				DCD863FB28115C8700CA6631 /* Down.LICENSE in Resources */,
 				DCE4E48A24C1FB750051722F /* application.tvg in Resources */,
 				DCE4E49024C1FB750051722F /* folder-shared.tvg in Resources */,
@@ -4870,6 +5034,7 @@
 				4C9BFA2323158C3F0059CA3E /* PreviewViewController.swift in Sources */,
 				399698ED260A3CEE00E5AEBA /* ImportPasteboardAction.swift in Sources */,
 				DC59087F2AA8D25400BFF393 /* CertificateSummaryView.swift in Sources */,
+				99C42DFF2EAFA5BA00E36414 /* UnableToConnectViewController.swift in Sources */,
 				DCB796582BC535AD00D6D759 /* RemoveFromSidebarAction.swift in Sources */,
 				DCB7969F2BCE745500D6D759 /* INIFile+ShortcutResolution.swift in Sources */,
 				4C3E17DB234DBF9A000D7BA8 /* PendingMediaUploadTaskExtension.swift in Sources */,
@@ -4935,6 +5100,9 @@
 				025F063324AA163C009D8FC5 /* DisplayExifMetadataAction.swift in Sources */,
 				DCC085512293ED52008CC05C /* DisplaySettingsSection.swift in Sources */,
 				23EC77582137F3DD0032D4E6 /* PDFViewerViewController.swift in Sources */,
+				99C42E062EAFC22600E36414 /* OldLoginCoordinator.swift in Sources */,
+				99C42E072EAFC22600E36414 /* OldLoginViewModel.swift in Sources */,
+				99C42E082EAFC22600E36414 /* OldLoginViewController.swift in Sources */,
 				99DA8B762E12809D00D726DC /* AnalyticsEvent.swift in Sources */,
 				DCC8535823CE1236007BA3EB /* LicenseInAppProductListViewController.swift in Sources */,
 				DC1621382B8FE9BF00EB17F8 /* AddToSidebarAction.swift in Sources */,
@@ -4949,6 +5117,9 @@
 				025FC73A247BF8BE009307A7 /* PHAsset+InstantUploads.swift in Sources */,
 				399DD7C722A691BC00B45EB2 /* UnshareAction.swift in Sources */,
 				DC9CE3D62D10814400979C44 /* DisableSpaceAction.swift in Sources */,
+				99C42DF32EA8CCB200E36414 /* CodeVerificationViewController.swift in Sources */,
+				99C42E0D2EAFC88B00E36414 /* OldFirstRunCoordinator.swift in Sources */,
+				99C42DF42EA8CCB200E36414 /* CodeVerificationViewModel.swift in Sources */,
 				397754F82327A33500119FCB /* OpenSceneAction.swift in Sources */,
 				4CAF783C2282FD40000C85CF /* FileManager+Extension.swift in Sources */,
 				99139B7E2E438C0E0044889B /* OnboardingPage.swift in Sources */,
@@ -5010,6 +5181,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99C42DDF2EA6692E00E36414 /* HCDropdownTextFieldView.swift in Sources */,
 				DC0A357E24C0E43C00FB58FC /* ThemeStyle+Extensions.swift in Sources */,
 				DCB1B8C829C8F84800BFF393 /* ThemeCSSProgressView.swift in Sources */,
 				DC2BB5402CD96C1600320384 /* ServerSideSearchScope.swift in Sources */,
@@ -5021,9 +5193,12 @@
 				DC825E352A05083C00BFF393 /* GitInfo.swift in Sources */,
 				995611952E6B7C3500FA252D /* LocationTreeNode.swift in Sources */,
 				DC921A042966DFDC00F538EE /* OCItem+UniversalItemListCellContentProvider.swift in Sources */,
+				99C42E0F2EB0CDC900E36414 /* HCConfig.swift in Sources */,
 				DCB6B1E6292B6BE500D27573 /* OCLocation+Interactions.swift in Sources */,
 				9915B3652E215B8D0096765C /* HCBorderView.swift in Sources */,
+				99E53F9C2E96853500454E4F /* MDNSService.swift in Sources */,
 				DC3AB2422810404000789435 /* DriveHeaderCell.swift in Sources */,
+				99AAAAAA2EA53B9E00FF70B7 /* DeviceAPIClient.swift in Sources */,
 				DC65590F28A2633C0003D130 /* UITextField+Extension.swift in Sources */,
 				DCBAEAE429A5603600BFF393 /* CollectionViewSupplementaryCellProvider+StandardImplementations.swift in Sources */,
 				DC298C9A2934D3F8009FA87F /* AlertView.swift in Sources */,
@@ -5057,6 +5232,8 @@
 				DC0A359224C0E55800FB58FC /* UIColor+Extension.swift in Sources */,
 				DCE4E45024C1E0400051722F /* UIButton+Extension.swift in Sources */,
 				9917277F2E571CBE00AD9C54 /* HCProgressBarView.swift in Sources */,
+				99C42E132EB10E1D00E36414 /* Network+Extensions.swift in Sources */,
+				9905DFC32EA53EB500FF70B7 /* About.swift in Sources */,
 				DC89EA672995456A00BFF393 /* BrowserNavigationBookmark+AccountController.swift in Sources */,
 				DC0A357024C0E42700FB58FC /* StaticTableViewSection.swift in Sources */,
 				DC0A357624C0E43200FB58FC /* ProgressHUDViewController.swift in Sources */,
@@ -5065,20 +5242,24 @@
 				DCDC0AD123CD18D200DFE36D /* OCLicenseManager+Setup.swift in Sources */,
 				DCE4E44724C1AC4F0051722F /* MessageView.swift in Sources */,
 				DCFE682E28D9CEDD00091D2A /* ComposedMessageView.swift in Sources */,
+				9905DFCE2EA53F6C00FF70B7 /* RADevicePaths.swift in Sources */,
 				DCD68A2D291D979400993FF5 /* AccountController.swift in Sources */,
 				DCB330E029F1442500BFF393 /* OCShareRole+UniversalItemListCellContentProvider.swift in Sources */,
 				DC9B4FCE2941DA6E0037F8F8 /* UINavigationItem+Extension.swift in Sources */,
 				DC89EA572992FDCD00BFF393 /* AppStateAction.swift in Sources */,
 				DC298CB029366B96009FA87F /* AccountControllerSpacesGridViewController.swift in Sources */,
+				9905DFCA2EA53F0F00FF70B7 /* RATokenResponse.swift in Sources */,
 				DCB330E429F18C6800BFF393 /* OptionItem.swift in Sources */,
 				99CE0A602E4A232200380EB8 /* HCSpinnerView.swift in Sources */,
 				DCE4E48824C1FA430051722F /* NamingViewController.swift in Sources */,
 				DC01AF2128411D8400903101 /* ThemeableCollectionViewListCell.swift in Sources */,
 				DC60F2A629802ABE00905EC8 /* UINavigationItem+NavigationContent.swift in Sources */,
+				99C42E112EB0F38400E36414 /* HCIcon.swift in Sources */,
 				DCB1B99929D187B400BFF393 /* ThemeCSSButton.swift in Sources */,
 				DC8C07262CF9D6CC007B70E6 /* SearchScopeDescriptor.swift in Sources */,
 				399725E1233DF39300FC3B94 /* Calendar+Extension.swift in Sources */,
 				DC298C9E2934D6D9009FA87F /* AccountAuthenticationUpdater.swift in Sources */,
+				9905DFD02EA53F8900FF70B7 /* RADevice.swift in Sources */,
 				DC2A8E6A2B57EA8F001F0522 /* AccountControllerSearchViewController.swift in Sources */,
 				DC0A356D24C0E42200FB58FC /* PasscodeViewController.swift in Sources */,
 				DC24B2AB25BA316D005783E2 /* Branding+App.swift in Sources */,
@@ -5115,20 +5296,25 @@
 				DC62F569292504510095BB5D /* AccountConnectionPool.swift in Sources */,
 				DC0A358F24C0E46000FB58FC /* PointerEffect.swift in Sources */,
 				DC921A022966D5F800F538EE /* OCShare+UniversalItemListCellContentProvider.swift in Sources */,
+				9905DFC82EA53EEE00FF70B7 /* RAInitiateResponse.swift in Sources */,
 				DC0A358924C0E44B00FB58FC /* ThemeNavigationController.swift in Sources */,
 				99BD2B882E93C62C00DFBDF0 /* ItemLayoutPreference.swift in Sources */,
 				DCBD8EA824B3751900D92E1F /* OCItem+Extension.swift in Sources */,
 				391C79A824E186DC00CB6333 /* OCBookmark+Extension.swift in Sources */,
 				DC0A358A24C0E44B00FB58FC /* ThemeButton.swift in Sources */,
 				DCB6B1F7292CC8E200D27573 /* OCBookmarkManager+Locking.swift in Sources */,
+				99C42DFC2EAA5C7400E36414 /* RemoteAccessTokenStore.swift in Sources */,
 				994E68E62E0D67FA00E73D69 /* HCL10n.swift in Sources */,
 				399EA71B25E6561E00B6FF11 /* OCShare+Extension.swift in Sources */,
 				991B36922E22D54B00369B7D /* HCSecureTextFieldView.swift in Sources */,
 				DC62F6F5292819C80095BB5D /* AccountConnectionRichStatus.swift in Sources */,
 				DCB6B1ED292B963300D27573 /* AccountConnection+ItemActions.swift in Sources */,
+				99C42DD92EA6670600E36414 /* HCCardView.swift in Sources */,
 				DCB6B200292CF2FE00D27573 /* NavigationRevocationAction.swift in Sources */,
+				9905DFAD2EA5380D00FF70B7 /* RemoteAccessAPI.swift in Sources */,
 				DC0A355424C0E2C200FB58FC /* SortBar.swift in Sources */,
 				39D091AF2D073593001329DF /* SecureTextField.swift in Sources */,
+				9905DFCC2EA53F2400FF70B7 /* RADevicePath.swift in Sources */,
 				DC9B4FC3293F453C0037F8F8 /* EmbeddingViewController.swift in Sources */,
 				DC6B938B2D2D43290016A549 /* ByteCountEditView.swift in Sources */,
 				DC298C972934D354009FA87F /* IssuesCardViewController.swift in Sources */,
@@ -5173,6 +5359,7 @@
 				DC0074112D52685000C1C6F7 /* OCDrive+ManagementActions.swift in Sources */,
 				DCBAEADB29A3674700BFF393 /* OCItemPolicy+UniversalItemListCellContentProvider.swift in Sources */,
 				DCBE9C812D08E2A200332D3B /* SpaceManagementViewController.swift in Sources */,
+				99C42DDB2EA667FE00E36414 /* HCOverlayView.swift in Sources */,
 				DC0A355624C0E33A00FB58FC /* Log.swift in Sources */,
 				DC0A359624C0E61500FB58FC /* UIView+Extension.swift in Sources */,
 				DCB6B1F2292B9A7A00D27573 /* OCMessage+Extension.swift in Sources */,
@@ -5193,6 +5380,7 @@
 				DC0A358D24C0E44B00FB58FC /* ThemedAlertController.swift in Sources */,
 				39D091AD2D073498001329DF /* ConfidentialContentView.swift in Sources */,
 				991727772E55C37500AD9C54 /* HCSidebarHeaderView.swift in Sources */,
+				9905DFC52EA53ECB00FF70B7 /* AuthResponse.swift in Sources */,
 				DC24E10F28B7D2B9002E4F5B /* PopupButtonController.swift in Sources */,
 				DCE4E43C24C19B660051722F /* FrameViewController.swift in Sources */,
 				DC0A35A124C1091400FB58FC /* UserInterfaceContext.swift in Sources */,
@@ -5209,6 +5397,7 @@
 				DCCE1BFA28CA45D90098E3FE /* ItemSearchSuggestionsViewController.swift in Sources */,
 				DC0A358824C0E44B00FB58FC /* ThemeTableViewCell.swift in Sources */,
 				DC24E10428B7BF4E002E4F5B /* CustomQuerySearchTokenizer.swift in Sources */,
+				9905DFC12EA53EA400FF70B7 /* Status.swift in Sources */,
 				DC36886224DDA9AB00333600 /* ProgressIndicatorViewController.swift in Sources */,
 				399EA72625E6565900B6FF11 /* OCCore+Extension.swift in Sources */,
 				DC3AB2482810A10300789435 /* ExpandableResourceCell.swift in Sources */,
@@ -5230,6 +5419,7 @@
 				DC0A355824C0E35B00FB58FC /* Synchronized.swift in Sources */,
 				DCB1B99729D1813D00BFF393 /* ThemeCSSTextField.swift in Sources */,
 				DCA2EDE4279B1789001F04E6 /* ResourceItemIcon.swift in Sources */,
+				99C42DF82EA9423B00E36414 /* RemoteAccessService.swift in Sources */,
 				DC8E99E8297F3BA700594697 /* ActionTapGestureRecognizer.swift in Sources */,
 				9956119D2E6C707D00FA252D /* SharedOCItemsStream.swift in Sources */,
 				99DA8B692E0EB4B700D726DC /* HCNavigationLogoView.swift in Sources */,

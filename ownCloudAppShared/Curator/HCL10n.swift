@@ -72,4 +72,84 @@ public enum HCL10n {
 			public static let discard = "Discard changes"
 		}
 	}
+
+	public enum Auth {
+
+		public enum OldLogin {
+			public static let loadingViewTitle = "Logging in to your account"
+			public static let incorrectEmailPassword = "Incorrect email or password"
+
+			public enum EmailField {
+				public static let title = "Email"
+				public static let placeholder = "Enter email address"
+			}
+			public enum AddressField {
+				public static let title = "Connecting to"
+				public static let placeholder = "No device detected"
+			}
+			public enum PasswordField {
+				public static let title = "Psssword"
+				public static let placeholder = "Psssword"
+			}
+			public static let loginButtonTitle = "Login"
+			public static let resetPasswordButtonTitle = "Reset Password"
+			public static let serverNotFoundError = "An error ocurred while connecting to the server."
+		}
+
+		public enum Login {
+			public static let loadingViewTitle = "Logging in to your account"
+			public static let incorrectEmailPassword = "Incorrect email or password"
+			public static let invalidEmail = "Please enter a valid email address"
+
+			public enum EmailField {
+				public static let title = "Email"
+				public static let placeholder = "Enter email address"
+			}
+
+			public enum PasswordField {
+				public static let title = "Psssword"
+				public static let placeholder = "Psssword"
+			}
+
+			public enum DeviceDropdownField {
+				public static let title = "Connecting to"
+				public static let placeholder = "No device detected"
+			}
+
+			public static let loginButtonTitle = "Login"
+			public static let nextButtonTitle = "Next"
+			public static let resetPasswordButtonTitle = "Reset Password"
+			public static let oldLoginButtonTitle = "Old login path"
+			public static let detectingDevices = "Detecting devices..."
+			public static let noDeviceDetected = "No device detected"
+		}
+
+		public enum UnableToConnect {
+			public static let navbarTitle = "Unable to connect"
+
+			public static let headerText = "We are unable to detect the Curator device. Please ensure the following:"
+			public static let point1 = "Verify that the device is properly connected to the network and that the internet connection is stable"
+			public static let point2 = "Make sure the device is powered on and functioning correctly"
+			public static let point3 = "Check firewall settings to confirm they are not blocking the connection"
+			public static let point4 = "If using a wireless connection, confirm the device is within range of the router"
+			public static let point5 = "Your device and mobile phone must be on the same network"
+			public static let footerText = "If you continue to experience issues, please contact our Support team for further assistance."
+			public static let footerLinkText = "Support team"
+			public static let retryButtonTitle = "Retry"
+		}
+
+		public enum CodeVerification {
+			public static let title = "Allow remote access"
+			public static let description = "For your security, we have sent a one-time code to enable access to your Curator from any location. Check your email for the code and enter it here. If you do not see it in your inbox, please check your spam folder."
+
+			public static let allowAccessButtonTitle = "Allow access"
+			public static let resendCodeButtonTitle = "Resend code"
+			public static let skipButtonTitle = "Resend code"
+
+			public static let invalidCodeError = "Invalid code"
+			public static let serverError = "Server error. Try again"
+			public static let codeExpiredError = "The code is expired"
+
+		}
+	}
 }

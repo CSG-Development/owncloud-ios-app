@@ -135,6 +135,12 @@ public enum HCColor {
 			isDark ? UIColor(hexString: "#000000FF") : UIColor(hexString: "#FFFFFFFF")
 		}
 	}
+	public enum Mockups {
+		// Mockups/Overlay default
+		public static func overlayDefault(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#00000080") : UIColor(hexString: "#00000080")
+		}
+	}
 
 	public enum Constant {
 		// Constant/Primary
