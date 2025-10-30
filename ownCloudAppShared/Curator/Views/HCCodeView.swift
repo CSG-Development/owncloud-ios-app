@@ -28,8 +28,6 @@ public final class HCDigitBoxView: ThemeCSSView {
 	}
 
 	private func setupView() {
-		layer.cornerRadius = 20
-
 		snp.makeConstraints { make in
 			make.width.equalTo(40)
 			make.height.equalTo(56)
@@ -43,6 +41,12 @@ public final class HCDigitBoxView: ThemeCSSView {
 			$0.center.equalToSuperview()
 		}
 		updateView()
+	}
+
+	public override func layoutSubviews() {
+		super.layoutSubviews()
+
+		layer.cornerRadius = bounds.size.width / 2.0
 	}
 
 	private func updateView() {

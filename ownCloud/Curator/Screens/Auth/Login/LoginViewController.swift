@@ -44,7 +44,7 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private lazy var scrollView: UIScrollView = {
 		let scrollView = UIScrollView()
-		scrollView.contentInset = .init(top: Constants.navbarHeight, left: 0, bottom: 0, right: 0)
+		scrollView.contentInset = .zero
 		scrollView.contentInsetAdjustmentBehavior = .never
 		return scrollView
 	}()
@@ -84,6 +84,23 @@ final public class LoginViewController: UIViewController, Themeable {
 		textField.textField.textContentType = .password
 		textField.textField.delegate = self
 		return textField
+	}()
+
+	private lazy var logoImageContainer: UIView = {
+		let view = UIView()
+		view.backgroundColor = .clear
+
+		let imageView = UIImageView()
+		imageView.contentMode = .scaleAspectFit
+		view.addSubview(imageView)
+		imageView.image = HCIcon.logo
+
+		imageView.snp.makeConstraints {
+			$0.width.height.equalTo(140)
+			$0.center.equalToSuperview()
+		}
+		view.snp.makeConstraints { $0.height.equalTo(140) }
+		return view
 	}()
 
 	private lazy var loginButton: UIButton = {
@@ -219,13 +236,25 @@ final public class LoginViewController: UIViewController, Themeable {
 			$0.width.equalTo(view.snp.width)
 		}
 
+		// Ensure content view is at least as tall as the visible scroll area so content can center vertically
+		contentView.snp.makeConstraints { $0.height.greaterThanOrEqualTo(scrollView.snp.height) }
+
+		// A container used for centering content; includes the transparent navbar area
+		let contentContainer = UIView()
+		contentView.addSubview(contentContainer)
+		contentContainer.snp.makeConstraints {
+			$0.edges.equalToSuperview()
+		}
+
 		let stackView = UIStackView()
 		stackView.spacing = 0
 		stackView.axis = .vertical
-		contentView.addSubview(stackView)
+		contentContainer.addSubview(stackView)
 		self.stackView = stackView
 		stackView.snp.makeConstraints {
-			$0.top.bottom.equalToSuperview()
+			$0.top.greaterThanOrEqualToSuperview()
+			$0.bottom.lessThanOrEqualToSuperview()
+			$0.centerY.equalToSuperview().offset(-24).priority(.low)
 			$0.centerX.equalToSuperview()
 			$0.leading.greaterThanOrEqualToSuperview().offset(24)
 			$0.width.equalToSuperview().priority(.high)
@@ -315,7 +344,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	private func arrangedSubviews(for step: LoginViewModel.Step, isLoading: Bool) -> [UIView] {
 		if isLoading {
 			return [
-				HCSpacerView(24),
+				logoImageContainer,
 				logoView,
 				HCSpacerView(24),
 				loadingView
@@ -324,7 +353,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		switch step {
 			case .emailEntry:
 				return [
-					HCSpacerView(24),
+					logoImageContainer,
 					logoView,
 					HCSpacerView(24),
 					emailTextField,
@@ -335,7 +364,7 @@ final public class LoginViewController: UIViewController, Themeable {
 				]
 			case .deviceSelection:
 				return [
-					HCSpacerView(24),
+					logoImageContainer,
 					logoView,
 					HCSpacerView(24),
 					emailLabelContainer,
