@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-fileprivate enum Constants {
+private enum Constants {
     static let maxDropdownHeight: CGFloat = 320
 	static let optionHeight: CGFloat = 56
 	static let optionHorizontalPadding: CGFloat = 12
@@ -51,7 +51,7 @@ public final class HCDropdownTextFieldView: HCTextFieldView, UITextFieldDelegate
 		return button
 	}()
 
-private let dropdownCard = HCCardView(frame: .zero)
+	private let dropdownCard = HCCardView(frame: .zero)
 	private let scrollView = UIScrollView()
 	private let stackView: UIStackView = {
 		let sv = UIStackView()
@@ -66,6 +66,10 @@ private let dropdownCard = HCCardView(frame: .zero)
     private weak var installedHostView: UIView?
 	private var isExpanded: Bool = false
 	private var outsideTapRecognizer: UITapGestureRecognizer?
+
+	public override var isActive: Bool {
+		isExpanded
+	}
 
 	// MARK: - Lifecycle
 	public override init(frame: CGRect) {
@@ -171,12 +175,7 @@ private let dropdownCard = HCCardView(frame: .zero)
 
 	// MARK: - UITextFieldDelegate
 	public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-		// Intercept to toggle dropdown instead of showing the keyboard
-		if isExpanded {
-			collapseDropdown()
-		} else {
-			expandDropdown()
-		}
+		toggleDropdown()
 		return false
 	}
 
@@ -239,6 +238,7 @@ private let dropdownCard = HCCardView(frame: .zero)
         }
         self.installedHostView = hostView
         installOutsideTapRecognizer()
+		updateAppearance()
 	}
 
 	private func collapseDropdown() {
@@ -253,6 +253,7 @@ private let dropdownCard = HCCardView(frame: .zero)
             self.installedHostView = nil
         }
         removeOutsideTapRecognizer()
+		updateAppearance()
 	}
 
 	private func updateChevron(isExpanded: Bool) {

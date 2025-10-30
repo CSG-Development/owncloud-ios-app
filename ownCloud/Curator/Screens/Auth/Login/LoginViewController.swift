@@ -62,6 +62,18 @@ final public class LoginViewController: UIViewController, Themeable {
 		return textField
 	}()
 
+	private lazy var emailLabel: UILabel = {
+		let label = UILabel()
+		label.font = UIFont.systemFont(ofSize: 16)
+		return label
+	}()
+
+	private lazy var emailLabelContainer: UIView = {
+		let view = UIView()
+		view.backgroundColor = .clear
+		return view
+	}()
+
 	private lazy var passwordTextField: HCSecureTextFieldView = {
 		let textField = HCSecureTextFieldView(frame: .zero)
 		textField.title = HCL10n.Auth.Login.PasswordField.title
@@ -168,6 +180,12 @@ final public class LoginViewController: UIViewController, Themeable {
 		setupUI()
 		bindViewModel()
 		MDNSService.shared.start()
+
+		emailLabelContainer.addSubview(emailLabel)
+		emailLabel.snp.makeConstraints {
+			$0.top.bottom.centerX.equalToSuperview()
+			$0.leading.greaterThanOrEqualToSuperview()
+		}
 
 		emailTextField.textField.text = viewModel.username
 		addressDropdown.textField.text = viewModel.address
@@ -320,9 +338,9 @@ final public class LoginViewController: UIViewController, Themeable {
 					HCSpacerView(24),
 					logoView,
 					HCSpacerView(24),
+					emailLabelContainer,
+					HCSpacerView(32),
 					addressRowView,
-					HCSpacerView(12),
-					emailTextField,
 					HCSpacerView(12),
 					passwordTextField,
 					HCSpacerView(4),
@@ -347,6 +365,7 @@ final public class LoginViewController: UIViewController, Themeable {
 				backButton.isHidden = true
 			case .deviceSelection:
 				emailTextField.textField.isEnabled = false
+				emailLabel.text = viewModel.username
 				loginButton.setTitle(HCL10n.Auth.Login.loginButtonTitle, for: .normal)
 				backButton.isHidden = false
 		}
@@ -377,6 +396,8 @@ final public class LoginViewController: UIViewController, Themeable {
 			.receive(on: DispatchQueue.main)
 			.sink { [weak addressDropdown] items in
 				addressDropdown?.items = items
+
+				addressDropdown?.leftIcon = items.isEmpty ? nil : HCIcon.device
 			}
 			.store(in: &cancellables)
 
@@ -487,26 +508,11 @@ final public class LoginViewController: UIViewController, Themeable {
 	}
 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		view.backgroundColor = collection.css.getColor(
-			.fill,
-			selectors: [.auth, .background],
-			for: nil
-		)
-		settingsButton.tintColor = collection.css.getColor(
-			.stroke,
-			selectors: [.loginNavbar],
-			for: nil
-		)
-		refreshButton.tintColor = collection.css.getColor(
-			.stroke,
-			selectors: [.loginNavbar],
-			for: nil
-		)
-		backButton.tintColor = collection.css.getColor(
-			.stroke,
-			selectors: [.loginNavbar],
-			for: nil
-		)
+		emailLabel.textColor = collection.css.getColor(.fill, selectors: [.text], for: nil)
+		view.backgroundColor = collection.css.getColor(.fill, selectors: [.auth, .background], for: nil)
+		settingsButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
+		refreshButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
+		backButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
 	}
 }
 

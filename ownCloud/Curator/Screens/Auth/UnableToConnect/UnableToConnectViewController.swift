@@ -39,51 +39,18 @@ public final class UnableToConnectViewController: UIViewController, Themeable {
 	private lazy var headerLabel: UILabel = {
 		let l = UILabel()
 		l.numberOfLines = 0
-		let font = UIFont.systemFont(ofSize: 16, weight: .regular)
-		let paragraph = NSMutableParagraphStyle()
-		paragraph.minimumLineHeight = 24
-		paragraph.maximumLineHeight = 24
-		let kern = font.pointSize * 0.005
-		l.attributedText = NSAttributedString(
-			string: HCL10n.Auth.UnableToConnect.headerText,
-			attributes: [.font: font, .paragraphStyle: paragraph, .kern: kern]
-		)
 		return l
 	}()
 
 	private lazy var listLabel: UILabel = {
 		let l = UILabel()
 		l.numberOfLines = 0
-		l.attributedText = numberedList(
-			[
-				HCL10n.Auth.UnableToConnect.point1,
-				HCL10n.Auth.UnableToConnect.point2,
-				HCL10n.Auth.UnableToConnect.point3,
-				HCL10n.Auth.UnableToConnect.point4,
-				HCL10n.Auth.UnableToConnect.point5
-			],
-			font: .systemFont(ofSize: 16, weight: .regular),
-			indent: 24
-		)
 		return l
 	}()
 
 	private lazy var footerLabel: UILabel = {
 		let l = UILabel()
 		l.numberOfLines = 0
-		let font = UIFont.systemFont(ofSize: 16, weight: .regular)
-		let paragraph = NSMutableParagraphStyle()
-		paragraph.minimumLineHeight = 24
-		paragraph.maximumLineHeight = 24
-		let kern = font.pointSize * 0.005
-		let full = NSMutableAttributedString(
-			string: HCL10n.Auth.UnableToConnect.footerText,
-			attributes: [.font: font, .paragraphStyle: paragraph, .kern: kern]
-		)
-		let linkRange = (full.string as NSString).range(of: HCL10n.Auth.UnableToConnect.footerLinkText)
-		full.addAttributes([.attachment: HCConfig.supportLink], range: linkRange)
-		l.attributedText = full
-		l.isUserInteractionEnabled = true
 		let tap = UITapGestureRecognizer(target: self, action: #selector(didTapSupport))
 		l.addGestureRecognizer(tap)
 		return l
@@ -168,28 +135,91 @@ public final class UnableToConnectViewController: UIViewController, Themeable {
 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		view.backgroundColor = collection.css.getColor(.fill, selectors: [.auth, .background], for: nil)
-
-		let tintColor = collection.css.getColor(
-			.stroke,
-			selectors: [.loginNavbar],
-			for: nil
-		) ?? .blue
+		let tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil) ?? .blue
 
 		backButton.tintColor = tintColor
 
-        // Style the "Support team" link to match back button color and be underlined
-        if let base = footerLabel.attributedText?.mutableCopy() as? NSMutableAttributedString {
-            let fullText = base.string as NSString
-			let range = fullText.range(of: HCL10n.Auth.UnableToConnect.footerLinkText)
-            if range.location != NSNotFound {
-                base.addAttributes([
-					.foregroundColor: tintColor,
-                    .underlineStyle: NSUnderlineStyle.single.rawValue,
-                    .underlineColor: tintColor
-                ], range: range)
-                footerLabel.attributedText = base
-            }
-        }
+		updateLabels()
+	}
+
+	private func updateLabels() {
+		let css = Theme.shared.activeCollection.css
+
+		let textColor = css.getColor(.fill, selectors: [.text], for: nil) ?? .white
+
+		titleLabel.textColor = textColor
+
+		let font = UIFont.systemFont(ofSize: 16, weight: .regular)
+		let kern = font.pointSize * 0.005
+		let headIndent: CGFloat = 24.0
+
+		let paragraph1 = NSMutableParagraphStyle()
+		paragraph1.minimumLineHeight = 24
+		paragraph1.maximumLineHeight = 24
+
+		headerLabel.attributedText = NSAttributedString(
+			string: HCL10n.Auth.UnableToConnect.headerText,
+			attributes: [
+				.font: font,
+				.paragraphStyle: paragraph1,
+				.kern: kern,
+				.foregroundColor: textColor
+			]
+		)
+
+		let listString = NSMutableAttributedString()
+		let paragraph2 = NSMutableParagraphStyle()
+		paragraph2.firstLineHeadIndent = 0
+		paragraph2.headIndent = headIndent
+		paragraph2.tabStops = [NSTextTab(textAlignment: .left, location: headIndent, options: [:])]
+		paragraph2.minimumLineHeight = 24
+		paragraph2.maximumLineHeight = 24
+
+		let listItems = [
+			HCL10n.Auth.UnableToConnect.point1,
+			HCL10n.Auth.UnableToConnect.point2,
+			HCL10n.Auth.UnableToConnect.point3,
+			HCL10n.Auth.UnableToConnect.point4,
+			HCL10n.Auth.UnableToConnect.point5
+		]
+
+		for (i, text) in listItems.enumerated() {
+			let line = "\(i + 1).\t\(text)\n"
+			let attr = NSMutableAttributedString(string: line, attributes: [
+				.font: font,
+				.paragraphStyle: paragraph2,
+				.kern: kern,
+				.foregroundColor: textColor
+			])
+			listString.append(attr)
+		}
+		listLabel.attributedText = listString
+
+		let paragraph3 = NSMutableParagraphStyle()
+		paragraph3.minimumLineHeight = 24
+		paragraph3.maximumLineHeight = 24
+
+		let full = NSMutableAttributedString(
+			string: HCL10n.Auth.UnableToConnect.footerText,
+			attributes: [
+				.font: font,
+				.paragraphStyle: paragraph3,
+				.kern: kern,
+				.foregroundColor: textColor
+			]
+		)
+
+		let tintColor = css.getColor(.stroke, selectors: [.loginNavbar], for: nil) ?? .blue
+
+		let linkRange = (full.string as NSString).range(of: HCL10n.Auth.UnableToConnect.footerLinkText)
+		full.addAttributes([
+			.attachment: HCConfig.supportLink,
+			.foregroundColor: tintColor,
+			.underlineStyle: NSUnderlineStyle.single.rawValue,
+			.underlineColor: tintColor
+		], range: linkRange)
+		footerLabel.attributedText = full
+		footerLabel.isUserInteractionEnabled = true
 	}
 
 	@objc private func didTapBack() {
