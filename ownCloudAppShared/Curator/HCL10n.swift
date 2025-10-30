@@ -140,11 +140,11 @@ public enum HCL10n {
 
 		public enum CodeVerification {
 			public static let title = "Allow remote access"
-			public static let description = "For your security, we have sent a one-time code to enable access to your Curator from any location. Check your email for the code and enter it here. If you do not see it in your inbox, please check your spam folder."
+			public static let description = "We have sent a one-time code to authorize this device to access your Curator. Check your email for the code and enter it here. If you do not see it in your inbox, please check your spam folder."
 
 			public static let allowAccessButtonTitle = "Allow access"
 			public static let resendCodeButtonTitle = "Resend code"
-			public static let skipButtonTitle = "Resend code"
+			public static let skipButtonTitle = "Skip"
 
 			public static let invalidCodeError = "Invalid code"
 			public static let serverError = "Server error. Try again"
