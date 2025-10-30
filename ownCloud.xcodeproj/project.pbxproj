@@ -207,6 +207,7 @@
 		99C42E0F2EB0CDC900E36414 /* HCConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E0E2EB0CDC100E36414 /* HCConfig.swift */; };
 		99C42E112EB0F38400E36414 /* HCIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E102EB0F37D00E36414 /* HCIcon.swift */; };
 		99C42E132EB10E1D00E36414 /* Network+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E122EB10E0800E36414 /* Network+Extensions.swift */; };
+		99C42E1B2EB3891200E36414 /* HCCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E172EB3890C00E36414 /* HCCodeView.swift */; };
 		99CE0A5E2E49F31200380EB8 /* HCKeyboardTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */; };
 		99CE0A602E4A232200380EB8 /* HCSpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */; };
 		99DA8B692E0EB4B700D726DC /* HCNavigationLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */; };
@@ -1342,6 +1343,7 @@
 		99C42E0E2EB0CDC100E36414 /* HCConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCConfig.swift; sourceTree = "<group>"; };
 		99C42E102EB0F37D00E36414 /* HCIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCIcon.swift; sourceTree = "<group>"; };
 		99C42E122EB10E0800E36414 /* Network+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network+Extensions.swift"; sourceTree = "<group>"; };
+		99C42E172EB3890C00E36414 /* HCCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCCodeView.swift; sourceTree = "<group>"; };
 		99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCKeyboardTracker.swift; sourceTree = "<group>"; };
 		99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpinnerView.swift; sourceTree = "<group>"; };
 		99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCNavigationLogoView.swift; sourceTree = "<group>"; };
@@ -2660,6 +2662,7 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				99C42E172EB3890C00E36414 /* HCCodeView.swift */,
 				99C42DDA2EA667F800E36414 /* HCOverlayView.swift */,
 				99C42DD82EA6670200E36414 /* HCCardView.swift */,
 				9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */,
@@ -5371,6 +5374,7 @@
 				DC3AB1982808C35300789435 /* ClientItemViewController.swift in Sources */,
 				DC298CAC29362710009FA87F /* ClientLocationPickerViewController.swift in Sources */,
 				DC081C89299B8E5800BFF393 /* AppStateActionRevealItem.swift in Sources */,
+				99C42E1B2EB3891200E36414 /* HCCodeView.swift in Sources */,
 				DCB6B1EF292B979600D27573 /* MessageGroup.swift in Sources */,
 				DC5C48A32918FB7400EBC053 /* CollectionSidebarViewController.swift in Sources */,
 				DC6C0A542923FFF30045FF2A /* AccountControllerSection.swift in Sources */,

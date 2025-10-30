@@ -43,8 +43,8 @@ extension LoginCoordinator: LoginViewModelEventHandler {
 			case .backToEmail:
 				break
 
-            case let .emailVerification(reference, email):
-                let vm = CodeVerificationViewModel(eventHandler: self, reference: reference, email: email)
+            case let .emailVerification(email):
+                let vm = CodeVerificationViewModel(eventHandler: self, email: email)
                 let vc = CodeVerificationViewController(viewModel: vm)
 					let animator = CrossDissolveTransitioningDelegate()
 					vc.transitioningDelegate = animator
@@ -65,7 +65,7 @@ extension LoginCoordinator: CodeVerificationViewModelEventHandler {
 				mainVC?.dismiss(animated: true, completion: { [weak self] in
 					self?.mainVC?.viewModel.advanceToDeviceSelection()
 				})
-				
+
             case .resetPasswordTap:
                 break
 

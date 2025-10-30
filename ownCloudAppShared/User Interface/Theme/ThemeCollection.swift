@@ -663,6 +663,11 @@ public class ThemeCollection : NSObject {
 			// # HCOverlayView
 			ThemeCSSRecord(selectors: [.hcOverlayView, .background], property: .fill, value: HCColor.Mockups.overlayDefault(isDark)),
 
+			// # HCDigitView
+			ThemeCSSRecord(selectors: [.hcDigitBox, .focused], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [.hcDigitBox, .plain], property: .stroke, value: HCColor.Content.border(isDark)),
+			ThemeCSSRecord(selectors: [.hcDigitBox, .error], property: .stroke, value: HCColor.Symbolic.error(isDark)),
+
 			// ## Spinner
 			ThemeCSSRecord(selectors: [.spinner], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
 			ThemeCSSRecord(selectors: [.spinner], property: .fill, value: HCColor.Content.sliderBackground(isDark)),
@@ -717,7 +722,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.button, .primary, .plain], property: .stroke, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
 			ThemeCSSRecord(selectors: [.button, .primary, .plain], property: .fill, value: UIColor.clear),
 			ThemeCSSRecord(selectors: [.button, .primary, .plain, .disabled], property: .stroke, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .primary, .plain, .disabled], property: .fill, value: HCColor.Content.disabledBackground(isDark)),
+			ThemeCSSRecord(selectors: [.button, .primary, .plain, .disabled], property: .fill, value: UIColor.clear),
 			ThemeCSSRecord(selectors: [.button, .primary, .plain, .highlighted], property: .stroke, value: isDark ? HCColor.Blue.lighten3 : HCColor.Blue.darken1),
 			ThemeCSSRecord(selectors: [.button, .primary, .plain, .highlighted], property: .fill, value: isDark ? HCColor.Transparencies.blueLighten3_12 : HCColor.Transparencies.blueDarken1_12),
 

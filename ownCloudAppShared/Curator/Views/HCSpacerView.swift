@@ -18,26 +18,28 @@ public final class HCSpacerView: UIView {
 	}
 
 	private func configureViewComponents() {
-	   configureLayout()
+		configureLayout()
 
-	   backgroundColor = .clear
-   }
+		backgroundColor = .clear
+		isUserInteractionEnabled = false
+	}
 
 	private func configureLayout() {
-	   guard let spacing else { return }
+		guard let spacing else { return }
 
-	   switch axis {
-		   case .vertical:
-			   setContentHuggingPriority(.required, for: .vertical)
-			   setContentCompressionResistancePriority(.required, for: .vertical)
-			   snp.makeConstraints { $0.height.equalTo(spacing) }
+		switch axis {
+			case .vertical:
+				setContentHuggingPriority(.required, for: .vertical)
+				setContentCompressionResistancePriority(.required, for: .vertical)
+				snp.makeConstraints { $0.height.equalTo(spacing) }
 
-		   case .horizontal:
-			   setContentHuggingPriority(.required, for: .horizontal)
-			   setContentCompressionResistancePriority(.required, for: .horizontal)
-			   snp.makeConstraints { $0.width.equalTo(spacing) }
-		   @unknown default:
-			   break
-	   }
-   }
+			case .horizontal:
+				setContentHuggingPriority(.required, for: .horizontal)
+				setContentCompressionResistancePriority(.required, for: .horizontal)
+				snp.makeConstraints { $0.width.equalTo(spacing) }
+
+			@unknown default:
+				break
+		}
+	}
 }

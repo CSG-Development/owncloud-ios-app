@@ -62,6 +62,7 @@ public struct ThemeCSSSelector: RawRepresentable, Equatable {
 	public static let hcErrorView = ThemeCSSSelector(rawValue: "hcErrorView")
 	public static let hcCardView = ThemeCSSSelector(rawValue: "hcCardView")
 	public static let hcOverlayView = ThemeCSSSelector(rawValue: "hcOverlayView")
+	public static let hcDigitBox = ThemeCSSSelector(rawValue: "hcDigitBox")
 	public static let spinner = ThemeCSSSelector(rawValue: "spinner")
 	public static let splitView = ThemeCSSSelector(rawValue: "splitView")
 	public static let alert = ThemeCSSSelector(rawValue: "alert")

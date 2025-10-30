@@ -48,50 +48,16 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 
 	private lazy var overlay: HCOverlayView = {
 		let overlayView = HCOverlayView()
-		let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapOverlay))
-		overlayView.addGestureRecognizer(tapRecognizer)
 		return overlayView
-	}()
-
-	private lazy var backgroundTapRecognizer: UITapGestureRecognizer = {
-		let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapOverlay))
-		tapRecognizer.cancelsTouchesInView = false
-		tapRecognizer.delegate = self
-		return tapRecognizer
 	}()
 
 	private lazy var cardView: HCCardView = {
 		HCCardView(frame: .zero)
 	}()
 
-	private lazy var hiddenCodeField: UITextField = {
-		let textField = UITextField(frame: .zero)
-		textField.keyboardType = .numberPad
-		textField.textContentType = .oneTimeCode
-		textField.autocorrectionType = .no
-		textField.autocapitalizationType = .none
-		textField.isHidden = true
-		textField.delegate = self
-		textField.addTarget(self, action: #selector(codeEditingChanged), for: .editingChanged)
-		return textField
-	}()
-
-	private lazy var codeStack: UIStackView = {
-		let stackView = UIStackView()
-		stackView.axis = .horizontal
-		stackView.alignment = .center
-		stackView.distribution = .fillEqually
-		stackView.spacing = 8
-		return stackView
-	}()
-
-	private var digitContainers: [UIView] = []
-	private var digitLabels: [UILabel] = []
-
 	private lazy var errorLabel: UILabel = {
 		let l = UILabel()
 		l.font = .systemFont(ofSize: 12)
-		l.textColor = .systemRed
 		l.numberOfLines = 0
 		l.isHidden = true
 
@@ -123,6 +89,10 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 		return button
 	}()
 
+	private var codeView: HCCodeView!
+
+	private var containerStackView: UIStackView!
+
 	init(viewModel: CodeVerificationViewModel) {
 		self.viewModel = viewModel
 
@@ -143,42 +113,41 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 		Theme.shared.register(client: self, applyImmediately: true)
 		setupUI()
 		bindViewModel()
-		viewModel.startTimer()
 	}
 
 	public override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 
-		hiddenCodeField.becomeFirstResponder()
+		codeView.focus()
 	}
 
 	private func setupUI() {
-		view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(closeKeyboard)))
-
 		view.backgroundColor = .clear
 
 		view.addSubview(overlay)
 		overlay.snp.makeConstraints { $0.edges.equalToSuperview() }
 
-		let containerStack = UIStackView()
-		containerStack.axis = .vertical
-		containerStack.spacing = 0
-		containerStack.isLayoutMarginsRelativeArrangement = true
-		containerStack.layoutMargins = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
-		containerStack.alignment = .center
-		view.addSubview(containerStack)
-		containerStack.snp.makeConstraints {
+		let containerStackView = UIStackView()
+		containerStackView.axis = .vertical
+		containerStackView.spacing = 0
+		containerStackView.isLayoutMarginsRelativeArrangement = true
+		containerStackView.layoutMargins = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
+		containerStackView.alignment = .center
+		view.addSubview(containerStackView)
+		self.containerStackView = containerStackView
+		let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapOverlay))
+		tapRecognizer.delegate = self
+		containerStackView.addGestureRecognizer(tapRecognizer)
+		containerStackView.snp.makeConstraints {
 			$0.top.equalTo(view.safeAreaLayoutGuide)
 			$0.leading.trailing.equalToSuperview()
 			$0.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
 		}
 
-		view.addGestureRecognizer(backgroundTapRecognizer)
+		let topSpacer = HCSpacerView(nil, .vertical)
+		let bottomSpacer = HCSpacerView(nil, .vertical)
 
-		let topSpacer = HCSpacerView(nil)
-		let bottomSpacer = HCSpacerView(nil)
-
-		containerStack.addArrangedSubviews([
+		containerStackView.addArrangedSubviews([
 			topSpacer,
 			cardView,
 			bottomSpacer
@@ -238,34 +207,33 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 		buttonsContainer.axis = .horizontal
 		buttonsContainer.spacing = 0
 
+		let errorLabelContainer = UIStackView(arrangedSubviews: [
+			HCSpacerView(16, .horizontal), errorLabel, HCSpacerView(nil, .horizontal)
+		])
+		buttonsContainer.axis = .horizontal
+		buttonsContainer.spacing = 0
+
+		let codeView = HCCodeView(codeLength: viewModel.codeLength)
+		self.codeView = codeView
+		codeView.onChange = { code in
+			self.viewModel.code = code
+		}
+		codeView.onFocus = {
+			self.viewModel.resetErrors()
+			self.scrollToCodeView()
+		}
+
 		cardContent.addArrangedSubviews([
 			titleLabel,
 			HCSpacerView(24),
 			descriptionLabel,
 			HCSpacerView(16),
-			codeStack,
+			codeView,
 			HCSpacerView(4),
-			errorLabel,
-			HCSpacerView(4),
-			buttonsContainer,
-			HCSpacerView(24)
+			errorLabelContainer,
+			HCSpacerView(24),
+			buttonsContainer
 		])
-
-		buildDigitBoxes()
-		innerContentView.addSubview(hiddenCodeField)
-		hiddenCodeField.snp.makeConstraints {
-			$0.height.equalTo(0)
-			$0.top.equalTo(codeStack)
-			$0.leading.equalTo(codeStack)
-		}
-
-		let tap = UITapGestureRecognizer(target: self, action: #selector(focusHiddenField))
-		codeStack.addGestureRecognizer(tap)
-
-	}
-
-	@objc private func closeKeyboard() {
-		_ = hiddenCodeField.resignFirstResponder()
 	}
 
 	private func bindViewModel() {
@@ -294,8 +262,14 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 						shouldHighlightError = true
 					}
 				}
+				let isCodeExpired = errors.contains(where: {
+					$0 == .codeExpired
+				})
 				self.errorLabel.isHidden = (self.errorLabel.text?.isEmpty ?? true)
-				self.updateDigitBorderColors(showError: shouldHighlightError)
+				self.codeView.isError = shouldHighlightError
+
+				self.resendCodeButton.isHidden = !isCodeExpired
+				self.validateButton.isHidden = isCodeExpired
 			}
 			.store(in: &cancellables)
 
@@ -307,76 +281,23 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 				}
 				.store(in: &cancellables)
 
-		viewModel.$isExpired
+        viewModel.$isExpired
 			.receive(on: DispatchQueue.main)
 			.sink { [weak self] expired in
 				self?.validateButton.isHidden = expired || (self?.viewModel.isLoading ?? false)
 				self?.resendCodeButton.isHidden = !expired
-				self?.updateDigitBorderColors(showError: expired)
 			}
 			.store(in: &cancellables)
 	}
 
-	private func updateDigitBorderColors(showError: Bool) {
-		let color: CGColor = showError ? (errorLabel.textColor.cgColor) : UIColor.separator.cgColor
-		for box in digitContainers {
-			box.layer.borderColor = color
-		}
-	}
-
-	private func buildDigitBoxes() {
-		digitContainers.removeAll()
-		digitLabels.removeAll()
-
-		for _ in 0..<viewModel.codeLength {
-			let box = UIView()
-			box.layer.cornerRadius = 20
-			box.layer.borderWidth = 1
-			box.layer.borderColor = UIColor.separator.cgColor
-			box.snp.makeConstraints { make in
-				make.width.equalTo(40)
-				make.height.equalTo(56)
-			}
-			let label = UILabel()
-			label.font = .systemFont(ofSize: 16)
-			label.textAlignment = .center
-			box.addSubview(label)
-			label.snp.makeConstraints { $0.center.equalToSuperview() }
-			codeStack.addArrangedSubview(box)
-			digitContainers.append(box)
-			digitLabels.append(label)
-		}
-		updateDigitLabels(with: "")
-	}
-
-	private func updateDigitLabels(with text: String) {
-		for (i, label) in digitLabels.enumerated() {
-			if i < text.count {
-				let idx = text.index(text.startIndex, offsetBy: i)
-				label.text = String(text[idx])
-			} else {
-				label.text = ""
-			}
-		}
-	}
-
-	@objc private func focusHiddenField() { hiddenCodeField.becomeFirstResponder() }
-
-	@objc private func codeEditingChanged() {
-		let filtered = (hiddenCodeField.text ?? "").filter { $0.isNumber }
-		let limited = String(filtered.prefix(viewModel.codeLength))
-		if hiddenCodeField.text != limited { hiddenCodeField.text = limited }
-		updateDigitLabels(with: limited)
-		viewModel.code = limited
-	}
-
 	@objc private func didTapValidate() {
-		closeKeyboard()
+		codeView.unfocus()
 		viewModel.didTapValidate()
 	}
 
 	@objc private func didTapResendCode() {
 		viewModel.didTapResendCode()
+		codeView.clearCode()
 	}
 
 	@objc private func didTapSkip() {
@@ -390,16 +311,14 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		titleLabel.textColor = collection.css.getColor(.fill, selectors: [.text], for: nil) ?? .white
 		descriptionLabel.textColor = collection.css.getColor(.fill, selectors: [.text], for: nil) ?? .white
+		errorLabel.textColor = collection.css.getColor(.stroke, selectors: [.hcDigitBox, .error], for: nil) ?? .white
 	}
-}
 
-extension CodeVerificationViewController: UITextFieldDelegate, UIGestureRecognizerDelegate {
-	public func textFieldDidBeginEditing(_ textField: UITextField) {
-		viewModel.resetErrors()
+	private func scrollToCodeView() {
 		let scrollToField = { [weak self] in
 			guard let self else { return }
 
-			let targetRect = self.codeStack.superview?.convert(self.codeStack.frame, to: self.scrollView) ?? .zero
+			let targetRect = self.codeView.superview?.convert(self.codeView.frame, to: self.scrollView) ?? .zero
 			self.scrollView.scrollRectToVisible(targetRect, animated: true)
 		}
 
@@ -411,26 +330,14 @@ extension CodeVerificationViewController: UITextFieldDelegate, UIGestureRecogniz
 			}
 		}
 	}
+}
 
-	public func textField(
-		_ textField: UITextField,
-		shouldChangeCharactersIn range: NSRange,
-		replacementString string: String
-	) -> Bool {
-		let current = textField.text ?? ""
-		guard let r = Range(range, in: current) else { return false }
-
-		let newText = current.replacingCharacters(in: r, with: string)
-		let filtered = newText.filter { $0.isNumber }
-
-		return filtered.count <= viewModel.codeLength && filtered == newText
-	}
-
+extension CodeVerificationViewController: UITextFieldDelegate, UIGestureRecognizerDelegate {
 	public func gestureRecognizer(
 		_ gestureRecognizer: UIGestureRecognizer,
 		shouldReceive touch: UITouch
 	) -> Bool {
-		let point = touch.location(in: view)
+		let point = touch.location(in: containerStackView)
 
 		if cardView.frame.contains(point) {
 			return false

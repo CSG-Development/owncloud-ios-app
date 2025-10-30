@@ -18,7 +18,7 @@ final public class LoginViewModel {
         case resetPasswordTap
 		case oldLoginTap
         case settingsTap
-        case emailVerification(reference: String, email: String)
+        case emailVerification(email: String)
         case backToEmail
     }
 
@@ -391,17 +391,7 @@ final public class LoginViewModel {
 
 				case .failure(let error):
 					Log.debug("[STX]: Tokens missing or invalid. Error \(error). Sending email code.")
-					raService.sendEmailCode(email: username) { result in
-						switch result {
-							case .success(let response):
-								Log.debug("[STX]: Code sent. Showing verification UI.")
-								self.eventHandler.handle(.emailVerification(reference: response.reference, email: self.username))
-
-							case .failure(let error):
-								Log.debug("[STX]: Code sending failed \(error)")
-								self.errors = [.serverNotFound]
-						}
-					}
+					self.eventHandler.handle(.emailVerification(email: self.username))
 			}
 		}
 	}
