@@ -13,6 +13,14 @@ open class HCTextFieldView: HCFieldView {
 	private var placeholderColor: UIColor?
 	private var textColor: UIColor?
 
+	private lazy var stackView: UIStackView = {
+		let stackView = UIStackView()
+		stackView.backgroundColor = .clear
+		stackView.axis = .horizontal
+		stackView.spacing = 8
+		return stackView
+	}()
+
 	public lazy var textField: UITextField = {
 		let textField = UITextField()
 		textField.borderStyle = .none
@@ -30,6 +38,13 @@ open class HCTextFieldView: HCFieldView {
 		return button
 	}()
 
+	private lazy var iconView: UIImageView = {
+		let imageView = UIImageView()
+		imageView.contentMode = .scaleAspectFit
+		imageView.snp.makeConstraints { $0.width.height.equalTo(24) }
+		return imageView
+	}()
+
 	open var title: String? {
 		didSet {
 			borderView.title = title
@@ -43,8 +58,14 @@ open class HCTextFieldView: HCFieldView {
 		}
 	}
 
+	open var leftIcon: UIImage? {
+		didSet {
+			updateAppearance()
+		}
+	}
+
 	public override var contentView: UIView {
-		textField
+		stackView
 	}
 
 	public override var isActive: Bool {
@@ -68,6 +89,10 @@ open class HCTextFieldView: HCFieldView {
 
 		textField.rightView = clearButton
 		textField.rightViewMode = .never
+
+		stackView.addArrangedSubviews([
+			iconView, textField
+		])
 	}
 
 	public override func updateContentView() {
@@ -98,6 +123,17 @@ open class HCTextFieldView: HCFieldView {
 		super.applyThemeCollection(theme: theme, collection: collection, event: event)
 
 		backgroundColor = .clear
+	}
+
+	public override func updateAppearance() {
+		super.updateAppearance()
+
+		if let leftIcon {
+			iconView.image = leftIcon
+			iconView.isHidden = false
+		} else {
+			iconView.isHidden = true
+		}
 	}
 
 	private func updateTextField() {

@@ -88,8 +88,8 @@ public enum HCL10n {
 				public static let placeholder = "No device detected"
 			}
 			public enum PasswordField {
-				public static let title = "Psssword"
-				public static let placeholder = "Psssword"
+				public static let title = "Password"
+				public static let placeholder = "Password"
 			}
 			public static let loginButtonTitle = "Login"
 			public static let resetPasswordButtonTitle = "Reset Password"
@@ -107,8 +107,8 @@ public enum HCL10n {
 			}
 
 			public enum PasswordField {
-				public static let title = "Psssword"
-				public static let placeholder = "Psssword"
+				public static let title = "Password"
+				public static let placeholder = "Password"
 			}
 
 			public enum DeviceDropdownField {

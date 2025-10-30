@@ -44,7 +44,7 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private lazy var scrollView: UIScrollView = {
 		let scrollView = UIScrollView()
-		scrollView.contentInset = .init(top: Constants.navbarHeight, left: 0, bottom: 0, right: 0)
+		scrollView.contentInset = .zero
 		scrollView.contentInsetAdjustmentBehavior = .never
 		return scrollView
 	}()
@@ -62,6 +62,18 @@ final public class LoginViewController: UIViewController, Themeable {
 		return textField
 	}()
 
+	private lazy var emailLabel: UILabel = {
+		let label = UILabel()
+		label.font = UIFont.systemFont(ofSize: 16)
+		return label
+	}()
+
+	private lazy var emailLabelContainer: UIView = {
+		let view = UIView()
+		view.backgroundColor = .clear
+		return view
+	}()
+
 	private lazy var passwordTextField: HCSecureTextFieldView = {
 		let textField = HCSecureTextFieldView(frame: .zero)
 		textField.title = HCL10n.Auth.Login.PasswordField.title
@@ -72,6 +84,23 @@ final public class LoginViewController: UIViewController, Themeable {
 		textField.textField.textContentType = .password
 		textField.textField.delegate = self
 		return textField
+	}()
+
+	private lazy var logoImageContainer: UIView = {
+		let view = UIView()
+		view.backgroundColor = .clear
+
+		let imageView = UIImageView()
+		imageView.contentMode = .scaleAspectFit
+		view.addSubview(imageView)
+		imageView.image = HCIcon.logo
+
+		imageView.snp.makeConstraints {
+			$0.width.height.equalTo(140)
+			$0.center.equalToSuperview()
+		}
+		view.snp.makeConstraints { $0.height.equalTo(140) }
+		return view
 	}()
 
 	private lazy var loginButton: UIButton = {
@@ -169,6 +198,12 @@ final public class LoginViewController: UIViewController, Themeable {
 		bindViewModel()
 		MDNSService.shared.start()
 
+		emailLabelContainer.addSubview(emailLabel)
+		emailLabel.snp.makeConstraints {
+			$0.top.bottom.centerX.equalToSuperview()
+			$0.leading.greaterThanOrEqualToSuperview()
+		}
+
 		emailTextField.textField.text = viewModel.username
 		addressDropdown.textField.text = viewModel.address
 		passwordTextField.textField.text = viewModel.password
@@ -201,13 +236,25 @@ final public class LoginViewController: UIViewController, Themeable {
 			$0.width.equalTo(view.snp.width)
 		}
 
+		// Ensure content view is at least as tall as the visible scroll area so content can center vertically
+		contentView.snp.makeConstraints { $0.height.greaterThanOrEqualTo(scrollView.snp.height) }
+
+		// A container used for centering content; includes the transparent navbar area
+		let contentContainer = UIView()
+		contentView.addSubview(contentContainer)
+		contentContainer.snp.makeConstraints {
+			$0.edges.equalToSuperview()
+		}
+
 		let stackView = UIStackView()
 		stackView.spacing = 0
 		stackView.axis = .vertical
-		contentView.addSubview(stackView)
+		contentContainer.addSubview(stackView)
 		self.stackView = stackView
 		stackView.snp.makeConstraints {
-			$0.top.bottom.equalToSuperview()
+			$0.top.greaterThanOrEqualToSuperview()
+			$0.bottom.lessThanOrEqualToSuperview()
+			$0.centerY.equalToSuperview().offset(-24).priority(.low)
 			$0.centerX.equalToSuperview()
 			$0.leading.greaterThanOrEqualToSuperview().offset(24)
 			$0.width.equalToSuperview().priority(.high)
@@ -297,7 +344,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	private func arrangedSubviews(for step: LoginViewModel.Step, isLoading: Bool) -> [UIView] {
 		if isLoading {
 			return [
-				HCSpacerView(24),
+				logoImageContainer,
 				logoView,
 				HCSpacerView(24),
 				loadingView
@@ -306,7 +353,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		switch step {
 			case .emailEntry:
 				return [
-					HCSpacerView(24),
+					logoImageContainer,
 					logoView,
 					HCSpacerView(24),
 					emailTextField,
@@ -317,12 +364,12 @@ final public class LoginViewController: UIViewController, Themeable {
 				]
 			case .deviceSelection:
 				return [
-					HCSpacerView(24),
+					logoImageContainer,
 					logoView,
 					HCSpacerView(24),
+					emailLabelContainer,
+					HCSpacerView(32),
 					addressRowView,
-					HCSpacerView(12),
-					emailTextField,
 					HCSpacerView(12),
 					passwordTextField,
 					HCSpacerView(4),
@@ -347,6 +394,7 @@ final public class LoginViewController: UIViewController, Themeable {
 				backButton.isHidden = true
 			case .deviceSelection:
 				emailTextField.textField.isEnabled = false
+				emailLabel.text = viewModel.username
 				loginButton.setTitle(HCL10n.Auth.Login.loginButtonTitle, for: .normal)
 				backButton.isHidden = false
 		}
@@ -377,6 +425,8 @@ final public class LoginViewController: UIViewController, Themeable {
 			.receive(on: DispatchQueue.main)
 			.sink { [weak addressDropdown] items in
 				addressDropdown?.items = items
+
+				addressDropdown?.leftIcon = items.isEmpty ? nil : HCIcon.device
 			}
 			.store(in: &cancellables)
 
@@ -487,26 +537,11 @@ final public class LoginViewController: UIViewController, Themeable {
 	}
 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		view.backgroundColor = collection.css.getColor(
-			.fill,
-			selectors: [.auth, .background],
-			for: nil
-		)
-		settingsButton.tintColor = collection.css.getColor(
-			.stroke,
-			selectors: [.loginNavbar],
-			for: nil
-		)
-		refreshButton.tintColor = collection.css.getColor(
-			.stroke,
-			selectors: [.loginNavbar],
-			for: nil
-		)
-		backButton.tintColor = collection.css.getColor(
-			.stroke,
-			selectors: [.loginNavbar],
-			for: nil
-		)
+		emailLabel.textColor = collection.css.getColor(.fill, selectors: [.text], for: nil)
+		view.backgroundColor = collection.css.getColor(.fill, selectors: [.auth, .background], for: nil)
+		settingsButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
+		refreshButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
+		backButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
 	}
 }
 
