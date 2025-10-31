@@ -90,9 +90,9 @@ final public class LoginViewModel {
 		self.bookmark = OCBookmark()
 
         Publishers
-            .CombineLatest3($username, $password, $address)
+            .CombineLatest4($username, $password, $address, $step)
 			.receive(on: RunLoop.main)
-			.sink(receiveValue: { [weak self] username, password, address in
+			.sink(receiveValue: { [weak self] username, password, address, _ in
 				guard let self else { return }
 				switch step {
 					case .emailEntry:

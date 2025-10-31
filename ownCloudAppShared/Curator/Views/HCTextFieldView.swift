@@ -13,6 +13,10 @@ open class HCTextFieldView: HCFieldView {
 	private var placeholderColor: UIColor?
 	private var textColor: UIColor?
 
+	open var isEmpty: Bool {
+		textField.text?.isEmpty ?? true
+	}
+
 	private lazy var stackView: UIStackView = {
 		let stackView = UIStackView()
 		stackView.backgroundColor = .clear
@@ -93,6 +97,10 @@ open class HCTextFieldView: HCFieldView {
 		stackView.addArrangedSubviews([
 			iconView, textField
 		])
+
+		updateTextField()
+		updateAppearance()
+		updateContentView()
 	}
 
 	public override func updateContentView() {
@@ -134,9 +142,10 @@ open class HCTextFieldView: HCFieldView {
 		} else {
 			iconView.isHidden = true
 		}
+		borderView.shouldDisplayTitle = !isEmpty
 	}
 
-	private func updateTextField() {
+	open func updateTextField() {
 		let isEmpty = textField.text?.isEmpty ?? true
 		let isFirstResponder = textField.isFirstResponder
 		textField.rightViewMode = !isEmpty && isFirstResponder ? .always : .never

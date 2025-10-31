@@ -103,7 +103,7 @@ public enum HCL10n {
 
 			public enum EmailField {
 				public static let title = "Email"
-				public static let placeholder = "Enter email address"
+				public static let placeholder = "Email"
 			}
 
 			public enum PasswordField {
@@ -146,9 +146,9 @@ public enum HCL10n {
 			public static let resendCodeButtonTitle = "Resend code"
 			public static let skipButtonTitle = "Skip"
 
-			public static let invalidCodeError = "Invalid code"
+			public static let invalidCodeError = "Incorrect code."
 			public static let serverError = "Server error. Try again"
-			public static let codeExpiredError = "The code is expired"
+			public static let codeExpiredError = "Your code has expired"
 
 		}
 	}

@@ -110,10 +110,17 @@ public final class UnableToConnectViewController: UIViewController, Themeable {
 			make.centerX.centerY.equalToSuperview()
 		}
 
+		view.addSubview(retryButton)
+		retryButton.snp.makeConstraints { make in
+			make.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(24)
+			make.bottom.equalTo(view.safeAreaLayoutGuide).inset(24)
+		}
+
 		view.addSubview(scrollView)
 		scrollView.snp.makeConstraints { make in
 			make.top.equalTo(navbar.snp.bottom)
-			make.leading.trailing.bottom.equalToSuperview()
+			make.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+			make.bottom.equalTo(retryButton.snp.top).offset(-12)
 		}
 
 		scrollView.addSubview(contentStack)
@@ -127,9 +134,7 @@ public final class UnableToConnectViewController: UIViewController, Themeable {
 		contentStack.addArrangedSubviews([
 			headerLabel,
 			listLabel,
-			footerLabel,
-			HCSpacerView(12),
-			retryButton
+			footerLabel
 		])
 	}
 

@@ -36,7 +36,12 @@ public final class HCDropdownTextFieldView: HCTextFieldView, UITextFieldDelegate
 			guard let selectedIndex, items.indices.contains(selectedIndex) else { return }
 			textField.text = items[selectedIndex]
 			updateSelectedState()
+			updateAppearance()
 		}
+	}
+
+	public override var isEmpty: Bool {
+		selectedIndex == nil
 	}
 
     public var onSelection: ((_ index: Int, _ value: String) -> Void)?
