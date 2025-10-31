@@ -27,6 +27,10 @@ public final class HCSecureTextFieldView: HCTextFieldView {
 		textField.isSecureTextEntry = true
 	}
 
+	public override func updateTextField() {
+		// Remove default behavior.
+	}
+
 	@objc private func togglePasswordVisibility(_ sender: UIButton) {
 		sender.isSelected.toggle()
 		textField.isSecureTextEntry.toggle()
