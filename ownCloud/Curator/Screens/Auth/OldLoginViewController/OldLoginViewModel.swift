@@ -69,7 +69,7 @@ final public class OldLoginViewModel {
 	}
 
 	func login() {
-		Log.debug("[STX]: Starting login")		
+		Log.debug("[STX]: Starting login")
 		guard isLoginEnabled, !isLoading else { return }
 		isLoading = true
 

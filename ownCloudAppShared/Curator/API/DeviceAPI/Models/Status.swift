@@ -1,8 +1,8 @@
-public struct Status: Codable {
-	public struct OOBE: Codable {
+public struct Status: Codable, Sendable {
+	public struct OOBE: Codable, Sendable {
 		public let done: Bool
 	}
-	public enum State: String, Codable {
+	public enum State: String, Codable, Sendable {
 		case ready
 		case busy
 		case error

@@ -977,7 +977,7 @@ class BookmarkViewController: StaticTableViewController {
 			}
 		} else {
 			self.navigationItem.rightBarButtonItem = continueBarButtonItem
-			if urlRow?.textField?.text != ""{
+			if urlRow?.textField?.text != "" {
 				continueBarButtonItem.isEnabled = true
 			} else {
 				continueBarButtonItem.isEnabled = false
