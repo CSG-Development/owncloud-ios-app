@@ -208,6 +208,7 @@
 		99C42E112EB0F38400E36414 /* HCIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E102EB0F37D00E36414 /* HCIcon.swift */; };
 		99C42E132EB10E1D00E36414 /* Network+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E122EB10E0800E36414 /* Network+Extensions.swift */; };
 		99C42E1B2EB3891200E36414 /* HCCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E172EB3890C00E36414 /* HCCodeView.swift */; };
+		99C42E222EB4FE7E00E36414 /* DeviceReachabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */; };
 		99CE0A5E2E49F31200380EB8 /* HCKeyboardTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */; };
 		99CE0A602E4A232200380EB8 /* HCSpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */; };
 		99DA8B692E0EB4B700D726DC /* HCNavigationLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */; };
@@ -1344,6 +1345,7 @@
 		99C42E102EB0F37D00E36414 /* HCIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCIcon.swift; sourceTree = "<group>"; };
 		99C42E122EB10E0800E36414 /* Network+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network+Extensions.swift"; sourceTree = "<group>"; };
 		99C42E172EB3890C00E36414 /* HCCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCCodeView.swift; sourceTree = "<group>"; };
+		99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceReachabilityService.swift; sourceTree = "<group>"; };
 		99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCKeyboardTracker.swift; sourceTree = "<group>"; };
 		99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpinnerView.swift; sourceTree = "<group>"; };
 		99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCNavigationLogoView.swift; sourceTree = "<group>"; };
@@ -2569,6 +2571,7 @@
 		99C42DD72EA666CD00E36414 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */,
 				99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */,
 				99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */,
 				99E53F982E96852D00454E4F /* MDNSService.swift */,
@@ -5456,6 +5459,7 @@
 				DC46F3CC2844A8EA00038880 /* ViewCell.swift in Sources */,
 				DCB330D029F051B300BFF393 /* RecipientSearchScope.swift in Sources */,
 				DC298C982934D381009FA87F /* OCIssue+DisplayIssues.swift in Sources */,
+				99C42E222EB4FE7E00E36414 /* DeviceReachabilityService.swift in Sources */,
 				9917278A2E5DC3F500AD9C54 /* RunGate.swift in Sources */,
 				DCB6B20F292F843800D27573 /* CollectionViewAction.swift in Sources */,
 				DC0A357524C0E43200FB58FC /* ProgressView.swift in Sources */,

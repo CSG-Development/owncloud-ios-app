@@ -32,7 +32,7 @@ extension FirstRunCoordinator: LoginCoordinatorEventHandler {
 			case .loginTap:
 				rootVC?.contentViewController = UIViewController()
 				selfHandle = nil
-				
+
 			case .resetPasswordTap:
 				UIApplication.shared.open(HCConfig.resetPasswordLink)
 

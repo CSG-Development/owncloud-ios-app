@@ -51,8 +51,8 @@ final public class LoginViewModel {
 		RemoteAccessService.shared
 	}
 
-	private var mdnsService: MDNSService {
-		MDNSService.shared
+	private var deviceReachabilityService: DeviceReachabilityService {
+		DeviceReachabilityService.shared
 	}
 
 	private var _cookieStorage : OCHTTPCookieStorage?
@@ -129,6 +129,12 @@ final public class LoginViewModel {
                 if case .deviceSelection = step { self?.loadDevices() }
             }
             .store(in: &cancellables)
+
+		deviceReachabilityService.start()
+	}
+
+	deinit {
+		deviceReachabilityService.stop()
 	}
 
 	private func isValidEmail(_ email: String) -> Bool {
@@ -237,7 +243,6 @@ final public class LoginViewModel {
 				Log.debug("[STX]: Retreiving available instances.")
 				connection.retrieveAvailableInstances(options: options, authenticationMethodIdentifier: authMethodIdentifier, authenticationData: authMethodData, completionHandler: { error, instances in
 					if error == nil, let instances, instances.count > 0 {
-//						self.instances = instances
 						Log.debug("[STX]: Instances: \(instances)")
 					}
 
@@ -274,106 +279,37 @@ final public class LoginViewModel {
     }
 
     // MARK: - Devices Merge (RA + mDNS)
-    private struct MergedDevice {
-		let remoteDevice: RemoteDevice?
-		let localDevice: LocalDevice?
-    }
-    private var mergedDevices: [MergedDevice] = []
+    private var mergedDevices: [DeviceReachabilityService.MergedDevice] = []
 
     private func loadDevices() {
-		Log.debug("[STX]: Starting devices load")
+        Log.debug("[STX]: Starting devices load")
         isDetectingDevices = true
         deviceItems = []
-        selectedDeviceIndex = nil
-        raService.getRemoteDevices(email: username) { [weak self] result in
-            guard let self else { return }
+        // keep current selection until we have a non-empty devices list or confirmed empty
 
-            let localDevices = mdnsService.currentDevices()
-			Log.debug("[STX]: Got local: \(localDevices)")
-            var deviceMap: [String: MergedDevice] = [:]
+		Task { [weak self, username] in
+			guard let self else { return }
+			let merged = (try? await self.deviceReachabilityService.getMergedDevices(email: username)) ?? []
 
-            if case let .success(remoteDevices) = result {
-				Log.debug("[STX]: Got remote: \(remoteDevices)")
-                for remoteDevice in remoteDevices {
-                    deviceMap[remoteDevice.certificateCommonName] = MergedDevice(
-                        remoteDevice: remoteDevice,
-                        localDevice: nil
-                    )
-                }
-            }
-
-            for local in localDevices {
-                if let certCN = local.certificateCommonName {
-                    if deviceMap[certCN] == nil {
-                        deviceMap[certCN] = MergedDevice(remoteDevice: nil, localDevice: local)
-                    } else if var existing = deviceMap[certCN] {
-                        existing = MergedDevice(remoteDevice: existing.remoteDevice, localDevice: local)
-                        deviceMap[certCN] = existing
-                    }
-                }
-            }
-
-            self.isDetectingDevices = false
-
-            let mergedArray = Array(deviceMap.values)
-            self.mergedDevices = mergedArray.sorted { a, b in
-                let nameA = a.remoteDevice?.friendlyName ?? a.localDevice?.name ?? ""
-                let nameB = b.remoteDevice?.friendlyName ?? b.localDevice?.name ?? ""
-                return nameA.localizedCaseInsensitiveCompare(nameB) == .orderedAscending
-            }
-			Log.debug("[STX]: Merged devices: \(mergedArray)")
-            self.deviceItems = self.mergedDevices.map { $0.remoteDevice?.friendlyName ?? $0.localDevice?.name ?? "" }
-            if let sel = self.selectedDeviceIndex, sel < self.deviceItems.count {
-                // keep
-            } else {
-                self.selectedDeviceIndex = self.deviceItems.isEmpty ? nil : 0
-            }
-
-            MDNSService.shared.onUpdate = { [weak self] locals in
-                self?.mergeLocalDevices(locals)
-            }
-        }
-    }
-
-    private func mergeLocalDevices(_ locals: [LocalDevice]) {
-        var map: [String: MergedDevice] = [:]
-        for device in mergedDevices {
-            if let certificateCommonName = device.remoteDevice?.certificateCommonName {
-                map[certificateCommonName] = device
-            } else if let certificateCommonName = device.localDevice?.certificateCommonName {
-                map[certificateCommonName] = device
-            } else if let name = device.localDevice?.name {
-                map[name] = device
-            }
-        }
-
-        for local in locals {
-            guard let key = local.certificateCommonName ?? local.name as String? else { continue }
-            if let existing = map[key] {
-                map[key] = MergedDevice(remoteDevice: existing.remoteDevice, localDevice: local)
-            } else {
-                map[key] = MergedDevice(remoteDevice: nil, localDevice: local)
-            }
-        }
-
-        let previousSelection = selectedDeviceIndex
-        mergedDevices = Array(map.values).sorted { a, b in
-            let nameA = a.remoteDevice?.friendlyName ?? a.localDevice?.name ?? ""
-            let nameB = b.remoteDevice?.friendlyName ?? b.localDevice?.name ?? ""
-            return nameA.localizedCaseInsensitiveCompare(nameB) == .orderedAscending
-        }
-        deviceItems = mergedDevices.map { $0.remoteDevice?.friendlyName ?? $0.localDevice?.name ?? "" }
-        if let sel = previousSelection, sel < deviceItems.count {
-            selectedDeviceIndex = sel
-        } else if deviceItems.isEmpty {
-            selectedDeviceIndex = nil
-        } else if previousSelection == nil {
-            selectedDeviceIndex = 0
-        }
+			await MainActor.run {
+				self.isDetectingDevices = false
+				self.mergedDevices = merged
+				let previousSelection = self.selectedDeviceIndex
+				self.deviceItems = merged.map { $0.remoteDevice?.friendlyName ?? $0.localDevice?.name ?? "" }
+				if let sel = previousSelection, sel < self.deviceItems.count {
+					self.selectedDeviceIndex = sel
+				} else if self.deviceItems.isEmpty {
+					self.selectedDeviceIndex = nil
+				} else if previousSelection == nil {
+					self.selectedDeviceIndex = 0
+				}
+			}
+		}
     }
 
     func refreshDevices() {
 		Log.debug("[STX]: Refreshing devices.")
+		resetErrors()
         loadDevices()
     }
 
@@ -396,25 +332,70 @@ final public class LoginViewModel {
 		}
 	}
 
-    private func prepareAddressAndLoginForSelectedDevice() {
+	private func orderPaths(_ paths: [RemoteDevice.Path]) -> [RemoteDevice.Path] {
+		func priority(for kind: RemoteDevice.Path.Kind) -> Int {
+			switch kind {
+				case .local: return 0
+				case .public: return 1
+				case .remote: return 2
+			}
+		}
+		return paths.sorted { a, b in
+			let pa = priority(for: a.kind)
+			let pb = priority(for: b.kind)
+			if pa != pb { return pa < pb }
+			let aa = "\(a.address):\(a.port ?? -1)"
+			let bb = "\(b.address):\(b.port ?? -1)"
+			return aa.localizedCaseInsensitiveCompare(bb) == .orderedAscending
+		}
+	}
+
+	private func prepareAddressAndLoginForSelectedDevice() {
 		Log.debug("[STX]: Composing device URL")
         guard let idx = selectedDeviceIndex, idx < mergedDevices.count else { return }
         let device = mergedDevices[idx]
 
-		if let first = device.remoteDevice?.paths.first {
-			let url = self.composeURL(address: first.address, port: first.port, path: "/files")
-			self.address = url
-			Log.debug("[STX]: URL: \(url)")
-			self.login()
-		} else if let host = device.localDevice?.host {
+		// 1) Try highest-priority reachable path from probes (already ordered: local → public → remote → mDNS)
+		if let probe = device.pathProbes.first(where: { $0.isReachable }) {
+			switch probe.source {
+				case .remotePath(let path):
+					let url = self.composeURL(address: path.address, port: path.port, path: "/files")
+					self.address = url
+					Log.debug("[STX]: URL (reachable remote path): \(url)")
+					self.login()
+					return
+				case .mdns(let host, let port):
+					let url = self.composeURL(address: host, port: port)
+					self.address = url
+					Log.debug("[STX]: URL (reachable mDNS): \(url)")
+					self.login()
+					return
+			}
+		}
+
+		// 2) Fallback: use best ordered remote path if available
+		if let remote = device.remoteDevice {
+			if let best = orderPaths(remote.paths).first {
+				let url = self.composeURL(address: best.address, port: best.port, path: "/files")
+				self.address = url
+				Log.debug("[STX]: URL (fallback remote path): \(url)")
+				self.login()
+				return
+			}
+		}
+
+		// 3) Fallback: use local mDNS host if present
+		if let host = device.localDevice?.host {
 			let url = composeURL(address: host, port: device.localDevice?.port)
 			self.address = url
-			Log.debug("[STX]: URL: \(url)")
+			Log.debug("[STX]: URL (fallback mDNS): \(url)")
 			self.login()
-		} else {
-			errors = [.serverNotFound]
+			return
 		}
-    }
+
+		// 4) Otherwise, error
+		errors = [.serverNotFound]
+	}
 
     private func composeURL(address: String, port: Int?, path: String? = nil) -> String {
         let hostPort = port != nil ? "\(address):\(port!)" : address

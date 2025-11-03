@@ -132,13 +132,13 @@ class EditDocumentViewController: QLPreviewController, Themeable {
 		// Activate editing mode by performing the action on pencil icon. Unfortunately that's the only way to do it apparently
 		if #available(iOS 16.0, *) {
 			var barButtonItems: [UIBarButtonItem]?
-			
+
 			if let rightBarButtonItems = navigationItem.rightBarButtonItems, rightBarButtonItems.count > 0 {
 				barButtonItems = rightBarButtonItems
 			} else if let toolbarItems = self.toolbarItems, toolbarItems.count > 0 {
 				barButtonItems = toolbarItems
 			}
-			
+
 			if let barButtonItems {
 				for markupButton in barButtonItems {
 					if (markupButton.debugDescription as NSString).contains("pencil.tip.crop.circle") {

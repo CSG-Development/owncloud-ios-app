@@ -1,15 +1,15 @@
 import Foundation
 import UIKit
 
-public struct RemoteDevice {
+public struct RemoteDevice: Sendable {
 	public let seagateDeviceID: String
 	public let friendlyName: String
 	public let hostname: String
 	public let certificateCommonName: String
 	public let paths: [Path]
 
-	public struct Path {
-		public enum Kind {
+	public struct Path: Sendable {
+		public enum Kind: Sendable {
 			case local
 			case `public`
 			case remote
@@ -175,26 +175,42 @@ public final class RemoteAccessService {
         }
     }
 
+	public func getRemoteDevices(email: String) async throws -> [RemoteDevice] {
+		try await refreshTokensIfNeeded(for: email)
+
+		let apiDevices = try await api.listDevices()
+		return try await withThrowingTaskGroup(of: RemoteDevice.self) { group in
+			for device in apiDevices {
+				group.addTask {
+					let paths = try await self.api.getDevicePaths(deviceID: device.seagateDeviceID)
+					return RemoteDevice(raDevice: device, raDevicePaths: paths)
+				}
+			}
+
+			var gathered: [RemoteDevice] = []
+			for try await item in group {
+				gathered.append(item)
+			}
+			return gathered
+		}
+	}
+
+	@discardableResult
 	public func getRemoteDevices(
 		email: String,
+		callbackQueue: DispatchQueue = .main,
 		completion: @escaping (Result<[RemoteDevice], Error>) -> Void
-	) {
+	) -> Task<Void, Never> {
 		Task {
+			let result: Result<[RemoteDevice], Error>
 			do {
-				try await refreshTokensIfNeeded(for: email)
-
-				var mRemoteDevices: [RemoteDevice] = []
-				let devices = try await api.listDevices()
-				for device in devices {
-					let paths = try await api.getDevicePaths(
-						deviceID: device.seagateDeviceID
-					)
-					mRemoteDevices.append(RemoteDevice(raDevice: device, raDevicePaths: paths))
-				}
-				let remoteDevices = mRemoteDevices
-				await MainActor.run { completion(.success(remoteDevices)) }
+				let devices = try await getRemoteDevices(email: email)
+				result = .success(devices)
 			} catch {
-				await MainActor.run { completion(.failure(error)) }
+				result = .failure(error)
+			}
+			callbackQueue.async {
+				completion(result)
 			}
 		}
 	}

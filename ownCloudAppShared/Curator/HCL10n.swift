@@ -100,6 +100,7 @@ public enum HCL10n {
 			public static let loadingViewTitle = "Logging in to your account"
 			public static let incorrectEmailPassword = "Incorrect email or password"
 			public static let invalidEmail = "Please enter a valid email address"
+			public static let connectionError = "Connection error. Unable to reach the server."
 
 			public enum EmailField {
 				public static let title = "Email"

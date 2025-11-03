@@ -28,9 +28,7 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private var loadingView: UIView!
 
-	private lazy var errorView: UIView = {
-		let errorCardView = HCErrorView(frame: .zero)
-		errorCardView.subtitle = HCL10n.Auth.Login.incorrectEmailPassword
+	private lazy var errorStackView: UIStackView = {
 		let errorView = UIStackView(arrangedSubviews: [
 			errorCardView,
 			HCSpacerView(24, .vertical)
@@ -41,6 +39,8 @@ final public class LoginViewController: UIViewController, Themeable {
 		errorView.isHidden = true
 		return errorView
 	}()
+
+	private lazy var errorCardView = HCErrorView(frame: .zero)
 
 	private lazy var scrollView: UIScrollView = {
 		let scrollView = UIScrollView()
@@ -196,8 +196,6 @@ final public class LoginViewController: UIViewController, Themeable {
 
 		setupUI()
 		bindViewModel()
-		MDNSService.shared.start()
-
 		emailLabelContainer.addSubview(emailLabel)
 		emailLabel.snp.makeConstraints {
 			$0.top.bottom.centerX.equalToSuperview()
@@ -377,7 +375,7 @@ final public class LoginViewController: UIViewController, Themeable {
 					HCSpacerView(24),
 					loginButton,
 					HCSpacerView(24),
-					errorView
+					errorStackView
 				]
 		}
 	}
@@ -495,16 +493,18 @@ final public class LoginViewController: UIViewController, Themeable {
 
 				self.emailTextField.errorText = nil
 				self.passwordTextField.errorText = nil
-				self.errorView.isHidden = true
+				self.errorStackView.isHidden = true
 
 				for e in errors {
 					switch e {
 						case .authenticationFailed:
 							self.emailTextField.errorText = " "
 							self.passwordTextField.errorText = " "
-							self.errorView.isHidden = false
+							self.errorStackView.isHidden = false
+							self.errorCardView.subtitle = HCL10n.Auth.Login.incorrectEmailPassword
 						case .serverNotFound:
-							break
+							self.errorStackView.isHidden = false
+							self.errorCardView.subtitle = HCL10n.Auth.Login.connectionError
 					}
 				}
 			}
