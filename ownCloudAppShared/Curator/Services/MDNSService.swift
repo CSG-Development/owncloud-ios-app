@@ -19,7 +19,6 @@ private enum Constants {
 }
 
 public final class MDNSService {
-	public static var shared = MDNSService()
 	private var browser: NWBrowser?
 
 	private var results: [LocalDevice] = []
@@ -30,6 +29,8 @@ public final class MDNSService {
 	private let devicesSubject = CurrentValueSubject<[LocalDevice], Never>([])
 	public var devicesPublisher: AnyPublisher<[LocalDevice], Never> { devicesSubject.eraseToAnyPublisher() }
 	private var cancellables = Set<AnyCancellable>()
+
+	public init() {}
 
 	public func start() {
 		let descriptor = NWBrowser.Descriptor.bonjour(type: Constants.mDNSServiceType, domain: nil)

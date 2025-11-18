@@ -150,11 +150,12 @@
 		9905DFCC2EA53F2400FF70B7 /* RADevicePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFCB2EA53F1B00FF70B7 /* RADevicePath.swift */; };
 		9905DFCE2EA53F6C00FF70B7 /* RADevicePaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFCD2EA53F6300FF70B7 /* RADevicePaths.swift */; };
 		9905DFD02EA53F8900FF70B7 /* RADevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFCF2EA53F8700FF70B7 /* RADevice.swift */; };
+		9908FE2E2EC370BA004A4137 /* HCPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9908FE2D2EC370BA004A4137 /* HCPreferences.swift */; };
+		9908FE302EC4AE56004A4137 /* HCContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9908FE2F2EC4AE4F004A4137 /* HCContext.swift */; };
 		99139B742E438B6E0044889B /* HCBrowserNavigationTabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */; };
 		99139B752E438B6E0044889B /* HCImageHighlightCapsuleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */; };
 		99139B762E438B860044889B /* UIStackView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99192AD42E2A408E000025A1 /* UIStackView+Extensions.swift */; };
 		99139B772E438B860044889B /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990131672E337AF800B9D138 /* UIView+Extensions.swift */; };
-		99139B782E438B960044889B /* HCSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9941528C2E2A75E800B8ADF5 /* HCSettings.swift */; };
 		99139B792E438B960044889B /* HCScrollDirectionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */; };
 		99139B7E2E438C0E0044889B /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99492B982E27D2F300FCF0DB /* OnboardingPage.swift */; };
 		99139B7F2E438C0E0044889B /* OnboardingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99492B9A2E27D30C00FCF0DB /* OnboardingPageViewController.swift */; };
@@ -170,6 +171,10 @@
 		991B368E2E2199B500369B7D /* HCTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B368A2E2199B000369B7D /* HCTextFieldView.swift */; };
 		991B36902E22CCB000369B7D /* HCFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B368F2E22CCAB00369B7D /* HCFieldView.swift */; };
 		991B36922E22D54B00369B7D /* HCSecureTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991B36912E22D54300369B7D /* HCSecureTextFieldView.swift */; };
+		993A260B2EBCCDB000A28D8F /* PathOrdering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993A260A2EBCCDAB00A28D8F /* PathOrdering.swift */; };
+		993A260E2EBCD20300A28D8F /* ReachabilityObserving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993A260D2EBCD1FD00A28D8F /* ReachabilityObserving.swift */; };
+		993A26102EBCD23300A28D8F /* NetworkState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993A260F2EBCD22A00A28D8F /* NetworkState.swift */; };
+		993A26122EBCD25100A28D8F /* DefaultReachabilityObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 993A26112EBCD24900A28D8F /* DefaultReachabilityObserver.swift */; };
 		994E68E62E0D67FA00E73D69 /* HCL10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994E68E22E0D67F100E73D69 /* HCL10n.swift */; };
 		995611852E6B6C3D00FA252D /* LocationTreeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995611842E6B6C3200FA252D /* LocationTreeViewController.swift */; };
 		995611872E6B6DFD00FA252D /* LocationTreeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995611862E6B6DF600FA252D /* LocationTreeCell.swift */; };
@@ -1290,6 +1295,8 @@
 		9905DFCB2EA53F1B00FF70B7 /* RADevicePath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RADevicePath.swift; sourceTree = "<group>"; };
 		9905DFCD2EA53F6300FF70B7 /* RADevicePaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RADevicePaths.swift; sourceTree = "<group>"; };
 		9905DFCF2EA53F8700FF70B7 /* RADevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RADevice.swift; sourceTree = "<group>"; };
+		9908FE2D2EC370BA004A4137 /* HCPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCPreferences.swift; sourceTree = "<group>"; };
+		9908FE2F2EC4AE4F004A4137 /* HCContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCContext.swift; sourceTree = "<group>"; };
 		99139B552E3CB4CC0044889B /* HCBrowserNavigationTabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCBrowserNavigationTabBarView.swift; sourceTree = "<group>"; };
 		99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCScrollDirectionProcessor.swift; sourceTree = "<group>"; };
 		99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCImageHighlightCapsuleButton.swift; sourceTree = "<group>"; };
@@ -1305,7 +1312,10 @@
 		991B368A2E2199B000369B7D /* HCTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCTextFieldView.swift; sourceTree = "<group>"; };
 		991B368F2E22CCAB00369B7D /* HCFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCFieldView.swift; sourceTree = "<group>"; };
 		991B36912E22D54300369B7D /* HCSecureTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSecureTextFieldView.swift; sourceTree = "<group>"; };
-		9941528C2E2A75E800B8ADF5 /* HCSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSettings.swift; sourceTree = "<group>"; };
+		993A260A2EBCCDAB00A28D8F /* PathOrdering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathOrdering.swift; sourceTree = "<group>"; };
+		993A260D2EBCD1FD00A28D8F /* ReachabilityObserving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReachabilityObserving.swift; sourceTree = "<group>"; };
+		993A260F2EBCD22A00A28D8F /* NetworkState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkState.swift; sourceTree = "<group>"; };
+		993A26112EBCD24900A28D8F /* DefaultReachabilityObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultReachabilityObserver.swift; sourceTree = "<group>"; };
 		99492B982E27D2F300FCF0DB /* OnboardingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPage.swift; sourceTree = "<group>"; };
 		99492B9A2E27D30C00FCF0DB /* OnboardingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageViewController.swift; sourceTree = "<group>"; };
 		99492B9C2E27D32700FCF0DB /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
@@ -2506,6 +2516,33 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		993A26052EBCCD7E00A28D8F /* DeviceReachability */ = {
+			isa = PBXGroup;
+			children = (
+				993A260C2EBCD1F000A28D8F /* Reachability */,
+				993A26092EBCCD9D00A28D8F /* Merge */,
+			);
+			path = DeviceReachability;
+			sourceTree = "<group>";
+		};
+		993A26092EBCCD9D00A28D8F /* Merge */ = {
+			isa = PBXGroup;
+			children = (
+				993A260A2EBCCDAB00A28D8F /* PathOrdering.swift */,
+			);
+			path = Merge;
+			sourceTree = "<group>";
+		};
+		993A260C2EBCD1F000A28D8F /* Reachability */ = {
+			isa = PBXGroup;
+			children = (
+				993A26112EBCD24900A28D8F /* DefaultReachabilityObserver.swift */,
+				993A260F2EBCD22A00A28D8F /* NetworkState.swift */,
+				993A260D2EBCD1FD00A28D8F /* ReachabilityObserving.swift */,
+			);
+			path = Reachability;
+			sourceTree = "<group>";
+		};
 		99492B942E27D2E500FCF0DB /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
@@ -2571,6 +2608,9 @@
 		99C42DD72EA666CD00E36414 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				9908FE2F2EC4AE4F004A4137 /* HCContext.swift */,
+				9908FE2D2EC370BA004A4137 /* HCPreferences.swift */,
+				993A26052EBCCD7E00A28D8F /* DeviceReachability */,
 				99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */,
 				99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */,
 				99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */,
@@ -2701,7 +2741,6 @@
 				9917277C2E571A7700AD9C54 /* HCBytesFormatter.swift */,
 				99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */,
 				99139B602E3CCCAA0044889B /* HCScrollDirectionProcessor.swift */,
-				9941528C2E2A75E800B8ADF5 /* HCSettings.swift */,
 				994E68E22E0D67F100E73D69 /* HCL10n.swift */,
 				99C42E0E2EB0CDC100E36414 /* HCConfig.swift */,
 				99F472E82E095C1500104592 /* Extensions */,
@@ -5337,6 +5376,7 @@
 				DCB1B8C229C8A6E500BFF393 /* ThemeCSSView.swift in Sources */,
 				DC0A357724C0E43200FB58FC /* ProgressSummarizer.swift in Sources */,
 				DCB6B205292D859B00D27573 /* UIViewController+NavigationRevocation.swift in Sources */,
+				993A260E2EBCD20300A28D8F /* ReachabilityObserving.swift in Sources */,
 				392CFEB72705831700631D2B /* LAContext+Extension.swift in Sources */,
 				DCE4E48724C1F9F50051722F /* CreateFolderAction.swift in Sources */,
 				99DF687A2E1E67D900F1A0B9 /* HCAppLogoView.swift in Sources */,
@@ -5346,12 +5386,14 @@
 				39E6DE86233CDF1E008DAE04 /* OCItemTracker.swift in Sources */,
 				DC0A358624C0E44600FB58FC /* ThemeTVGResource.swift in Sources */,
 				DC62F57529268D710095BB5D /* OpenInWebAppAction.swift in Sources */,
+				993A26122EBCD25100A28D8F /* DefaultReachabilityObserver.swift in Sources */,
 				DC99155228E63ECD00DA0AB8 /* UIView+EmbedAndLayout.swift in Sources */,
 				DC46F68E28DAFCDD008280CA /* RoundCornerBackgroundView.swift in Sources */,
 				DCB6B1F0292B979A00D27573 /* MessageSelector.swift in Sources */,
 				DC298CA129357809009FA87F /* AccountConnectionAuthErrorConsumer.swift in Sources */,
 				DC3AB24428104AA500789435 /* UIFont+Weight.swift in Sources */,
 				DCB6B1F9292CCAF200D27573 /* OCBookmarkManager+Management.swift in Sources */,
+				993A260B2EBCCDB000A28D8F /* PathOrdering.swift in Sources */,
 				DCB330DA29F12A0D00BFF393 /* BottomButtonBar.swift in Sources */,
 				DC0A358524C0E44600FB58FC /* ThemeResource.swift in Sources */,
 				99DF68722E1E673A00F1A0B9 /* UIBezierPath+TrueRoundedRect.swift in Sources */,
@@ -5404,6 +5446,7 @@
 				DCCE1BFA28CA45D90098E3FE /* ItemSearchSuggestionsViewController.swift in Sources */,
 				DC0A358824C0E44B00FB58FC /* ThemeTableViewCell.swift in Sources */,
 				DC24E10428B7BF4E002E4F5B /* CustomQuerySearchTokenizer.swift in Sources */,
+				9908FE302EC4AE56004A4137 /* HCContext.swift in Sources */,
 				9905DFC12EA53EA400FF70B7 /* Status.swift in Sources */,
 				DC36886224DDA9AB00333600 /* ProgressIndicatorViewController.swift in Sources */,
 				399EA72625E6565900B6FF11 /* OCCore+Extension.swift in Sources */,
@@ -5420,9 +5463,9 @@
 				DC8E99DC297E79E900594697 /* BrowserNavigationHistory.swift in Sources */,
 				DCBAEAE829A568D500BFF393 /* TitleSupplementaryCell.swift in Sources */,
 				DC0A357924C0E43700FB58FC /* CardTransitionDelegate.swift in Sources */,
-				99139B782E438B960044889B /* HCSettings.swift in Sources */,
 				99139B792E438B960044889B /* HCScrollDirectionProcessor.swift in Sources */,
 				DC0A358724C0E44600FB58FC /* ThemeImage.swift in Sources */,
+				9908FE2E2EC370BA004A4137 /* HCPreferences.swift in Sources */,
 				DC0A355824C0E35B00FB58FC /* Synchronized.swift in Sources */,
 				DCB1B99729D1813D00BFF393 /* ThemeCSSTextField.swift in Sources */,
 				DCA2EDE4279B1789001F04E6 /* ResourceItemIcon.swift in Sources */,
@@ -5479,6 +5522,7 @@
 				DC66A9F8279F467200792AC8 /* UIKeyCommand+Extension.swift in Sources */,
 				DC46F3CE2844A92A00038880 /* ActionCell.swift in Sources */,
 				DCE4E43724C19A910051722F /* LicenseRequirements.swift in Sources */,
+				993A26102EBCD23300A28D8F /* NetworkState.swift in Sources */,
 				DCE4E43A24C19ADC0051722F /* MoreViewHeader.swift in Sources */,
 				9956118C2E6B738E00FA252D /* LocationTreeViewModel.swift in Sources */,
 				DC298C9C2934D47D009FA87F /* ThemeCertificateViewController.swift in Sources */,

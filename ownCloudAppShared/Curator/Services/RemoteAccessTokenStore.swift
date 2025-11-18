@@ -32,8 +32,6 @@ public struct RemoteAccessToken: Codable, Equatable {
 }
 
 public final class RemoteAccessTokenStore {
-    public static let shared = RemoteAccessTokenStore()
-
     private let keychainAccount = "curator.remoteAccess.tokens"
     private let keyPath = "emails"
     private let queue = DispatchQueue(label: "RemoteAccessTokenStore.queue")

@@ -68,13 +68,7 @@ enum RemoteAccessServiceError: Error {
 }
 
 public final class RemoteAccessService {
-    public static let shared = RemoteAccessService()
-
 	private enum Constants {
-		static let baseURL = URL(
-			string: "https://hc-remote-access-env-https.eba-a2nvhpbm.us-west-2.elasticbeanstalk.com:443/api"
-		)!
-
 		static var clientId: String {
 			UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
 		}
@@ -84,23 +78,28 @@ public final class RemoteAccessService {
 		}
 	}
 
-	private var store: RemoteAccessTokenStore {
-		RemoteAccessTokenStore.shared
-	}
     private var api: RemoteAccessAPI
 
 	private var referenceEmailMap: [String: String] = [:]
+	private let tokenStore: RemoteAccessTokenStore
 
-    private init() {
-		self.api = RemoteAccessAPI(baseURL: Constants.baseURL)
+	public init(
+		api: RemoteAccessAPI,
+		tokenStore: RemoteAccessTokenStore
+	) {
+		self.api = api
+		self.tokenStore = tokenStore
     }
 
 	private func saveTokens(for email: String, response: RATokenResponse) {
 		let raToken = RemoteAccessToken(raTokenResponse: response)
-		_ = store.save(tokens: raToken, for: email)
+		_ = tokenStore.save(tokens: raToken, for: email)
 	}
 
-	public func ensureAuthenticated(email: String, completion: @escaping (Result<Void, Error>) -> Void) {
+	public func ensureAuthenticated(
+		email: String,
+		completion: @escaping (Result<Void, Error>) -> Void
+	) {
 		Task {
 			do {
 				try await refreshTokensIfNeeded(for: email)
@@ -113,10 +112,10 @@ public final class RemoteAccessService {
 
 	private func refreshTokensIfNeeded(for email: String) async throws {
 		guard
-			let tokens = store.loadTokens(for: email),
+			let tokens = tokenStore.loadTokens(for: email),
 			!tokens.refreshToken.isEmpty
 		else {
-			_ = RemoteAccessTokenStore.shared.clear(email: email)
+			_ = tokenStore.clear(email: email)
 			throw RemoteAccessServiceError.unauthorized
 		}
 
