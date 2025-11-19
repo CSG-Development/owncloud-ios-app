@@ -60,8 +60,9 @@ public final actor DeviceReachabilityService {
 
 		public var url: URL? {
 			switch self {
-				case let .mdns(host, port):
-					return URL(host: host, port: port)
+				case let .mdns(host, _):
+					// Ignore port. Assume that mdns IP points to 443
+					return URL(host: host, port: nil)
 				case let .remote(path):
 					return URL(host: path.address, port: path.port)
 			}

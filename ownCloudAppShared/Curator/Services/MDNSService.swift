@@ -88,6 +88,13 @@ public final class MDNSService {
 		let params = NWParameters.tcp
 		let endpoint = NWEndpoint.service(name: name, type: type, domain: domain, interface: nil)
 		let conn = NWConnection(to: endpoint, using: params)
+		var emitted = false
+		func emit(_ entry: LocalDevice) {
+			guard emitted == false else { return }
+			emitted = true
+			self.upsert(entry)
+			self.discoveredSubject.send(entry)
+		}
 		conn.stateUpdateHandler = { state in
 			if case .ready = state {
 				if case let .hostPort(host, port) = conn.currentPath?.remoteEndpoint {
@@ -112,20 +119,84 @@ public final class MDNSService {
 						return
 					}
 					Log.debug("[STX-MDNS]: Resolved \"\(name)\" to \"\(hostString):\(port)\"")
-					let entry = LocalDevice(
-						name: name,
-						host: hostString,
-						port: portValue,
-						certificateCommonName: nil,
-						oobeIsDone: false
-					)
-					self.upsert(entry)
-					self.discoveredSubject.send(entry)
+					// Accept only IPv4 non-link-local; otherwise try Wi‑Fi-only resolve
+					if self.isIPv4(hostString) && self.isLinkLocal(hostString) == false {
+						emit(LocalDevice(
+							name: name,
+							host: hostString,
+							port: portValue,
+							certificateCommonName: nil,
+							oobeIsDone: false
+						))
+					} else {
+						// Try Wi‑Fi-only to get an IPv4 non-link-local address
+						let wifiParams = NWParameters.tcp
+						wifiParams.requiredInterfaceType = .wifi
+						let wifiConn = NWConnection(to: endpoint, using: wifiParams)
+						wifiConn.stateUpdateHandler = { wifiState in
+							if case .ready = wifiState {
+								if case let .hostPort(wifiHost, wifiPort) = wifiConn.currentPath?.remoteEndpoint {
+									let wifiPortValue = Int(wifiPort.rawValue)
+									let wifiHostString: String?
+									switch wifiHost {
+										case let .ipv4(addr):
+											wifiHostString = addr.string
+										case let .ipv6(addr):
+											wifiHostString = addr.string
+										case let .name(name, _):
+											wifiHostString = name
+										@unknown default:
+											wifiHostString = nil
+									}
+									if let wifiHostString, self.isIPv4(wifiHostString), self.isLinkLocal(wifiHostString) == false {
+										Log.debug("[STX-MDNS]: Preferred IPv4 Wi‑Fi address for \"\(name)\" -> \"\(wifiHostString):\(wifiPort)\"")
+										emit(LocalDevice(
+											name: name,
+											host: wifiHostString,
+											port: wifiPortValue,
+											certificateCommonName: nil,
+											oobeIsDone: false
+										))
+										wifiConn.cancel()
+										return
+									}
+								}
+								// Wi‑Fi gave no IPv4 non-link-local; do not emit
+								wifiConn.cancel()
+							} else if case .failed = wifiState {
+								// Fallback failed; do not emit
+							}
+						}
+						// Safety timeout for fallback
+						DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+							wifiConn.cancel()
+						}
+						wifiConn.start(queue: .main)
+					}
 				}
 				conn.cancel()
 			}
 		}
 		conn.start(queue: .main)
+	}
+
+	private func isLinkLocal(_ host: String) -> Bool {
+		// IPv4 link-local: 169.254.0.0/16
+		if host.hasPrefix("169.254.") { return true }
+		// IPv6 link-local typically starts with fe80::/10 (allowing fe8, fe9, fea, feb)
+		let lower = host.lowercased()
+		if lower.hasPrefix("fe80:") || lower.hasPrefix("fe80::") { return true }
+		return false
+	}
+	
+	private func isIPv4(_ host: String) -> Bool {
+		// Simple heuristic: contains exactly 3 dots and all octets are digits
+		let parts = host.split(separator: ".")
+		if parts.count != 4 { return false }
+		for p in parts {
+			if p.isEmpty || p.contains(where: { $0 < "0" || $0 > "9" }) { return false }
+		}
+		return true
 	}
 
 	private func upsert(_ entry: LocalDevice) {

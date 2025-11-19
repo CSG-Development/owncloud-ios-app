@@ -140,7 +140,7 @@ final public class LoginViewModel {
 	}
 
 	func login(url: URL) {
-		Log.debug("[STX]: Starting login")
+		Log.debug("[STX]: Starting login. URL: \(url)")
 		// TODO: Refactor during login from invite implementation.
 		guard isLoginEnabled, !isLoading else { return }
 		isLoading = true
