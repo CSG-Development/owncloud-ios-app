@@ -30,6 +30,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		AnalyticsTracker.shared.setup()
+		HCContext.shared.setup()
+		
 		_ = HCKeyboardTracker.shared
 
 #if !DEBUG
@@ -66,7 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         MediaUploadQueue.shared.setup()
         if AppStatistics.shared.firstLaunchDate == nil {
-            HCSettings.shared.shouldShowOnboarding = true
+			HCPreferences.shared.shouldShowOnboarding = true
         }
 		AppStatistics.shared.update()
 

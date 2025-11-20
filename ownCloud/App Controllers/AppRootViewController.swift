@@ -169,7 +169,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 
 				self?.contentViewController = FirstRunCoordinator(rootVC: self).makeInitial()
 			} else {
-				if HCSettings.shared.shouldShowOnboarding {
+				if HCPreferences.shared.shouldShowOnboarding {
 					let onboardingVC = OnboardingViewController()
 					onboardingVC.onFinishedOnboarding = { [weak self] in
 						self?.contentViewController = self?.contentBrowserController

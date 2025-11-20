@@ -31,7 +31,7 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 		)
 	]
 	private var currentPage = 0
-	private var seenPageIndices: Set<Int> = HCSettings.shared.onboardingSeenPageIndices
+	private var seenPageIndices: Set<Int> = HCPreferences.shared.onboardingSeenPageIndices
 
 	private lazy var imageView: UIImageView = {
 		let imageView = UIImageView(image: UIImage(named: "onboarding/background"))
@@ -241,19 +241,19 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 	private func markPageSeen(index: Int) {
 		if seenPageIndices.contains(index) == false {
 			seenPageIndices.insert(index)
-			HCSettings.shared.onboardingSeenPageIndices = seenPageIndices
+			HCPreferences.shared.onboardingSeenPageIndices = seenPageIndices
 			checkIfCompleted()
 		}
 	}
 
 	private func checkIfCompleted() {
 		if seenPageIndices.count >= pages.count {
-			HCSettings.shared.shouldShowOnboarding = false
+			HCPreferences.shared.shouldShowOnboarding = false
 		}
 	}
 
 	private func completeOnboarding() {
-		HCSettings.shared.shouldShowOnboarding = false
+		HCPreferences.shared.shouldShowOnboarding = false
 	}
 
 	private func firstUnseenPageIndex() -> Int {

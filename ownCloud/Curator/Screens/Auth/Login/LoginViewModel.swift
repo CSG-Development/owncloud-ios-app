@@ -32,7 +32,6 @@ final public class LoginViewModel {
 	// Inputs
 	@Published var username: String = ""
 	@Published var password: String = ""
-	@Published var address: String = ""
 
 	// Outputs
 	@Published private(set) var isLoginEnabled: Bool = true
@@ -48,11 +47,15 @@ final public class LoginViewModel {
 	var bookmark: OCBookmark
 
 	private var raService: RemoteAccessService {
-		RemoteAccessService.shared
+		HCContext.shared.remoteAccessService
 	}
 
 	private var deviceReachabilityService: DeviceReachabilityService {
-		DeviceReachabilityService.shared
+		HCContext.shared.deviceReachabilityService
+	}
+
+	private var preferences: HCPreferences {
+		HCContext.shared.preferences
 	}
 
 	private var _cookieStorage : OCHTTPCookieStorage?
@@ -90,9 +93,9 @@ final public class LoginViewModel {
 		self.bookmark = OCBookmark()
 
         Publishers
-            .CombineLatest4($username, $password, $address, $step)
+            .CombineLatest3($username, $password, $step)
 			.receive(on: RunLoop.main)
-			.sink(receiveValue: { [weak self] username, password, address, _ in
+			.sink(receiveValue: { [weak self] username, password, _ in
 				guard let self else { return }
 				switch step {
 					case .emailEntry:
@@ -129,12 +132,6 @@ final public class LoginViewModel {
                 if case .deviceSelection = step { self?.loadDevices() }
             }
             .store(in: &cancellables)
-
-		deviceReachabilityService.start()
-	}
-
-	deinit {
-		deviceReachabilityService.stop()
 	}
 
 	private func isValidEmail(_ email: String) -> Bool {
@@ -142,18 +139,13 @@ final public class LoginViewModel {
 		return email.range(of: pattern, options: .regularExpression) != nil
 	}
 
-	func login() {
-		Log.debug("[STX]: Starting login")
+	func login(url: URL) {
+		Log.debug("[STX]: Starting login. URL: \(url)")
 		// TODO: Refactor during login from invite implementation.
 		guard isLoginEnabled, !isLoading else { return }
 		isLoading = true
 
-		if !address.starts(with: "https://") && !address.starts(with: "http://") {
-			address = "https://" + address
-			Log.debug("[STX]: Appending https:// to entered address. Result: \(address)")
-		}
-
-		bookmark.url = URL(string: address)
+		bookmark.url = url
 		let connection = instantiateConnection(for: bookmark)
 		OCConnection.setupHTTPPolicy = .allow
 		Log.debug("[STX]: Calling OCConnection.prepareForSetup")
@@ -247,6 +239,9 @@ final public class LoginViewModel {
 					}
 
 					if self.bookmark.isComplete {
+						if let username, !username.isEmpty {
+							self.preferences.currentEmail = username
+						}
 						Log.debug("[STX]: Bookmark is complete. Adding bookmark")
 						self.bookmark.authenticationDataStorage = .keychain // Commit auth changes to keychain
 						OCBookmarkManager.shared.addBookmark(self.bookmark)
@@ -274,7 +269,9 @@ final public class LoginViewModel {
             case .emailEntry:
 				sendEmailVerificationIfNeeded()
             case .deviceSelection:
-                prepareAddressAndLoginForSelectedDevice()
+				Task {
+					await self.prepareAddressAndLoginForSelectedDevice()
+				}
         }
     }
 
@@ -350,65 +347,47 @@ final public class LoginViewModel {
 		}
 	}
 
-	private func prepareAddressAndLoginForSelectedDevice() {
+	private func prepareAddressAndLoginForSelectedDevice() async {
 		Log.debug("[STX]: Composing device URL")
         guard let idx = selectedDeviceIndex, idx < mergedDevices.count else { return }
         let device = mergedDevices[idx]
 
-		// 1) Try highest-priority reachable path from probes (already ordered: local → public → remote → mDNS)
-		if let probe = device.pathProbes.first(where: { $0.isReachable }) {
-			switch probe.source {
-				case .remotePath(let path):
-					let url = self.composeURL(address: path.address, port: path.port, path: "/files")
-					self.address = url
-					Log.debug("[STX]: URL (reachable remote path): \(url)")
-					self.login()
-					return
-				case .mdns(let host, let port):
-					let url = self.composeURL(address: host, port: port)
-					self.address = url
-					Log.debug("[STX]: URL (reachable mDNS): \(url)")
-					self.login()
-					return
-			}
-		}
-
-		// 2) Fallback: use best ordered remote path if available
-		if let remote = device.remoteDevice {
-			if let best = orderPaths(remote.paths).first {
-				let url = self.composeURL(address: best.address, port: best.port, path: "/files")
-				self.address = url
-				Log.debug("[STX]: URL (fallback remote path): \(url)")
-				self.login()
-				return
-			}
-		}
-
-		// 3) Fallback: use local mDNS host if present
-		if let host = device.localDevice?.host {
-			let url = composeURL(address: host, port: device.localDevice?.port)
-			self.address = url
-			Log.debug("[STX]: URL (fallback mDNS): \(url)")
-			self.login()
+		// Ensure probes are fresh before selecting best path
+		await deviceReachabilityService.reprobeExistingPaths()
+		guard
+			let bestPath = await deviceReachabilityService.currentBestPath(for: device),
+			let url = bestPath.url?.appendingPathComponent("files")
+		else {
+			errors = [.serverNotFound]
 			return
 		}
-
-		// 4) Otherwise, error
-		errors = [.serverNotFound]
+		// Persist current device identification and email for reprobe on relaunch
+		let cn = device.remoteDevice?.certificateCommonName ?? device.localDevice?.certificateCommonName
+		if let cn {
+			HCContext.shared.preferences.currentCertificateCN = cn
+			if let remote = device.remoteDevice {
+				let savedPaths: [HCPreferences.SavedConnectedDevice.SavedPath] = remote.paths.map {
+					let kind: HCPreferences.SavedConnectedDevice.SavedPath.Kind
+					switch $0.kind {
+						case .local: kind = .local
+						case .public: kind = .public
+						case .remote: kind = .remote
+					}
+					return .init(kind: kind, address: $0.address, port: $0.port)
+				}
+				let saved = HCPreferences.SavedConnectedDevice(
+					seagateDeviceID: remote.seagateDeviceID,
+					certificateCommonName: remote.certificateCommonName,
+					friendlyName: remote.friendlyName,
+					hostname: remote.hostname,
+					paths: savedPaths
+				)
+				HCContext.shared.preferences.currentConnectedDevice = saved
+			}
+		}
+		if !username.isEmpty { HCContext.shared.preferences.currentEmail = username }
+		login(url: url)
 	}
-
-    private func composeURL(address: String, port: Int?, path: String? = nil) -> String {
-        let hostPort = port != nil ? "\(address):\(port!)" : address
-        let withScheme: String = (hostPort.hasPrefix("http://") || hostPort.hasPrefix("https://")) ? hostPort : "https://\(hostPort)"
-        guard let path, !path.isEmpty else { return withScheme }
-        if withScheme.hasSuffix("/") {
-            let trimmed = path.hasPrefix("/") ? String(path.dropFirst()) : path
-            return withScheme + trimmed
-        } else {
-            let prefixed = path.hasPrefix("/") ? path : "/" + path
-            return withScheme + prefixed
-        }
-    }
 
 	func didTapResetPassword() {
 		Log.debug("[STX]: Reset password tap.")
@@ -429,6 +408,5 @@ final public class LoginViewModel {
 	func fillTestInfo() {
 		username = ""
 		password = ""
-		address = ""
 	}
 }

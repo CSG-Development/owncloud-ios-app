@@ -203,7 +203,6 @@ final public class LoginViewController: UIViewController, Themeable {
 		}
 
 		emailTextField.textField.text = viewModel.username
-		addressDropdown.textField.text = viewModel.address
 		passwordTextField.textField.text = viewModel.password
 
 		Theme.shared.register(client: self, applyImmediately: true)

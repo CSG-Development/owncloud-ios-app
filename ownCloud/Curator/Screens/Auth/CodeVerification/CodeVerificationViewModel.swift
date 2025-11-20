@@ -46,7 +46,7 @@ final public class CodeVerificationViewModel {
 	}
 
 	private var raService: RemoteAccessService {
-		RemoteAccessService.shared
+		HCContext.shared.remoteAccessService
 	}
 
 	init(eventHandler: CodeVerificationViewModelEventHandler, email: String) {
