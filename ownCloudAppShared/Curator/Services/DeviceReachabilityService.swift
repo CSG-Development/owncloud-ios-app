@@ -518,6 +518,10 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 	}
 
 	public func setBestURL(_ url: URL, for cn: String) {
+		var previous: URL?
+		cacheQueue.sync {
+			previous = self.bestURLByCN[cn]
+		}
 		cacheQueue.async(flags: .barrier) {
 			self.bestURLByCN[cn] = url
 		}
@@ -525,6 +529,27 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 		DispatchQueue.main.async {
 			let bookmarks = OCBookmarkManager.shared.bookmarks
 			for bookmark in bookmarks {
+				// If the bookmark currently points to the previous host/port, update it to the new best host/port
+				if let prev = previous, let bmURL = bookmark.url {
+					let prevHost = prev.host?.lowercased()
+					let bmHost = bmURL.host?.lowercased()
+					let sameHost = (prevHost?.isEmpty == false) && (prevHost == bmHost)
+					let prevPort = prev.port
+					let bmPort = bmURL.port
+					let portsEqual = (prevPort != nil) ? (prevPort == bmPort) : (bmPort == nil)
+					if sameHost && portsEqual {
+						var comps = URLComponents(url: bmURL, resolvingAgainstBaseURL: false)
+						let newComps = URLComponents(url: url, resolvingAgainstBaseURL: false)
+						if let newScheme = newComps?.scheme, !newScheme.isEmpty { comps?.scheme = newScheme }
+						if let newHost = newComps?.host, !newHost.isEmpty { comps?.host = newHost }
+						comps?.port = newComps?.port
+						if let adjusted = comps?.url {
+							bookmark.url = adjusted
+							OCBookmarkManager.shared.updateBookmark(bookmark)
+						}
+					}
+				}
+
 				OCCoreManager.shared.requestCore(for: bookmark, setup: nil) { core, _ in
 					guard let core else { return }
 					core.connection.validateConnection(withReason: "Best URL switched", dueToResponseTo: nil)
@@ -537,6 +562,7 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 	public func currentBaseURL() -> URL? {
 		if let cn = preferences.currentCertificateCN,
 		   let url = cachedBestURL(for: cn) {
+			Log.debug("[STX-RA]: Returned best URL: \(url)")
 			return url
 		}
 		return nil
