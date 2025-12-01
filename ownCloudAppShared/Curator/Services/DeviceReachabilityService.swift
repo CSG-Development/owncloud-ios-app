@@ -325,8 +325,6 @@ public final actor DeviceReachabilityService {
 					return .remote(path)
 				}
 			}
-			// Fallback: first ordered path
-			if let first = remote.paths.ordered().first { return .remote(first) }
 		}
 
 		// Fallback: local by CN
@@ -361,7 +359,6 @@ public final actor DeviceReachabilityService {
 		return nil
 	}
 
-
 	private func probeAll(_ devices: [RemoteDevice]) async throws -> [String: [String: PathProbe]] {
 		try await withThrowingTaskGroup(of: (String, [String: PathProbe]).self) { group in
 			for device in devices {
@@ -391,12 +388,12 @@ public final actor DeviceReachabilityService {
 					var status: Status?
 					var about: About?
 
-					do { status = try await self.withTimeout(0.8) { try await api.getStatus() } } catch {
+					do { status = try await self.withTimeout(30) { try await api.getStatus() } } catch {
 #if DEBUG
 						Log.debug("[STX-RA]: Failed to get status. Error \(error)")
 #endif
 					}
-					do { about  = try await self.withTimeout(0.8) { try await api.getAbout() } } catch {
+					do { about  = try await self.withTimeout(30) { try await api.getAbout() } } catch {
 #if DEBUG
 						Log.debug("[STX-RA]: Failed to get about. Error \(error)")
 #endif
