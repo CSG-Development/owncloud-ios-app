@@ -122,11 +122,11 @@ public final class MDNSService {
 					// Accept only IPv4 non-link-local; otherwise try Wi‑Fi-only resolve
 					if self.isIPv4(hostString) && self.isLinkLocal(hostString) == false {
 						emit(LocalDevice(
-							name: name,
-							host: hostString,
-							port: portValue,
-							certificateCommonName: nil,
-							oobeIsDone: false
+						name: name,
+						host: hostString,
+						port: portValue,
+						certificateCommonName: nil,
+						oobeIsDone: false
 						))
 					} else {
 						// Try Wi‑Fi-only to get an IPv4 non-link-local address

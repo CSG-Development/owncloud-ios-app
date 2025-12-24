@@ -516,12 +516,19 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 
 	public func setBestURL(_ url: URL, for cn: String) {
 		var previous: URL?
-		cacheQueue.sync {
-			previous = self.bestURLByCN[cn]
-		}
-		cacheQueue.async(flags: .barrier) {
-			self.bestURLByCN[cn] = url
-		}
+		cacheQueue.sync { previous = self.bestURLByCN[cn] }
+
+		let changed: Bool = {
+			guard let prev = previous else { return true }
+			return (prev.scheme?.lowercased() != url.scheme?.lowercased())
+				|| (prev.host?.lowercased() != url.host?.lowercased())
+				|| (prev.port != url.port)
+		}()
+
+		// If host/port/scheme didn’t change, do nothing
+		guard changed else { return }
+
+		cacheQueue.async(flags: .barrier) { self.bestURLByCN[cn] = url }
 
 		DispatchQueue.main.async {
 			let bookmarks = OCBookmarkManager.shared.bookmarks
@@ -549,6 +556,10 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 
 				OCCoreManager.shared.requestCore(for: bookmark, setup: nil) { core, _ in
 					guard let core else { return }
+					// Only cancel existing traffic if we are switching away from a known base
+					if previous != nil {
+						core.connection.cancelAllRequestsForCurrentPartition()
+					}
 					core.connection.validateConnection(withReason: "Best URL switched", dueToResponseTo: nil)
 				}
 			}
