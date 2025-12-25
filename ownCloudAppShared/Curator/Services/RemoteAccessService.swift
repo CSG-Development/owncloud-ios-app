@@ -1,15 +1,15 @@
 import Foundation
 import UIKit
 
-public struct RemoteDevice: Sendable {
+public struct RemoteDevice: Sendable, Codable {
 	public let seagateDeviceID: String
 	public let friendlyName: String
 	public let hostname: String
 	public let certificateCommonName: String
 	public let paths: [Path]
 
-	public struct Path: Sendable {
-		public enum Kind: Sendable {
+	public struct Path: Sendable, Codable {
+		public enum Kind: String, Sendable, Codable {
 			case local
 			case `public`
 			case remote

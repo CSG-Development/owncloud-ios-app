@@ -3,7 +3,7 @@ import Network
 import Combine
 import RegexBuilder
 
-public struct LocalDevice: Sendable {
+public struct LocalDevice: Sendable, Codable {
     public let name: String
     public let host: String
     public let port: Int
