@@ -28,7 +28,7 @@ public extension RemoteDevice.Path {
 	}
 
 	func apiBaseURL(defaultScheme: String = "https", basePath: String = "api/v1") -> URL? {
-		URL(host: address, path: basePath)
+		URL(host: address, port: port, path: basePath)
 	}
 }
 

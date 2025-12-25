@@ -222,13 +222,12 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 		(OCBookmarkManager.shared.bookmarksDatasource as? OCDataSourceArray)?.setVersionedItems(bookmarks)
 	}
 
-	public func updateAvailableSpace() {		
+	public func updateAvailableSpace() {
 		updateAvailableSpaceGate.runIfIdle { [weak self] done in
-			let bookmark = self?.focusedBookmark ?? OCBookmarkManager.shared.bookmarks.first
 			guard
-				let bookmark,
-				let connection = AccountConnectionPool.shared.connection(for: bookmark),
-				let ocConnection = connection.core?.connection
+				let self,
+				let bookmark = self.focusedBookmark ?? OCBookmarkManager.shared.bookmarks.first,
+				let core = AccountConnectionPool.shared.connection(for: bookmark)?.core
 			else {
 				DispatchQueue.main.async {
 					self?.footerView.bytesUsed = nil
@@ -239,31 +238,13 @@ public class ClientSidebarViewController: CollectionSidebarViewController, Navig
 				done()
 				return
 			}
-
-			let rootLocation = OCLocation.legacyRoot
-			ocConnection.retrieveItemList(at: rootLocation, depth: 0, options: [:]) { [weak self] error, items in
-				guard let self = self else {
-					done()
-					return
-				}
-
-				if let item = items?.first {
-					DispatchQueue.main.async {
-						self.footerView.bytesUsed = item.quotaBytesUsed?.int64Value
-						self.footerViewDouble.bytesUsed = item.quotaBytesUsed?.int64Value
-						self.footerView.bytesRemaining = item.quotaBytesRemaining?.int64Value
-						self.footerViewDouble.bytesRemaining = item.quotaBytesRemaining?.int64Value
-					}
-				} else {
-					DispatchQueue.main.async {
-						self.footerView.bytesUsed = nil
-						self.footerView.bytesRemaining = nil
-						self.footerViewDouble.bytesUsed = nil
-						self.footerViewDouble.bytesRemaining = nil
-					}
-				}
-				done()
+			DispatchQueue.main.async {
+				self.footerView.bytesUsed = core.rootQuotaBytesUsed?.int64Value
+				self.footerViewDouble.bytesUsed = core.rootQuotaBytesUsed?.int64Value
+				self.footerView.bytesRemaining = core.rootQuotaBytesRemaining?.int64Value
+				self.footerViewDouble.bytesRemaining = core.rootQuotaBytesRemaining?.int64Value
 			}
+			done()
 		}
 	}
 
