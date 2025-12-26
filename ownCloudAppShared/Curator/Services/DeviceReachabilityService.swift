@@ -8,8 +8,8 @@ import UIKit
 private enum ReprobeTimeoutError: Error { case timedOut }
 
 public final actor DeviceReachabilityService {
-	public struct PathProbe: Sendable {
-		public enum Source: Sendable {
+	public struct PathProbe: Sendable, Codable {
+		public enum Source: Sendable, Codable {
 			case remotePath(RemoteDevice.Path)
 			case mdns(host: String, port: Int)
 		}
@@ -38,7 +38,7 @@ public final actor DeviceReachabilityService {
 		}
 	}
 
-	public struct MergedDevice: Sendable {
+	public struct MergedDevice: Sendable, Codable {
 		public let remoteDevice: RemoteDevice?
 		public let localDevice: LocalDevice?
 		public let pathProbes: [PathProbe]
@@ -52,6 +52,22 @@ public final actor DeviceReachabilityService {
 			}
 			return nil
 		}
+
+		func asJSON() -> String? {
+			let encoder = JSONEncoder()
+			encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+			encoder.dateEncodingStrategy = .iso8601
+
+			do {
+				let data = try encoder.encode(self)
+				if let json = String(data: data, encoding: .utf8) {
+					return json
+				}
+				return nil
+			} catch {
+				return nil
+			}
+		}
 	}
 
 	public enum SelectedPath: Sendable {
@@ -60,9 +76,8 @@ public final actor DeviceReachabilityService {
 
 		public var url: URL? {
 			switch self {
-				case let .mdns(host, _):
-					// Ignore port. Assume that mdns IP points to 443
-					return URL(host: host, port: nil)
+				case let .mdns(host, port):
+					return URL(host: host, port: port)
 				case let .remote(path):
 					return URL(host: path.address, port: path.port)
 			}
@@ -164,8 +179,12 @@ public final actor DeviceReachabilityService {
 		isReloading = true
 		defer { isReloading = false }
 
-		let probes = (try? await self.probeAll(self.remoteDevices)) ?? [:]
-		self.setProbes(probes)
+		do {
+			let probes = (try await self.probeAll(self.remoteDevices))
+			self.setProbes(probes)
+		} catch {
+			Log.debug("[STX-RA]: Failed to probe device with error: \(error)")
+		}
 		let merged = self.currentMerged()
 		if let onUpdate = self.onUpdate { await MainActor.run { onUpdate(merged) } }
 		recalculateBestURLs()
@@ -390,12 +409,12 @@ public final actor DeviceReachabilityService {
 
 					do { status = try await self.withTimeout(30) { try await api.getStatus() } } catch {
 #if DEBUG
-						Log.debug("[STX-RA]: Failed to get status. Error \(error)")
+						Log.debug("[STX-RA]: Failed to get status. URL: \(item.url). Error \(error)")
 #endif
 					}
 					do { about  = try await self.withTimeout(30) { try await api.getAbout() } } catch {
 #if DEBUG
-						Log.debug("[STX-RA]: Failed to get about. Error \(error)")
+						Log.debug("[STX-RA]: Failed to get about. URL: \(item.url). Error \(error)")
 #endif
 					}
 
@@ -497,7 +516,8 @@ public final actor DeviceReachabilityService {
 			return nameA.localizedCaseInsensitiveCompare(nameB) == .orderedAscending
 		}
 
-		Log.debug("[STX-RA]: Merged: \(merged)")
+		Log.debug("[STX-RA]: Merged: ")
+		merged.forEach { Log.debug($0.asJSON() ?? "") }
 		return merged
 	}
 }
@@ -516,12 +536,19 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 
 	public func setBestURL(_ url: URL, for cn: String) {
 		var previous: URL?
-		cacheQueue.sync {
-			previous = self.bestURLByCN[cn]
-		}
-		cacheQueue.async(flags: .barrier) {
-			self.bestURLByCN[cn] = url
-		}
+		cacheQueue.sync { previous = self.bestURLByCN[cn] }
+
+		let changed: Bool = {
+			guard let prev = previous else { return true }
+			return (prev.scheme?.lowercased() != url.scheme?.lowercased())
+				|| (prev.host?.lowercased() != url.host?.lowercased())
+				|| (prev.port != url.port)
+		}()
+
+		// If host/port/scheme didn’t change, do nothing
+		guard changed else { return }
+
+		cacheQueue.async(flags: .barrier) { self.bestURLByCN[cn] = url }
 
 		DispatchQueue.main.async {
 			let bookmarks = OCBookmarkManager.shared.bookmarks
@@ -549,6 +576,10 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 
 				OCCoreManager.shared.requestCore(for: bookmark, setup: nil) { core, _ in
 					guard let core else { return }
+					// Only cancel existing traffic if we are switching away from a known base
+					if previous != nil {
+						core.connection.cancelAllRequestsForCurrentPartition()
+					}
 					core.connection.validateConnection(withReason: "Best URL switched", dueToResponseTo: nil)
 				}
 			}
