@@ -17,6 +17,7 @@
  */
 
 #import <ownCloudSDK/ownCloudSDK.h>
+#import <ownCloudAppShared/ownCloudAppShared-Swift.h>
 
 // BEGIN: Shared with ownCloudApp.framework
 #import "Branding.h"
@@ -67,6 +68,9 @@
 	OCAppIdentity.sharedAppIdentity.appIdentifierPrefix = bundleInfoDict[@"OCAppIdentifierPrefix"];
 	OCAppIdentity.sharedAppIdentity.keychainAccessGroupIdentifier = bundleInfoDict[@"OCKeychainAccessGroupIdentifier"];
 	OCAppIdentity.sharedAppIdentity.appGroupIdentifier = bundleInfoDict[@"OCAppGroupIdentifier"];
+
+	// Enable dynamic URL switching for file provider connections
+	[AppExtensionBootstrap setupDynamicURLSwitching];
 
 	if (self = [super init]) {
 		_fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];

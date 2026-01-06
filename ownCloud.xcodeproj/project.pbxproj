@@ -230,6 +230,7 @@
 		99DF687A2E1E67D900F1A0B9 /* HCAppLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68732E1E67D900F1A0B9 /* HCAppLogoView.swift */; };
 		99DF687B2E1E67D900F1A0B9 /* HCSpacerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DF68762E1E67D900F1A0B9 /* HCSpacerView.swift */; };
 		99E53F9C2E96853500454E4F /* MDNSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E53F982E96852D00454E4F /* MDNSService.swift */; };
+		99E83DAF2F0BDB3F00B58F59 /* ownCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */; };
 		99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F175312E8C001500FE7DEC /* ImageCropAction.swift */; };
 		99F175342E8C063E00FE7DEC /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = 99F175332E8C063E00FE7DEC /* Mantis */; };
 		99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+Extensions.swift */; };
@@ -246,6 +247,7 @@
 		99FC32172DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
 		99FC32182DE9992E0011D066 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 99FC32122DE9992E0011D066 /* GoogleService-Info.plist */; };
 		99FC321E2DE99A1C0011D066 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 99FC321D2DE99A1C0011D066 /* FirebaseCrashlytics */; };
+		99FFF1002F2B000100ABCDEF /* AppExtensionBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FFF1032F2B000100ABCDEF /* AppExtensionBootstrap.swift */; };
 		DC0030C12350B1CE00BB8570 /* NSData+Encoding.m in Sources */ = {isa = PBXBuildFile; fileRef = DC0030BF2350B1CE00BB8570 /* NSData+Encoding.m */; };
 		DC0030C22350B1CE00BB8570 /* NSData+Encoding.h in Headers */ = {isa = PBXBuildFile; fileRef = DC0030C02350B1CE00BB8570 /* NSData+Encoding.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DC0030CB2350B75000BB8570 /* ScanViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1AC7CF2319ADAE002B7892 /* ScanViewController.swift */; };
@@ -905,6 +907,13 @@
 			remoteGlobalIDString = DCC0855B2293F1FD008CC05C;
 			remoteInfo = ownCloudApp;
 		};
+		99E83DB12F0BDB3F00B58F59 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 233BDE94204FEFE500C06732 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 394A0AF822EEFC2C00603813;
+			remoteInfo = ownCloudAppShared;
+		};
 		DC0196A520F754CA00C41B78 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 233BDEBF204FEFF300C06732 /* ownCloudSDK.xcodeproj */;
@@ -1379,6 +1388,7 @@
 		99F472EB2E095C1500104592 /* HCColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCColor.swift; sourceTree = "<group>"; };
 		99F9CC1E2E82D0E9000BC8E0 /* DisplayHostType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayHostType.swift; sourceTree = "<group>"; };
 		99FC32122DE9992E0011D066 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		99FFF1032F2B000100ABCDEF /* AppExtensionBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppExtensionBootstrap.swift; sourceTree = "<group>"; };
 		A56EA84D8AD331FFA604138B /* Pods_ownCloudTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ownCloudTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0D9C062DD1E85A838608B0F /* EarlGrey.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EarlGrey.framework; path = Pods/EarlGrey/EarlGrey/EarlGrey.framework; sourceTree = SOURCE_ROOT; };
 		DC0030BF2350B1CE00BB8570 /* NSData+Encoding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Encoding.m"; sourceTree = "<group>"; };
@@ -1982,6 +1992,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99E83DAF2F0BDB3F00B58F59 /* ownCloudAppShared.framework in Frameworks */,
 				399FBF8D2CABE3A600F1AACF /* CrashReporter in Frameworks */,
 				DC27A18F20CAA0BA008ACB6C /* ownCloudSDK.framework in Frameworks */,
 				DC2565EE225F5A1900828AA5 /* UserNotifications.framework in Frameworks */,
@@ -2612,6 +2623,7 @@
 				9908FE2D2EC370BA004A4137 /* HCPreferences.swift */,
 				993A26052EBCCD7E00A28D8F /* DeviceReachability */,
 				99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */,
+				99FFF1032F2B000100ABCDEF /* AppExtensionBootstrap.swift */,
 				99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */,
 				99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */,
 				99E53F982E96852D00454E4F /* MDNSService.swift */,
@@ -4585,6 +4597,7 @@
 			);
 			dependencies = (
 				DC27A19320CAA0C6008ACB6C /* PBXTargetDependency */,
+				99E83DB22F0BDB3F00B58F59 /* PBXTargetDependency */,
 			);
 			name = "ownCloud File Provider";
 			packageProductDependencies = (
@@ -5258,6 +5271,7 @@
 				DC89EA602993AC4F00BFF393 /* NSUserActivity+SaveRestore.swift in Sources */,
 				99CE0A5E2E49F31200380EB8 /* HCKeyboardTracker.swift in Sources */,
 				DC62F567292504060095BB5D /* AccountConnection.swift in Sources */,
+				99FFF1002F2B000100ABCDEF /* AppExtensionBootstrap.swift in Sources */,
 				DC16213A2B8FEEE500EB17F8 /* OCSidebarItem+Cell.swift in Sources */,
 				DC9219FD2966229100F538EE /* UniversalItemListCell.swift in Sources */,
 				DC28F826294B733700AC4013 /* OCItemPolicy+Interactions.swift in Sources */,
@@ -5757,6 +5771,11 @@
 			isa = PBXTargetDependency;
 			target = DCC0855B2293F1FD008CC05C /* ownCloudApp */;
 			targetProxy = 998CC8442DFAC2BB00BDA4CB /* PBXContainerItemProxy */;
+		};
+		99E83DB22F0BDB3F00B58F59 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 394A0AF822EEFC2C00603813 /* ownCloudAppShared */;
+			targetProxy = 99E83DB12F0BDB3F00B58F59 /* PBXContainerItemProxy */;
 		};
 		DC0491AA258CAF9800DEDC27 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -6303,6 +6322,8 @@
 				SKIP_INSTALL = YES;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "ownCloudAppShared-Swift.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -6346,6 +6367,8 @@
 				SKIP_INSTALL = YES;
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "ownCloudAppShared-Swift.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";

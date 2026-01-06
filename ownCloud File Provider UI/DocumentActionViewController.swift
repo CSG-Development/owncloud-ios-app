@@ -35,6 +35,8 @@ class DocumentActionViewController: FPUIActionExtensionViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
+		AppExtensionBootstrap.setupDynamicURLSwitching()
+
 		ThemeStyle.registerDefaultStyles()
 
 		// Initially apply theme based on light / dark mode
