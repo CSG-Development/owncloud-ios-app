@@ -64,6 +64,8 @@ class ShareExtensionViewController: EmbeddingViewController, Themeable {
 		}
 		ShareExtensionViewController._servicesHaveBeenSetup = true
 
+		AppExtensionBootstrap.setupDynamicURLSwitching()
+
 		// Setup services
 		OCHTTPPipelineManager.setupPersistentPipelines() // Set up HTTP pipelines
 
