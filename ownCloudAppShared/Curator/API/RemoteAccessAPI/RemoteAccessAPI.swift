@@ -131,11 +131,20 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 		return try JSONDecoder().decode(RATokenResponse.self, from: data)
 	}
 
-	public func refreshAccessToken(refreshToken: String) async throws -> RATokenResponse {
+	public func refreshAccessToken(
+		clientId: String,
+		refreshToken: String
+	) async throws -> RATokenResponse {
 		var comps = URLComponents(url: baseURL.appendingPathComponent("client/v1/auth/refresh"), resolvingAgainstBaseURL: false)!
-		comps.queryItems = [URLQueryItem(name: "refresh_token", value: refreshToken)]
 		var req = URLRequest(url: comps.url!)
-		req.httpMethod = "GET"
+		req.httpMethod = "POST"
+		req.addValue("application/json", forHTTPHeaderField: "Content-Type")
+		let body: [String: Any] = [
+			"refreshToken": refreshToken,
+			"clientId": clientId
+		]
+		req.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
+
 		let (data, resp) = try await urlSession.data(for: req)
 		try ensureOK(resp)
 		return try JSONDecoder().decode(RATokenResponse.self, from: data)

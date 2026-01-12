@@ -82,6 +82,8 @@ public final class RemoteAccessService {
 
 	private var referenceEmailMap: [String: String] = [:]
 	private let tokenStore: RemoteAccessTokenStore
+	private let refreshQueue = DispatchQueue(label: "com.curator.ra.refresh", attributes: [])
+	private var refreshTask: Task<Void, Error>?
 
 	public init(
 		api: RemoteAccessAPI,
@@ -111,6 +113,11 @@ public final class RemoteAccessService {
 	}
 
 	private func refreshTokensIfNeeded() async throws {
+		// Deduplicate concurrent refresh attempts: if one is in-flight, await it.
+		if let inFlight = refreshQueue.sync(execute: { refreshTask }) {
+			return try await inFlight.value
+		}
+
 		guard
 			let tokens = tokenStore.loadTokens(),
 			!tokens.refreshToken.isEmpty
@@ -121,9 +128,14 @@ public final class RemoteAccessService {
 
 		let refreshTokens = {
 			do {
-				let response = try await self.api.refreshAccessToken(refreshToken: tokens.refreshToken)
+				let response = try await self.api.refreshAccessToken(
+					clientId: Constants.clientId,
+					refreshToken: tokens.refreshToken
+				)
 				self.saveTokens(response: response)
-				self.api.accessToken = tokens.accessToken
+				if let updated = self.tokenStore.loadTokens()?.accessToken {
+					self.api.accessToken = updated
+				}
 			} catch {
 				if let ns = error as NSError?, ns.domain == "RemoteAccessAPI", (400...499).contains(ns.code) {
 					_ = self.tokenStore.clear()
@@ -133,15 +145,26 @@ public final class RemoteAccessService {
 			}
 		}
 
-		guard let expiry = tokens.accessTokenExpiry else {
-			try await refreshTokens()
-			return
+		let task = Task {
+			let currentTokens = tokens
+			guard let expiry = currentTokens.accessTokenExpiry else {
+				try await refreshTokens()
+				return
+			}
+			if Date() > expiry {
+				try await refreshTokens()
+				return
+			}
+			self.api.accessToken = currentTokens.accessToken
 		}
 
-		if Date() > expiry {
-			try await refreshTokens()
+		refreshQueue.sync { refreshTask = task }
+
+		defer {
+			refreshQueue.sync { refreshTask = nil }
 		}
-		self.api.accessToken = tokens.accessToken
+
+		try await task.value
 	}
 
     public func sendEmailCode(
@@ -208,6 +231,7 @@ public final class RemoteAccessService {
 	}
 
 	public func hasValidTokens() async -> Bool {
+		print("4242: hasValidTokens")
 		do {
 			try await refreshTokensIfNeeded()
 			return true
