@@ -231,7 +231,6 @@ public final class RemoteAccessService {
 	}
 
 	public func hasValidTokens() async -> Bool {
-		print("4242: hasValidTokens")
 		do {
 			try await refreshTokensIfNeeded()
 			return true
