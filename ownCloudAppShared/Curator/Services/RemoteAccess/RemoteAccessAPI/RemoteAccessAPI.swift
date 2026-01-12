@@ -134,9 +134,8 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 	public func refreshAccessToken(
 		clientId: String,
 		refreshToken: String
-	) async throws -> RATokenResponse {
-		var comps = URLComponents(url: baseURL.appendingPathComponent("client/v1/auth/refresh"), resolvingAgainstBaseURL: false)!
-		var req = URLRequest(url: comps.url!)
+	) async throws -> RATokenResponse {		
+		var req = URLRequest(url: baseURL.appendingPathComponent("client/v1/auth/refresh"))
 		req.httpMethod = "POST"
 		req.addValue("application/json", forHTTPHeaderField: "Content-Type")
 		let body: [String: Any] = [

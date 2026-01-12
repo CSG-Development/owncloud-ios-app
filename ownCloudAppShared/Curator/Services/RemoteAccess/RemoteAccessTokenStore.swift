@@ -60,7 +60,7 @@ public final class RemoteAccessTokenStore {
 			keychain?.removeItem(forAccount: keychainAccount, path: keyPath) == nil
         }
     }
-    
+
     private func loadInternal() -> RemoteAccessToken? {
         guard let data = keychain?.readDataFromKeychainItem(forAccount: keychainAccount, path: keyPath) else { return nil }
         return (try? JSONDecoder.iso8601.decode(RemoteAccessToken.self, from: data))
