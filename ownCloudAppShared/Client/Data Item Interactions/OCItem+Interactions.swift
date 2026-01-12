@@ -287,8 +287,9 @@ extension OCItem : DataItemDropInteraction {
 					// Move item within same account
 					if let itemName = item.name,
 					   let progress = core.move(item, to: targetItem, withName: itemName, options: nil, resultHandler: { (error, _, _, _) in
-						if error != nil {
+						if let error {
 							Log.log("Error \(String(describing: error)) moving \(String(describing: item.path))")
+							HCContext.shared.deviceReachabilityService.reportOperationError(error)
 						}
 					}) {
 						context?.progressSummarizer?.startTracking(progress: progress)
@@ -301,6 +302,9 @@ extension OCItem : DataItemDropInteraction {
 						OCCoreManager.shared.requestCore(for: sourceBookmark, setup: nil) { [weak core] (srcCore, error) in
 							if error == nil {
 								srcCore?.downloadItem(item, options: nil, resultHandler: { (error, _, srcItem, _) in
+									if let error {
+										HCContext.shared.deviceReachabilityService.reportOperationError(error)
+									}
 									if error == nil, let srcItem = srcItem, let localURL = srcCore?.localCopy(of: srcItem) {
 										core?.importItemNamed(srcItem.name, at: targetItem, from: localURL, isSecurityScoped: false, options: nil, placeholderCompletionHandler: nil) { (_, _, _, _) in
 										}

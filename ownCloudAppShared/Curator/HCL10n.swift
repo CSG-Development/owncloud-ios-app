@@ -139,6 +139,21 @@ public enum HCL10n {
 			public static let retryButtonTitle = "Retry"
 		}
 
+		public enum UnableToDetect {
+			public static let navbarTitle = "Unable to detect"
+
+			public static let headerText = "We are unable to detect your device. Please ensure the following:"
+			public static let point1 = "Verify that Personal Cloud is properly connected to your home network"
+			public static let point2 = "Confirm that your internet has access to the web"
+			public static let point3 = "Make sure Personal Cloud is powered on"
+			public static let point4 = "Confirm that there are no firewall settings that block access to the internet"
+			public static let point5 = "If Personal Cloud is attempting to connect via Wi-Fi, confirm that it is in range of your home router"
+			public static let point6 = "Personal Cloud and your mobile device must be on the same network during the initial setup"
+			public static let footerText = "If you continue to experience issues, please contact our Support team for further assistance."
+			public static let footerLinkText = "Support team"
+			public static let retryButtonTitle = "Retry"
+		}
+
 		public enum CodeVerification {
 			public static let title = "Allow remote access"
 			public static let description = "We have sent a one-time code to authorize this device to access your Curator. Check your email for the code and enter it here. If you do not see it in your inbox, please check your spam folder."

@@ -127,6 +127,14 @@ final public class LoginViewController: UIViewController, Themeable {
 		return button
 	}()
 
+	private lazy var cantFindButton: UIButton = {
+		let button = ThemeRoundedButton(withSelectors: [.primary, .plain])
+		button.setTitle("Can't find your device", for: .normal)
+		button.snp.makeConstraints { $0.height.equalTo(32) }
+		button.addTarget(self, action: #selector(didTapCantFindDevice), for: .touchUpInside)
+		return button
+	}()
+
 	private var addressDropdown: HCDropdownTextFieldView!
 	private var settingsButton: UIButton!
 	private var backButton: UIButton!
@@ -136,6 +144,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	private var addressRowView: UIStackView!
 	private var resetPasswordButtonContainerRef: UIStackView!
 	private var oldLoginButtonContainerRef: UIStackView!
+	private var cantFindButtonContainerRef: UIStackView!
 
 	init(viewModel: LoginViewModel) {
 		self.viewModel = viewModel
@@ -184,14 +193,6 @@ final public class LoginViewController: UIViewController, Themeable {
 		dropdown.onSelection = { [weak self] index, value in
 			self?.viewModel.selectedDeviceIndex = index
 		}
-		dropdown.onFooterTap = { [weak self] in
-			guard let self else { return }
-			let vc = UnableToConnectViewController()
-			vc.onRetry = { [weak self] in
-				self?.viewModel.refreshDevices()
-			}
-			self.present(vc, animated: true)
-		}
 		self.addressDropdown = dropdown
 
 		setupUI()
@@ -202,7 +203,7 @@ final public class LoginViewController: UIViewController, Themeable {
 			$0.leading.greaterThanOrEqualToSuperview()
 		}
 
-		emailTextField.textField.text = viewModel.username
+		emailTextField.textField.text = viewModel.email
 		passwordTextField.textField.text = viewModel.password
 
 		Theme.shared.register(client: self, applyImmediately: true)
@@ -264,6 +265,13 @@ final public class LoginViewController: UIViewController, Themeable {
 		resetPasswordButtonContainer.axis = .horizontal
 		resetPasswordButtonContainer.spacing = 0
 		self.resetPasswordButtonContainerRef = resetPasswordButtonContainer
+
+		let cantFindButtonContainer = UIStackView(arrangedSubviews: [
+			cantFindButton, HCSpacerView(nil, .horizontal)
+		])
+		cantFindButtonContainer.axis = .horizontal
+		cantFindButtonContainer.spacing = 0
+		self.cantFindButtonContainerRef = cantFindButtonContainer
 
 		let oldLoginButtonContainer = UIStackView(arrangedSubviews: [
 			oldLoginButton, HCSpacerView(nil, .horizontal)
@@ -367,6 +375,7 @@ final public class LoginViewController: UIViewController, Themeable {
 					emailLabelContainer,
 					HCSpacerView(32),
 					addressRowView,
+					cantFindButtonContainerRef,
 					HCSpacerView(12),
 					passwordTextField,
 					HCSpacerView(4),
@@ -391,7 +400,7 @@ final public class LoginViewController: UIViewController, Themeable {
 				backButton.isHidden = true
 			case .deviceSelection:
 				emailTextField.textField.isEnabled = false
-				emailLabel.text = viewModel.username
+				emailLabel.text = viewModel.email
 				loginButton.setTitle(HCL10n.Auth.Login.loginButtonTitle, for: .normal)
 				backButton.isHidden = false
 		}
@@ -410,20 +419,25 @@ final public class LoginViewController: UIViewController, Themeable {
 	private func bindViewModel() {
 		emailTextField.textField.textPublisher
 			.receive(on: DispatchQueue.main)
-			.assign(to: \.username, on: viewModel)
+			.assign(to: \.email, on: viewModel)
 			.store(in: &cancellables)
 
-		viewModel.$username
+		viewModel.$email
 			.removeDuplicates()
 			.sink { [weak emailTextField] in emailTextField?.textField.text = $0 }
 			.store(in: &cancellables)
 
 		viewModel.$deviceItems
 			.receive(on: DispatchQueue.main)
-			.sink { [weak addressDropdown] items in
+			.sink { [weak self] items in
+				guard let self else { return }
 				addressDropdown?.items = items
 
 				addressDropdown?.leftIcon = items.isEmpty ? nil : HCIcon.device
+
+				let shouldShowDropdown = items.count > 1
+				addressDropdown?.isUserInteractionEnabled = shouldShowDropdown
+				addressDropdown?.textField.rightView?.isHidden = !shouldShowDropdown
 			}
 			.store(in: &cancellables)
 
@@ -512,6 +526,11 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	@objc private func didTapRefreshDevices() {
 		viewModel.refreshDevices()
+	}
+
+	@objc private func didTapCantFindDevice() {
+		closeKeyboard()
+		viewModel.didTapCantFindDevice()
 	}
 
 	@objc private func didTapLogin() {

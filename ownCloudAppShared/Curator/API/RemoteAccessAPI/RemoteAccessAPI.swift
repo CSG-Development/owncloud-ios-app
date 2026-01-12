@@ -4,7 +4,6 @@ import Security
 private enum CertLoadError: Error { case notFound(String), badData(String) }
 
 private func loadBundleCert(named base: String) throws -> SecCertificate {
-	// Try common extensions in order
 	let exts = ["cer", "pem", "crt", "der"]
 	var lastErr: Error?
 
@@ -47,6 +46,10 @@ private func normalizeToDER(data: Data) throws -> Data {
 }
 
 public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTaskDelegate {
+	private struct RAErrorBody: Decodable {
+		let name: String?
+		let message: String?
+	}
 	private let baseURL: URL
 	private var urlSession: URLSession!
 	private let pinnedRoot: SecCertificate?
@@ -97,7 +100,11 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 		return try JSONDecoder().decode(RAInitiateResponse.self, from: data)
 	}
 
-	public func validateEmailCode(code: String, reference: String) async throws -> RATokenResponse {
+	public func validateEmailCode(
+		code: String,
+		clientId: String,
+		reference: String
+	) async throws -> RATokenResponse {
 		var comps = URLComponents(url: baseURL.appendingPathComponent("client/v1/auth/token"), resolvingAgainstBaseURL: false)!
 		comps.queryItems = [URLQueryItem(name: "type", value: "email")]
 		var req = URLRequest(url: comps.url!)
@@ -105,11 +112,22 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 		req.addValue("application/json", forHTTPHeaderField: "Content-Type")
 		let body: [String: Any] = [
 			"code": code,
-			"reference": reference
+			"reference": reference,
+			"clientId": clientId
 		]
 		req.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
 		let (data, resp) = try await urlSession.data(for: req)
-		try ensureOK(resp)
+		if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+			var userInfo: [String: Any] = [:]
+			if let raErr = try? JSONDecoder().decode(RAErrorBody.self, from: data) {
+				if let name = raErr.name { userInfo["name"] = name }
+				if let message = raErr.message { userInfo[NSLocalizedDescriptionKey] = message }
+			}
+			if let body = String(data: data, encoding: .utf8) {
+				userInfo["body"] = body
+			}
+			throw NSError(domain: "RemoteAccessAPI", code: http.statusCode, userInfo: userInfo)
+		}
 		return try JSONDecoder().decode(RATokenResponse.self, from: data)
 	}
 

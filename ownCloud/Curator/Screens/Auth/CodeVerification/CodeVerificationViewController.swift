@@ -257,6 +257,9 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 					if case .serverNotFound = e {
 						self.errorLabel.text = HCL10n.Auth.CodeVerification.serverError
 					}
+					if case .notAllowed = e {
+						self.errorLabel.text = HCL10n.Auth.CodeVerification.serverError
+					}
 					if case .codeExpired = e {
 						self.errorLabel.text = HCL10n.Auth.CodeVerification.codeExpiredError
 						shouldHighlightError = true

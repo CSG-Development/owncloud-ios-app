@@ -5,8 +5,10 @@ import Foundation
 private enum UserDefaultsKeys {
 	static let keyShouldShowOnboarding = "shouldShowOnboarding"
 	static let keyOnboardingSeenPageIndices = "onboardingSeenPageIndices"
-	static let keyCurrentCN = "currentCertificateCN"
-	static let keyCurrentEmail = "currentEmail"
+
+	static let keyFavoriteDeviceCN = "favoriteDeviceCN"
+	static let keyFavoriteEmail = "favoriteEmail"
+
 	static let keyCurrentDevice = "currentConnectedDevice"
 }
 
@@ -48,35 +50,35 @@ public final class HCPreferences: NSObject {
 		}
 	}
 
-	public var currentEmail: String? {
+	public var favoriteEmail: String? {
 		get {
 			queue.sync {
-				userDefaults.string(forKey: UserDefaultsKeys.keyCurrentEmail)
+				userDefaults.string(forKey: UserDefaultsKeys.keyFavoriteEmail)
 			}
 		}
 		set {
 			queue.async {
 				if let newValue {
-					self.userDefaults.set(newValue, forKey: UserDefaultsKeys.keyCurrentEmail)
+					self.userDefaults.set(newValue, forKey: UserDefaultsKeys.keyFavoriteEmail)
 				} else {
-					self.userDefaults.removeObject(forKey: UserDefaultsKeys.keyCurrentEmail)
+					self.userDefaults.removeObject(forKey: UserDefaultsKeys.keyFavoriteEmail)
 				}
 			}
 		}
 	}
 
-	public var currentCertificateCN: String? {
+	public var favoriteDeviceCN: String? {
 		get {
 			queue.sync {
-				userDefaults.string(forKey: UserDefaultsKeys.keyCurrentCN)
+				userDefaults.string(forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
 			}
 		}
 		set {
 			queue.async {
 				if let newValue {
-					self.userDefaults.set(newValue, forKey: UserDefaultsKeys.keyCurrentCN)
+					self.userDefaults.set(newValue, forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
 				} else {
-					self.userDefaults.removeObject(forKey: UserDefaultsKeys.keyCurrentCN)
+					self.userDefaults.removeObject(forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
 				}
 			}
 		}
@@ -100,7 +102,7 @@ public final class HCPreferences: NSObject {
 		public let friendlyName: String?
 		public let hostname: String?
 		public let paths: [SavedPath]
-		
+
 		public init(seagateDeviceID: String? = nil, certificateCommonName: String, friendlyName: String?, hostname: String?, paths: [SavedPath]) {
 			self.seagateDeviceID = seagateDeviceID
 			self.certificateCommonName = certificateCommonName

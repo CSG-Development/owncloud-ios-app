@@ -152,14 +152,6 @@ public final class HCDropdownTextFieldView: HCTextFieldView, UITextFieldDelegate
             row.showSeparator = true
             stackView.addArrangedSubview(row)
         }
-
-        let footer = DropdownOptionRow(title: "I don’t see my Curator", index: nil, selectable: true)
-		footer.onTap = { [weak self] idx in
-			self?.collapseDropdown()
-			self?.onFooterTap?()
-		}
-        footer.showSeparator = false
-        stackView.addArrangedSubview(footer)
         updateSelectedState()
     }
 
@@ -172,7 +164,7 @@ public final class HCDropdownTextFieldView: HCTextFieldView, UITextFieldDelegate
     }
 
     private func updateDropdownHeight() {
-        let contentHeight = CGFloat(items.count + 1) * Constants.optionHeight
+        let contentHeight = CGFloat(items.count) * Constants.optionHeight
 		let targetHeight = min(contentHeight, Constants.maxDropdownHeight)
         dropdownHeightConstraint?.update(offset: targetHeight + 40) // account for 20pt insets top/bottom
         installedHostView?.layoutIfNeeded()

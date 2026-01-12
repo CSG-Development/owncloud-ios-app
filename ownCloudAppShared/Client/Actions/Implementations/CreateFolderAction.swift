@@ -87,6 +87,7 @@ open class CreateFolderAction : Action {
 					if let progress = self.core?.createFolder(newName!, inside: item!, options: nil, placeholderCompletionHandler: { (error, _) in
 						if error != nil {
 							Log.error("Error \(String(describing: error)) creating folder \(String(describing: newName))")
+							if let error { HCContext.shared.deviceReachabilityService.reportOperationError(error) }
 							self.completed(with: error)
 						} else {
 							self.completed()
