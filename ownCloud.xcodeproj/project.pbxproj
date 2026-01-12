@@ -236,6 +236,7 @@
 		99E73E862F11232600477600 /* DeviceStartingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73E7B2F11232600477600 /* DeviceStartingViewController.swift */; };
 		99E73E952F1186E600477600 /* CrossDissolveTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73E942F1186DD00477600 /* CrossDissolveTransition.swift */; };
 		99E73E972F11879400477600 /* CodeVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73E962F11878B00477600 /* CodeVerificationService.swift */; };
+		99E73E9F2F15717400477600 /* RemoteAccessClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73E9E2F15716B00477600 /* RemoteAccessClient.swift */; };
 		99E83DAF2F0BDB3F00B58F59 /* ownCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */; };
 		99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F175312E8C001500FE7DEC /* ImageCropAction.swift */; };
 		99F175342E8C063E00FE7DEC /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = 99F175332E8C063E00FE7DEC /* Mantis */; };
@@ -1392,6 +1393,7 @@
 		99E73E812F11232600477600 /* WrongStateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrongStateViewController.swift; sourceTree = "<group>"; };
 		99E73E942F1186DD00477600 /* CrossDissolveTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossDissolveTransition.swift; sourceTree = "<group>"; };
 		99E73E962F11878B00477600 /* CodeVerificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationService.swift; sourceTree = "<group>"; };
+		99E73E9E2F15716B00477600 /* RemoteAccessClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessClient.swift; sourceTree = "<group>"; };
 		99F175312E8C001500FE7DEC /* ImageCropAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropAction.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
@@ -2624,7 +2626,6 @@
 			isa = PBXGroup;
 			children = (
 				9905DFB92EA53BED00FF70B7 /* DeviceAPI */,
-				9905DFA82EA537B800FF70B7 /* RemoteAccessAPI */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -2632,13 +2633,12 @@
 		99C42DD72EA666CD00E36414 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				99E73EA02F1571A800477600 /* RemoteAccess */,
 				9908FE2F2EC4AE4F004A4137 /* HCContext.swift */,
 				9908FE2D2EC370BA004A4137 /* HCPreferences.swift */,
 				993A26052EBCCD7E00A28D8F /* DeviceReachability */,
 				99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */,
 				99FFF1032F2B000100ABCDEF /* AppExtensionBootstrap.swift */,
-				99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */,
-				99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */,
 				99E53F982E96852D00454E4F /* MDNSService.swift */,
 			);
 			path = Services;
@@ -2743,6 +2743,17 @@
 				99C42DFD2EAFA56E00E36414 /* UnableToConnect */,
 			);
 			path = Errors;
+			sourceTree = "<group>";
+		};
+		99E73EA02F1571A800477600 /* RemoteAccess */ = {
+			isa = PBXGroup;
+			children = (
+				99E73E9E2F15716B00477600 /* RemoteAccessClient.swift */,
+				9905DFA82EA537B800FF70B7 /* RemoteAccessAPI */,
+				99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */,
+				99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */,
+			);
+			path = RemoteAccess;
 			sourceTree = "<group>";
 		};
 		99F472DE2E095BB500104592 /* Curator */ = {
@@ -5362,6 +5373,7 @@
 				DC46F69228DCB9C6008280CA /* OCSavedSearch+Interactions.swift in Sources */,
 				DCB330C129EDDD4C00BFF393 /* SharingViewController.swift in Sources */,
 				DCDC0AD123CD18D200DFE36D /* OCLicenseManager+Setup.swift in Sources */,
+				99E73E9F2F15717400477600 /* RemoteAccessClient.swift in Sources */,
 				DCE4E44724C1AC4F0051722F /* MessageView.swift in Sources */,
 				DCFE682E28D9CEDD00091D2A /* ComposedMessageView.swift in Sources */,
 				9905DFCE2EA53F6C00FF70B7 /* RADevicePaths.swift in Sources */,

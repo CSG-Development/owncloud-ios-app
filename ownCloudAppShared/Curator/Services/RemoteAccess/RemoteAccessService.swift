@@ -79,11 +79,8 @@ public final class RemoteAccessService {
 	}
 
     private var api: RemoteAccessAPI
-
-	private var referenceEmailMap: [String: String] = [:]
 	private let tokenStore: RemoteAccessTokenStore
-	private let refreshQueue = DispatchQueue(label: "com.curator.ra.refresh", attributes: [])
-	private var refreshTask: Task<Void, Error>?
+	private let client: RemoteAccessClient
 
 	public init(
 		api: RemoteAccessAPI,
@@ -91,81 +88,8 @@ public final class RemoteAccessService {
 	) {
 		self.api = api
 		self.tokenStore = tokenStore
+		self.client = RemoteAccessClient(api: api, tokenStore: tokenStore)
     }
-
-	private func saveTokens(response: RATokenResponse) {
-		let tokens = RemoteAccessToken(raTokenResponse: response)
-		_ = tokenStore.save(tokens)
-	}
-
-	public func ensureAuthenticated(
-		email: String,
-		completion: @escaping (Result<Void, Error>) -> Void
-	) {
-		Task {
-			do {
-				try await refreshTokensIfNeeded()
-				await MainActor.run { completion(.success(())) }
-			} catch {
-				await MainActor.run { completion(.failure(error)) }
-			}
-		}
-	}
-
-	private func refreshTokensIfNeeded() async throws {
-		// Deduplicate concurrent refresh attempts: if one is in-flight, await it.
-		if let inFlight = refreshQueue.sync(execute: { refreshTask }) {
-			return try await inFlight.value
-		}
-
-		guard
-			let tokens = tokenStore.loadTokens(),
-			!tokens.refreshToken.isEmpty
-		else {
-			_ = tokenStore.clear()
-			throw RemoteAccessServiceError.unauthorized
-		}
-
-		let refreshTokens = {
-			do {
-				let response = try await self.api.refreshAccessToken(
-					clientId: Constants.clientId,
-					refreshToken: tokens.refreshToken
-				)
-				self.saveTokens(response: response)
-				if let updated = self.tokenStore.loadTokens()?.accessToken {
-					self.api.accessToken = updated
-				}
-			} catch {
-				if let ns = error as NSError?, ns.domain == "RemoteAccessAPI", (400...499).contains(ns.code) {
-					_ = self.tokenStore.clear()
-					throw RemoteAccessServiceError.unauthorized
-				}
-				throw error
-			}
-		}
-
-		let task = Task {
-			let currentTokens = tokens
-			guard let expiry = currentTokens.accessTokenExpiry else {
-				try await refreshTokens()
-				return
-			}
-			if Date() > expiry {
-				try await refreshTokens()
-				return
-			}
-			self.api.accessToken = currentTokens.accessToken
-		}
-
-		refreshQueue.sync { refreshTask = task }
-
-		defer {
-			refreshQueue.sync { refreshTask = nil }
-		}
-
-		try await task.value
-	}
 
     public func sendEmailCode(
         email: String,
@@ -178,7 +102,6 @@ public final class RemoteAccessService {
 					clientId: Constants.clientId,
 					clientFriendlyName: Constants.clientFriendlyName
                 )
-				referenceEmailMap[response.reference] = email
                 await MainActor.run { completion(.success(response)) }
             } catch {
                 await MainActor.run { completion(.failure(error)) }
@@ -193,12 +116,11 @@ public final class RemoteAccessService {
     ) {
         Task {
             do {
-                let response = try await api.validateEmailCode(
+                try await client.validateEmailCode(
 					code: code,
 					clientId: Constants.clientId,
 					reference: reference
 				)
-				saveTokens(response: response)
                 await MainActor.run { completion(.success(())) }
             } catch {
                 await MainActor.run { completion(.failure(error)) }
@@ -207,13 +129,11 @@ public final class RemoteAccessService {
     }
 
 	public func getRemoteDevices(email: String) async throws -> [RemoteDevice] {
-		try await refreshTokensIfNeeded()
-
-		let apiDevices = try await api.listDevices()
+		let apiDevices = try await client.listDevices(clientId: Constants.clientId)
 		return try await withThrowingTaskGroup(of: RemoteDevice.self) { group in
 			for device in apiDevices {
 				group.addTask {
-					let paths = try await self.api.getDevicePaths(deviceID: device.seagateDeviceID)
+					let paths = try await self.client.getDevicePaths(clientId: Constants.clientId, deviceID: device.seagateDeviceID)
 					return RemoteDevice(raDevice: device, raDevicePaths: paths)
 				}
 			}
@@ -226,28 +146,8 @@ public final class RemoteAccessService {
 		}
 	}
 
-	public func clearTokens() {
-		_ = tokenStore.clear()
-	}
-
 	public func hasValidTokens() async -> Bool {
-		do {
-			try await refreshTokensIfNeeded()
-			return true
-		} catch {
-			if let raError = error as? RemoteAccessServiceError, raError == .unauthorized {
-				return false
-			}
-			if let ns = error as NSError?, ns.domain == "RemoteAccessAPI", (400...499).contains(ns.code) {
-				_ = tokenStore.clear()
-				return false
-			}
-			if let urlError = error as? URLError {
-				Log.debug("[STX-RA]: hasValidTokens transient URL error: \(urlError)")
-				return true
-			}
-			return true
-		}
+		await client.hasValidTokens(clientId: Constants.clientId)
 	}
 
 	@discardableResult
@@ -267,6 +167,12 @@ public final class RemoteAccessService {
 			callbackQueue.async {
 				completion(result)
 			}
+		}
+	}
+
+	public func clearTokens() {
+		Task {
+			await client.clearTokens()
 		}
 	}
 }
