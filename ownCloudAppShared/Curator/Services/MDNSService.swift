@@ -188,7 +188,7 @@ public final class MDNSService {
 		if lower.hasPrefix("fe80:") || lower.hasPrefix("fe80::") { return true }
 		return false
 	}
-	
+
 	private func isIPv4(_ host: String) -> Bool {
 		// Simple heuristic: contains exactly 3 dots and all octets are digits
 		let parts = host.split(separator: ".")
@@ -211,12 +211,12 @@ public final class MDNSService {
 		Future<LocalDevice, Never> { promise in
 			Task {
 				do {
-					guard let baseURL = URL(string: "https://\(device.host):\(device.port)/api/v1/") else {
+					guard let baseURL = URL(string: "https://\(device.host):\(device.port)/") else {
 						promise(.success(device))
 						return
 					}
 
-					let api = DeviceAPI(baseURL: baseURL)
+					let api = DeviceAPI(deviceBaseURL: baseURL)
 					// First check status to ensure OOBE is done
 					let status = try await api.getStatus()
 

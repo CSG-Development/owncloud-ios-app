@@ -2,12 +2,12 @@ import Foundation
 import Security
 
 public final class DeviceAPI: NSObject, URLSessionDelegate, URLSessionTaskDelegate {
-    private let baseURL: URL
+	private let apiBaseURL: URL
     private var session: URLSession!
     private let rootCertificate: SecCertificate?
 
-    public init(baseURL: URL, rootCertDerData: Data? = nil) {
-        self.baseURL = baseURL
+	public init(deviceBaseURL: URL, rootCertDerData: Data? = nil) {
+		self.apiBaseURL = deviceBaseURL.appendingPathComponent("api/v1")
         if let der = rootCertDerData, let cert = SecCertificateCreateWithData(nil, der as CFData) {
             self.rootCertificate = cert
         } else {
@@ -23,20 +23,18 @@ public final class DeviceAPI: NSObject, URLSessionDelegate, URLSessionTaskDelega
     }
 
 	public func getStatus() async throws -> Status {
-		var req = URLRequest(url: baseURL.appendingPathComponent("status"))
+		var req = URLRequest(url: apiBaseURL.appendingPathComponent("status"))
 		req.httpMethod = "GET"
         let (data, response) = try await session.data(for: req, delegate: self)
 		try Self.ensureOK(response)
-
 		return try JSONDecoder().decode(Status.self, from: data)
 	}
 
 	public func getAbout() async throws -> About {
-		var req = URLRequest(url: baseURL.appendingPathComponent("about"))
+		var req = URLRequest(url: apiBaseURL.appendingPathComponent("about"))
 		req.httpMethod = "GET"
         let (data, response) = try await session.data(for: req, delegate: self)
 		try Self.ensureOK(response)
-
 		return try JSONDecoder().decode(About.self, from: data)
 	}
 

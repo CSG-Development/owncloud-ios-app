@@ -1,4 +1,5 @@
 public struct About: Codable, Sendable {
-	public let hostname: String
-	public let certificate_common_name: String
+	public var hostname: String
+	public var certificate_common_name: String
+	public var os_state: String?
 }

@@ -91,9 +91,9 @@ public final class RemoteAccessService {
 		self.tokenStore = tokenStore
     }
 
-	private func saveTokens(for email: String, response: RATokenResponse) {
-		let raToken = RemoteAccessToken(raTokenResponse: response)
-		_ = tokenStore.save(tokens: raToken, for: email)
+	private func saveTokens(response: RATokenResponse) {
+		let tokens = RemoteAccessToken(raTokenResponse: response)
+		_ = tokenStore.save(tokens)
 	}
 
 	public func ensureAuthenticated(
@@ -102,7 +102,7 @@ public final class RemoteAccessService {
 	) {
 		Task {
 			do {
-				try await refreshTokensIfNeeded(for: email)
+				try await refreshTokensIfNeeded()
 				await MainActor.run { completion(.success(())) }
 			} catch {
 				await MainActor.run { completion(.failure(error)) }
@@ -110,19 +110,27 @@ public final class RemoteAccessService {
 		}
 	}
 
-	private func refreshTokensIfNeeded(for email: String) async throws {
+	private func refreshTokensIfNeeded() async throws {
 		guard
-			let tokens = tokenStore.loadTokens(for: email),
+			let tokens = tokenStore.loadTokens(),
 			!tokens.refreshToken.isEmpty
 		else {
-			_ = tokenStore.clear(email: email)
+			_ = tokenStore.clear()
 			throw RemoteAccessServiceError.unauthorized
 		}
 
 		let refreshTokens = {
-			let response = try await self.api.refreshAccessToken(refreshToken: tokens.refreshToken)
-			self.saveTokens(for: email, response: response)
-			self.api.accessToken = tokens.accessToken
+			do {
+				let response = try await self.api.refreshAccessToken(refreshToken: tokens.refreshToken)
+				self.saveTokens(response: response)
+				self.api.accessToken = tokens.accessToken
+			} catch {
+				if let ns = error as NSError?, ns.domain == "RemoteAccessAPI", (400...499).contains(ns.code) {
+					_ = self.tokenStore.clear()
+					throw RemoteAccessServiceError.unauthorized
+				}
+				throw error
+			}
 		}
 
 		guard let expiry = tokens.accessTokenExpiry else {
@@ -162,11 +170,12 @@ public final class RemoteAccessService {
     ) {
         Task {
             do {
-				guard let email = referenceEmailMap[reference] else {
-					throw RemoteAccessServiceError.noEmailForReference
-				}
-                let response = try await api.validateEmailCode(code: code, reference: reference)
-				saveTokens(for: email, response: response)
+                let response = try await api.validateEmailCode(
+					code: code,
+					clientId: Constants.clientId,
+					reference: reference
+				)
+				saveTokens(response: response)
                 await MainActor.run { completion(.success(())) }
             } catch {
                 await MainActor.run { completion(.failure(error)) }
@@ -175,7 +184,7 @@ public final class RemoteAccessService {
     }
 
 	public func getRemoteDevices(email: String) async throws -> [RemoteDevice] {
-		try await refreshTokensIfNeeded(for: email)
+		try await refreshTokensIfNeeded()
 
 		let apiDevices = try await api.listDevices()
 		return try await withThrowingTaskGroup(of: RemoteDevice.self) { group in
@@ -191,6 +200,30 @@ public final class RemoteAccessService {
 				gathered.append(item)
 			}
 			return gathered
+		}
+	}
+
+	public func clearTokens() {
+		_ = tokenStore.clear()
+	}
+
+	public func hasValidTokens() async -> Bool {
+		do {
+			try await refreshTokensIfNeeded()
+			return true
+		} catch {
+			if let raError = error as? RemoteAccessServiceError, raError == .unauthorized {
+				return false
+			}
+			if let ns = error as NSError?, ns.domain == "RemoteAccessAPI", (400...499).contains(ns.code) {
+				_ = tokenStore.clear()
+				return false
+			}
+			if let urlError = error as? URLError {
+				Log.debug("[STX-RA]: hasValidTokens transient URL error: \(urlError)")
+				return true
+			}
+			return true
 		}
 	}
 

@@ -8,7 +8,6 @@ protocol CodeVerificationViewModelEventHandler: AnyObject {
 }
 
 private enum Constants {
-	static let codeValidityDuration: TimeInterval = 600.0
     static let codeLength: Int = 6
 }
 
@@ -23,6 +22,7 @@ final public class CodeVerificationViewModel {
 		case authenticationFailed
 		case serverNotFound
 		case codeExpired
+		case notAllowed
 	}
 
 	private let eventHandler: CodeVerificationViewModelEventHandler
@@ -36,7 +36,6 @@ final public class CodeVerificationViewModel {
 	@Published private(set) var isValidateEnabled: Bool = true
 	@Published private(set) var isLoading: Bool = false
     @Published private(set) var isExpired: Bool = false
-    public private(set) var codeSentAt: Date?
 	@Published private(set) var errors: [CodeVerificationError] = []
 
 	private var cancellables = Set<AnyCancellable>()
@@ -49,9 +48,15 @@ final public class CodeVerificationViewModel {
 		HCContext.shared.remoteAccessService
 	}
 
-	init(eventHandler: CodeVerificationViewModelEventHandler, email: String) {
+	init(
+		eventHandler: CodeVerificationViewModelEventHandler,
+		email: String,
+		reference: String? = nil,
+		shouldRequestCodeOnInit: Bool = true
+	) {
 		self.eventHandler = eventHandler
 		self.email = email
+		self.reference = reference
 
         Publishers.CombineLatest($code.removeDuplicates(), $isExpired.removeDuplicates())
             .receive(on: RunLoop.main)
@@ -60,7 +65,9 @@ final public class CodeVerificationViewModel {
             }
             .store(in: &cancellables)
 
-		requestEmailCode(email)
+		if shouldRequestCodeOnInit {
+			requestEmailCode(email)
+		}
 	}
 
 	private func requestEmailCode(_ email: String) {
@@ -68,7 +75,6 @@ final public class CodeVerificationViewModel {
 			switch result {
 				case .success(let response):
 					self.reference = response.reference
-					self.codeSentAt = Date()
 					Log.debug("[STX]: Code sent. Saving reference.")
 
 				case .failure(let error):
@@ -81,17 +87,8 @@ final public class CodeVerificationViewModel {
     func didTapValidate() {
         guard
 			code.count == Constants.codeLength,
-			let reference,
-			let codeDate = codeSentAt
+			let reference
 		else {
-			return
-		}
-
-		let codeLifeSeconds = Date().timeIntervalSince1970 - codeDate.timeIntervalSince1970
-
-		if codeLifeSeconds > Constants.codeValidityDuration {
-			// Consider code as expired.
-			self.errors = [.codeExpired]
 			return
 		}
 
@@ -105,11 +102,21 @@ final public class CodeVerificationViewModel {
 
                 case .failure(let error):
                     let ns = error as NSError
-                    if ns.domain == "RemoteAccessAPI" && (ns.code == 410 || ns.code == 401 || ns.code == 498) {
-                        self.errors = [.codeExpired]
-                    } else {
-                        self.errors = [.authenticationFailed]
-                    }
+					if ns.domain == "RemoteAccessAPI" && ns.code == 401 {
+						let name = (ns.userInfo["name"] as? String)?.lowercased() ?? ""
+						let stacktrace = (ns.userInfo["stacktrace"] as? String)?.lowercased() ?? ""
+						if name == "invalid credentials" {
+							self.errors = [.authenticationFailed]
+						} else if name == "verification code expired" {
+							self.errors = [.codeExpired]
+						} else if name == "not allowed" && stacktrace == "not allowed" {
+							self.errors = [.notAllowed]
+						} else {
+							self.errors = [.authenticationFailed]
+						}
+					} else {
+						self.errors = [.authenticationFailed]
+					}
 			}
 		}
 	}

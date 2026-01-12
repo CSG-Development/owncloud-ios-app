@@ -18,8 +18,13 @@ final public class LoginViewModel {
         case resetPasswordTap
 		case oldLoginTap
         case settingsTap
-        case emailVerification(email: String)
+        case emailVerification(email: String, reference: String?)
         case backToEmail
+		case unableToConnect
+		case unableToDetect
+		case wrongState
+		case setupRequired
+		case deviceStarting
     }
 
 	enum LoginError {
@@ -30,19 +35,21 @@ final public class LoginViewModel {
 	private let eventHandler: LoginViewModelEventHandler
 
 	// Inputs
-	@Published var username: String = ""
+	@Published var email: String = ""
 	@Published var password: String = ""
 
 	// Outputs
 	@Published private(set) var isLoginEnabled: Bool = true
 	@Published private(set) var isLoading: Bool = false
 	@Published private(set) var errors: [LoginError] = []
-	@Published private(set) var step: Step = .emailEntry
     @Published private(set) var deviceItems: [String] = []
     @Published var selectedDeviceIndex: Int?
     @Published private(set) var isDetectingDevices: Bool = false
+	@Published private(set) var step: Step = .emailEntry
 
+	private var mergedDevices: [DeviceReachabilityService.MergedDevice] = []
 	private var cancellables = Set<AnyCancellable>()
+	private var isCantFindFlowInProgress = false
 
 	var bookmark: OCBookmark
 
@@ -92,8 +99,23 @@ final public class LoginViewModel {
 		self.eventHandler = eventHandler
 		self.bookmark = OCBookmark()
 
+		if let favoriteEmail = preferences.favoriteEmail {
+			email = favoriteEmail
+			step = .deviceSelection
+
+			Task { [weak self] in
+				guard let self else { return }
+				await self.deviceReachabilityService.observeEmailValidationRequest { [weak self] email in
+					guard let self else { return }
+					self.eventHandler.handle(.emailVerification(email: email, reference: nil))
+				}
+			}
+		} else {
+			step = .emailEntry
+		}
+
         Publishers
-            .CombineLatest3($username, $password, $step)
+            .CombineLatest3($email, $password, $step)
 			.receive(on: RunLoop.main)
 			.sink(receiveValue: { [weak self] username, password, _ in
 				guard let self else { return }
@@ -142,8 +164,6 @@ final public class LoginViewModel {
 	func login(url: URL) {
 		Log.debug("[STX]: Starting login. URL: \(url)")
 		// TODO: Refactor during login from invite implementation.
-		guard isLoginEnabled, !isLoading else { return }
-		isLoading = true
 
 		bookmark.url = url
 		let connection = instantiateConnection(for: bookmark)
@@ -184,7 +204,7 @@ final public class LoginViewModel {
 			if supportedMethods.contains(.basicAuth) {
 				self?.bookmark.authenticationMethodIdentifier = .basicAuth
 				Log.debug("[STX]: Authenticating with basic auth method.")
-				self?.authenticate(username: self?.username, password: self?.password)
+				self?.authenticate(username: self?.email, password: self?.password)
 			} else {
 				Log.debug("[STX]: Basic auth is not supported. Aborting.")
 				self?.errors = [.serverNotFound]
@@ -240,7 +260,11 @@ final public class LoginViewModel {
 
 					if self.bookmark.isComplete {
 						if let username, !username.isEmpty {
-							self.preferences.currentEmail = username
+							self.preferences.favoriteEmail = username
+						}
+						if let selectedDeviceIndex = self.selectedDeviceIndex, selectedDeviceIndex < self.mergedDevices.count {
+							let device = self.mergedDevices[selectedDeviceIndex]
+							self.preferences.favoriteDeviceCN = device.certificateCommonName
 						}
 						Log.debug("[STX]: Bookmark is complete. Adding bookmark")
 						self.bookmark.authenticationDataStorage = .keychain // Commit auth changes to keychain
@@ -248,7 +272,6 @@ final public class LoginViewModel {
 					} else {
 						Log.debug("[STX]: Bookmark is not complete")
 					}
-
 				})
 			} else {
 				Log.debug("[STX]: Authentication generation failed with error: \(error?.localizedDescription ?? "")")
@@ -267,8 +290,18 @@ final public class LoginViewModel {
         resetErrors()
         switch step {
             case .emailEntry:
-				sendEmailVerificationIfNeeded()
+
+				if let favoriteEmail = preferences.favoriteEmail {
+					if email != favoriteEmail {
+						// Favorite email is stored and user enters a different email.
+						// Update favorite email and remove old auth data
+						raService.clearTokens()
+					}
+				}
+				preferences.favoriteEmail = email
+				advanceToDeviceSelection()
             case .deviceSelection:
+				isLoading = true
 				Task {
 					await self.prepareAddressAndLoginForSelectedDevice()
 				}
@@ -276,27 +309,38 @@ final public class LoginViewModel {
     }
 
     // MARK: - Devices Merge (RA + mDNS)
-    private var mergedDevices: [DeviceReachabilityService.MergedDevice] = []
 
-    private func loadDevices() {
+	func loadDevices() {
         Log.debug("[STX]: Starting devices load")
         isDetectingDevices = true
         deviceItems = []
         // keep current selection until we have a non-empty devices list or confirmed empty
 
-		Task { [weak self, username] in
+		Task { [weak self, email] in
 			guard let self else { return }
-			let merged = (try? await self.deviceReachabilityService.getMergedDevices(email: username)) ?? []
+			let hasRAToken = await self.raService.hasValidTokens()
+			let merged = (try? await self.deviceReachabilityService.getMergedDevices(
+				email: email,
+				includeRemote: hasRAToken,
+				probeRemotePaths: false
+			)) ?? []
 
 			await MainActor.run {
 				self.isDetectingDevices = false
 				self.mergedDevices = merged
-				let previousSelection = self.selectedDeviceIndex
 				self.deviceItems = merged.map { $0.remoteDevice?.friendlyName ?? $0.localDevice?.name ?? "" }
+				if self.selectedDeviceIndex == nil, let cn = self.preferences.favoriteDeviceCN {
+					self.selectedDeviceIndex = self.mergedDevices.firstIndex(where: {
+						$0.certificateCommonName == cn
+					})
+				}
+
+				let previousSelection = self.selectedDeviceIndex
 				if let sel = previousSelection, sel < self.deviceItems.count {
 					self.selectedDeviceIndex = sel
 				} else if self.deviceItems.isEmpty {
 					self.selectedDeviceIndex = nil
+					self.triggerCantFindDeviceFlow(autoTriggered: true)
 				} else if previousSelection == nil {
 					self.selectedDeviceIndex = 0
 				}
@@ -310,62 +354,175 @@ final public class LoginViewModel {
         loadDevices()
     }
 
-	private func sendEmailVerificationIfNeeded() {
-		guard !username.isEmpty else { return }
-		Log.debug("[STX]: Username is not empty. Proceeding with email code.")
+	func didTapCantFindDevice() {
+		triggerCantFindDeviceFlow(autoTriggered: false)
+	}
 
-		raService.ensureAuthenticated(email: username) { [weak self] result in
+	private func triggerCantFindDeviceFlow(autoTriggered: Bool) {
+		_ = autoTriggered
+		guard isCantFindFlowInProgress == false else { return }
+		guard isValidEmail(email) else { return }
+		isCantFindFlowInProgress = true
+		Task { [weak self] in
 			guard let self else { return }
+			defer { self.isCantFindFlowInProgress = false }
 
-			switch result {
-				case .success:
-					Log.debug("[STX]: Tokens exist and valid. Going to login step")
-					self.advanceToDeviceSelection()
+			let hasValidToken = await self.raService.hasValidTokens()
+			if hasValidToken {
+				await MainActor.run {
+					self.eventHandler.handle(.unableToConnect)
+				}
+				return
+			}
 
-				case .failure(let error):
-					Log.debug("[STX]: Tokens missing or invalid. Error \(error). Sending email code.")
-					self.eventHandler.handle(.emailVerification(email: self.username))
+			if let result = await self.sendEmailCode() {
+				await MainActor.run {
+					self.eventHandler.handle(.emailVerification(
+						email: self.email,
+						reference: result.reference
+					))
+				}
+			} else {
+				await MainActor.run {
+					self.eventHandler.handle(.unableToConnect)
+				}
 			}
 		}
 	}
 
-	private func orderPaths(_ paths: [RemoteDevice.Path]) -> [RemoteDevice.Path] {
-		func priority(for kind: RemoteDevice.Path.Kind) -> Int {
-			switch kind {
-				case .local: return 0
-				case .public: return 1
-				case .remote: return 2
+	private func sendEmailCode() async -> (reference: String, sentAt: Date)? {
+		await withCheckedContinuation { continuation in
+			raService.sendEmailCode(email: email) { result in
+				switch result {
+					case .success(let response):
+						continuation.resume(returning: (response.reference, Date()))
+					case .failure:
+						continuation.resume(returning: nil)
+				}
 			}
 		}
-		return paths.sorted { a, b in
-			let pa = priority(for: a.kind)
-			let pb = priority(for: b.kind)
-			if pa != pb { return pa < pb }
-			let aa = "\(a.address):\(a.port ?? -1)"
-			let bb = "\(b.address):\(b.port ?? -1)"
-			return aa.localizedCaseInsensitiveCompare(bb) == .orderedAscending
+	}
+
+	private func probe(
+		for path: DeviceReachabilityService.SelectedPath,
+		in device: DeviceReachabilityService.MergedDevice
+	) -> DeviceReachabilityService.PathProbe? {
+		switch path {
+			case .remote(let remotePath):
+				return device.pathProbes.first { probe in
+					if case .remotePath(let p) = probe.source {
+						return p.key == remotePath.key
+					}
+					return false
+				}
+			case .mdns(let host, let port):
+				return device.pathProbes.first { probe in
+					if case .mdns(let h, let p) = probe.source {
+						return h == host && p == port
+					}
+					return false
+				}
 		}
 	}
 
 	private func prepareAddressAndLoginForSelectedDevice() async {
 		Log.debug("[STX]: Composing device URL")
-        guard let idx = selectedDeviceIndex, idx < mergedDevices.count else { return }
-        let device = mergedDevices[idx]
-
-		// Ensure probes are fresh before selecting best path
-		await deviceReachabilityService.reprobeExistingPaths()
-		guard
-			let bestPath = await deviceReachabilityService.currentBestPath(for: device),
-			let url = bestPath.url?.appendingPathComponent("files")
-		else {
-			errors = [.serverNotFound]
+        guard let idx = selectedDeviceIndex, idx < mergedDevices.count else {
+			await MainActor.run { self.isLoading = false }
 			return
 		}
+        let device = mergedDevices[idx]
+		let targetCN = device.certificateCommonName
+
+		let hasRAToken = await raService.hasValidTokens()
+		let merged: [DeviceReachabilityService.MergedDevice]
+		do {
+			merged = try await deviceReachabilityService.getMergedDevices(
+				email: email,
+				includeRemote: hasRAToken,
+				probeRemotePaths: true
+			)
+		} catch {
+			await MainActor.run {
+				self.isLoading = false
+				self.eventHandler.handle(.unableToDetect)
+			}
+			return
+		}
+
+		await MainActor.run {
+			self.mergedDevices = merged
+			self.deviceItems = merged.map { $0.remoteDevice?.friendlyName ?? $0.localDevice?.name ?? "" }
+		}
+
+		let updatedDevice: DeviceReachabilityService.MergedDevice? = {
+			if let targetCN {
+				return merged.first(where: { $0.certificateCommonName == targetCN })
+			}
+			return merged.first
+		}()
+
+		guard let selectedDevice = updatedDevice else {
+			await MainActor.run {
+				self.isLoading = false
+				self.eventHandler.handle(.unableToConnect)
+			}
+			return
+		}
+
+		if let cn = selectedDevice.certificateCommonName,
+		   let newIdx = merged.firstIndex(where: { $0.certificateCommonName == cn }) {
+			await MainActor.run { self.selectedDeviceIndex = newIdx }
+		}
+
+		guard
+			let bestPath = await deviceReachabilityService.currentBestPath(for: selectedDevice),
+			let deviceURL = bestPath.url
+		else {
+			await MainActor.run {
+				self.isLoading = false
+				self.eventHandler.handle(.unableToConnect)
+			}
+			return
+		}
+		let owncloudServerURL = deviceURL.appendingPathComponent("files")
+
+		let api = DeviceAPI(deviceBaseURL: deviceURL)
+		let about = try? await api.getAbout()
+		if let about, (about.os_state?.lowercased() ?? "normal") != "normal" {
+			await MainActor.run {
+				self.isLoading = false
+				self.step = .deviceSelection
+				self.eventHandler.handle(.wrongState)
+			}
+			return
+		}
+
+		let status = try? await api.getStatus()
+		if let status {
+			if status.OOBE.done == false {
+				await MainActor.run {
+					self.isLoading = false
+					self.step = .deviceSelection
+					self.eventHandler.handle(.setupRequired)
+				}
+				return
+			}
+			if status.apps?.files?.isReady == false {
+				await MainActor.run {
+					self.isLoading = false
+					self.step = .deviceSelection
+					self.eventHandler.handle(.deviceStarting)
+				}
+				return
+			}
+		}
+
 		// Persist current device identification and email for reprobe on relaunch
-		let cn = device.remoteDevice?.certificateCommonName ?? device.localDevice?.certificateCommonName
+		let cn = selectedDevice.remoteDevice?.certificateCommonName ?? selectedDevice.localDevice?.certificateCommonName
 		if let cn {
-			HCContext.shared.preferences.currentCertificateCN = cn
-			if let remote = device.remoteDevice {
+			HCContext.shared.preferences.favoriteDeviceCN = cn
+			if let remote = selectedDevice.remoteDevice {
 				let savedPaths: [HCPreferences.SavedConnectedDevice.SavedPath] = remote.paths.map {
 					let kind: HCPreferences.SavedConnectedDevice.SavedPath.Kind
 					switch $0.kind {
@@ -385,8 +542,8 @@ final public class LoginViewModel {
 				HCContext.shared.preferences.currentConnectedDevice = saved
 			}
 		}
-		if !username.isEmpty { HCContext.shared.preferences.currentEmail = username }
-		login(url: url)
+		if !email.isEmpty { HCContext.shared.preferences.favoriteEmail = email }
+		login(url: owncloudServerURL)
 	}
 
 	func didTapResetPassword() {
@@ -406,7 +563,7 @@ final public class LoginViewModel {
 
 	// Updated in CI. If you change something be sure to change the CI script as well.
 	func fillTestInfo() {
-		username = ""
+		email = ""
 		password = ""
 	}
 }
