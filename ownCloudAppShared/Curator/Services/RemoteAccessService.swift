@@ -120,9 +120,17 @@ public final class RemoteAccessService {
 		}
 
 		let refreshTokens = {
-			let response = try await self.api.refreshAccessToken(refreshToken: tokens.refreshToken)
-			self.saveTokens(response: response)
-			self.api.accessToken = tokens.accessToken
+			do {
+				let response = try await self.api.refreshAccessToken(refreshToken: tokens.refreshToken)
+				self.saveTokens(response: response)
+				self.api.accessToken = tokens.accessToken
+			} catch {
+				if let ns = error as NSError?, ns.domain == "RemoteAccessAPI", (400...499).contains(ns.code) {
+					_ = self.tokenStore.clear()
+					throw RemoteAccessServiceError.unauthorized
+				}
+				throw error
+			}
 		}
 
 		guard let expiry = tokens.accessTokenExpiry else {
@@ -204,7 +212,18 @@ public final class RemoteAccessService {
 			try await refreshTokensIfNeeded()
 			return true
 		} catch {
-			return false
+			if let raError = error as? RemoteAccessServiceError, raError == .unauthorized {
+				return false
+			}
+			if let ns = error as NSError?, ns.domain == "RemoteAccessAPI", (400...499).contains(ns.code) {
+				_ = tokenStore.clear()
+				return false
+			}
+			if let urlError = error as? URLError {
+				Log.debug("[STX-RA]: hasValidTokens transient URL error: \(urlError)")
+				return true
+			}
+			return true
 		}
 	}
 

@@ -49,6 +49,7 @@ extension LoginCoordinator: LoginViewModelEventHandler {
 					reference: reference,
 					completion: { [weak self] in
 						self?.mainVC?.viewModel.advanceToDeviceSelection()
+						self?.mainVC?.viewModel.loadDevices()
 					}
 				)
 

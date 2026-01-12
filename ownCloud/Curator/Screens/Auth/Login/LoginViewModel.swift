@@ -310,7 +310,7 @@ final public class LoginViewModel {
 
     // MARK: - Devices Merge (RA + mDNS)
 
-    private func loadDevices() {
+	func loadDevices() {
         Log.debug("[STX]: Starting devices load")
         isDetectingDevices = true
         deviceItems = []

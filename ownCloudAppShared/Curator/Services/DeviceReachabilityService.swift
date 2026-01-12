@@ -399,6 +399,20 @@ public final actor DeviceReachabilityService {
 		self.onEmailValidationRequest = handler
 	}
 
+	// MARK: - Reset cached reachability state (e.g., on logout)
+	public func resetState() async {
+		remoteDevices = []
+		localDevices = []
+		remotePathProbesByCN = [:]
+		loadTask?.cancel()
+		loadTask = nil
+		let merged = currentMerged()
+		if let onUpdate = onUpdate {
+			await MainActor.run { onUpdate(merged) }
+		}
+		urlProvider.clearAll()
+	}
+
 	// MARK: - Observing reprobe prompt requests (network errors from operations)
 	public func observeReprobePrompt(_ handler: @escaping @MainActor (@escaping (Bool) -> Void) -> Void) {
 		self.onReprobePrompt = handler
@@ -670,6 +684,10 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 			return url
 		}
 		return nil
+	}
+
+	public func clearAll() {
+		cacheQueue.async(flags: .barrier) { self.bestURLByCN.removeAll() }
 	}
 
 	private func cachedBestURL(for cn: String) -> URL? {
