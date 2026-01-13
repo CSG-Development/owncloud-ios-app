@@ -19,10 +19,12 @@ final public class CodeVerificationViewModel {
 	}
 
 	enum CodeVerificationError {
-		case authenticationFailed
-		case serverNotFound
 		case codeExpired
-		case notAllowed
+		case codeInvalid
+		case emailNotRegistered
+
+		case connectionFailed
+		case tooManyRequests
 	}
 
 	private let eventHandler: CodeVerificationViewModelEventHandler
@@ -66,20 +68,23 @@ final public class CodeVerificationViewModel {
             .store(in: &cancellables)
 
 		if shouldRequestCodeOnInit {
-			requestEmailCode(email)
+			Task {
+				await requestEmailCode(email)
+			}
 		}
 	}
 
-	private func requestEmailCode(_ email: String) {
-		raService.sendEmailCode(email: email) { result in
-			switch result {
-				case .success(let response):
-					self.reference = response.reference
-					Log.debug("[STX]: Code sent. Saving reference.")
-
-				case .failure(let error):
-					Log.debug("[STX]: Code sending failed \(error)")
-					self.errors = [.serverNotFound]
+	private func requestEmailCode(_ email: String) async {
+		do {
+			let response = try await raService.sendEmailCode(email: email)
+			await MainActor.run {
+				self.reference = response.reference
+				Log.debug("[STX]: Code sent. Saving reference.")
+			}
+		} catch let error {
+			await MainActor.run {
+				Log.debug("[STX]: Code sending failed \(error)")
+				self.handleError(error)
 			}
 		}
 	}
@@ -93,38 +98,64 @@ final public class CodeVerificationViewModel {
 		}
 
 		isLoading = true
-		raService.validateEmailCode(code: code, reference: reference) { [weak self] result in
-			guard let self else { return }
-			self.isLoading = false
-			switch result {
-                case .success:
+		Task {
+			do {
+				try await raService.validateEmailCode(code: code, reference: reference)
+				await MainActor.run {
+					Log.debug("[STX]: Code verification succeeded.")
 					eventHandler.handle(.verifyTap)
+				}
+			} catch let error {
+				await MainActor.run {
+					Log.debug("[STX]: Code verification failed \(error)")
+					handleError(error)
+				}
+			}			
+		}
+	}
 
-                case .failure(let error):
-                    let ns = error as NSError
-					if ns.domain == "RemoteAccessAPI" && ns.code == 401 {
-						let name = (ns.userInfo["name"] as? String)?.lowercased() ?? ""
-						let stacktrace = (ns.userInfo["stacktrace"] as? String)?.lowercased() ?? ""
-						if name == "invalid credentials" {
-							self.errors = [.authenticationFailed]
-						} else if name == "verification code expired" {
-							self.errors = [.codeExpired]
-						} else if name == "not allowed" && stacktrace == "not allowed" {
-							self.errors = [.notAllowed]
-						} else {
-							self.errors = [.authenticationFailed]
-						}
-					} else {
-						self.errors = [.authenticationFailed]
-					}
-			}
+	private func handleError(_ error: Error) {
+		guard
+			let raError = error as? RemoteAccessServiceError,
+			case let .apiError(raAPIError) = raError
+		else {
+			self.errors = [.connectionFailed]
+			return
+		}
+
+		switch raAPIError {
+			case .tooManyRequests:
+				self.errors = [.tooManyRequests]
+
+			case .forbidden,
+				 .internalServerError:
+				self.errors = [.connectionFailed]
+
+			case let .unauthorized(e):
+				switch e.kind {
+					case .codeExpired:
+						self.errors = [.codeExpired]
+
+					case .codeInvalid:
+						self.errors = [.codeInvalid]
+
+					case .emailNotRegistered:
+						self.errors = [.emailNotRegistered]
+
+					default:
+						self.errors = [.connectionFailed]
+				}
+			default:
+				self.errors = [.connectionFailed]
 		}
 	}
 
 	public func didTapResendCode() {
         resetErrors()
 
-		requestEmailCode(email)
+		Task {
+			await requestEmailCode(email)
+		}
 	}
 
 	func didTapSkip() {

@@ -218,8 +218,21 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 		codeView.onChange = { code in
 			self.viewModel.code = code
 		}
+
+		let preservedErrors: [CodeVerificationViewModel.CodeVerificationError] = [
+			.tooManyRequests,
+			.connectionFailed,
+			.emailNotRegistered
+		]
+
 		codeView.onFocus = {
-			self.viewModel.resetErrors()
+			let shouldPreserveSendErrors = self.viewModel.errors.contains {
+				preservedErrors.contains($0)
+			}
+
+			if !shouldPreserveSendErrors {
+				self.viewModel.resetErrors()
+			}
 			self.scrollToCodeView()
 		}
 
@@ -250,19 +263,22 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 				self.errorLabel.text = nil
 				var shouldHighlightError = false
 				for e in errors {
-					if case .authenticationFailed = e {
+					if case .codeInvalid = e {
 						self.errorLabel.text = HCL10n.Auth.CodeVerification.invalidCodeError
 						shouldHighlightError = true
-					}
-					if case .serverNotFound = e {
-						self.errorLabel.text = HCL10n.Auth.CodeVerification.serverError
-					}
-					if case .notAllowed = e {
-						self.errorLabel.text = HCL10n.Auth.CodeVerification.serverError
 					}
 					if case .codeExpired = e {
 						self.errorLabel.text = HCL10n.Auth.CodeVerification.codeExpiredError
 						shouldHighlightError = true
+					}
+					if case .emailNotRegistered = e {
+						self.errorLabel.text = HCL10n.Auth.CodeVerification.emailNotRegisteredError
+					}
+					if case .tooManyRequests = e {
+						self.errorLabel.text = HCL10n.Auth.CodeVerification.tooManyRequestsError
+					}
+					if case .connectionFailed = e {
+						self.errorLabel.text = HCL10n.Auth.CodeVerification.connectionError
 					}
 				}
 				let isCodeExpired = errors.contains(where: {
@@ -308,7 +324,9 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 	}
 
 	@objc private func didTapOverlay() {
-		self.dismiss(animated: true)
+		self.dismiss(animated: true) {
+			CodeVerificationService.shared.notifyDismissedExternally()
+		}
 	}
 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {

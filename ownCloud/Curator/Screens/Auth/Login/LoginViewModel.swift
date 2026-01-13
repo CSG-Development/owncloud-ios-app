@@ -18,7 +18,6 @@ final public class LoginViewModel {
         case resetPasswordTap
 		case oldLoginTap
         case settingsTap
-        case emailVerification(email: String, reference: String?)
         case backToEmail
 		case unableToConnect
 		case unableToDetect
@@ -50,6 +49,7 @@ final public class LoginViewModel {
 	private var mergedDevices: [DeviceReachabilityService.MergedDevice] = []
 	private var cancellables = Set<AnyCancellable>()
 	private var isCantFindFlowInProgress = false
+	private var didPerformInitialLoad = false
 
 	var bookmark: OCBookmark
 
@@ -102,14 +102,6 @@ final public class LoginViewModel {
 		if let favoriteEmail = preferences.favoriteEmail {
 			email = favoriteEmail
 			step = .deviceSelection
-
-			Task { [weak self] in
-				guard let self else { return }
-				await self.deviceReachabilityService.observeEmailValidationRequest { [weak self] email in
-					guard let self else { return }
-					self.eventHandler.handle(.emailVerification(email: email, reference: nil))
-				}
-			}
 		} else {
 			step = .emailEntry
 		}
@@ -295,7 +287,9 @@ final public class LoginViewModel {
 					if email != favoriteEmail {
 						// Favorite email is stored and user enters a different email.
 						// Update favorite email and remove old auth data
-						raService.clearTokens()
+						Task {
+							await raService.clearTokens()
+						}
 					}
 				}
 				preferences.favoriteEmail = email
@@ -339,8 +333,27 @@ final public class LoginViewModel {
 				if let sel = previousSelection, sel < self.deviceItems.count {
 					self.selectedDeviceIndex = sel
 				} else if self.deviceItems.isEmpty {
-					self.selectedDeviceIndex = nil
-					self.triggerCantFindDeviceFlow(autoTriggered: true)
+						// Give mDNS a short grace period on the very first load before triggering the cant-find flow.
+						if self.didPerformInitialLoad == false {
+							self.didPerformInitialLoad = true
+							let initialGrace = 3.0
+							Task { [weak self] in
+								guard let self else { return }
+								try? await Task.sleep(nanoseconds: UInt64(initialGrace * 1_000_000_000))
+
+								if await self.deviceReachabilityService.localDevices.isEmpty {
+									await MainActor.run {
+										self.selectedDeviceIndex = nil
+										self.triggerCantFindDeviceFlow(autoTriggered: true)
+									}
+								} else {
+									self.loadDevices()
+								}
+							}
+						} else {
+							self.selectedDeviceIndex = nil
+							self.triggerCantFindDeviceFlow(autoTriggered: true)
+						}
 				} else if previousSelection == nil {
 					self.selectedDeviceIndex = 0
 				}
@@ -375,30 +388,15 @@ final public class LoginViewModel {
 				return
 			}
 
-			if let result = await self.sendEmailCode() {
-				await MainActor.run {
-					self.eventHandler.handle(.emailVerification(
-						email: self.email,
-						reference: result.reference
-					))
-				}
-			} else {
-				await MainActor.run {
-					self.eventHandler.handle(.unableToConnect)
-				}
-			}
-		}
-	}
-
-	private func sendEmailCode() async -> (reference: String, sentAt: Date)? {
-		await withCheckedContinuation { continuation in
-			raService.sendEmailCode(email: email) { result in
-				switch result {
-					case .success(let response):
-						continuation.resume(returning: (response.reference, Date()))
-					case .failure:
-						continuation.resume(returning: nil)
-				}
+			await MainActor.run {
+				CodeVerificationService.shared.requestEmailVerification(
+					email: self.email,
+					reference: nil,
+					completion: { [weak self] isAuthenticated in
+						guard isAuthenticated else { return }
+						self?.refreshDevices()
+					}
+				)
 			}
 		}
 	}

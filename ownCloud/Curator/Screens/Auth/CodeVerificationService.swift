@@ -4,7 +4,7 @@ import ownCloudAppShared
 public final class CodeVerificationService {
 	public static let shared = CodeVerificationService()
 
-	public typealias Completion = () -> Void
+	public typealias Completion = (Bool) -> Void
 
 	private var deviceReachabilityService: DeviceReachabilityService {
 		HCContext.shared.deviceReachabilityService
@@ -26,7 +26,12 @@ public final class CodeVerificationService {
 
 		Task {
 			await deviceReachabilityService.observeEmailValidationRequest { [weak self] email in
-				self?.requestEmailVerification(email: email, reference: nil, completion: nil)
+				self?.requestEmailVerification(email: email, reference: nil, completion: { [weak self] isAuthenticated in
+					guard isAuthenticated else { return }
+					Task {
+						await self?.deviceReachabilityService.forceReloadDevices()
+					}
+				})
 			}
 		}
 	}
@@ -42,6 +47,11 @@ public final class CodeVerificationService {
 		guard isPresenting == false else { return }
 		isPresenting = true
 		presentEmailVerification(email: email, reference: reference)
+	}
+
+	/// Indicates whether a code verification flow is currently visible.
+	public var isPresentingVerification: Bool {
+		return isPresenting
 	}
 
 	private func presentEmailVerification(email: String, reference: String?) {
@@ -60,11 +70,11 @@ public final class CodeVerificationService {
 		topMostController(from: rootViewController)?.present(vc, animated: true)
 	}
 
-	private func finishCurrentFlow() {
+	private func finishCurrentFlow(isAuthenticated: Bool) {
 		isPresenting = false
 		let completions = pendingCompletions
 		pendingCompletions = []
-		completions.forEach { $0() }
+		completions.forEach { $0(isAuthenticated) }
 	}
 
 	private func topMostController(from controller: UIViewController?) -> UIViewController? {
@@ -77,12 +87,19 @@ public final class CodeVerificationService {
 	}
 }
 
+// Allow external dismissal paths (e.g., overlay tap) to finish the flow
+extension CodeVerificationService {
+	func notifyDismissedExternally() {
+		finishCurrentFlow(isAuthenticated: false)
+	}
+}
+
 extension CodeVerificationService: CodeVerificationViewModelEventHandler {
 	func handle(_ event: CodeVerificationViewModel.Event) {
 		switch event {
 			case .verifyTap:
 				presentedController?.dismiss(animated: true, completion: { [weak self] in
-					self?.finishCurrentFlow()
+					self?.finishCurrentFlow(isAuthenticated: true)
 				})
 
 			case .resetPasswordTap:

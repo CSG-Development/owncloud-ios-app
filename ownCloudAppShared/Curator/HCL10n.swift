@@ -163,9 +163,10 @@ public enum HCL10n {
 			public static let skipButtonTitle = "Skip"
 
 			public static let invalidCodeError = "Incorrect code."
-			public static let serverError = "Server error. Try again"
-			public static let codeExpiredError = "Your code has expired"
-
+			public static let codeExpiredError = "Your code has expired."
+			public static let emailNotRegisteredError = "Not allowed. Contact the device owner."
+			public static let tooManyRequestsError = "Too many requests."
+			public static let connectionError = "Connection error. Unable to reach the server."
 		}
 	}
 }

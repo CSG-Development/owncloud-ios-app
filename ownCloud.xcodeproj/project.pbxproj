@@ -236,7 +236,9 @@
 		99E73E862F11232600477600 /* DeviceStartingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73E7B2F11232600477600 /* DeviceStartingViewController.swift */; };
 		99E73E952F1186E600477600 /* CrossDissolveTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73E942F1186DD00477600 /* CrossDissolveTransition.swift */; };
 		99E73E972F11879400477600 /* CodeVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73E962F11878B00477600 /* CodeVerificationService.swift */; };
-		99E73E9F2F15717400477600 /* RemoteAccessClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73E9E2F15716B00477600 /* RemoteAccessClient.swift */; };
+		99E73EA72F1671C900477600 /* RAError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73EA32F1671C400477600 /* RAError.swift */; };
+		99E73EAA2F167C1E00477600 /* AnySendableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73EA92F167C1300477600 /* AnySendableError.swift */; };
+		99E73EAE2F16A62700477600 /* RemoteDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73EAD2F16A62300477600 /* RemoteDevice.swift */; };
 		99E83DAF2F0BDB3F00B58F59 /* ownCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */; };
 		99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F175312E8C001500FE7DEC /* ImageCropAction.swift */; };
 		99F175342E8C063E00FE7DEC /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = 99F175332E8C063E00FE7DEC /* Mantis */; };
@@ -1393,7 +1395,9 @@
 		99E73E812F11232600477600 /* WrongStateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrongStateViewController.swift; sourceTree = "<group>"; };
 		99E73E942F1186DD00477600 /* CrossDissolveTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossDissolveTransition.swift; sourceTree = "<group>"; };
 		99E73E962F11878B00477600 /* CodeVerificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationService.swift; sourceTree = "<group>"; };
-		99E73E9E2F15716B00477600 /* RemoteAccessClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessClient.swift; sourceTree = "<group>"; };
+		99E73EA32F1671C400477600 /* RAError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAError.swift; sourceTree = "<group>"; };
+		99E73EA92F167C1300477600 /* AnySendableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnySendableError.swift; sourceTree = "<group>"; };
+		99E73EAD2F16A62300477600 /* RemoteDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDevice.swift; sourceTree = "<group>"; };
 		99F175312E8C001500FE7DEC /* ImageCropAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropAction.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
@@ -2532,6 +2536,7 @@
 		9905DFC62EA53EDA00FF70B7 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				99E73EA32F1671C400477600 /* RAError.swift */,
 				9905DFCF2EA53F8700FF70B7 /* RADevice.swift */,
 				9905DFCD2EA53F6300FF70B7 /* RADevicePaths.swift */,
 				9905DFCB2EA53F1B00FF70B7 /* RADevicePath.swift */,
@@ -2633,6 +2638,7 @@
 		99C42DD72EA666CD00E36414 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				99E73EA82F167C0C00477600 /* Common */,
 				99E73EA02F1571A800477600 /* RemoteAccess */,
 				9908FE2F2EC4AE4F004A4137 /* HCContext.swift */,
 				9908FE2D2EC370BA004A4137 /* HCPreferences.swift */,
@@ -2748,12 +2754,36 @@
 		99E73EA02F1571A800477600 /* RemoteAccess */ = {
 			isa = PBXGroup;
 			children = (
-				99E73E9E2F15716B00477600 /* RemoteAccessClient.swift */,
+				99E73EAB2F16A60500477600 /* RemoteAccessService */,
 				9905DFA82EA537B800FF70B7 /* RemoteAccessAPI */,
 				99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */,
-				99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */,
 			);
 			path = RemoteAccess;
+			sourceTree = "<group>";
+		};
+		99E73EA82F167C0C00477600 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				99E73EA92F167C1300477600 /* AnySendableError.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		99E73EAB2F16A60500477600 /* RemoteAccessService */ = {
+			isa = PBXGroup;
+			children = (
+				99E73EAC2F16A61C00477600 /* Models */,
+				99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */,
+			);
+			path = RemoteAccessService;
+			sourceTree = "<group>";
+		};
+		99E73EAC2F16A61C00477600 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				99E73EAD2F16A62300477600 /* RemoteDevice.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		99F472DE2E095BB500104592 /* Curator */ = {
@@ -5373,7 +5403,6 @@
 				DC46F69228DCB9C6008280CA /* OCSavedSearch+Interactions.swift in Sources */,
 				DCB330C129EDDD4C00BFF393 /* SharingViewController.swift in Sources */,
 				DCDC0AD123CD18D200DFE36D /* OCLicenseManager+Setup.swift in Sources */,
-				99E73E9F2F15717400477600 /* RemoteAccessClient.swift in Sources */,
 				DCE4E44724C1AC4F0051722F /* MessageView.swift in Sources */,
 				DCFE682E28D9CEDD00091D2A /* ComposedMessageView.swift in Sources */,
 				9905DFCE2EA53F6C00FF70B7 /* RADevicePaths.swift in Sources */,
@@ -5444,11 +5473,14 @@
 				DC62F6F5292819C80095BB5D /* AccountConnectionRichStatus.swift in Sources */,
 				DCB6B1ED292B963300D27573 /* AccountConnection+ItemActions.swift in Sources */,
 				99C42DD92EA6670600E36414 /* HCCardView.swift in Sources */,
+				99E73EAE2F16A62700477600 /* RemoteDevice.swift in Sources */,
 				DCB6B200292CF2FE00D27573 /* NavigationRevocationAction.swift in Sources */,
 				9905DFAD2EA5380D00FF70B7 /* RemoteAccessAPI.swift in Sources */,
 				DC0A355424C0E2C200FB58FC /* SortBar.swift in Sources */,
 				39D091AF2D073593001329DF /* SecureTextField.swift in Sources */,
 				9905DFCC2EA53F2400FF70B7 /* RADevicePath.swift in Sources */,
+				99E73EA72F1671C900477600 /* RAError.swift in Sources */,
+				99E73EAA2F167C1E00477600 /* AnySendableError.swift in Sources */,
 				DC9B4FC3293F453C0037F8F8 /* EmbeddingViewController.swift in Sources */,
 				DC6B938B2D2D43290016A549 /* ByteCountEditView.swift in Sources */,
 				DC298C972934D354009FA87F /* IssuesCardViewController.swift in Sources */,

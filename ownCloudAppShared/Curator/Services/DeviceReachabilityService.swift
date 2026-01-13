@@ -87,7 +87,7 @@ public final actor DeviceReachabilityService {
 	public let urlProvider: DeviceReachabilityURLProvider
 
 	private var remoteDevices: [RemoteDevice] = []
-	private var localDevices: [LocalDevice] = []
+	public private(set) var localDevices: [LocalDevice] = []
 	private var remotePathProbesByCN: [String: [String: PathProbe]] = [:]
     private var onUpdate: (@MainActor ([MergedDevice]) -> Void)?
     private var onReachabilityChange: (@MainActor (Bool) -> Void)?
@@ -97,6 +97,7 @@ public final actor DeviceReachabilityService {
 	private var reachabilityStatusCancellable: AnyCancellable?
 	private var loadTask: Task<[MergedDevice], Error>?
 	private var isReloading: Bool = false
+	private var lastNetworkState: NetworkState?
 
 	private let reachability: ReachabilityObserving
 	private let remoteAccessService: RemoteAccessService
@@ -120,7 +121,7 @@ public final actor DeviceReachabilityService {
 			guard let self else { return }
 			Task { await self.handleMDNSUpdate(locals) }
 		}
-		Task { await reloadDevices() }
+		Task { await forceReloadDevices() }
 	}
 
 	private func installReloadTriggers() {
@@ -267,7 +268,8 @@ public final actor DeviceReachabilityService {
 	}
 
     private func handleNetworkChange(_ state: NetworkState) async {
-		guard state.isReachable else { return }
+		if let last = lastNetworkState, last.interface == state.interface { return }
+		lastNetworkState = state
 
 		if let email = preferences.favoriteEmail {
 			let hasToken = await remoteAccessService.hasValidTokens()
@@ -276,8 +278,7 @@ public final actor DeviceReachabilityService {
 			}
 		}
 
-		await reloadDevices()
-		await reprobeExistingPaths()
+		await forceReloadDevices()
     }
 
 	private func reloadDevices() async {
@@ -355,13 +356,18 @@ public final actor DeviceReachabilityService {
 			prompt { [weak self] accepted in
 				guard let self else { return }
 				if accepted {
-					Task { await self.reloadDevices(); await self.reprobeExistingPaths() }
+					Task { await self.forceReloadDevices() }
 				}
 			}
 		}
 	}
 
-	private func recalculateBestURLs() {
+	public func forceReloadDevices() async {
+		await reloadDevices()
+		await reprobeExistingPaths()
+	}
+
+	public func recalculateBestURLs() {
 		for device in currentMerged() {
 			guard
 				let cn = device.certificateCommonName,
