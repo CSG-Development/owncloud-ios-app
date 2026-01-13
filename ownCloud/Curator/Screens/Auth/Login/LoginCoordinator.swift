@@ -43,16 +43,6 @@ extension LoginCoordinator: LoginViewModelEventHandler {
 			case .backToEmail:
 				break
 
-            case let .emailVerification(email, reference):
-				CodeVerificationService.shared.requestEmailVerification(
-					email: email,
-					reference: reference,
-					completion: { [weak self] in
-						self?.mainVC?.viewModel.advanceToDeviceSelection()
-						self?.mainVC?.viewModel.loadDevices()
-					}
-				)
-
 			case .unableToConnect:
 				let vc = UnableToConnectViewController()
 				vc.onRetry = { [weak self] in

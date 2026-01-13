@@ -93,6 +93,18 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 		// Add icons
 		AppRootViewController.addIcons()
 
+		// Skip presenting alert/card controllers while code verification is onscreen
+		alertQueue.executor = { job, completion in
+			// If a code verification flow is showing, drop the job to avoid UI clashes
+			if CodeVerificationService.shared.isPresentingVerification {
+				completion()
+				return
+			}
+			DispatchQueue.main.async {
+				job(completion)
+			}
+		}
+
 		// Create client context, using contentBrowserController to manage content + sidebar
 		rootContext = ClientContext(with: clientContext, rootViewController: self, alertQueue: alertQueue, modifier: { context in
 			context.viewItemHandler = self
