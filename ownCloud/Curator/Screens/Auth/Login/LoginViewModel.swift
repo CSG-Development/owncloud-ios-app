@@ -383,7 +383,7 @@ final public class LoginViewModel {
 			let hasValidToken = await self.raService.hasValidTokens()
 			if hasValidToken {
 				await MainActor.run {
-					self.eventHandler.handle(.unableToConnect)
+					self.eventHandler.handle(.unableToDetect)
 				}
 				return
 			}
@@ -443,7 +443,7 @@ final public class LoginViewModel {
 		} catch {
 			await MainActor.run {
 				self.isLoading = false
-				self.eventHandler.handle(.unableToDetect)
+				self.eventHandler.handle(.unableToConnect)
 			}
 			return
 		}
