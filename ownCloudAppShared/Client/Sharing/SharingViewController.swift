@@ -202,17 +202,27 @@ open class SharingViewController: CollectionViewController {
 			})
 		]
 
-		if managementClientContext.core?.connection.capabilities?.supportsPrivateLinks == true {
+		if false { //managementClientContext.core?.connection.capabilities?.supportsPrivateLinks == true {
 			linkActions.append(
 				OCAction(title: OCLocalizedString("Copy Private Link", nil), icon: UIImage(named: "copy-clipboard", in: Bundle.sharedAppBundle, with: nil), action: { [weak self] _, _, completion in
 					if let item = self?.item, let core = self?.clientContext?.core {
-						core.retrievePrivateLink(for: item, completionHandler: { (error, url) in
-							guard let url = url else { return }
-							if error == nil, let presentationViewController = self?.clientContext?.presentationViewController {
-								OnMainThread {
-									UIPasteboard.general.url = url
+						core.retrievePrivateLink(for: item, completionHandler: { [weak self] (error, url) in
+							guard let self else { return }
+							guard error == nil, let url = url else { return }
 
-									_ = NotificationHUDViewController(on: presentationViewController, title: OCLocalizedString("Private Link", nil), subtitle: OCLocalizedString("URL was copied to the clipboard", nil), completion: nil)
+							RemoteAccessSharingURLResolver.resolveRemoteSharingURL(for: url) { [weak self] resolvedURL in
+								guard let self else { return }
+								guard let resolvedURL else {
+									self.showSharingUnavailableAlert(message: HCL10n.Sharing.publicNotAvilableDescription)
+									return
+								}
+
+								if let presentationViewController = self.clientContext?.presentationViewController {
+									OnMainThread {
+										UIPasteboard.general.url = resolvedURL
+
+										_ = NotificationHUDViewController(on: presentationViewController, title: OCLocalizedString("Private Link", nil), subtitle: OCLocalizedString("URL was copied to the clipboard", nil), completion: nil)
+									}
 								}
 							}
 						})
@@ -415,6 +425,16 @@ open class SharingViewController: CollectionViewController {
 			recipientsSection?.cellStyle = managementCellStyle
 			linksSection?.cellStyle = managementCellStyle
 		}
+	}
+	private func showSharingUnavailableAlert(message: String) {
+		let alert = ThemedAlertController(
+			title: HCL10n.Sharing.sharingNotPossible,
+			message: message,
+			preferredStyle: .alert
+		)
+
+		alert.addAction(UIAlertAction(title: HCL10n.Common.ok, style: .default, handler: nil))
+		self.present(alert, animated: true)
 	}
 }
 

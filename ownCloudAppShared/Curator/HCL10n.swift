@@ -1,4 +1,8 @@
 public enum HCL10n {
+	public enum Common {
+		public static let ok = "OK"		
+	}
+
 	public enum Logo {
 		public static let firstPart = "Curator "
 		public static let secondPart = "Files"
@@ -168,5 +172,11 @@ public enum HCL10n {
 			public static let tooManyRequestsError = "Too many requests."
 			public static let connectionError = "Connection error. Unable to reach the server."
 		}
+	}
+
+	public enum Sharing {
+		public static let sharingNotPossible = "Sharing not possible"
+		public static let raNotAvilableDescription = "Sharing is not possible because remote access is not available."
+		public static let publicNotAvilableDescription = "Sharing is not possible because the public link is unavailable."
 	}
 }

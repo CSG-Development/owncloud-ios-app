@@ -14,6 +14,11 @@ public final class HCContext {
 	public let deviceReachabilityService: DeviceReachabilityService
 	public let mdnsService: MDNSService
 	public let remoteAccessTokenStore: RemoteAccessTokenStore
+	public var emailVerificationHandler: (@MainActor (_ email: String, _ completion: @escaping (Bool) -> Void) -> Void)?
+
+	// Hack to provide this info for related data sources.
+	// Use `RemoteAccessSharingURLResolver` directly if possible.
+	public var lastPublicBaseURL: URL?
 
 	public init() {
 		self.preferences = HCPreferences()
@@ -31,6 +36,12 @@ public final class HCContext {
 			mdnsService: mdnsService,
 			preferences: preferences
 		)
+
+		Task {
+			await self.deviceReachabilityService.observePublicBaseURL { url in
+				self.lastPublicBaseURL = url
+			}
+		}
 	}
 
 	public func setup() {
