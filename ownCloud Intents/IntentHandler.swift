@@ -21,6 +21,12 @@ import ownCloudAppShared
 
 class IntentHandler: INExtension {
 
+	override init() {
+		super.init()
+
+		AppExtensionBootstrap.setupDynamicURLSwitching()
+	}
+
 	override func handler(for intent: INIntent) -> Any {
 		if intent is GetAccountsIntent {
 			return GetAccountsIntentHandler()

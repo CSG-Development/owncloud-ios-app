@@ -43,7 +43,7 @@ public final actor DeviceReachabilityService {
 		public let localDevice: LocalDevice?
 		public let pathProbes: [PathProbe]
 
-		var certificateCommonName: String? {
+		public var certificateCommonName: String? {
 			if let remoteDevice {
 				return remoteDevice.certificateCommonName
 			}
@@ -87,14 +87,17 @@ public final actor DeviceReachabilityService {
 	public let urlProvider: DeviceReachabilityURLProvider
 
 	private var remoteDevices: [RemoteDevice] = []
-	private var localDevices: [LocalDevice] = []
+	public private(set) var localDevices: [LocalDevice] = []
 	private var remotePathProbesByCN: [String: [String: PathProbe]] = [:]
     private var onUpdate: (@MainActor ([MergedDevice]) -> Void)?
     private var onReachabilityChange: (@MainActor (Bool) -> Void)?
+	private var onEmailValidationRequest: (@MainActor (String) -> Void)?
+	private var onReprobePrompt: (@MainActor (@escaping (Bool) -> Void) -> Void)?
 	private var triggersCancellable: AnyCancellable?
 	private var reachabilityStatusCancellable: AnyCancellable?
 	private var loadTask: Task<[MergedDevice], Error>?
 	private var isReloading: Bool = false
+	private var lastNetworkState: NetworkState?
 
 	private let reachability: ReachabilityObserving
 	private let remoteAccessService: RemoteAccessService
@@ -118,7 +121,7 @@ public final actor DeviceReachabilityService {
 			guard let self else { return }
 			Task { await self.handleMDNSUpdate(locals) }
 		}
-		Task { await reloadDevices() }
+		Task { await forceReloadDevices() }
 	}
 
 	private func installReloadTriggers() {
@@ -132,6 +135,7 @@ public final actor DeviceReachabilityService {
 			.sink { [weak self] state in
 				guard let self else { return }
 				Task {
+					await self.handleNetworkChange(state)
 					if let handler = await self.onReachabilityChange {
 						await MainActor.run { handler(state.isReachable) }
 					}
@@ -216,14 +220,28 @@ public final actor DeviceReachabilityService {
 		}
 	}
 
-	public func getMergedDevices(email: String) async throws -> [MergedDevice] {
+	public func getMergedDevices(
+		email: String,
+		includeRemote: Bool = true,
+		probeRemotePaths: Bool = true
+	) async throws -> [MergedDevice] {
 		loadTask?.cancel()
-		loadTask = Task.detached { [email] in
-			let remote = (try? await self.remoteAccessService.getRemoteDevices(email: email)) ?? []
+		loadTask = Task.detached { [email, includeRemote, probeRemotePaths] in
+			let remote: [RemoteDevice]
+			if includeRemote {
+				remote = try await self.remoteAccessService.getRemoteDevices(email: email)
+			} else {
+				remote = []
+			}
 			await self.setRemoteDevices(remote)
 			if Task.isCancelled { return [] }
 
-			let probes = (try? await self.probeAll(remote)) ?? [:]
+			let probes: [String: [String: PathProbe]]
+			if includeRemote, probeRemotePaths, remote.isEmpty == false {
+				probes = (try? await self.probeAll(remote)) ?? [:]
+			} else {
+				probes = [:]
+			}
 			await self.setProbes(probes)
 			if Task.isCancelled { return [] }
 
@@ -250,8 +268,17 @@ public final actor DeviceReachabilityService {
 	}
 
     private func handleNetworkChange(_ state: NetworkState) async {
-		guard state.isReachable else { return }
-		await reloadDevices()
+		if let last = lastNetworkState, last.interface == state.interface { return }
+		lastNetworkState = state
+
+		if let email = preferences.favoriteEmail {
+			let hasToken = await remoteAccessService.hasValidTokens()
+			if hasToken == false, let handler = onEmailValidationRequest {
+				await MainActor.run { handler(email) }
+			}
+		}
+
+		await forceReloadDevices()
     }
 
 	private func reloadDevices() async {
@@ -264,7 +291,7 @@ public final actor DeviceReachabilityService {
 
 		Log.debug("[STX-RA]: Reloading devices.")
 		var didUpdateUsingEmail = false
-		if let email = preferences.currentEmail {
+		if let email = preferences.favoriteEmail {
 			_ = (try? await getMergedDevices(email: email)) ?? []
 			didUpdateUsingEmail = true // getMergedDevices() already fetches, probes and publishes
 		}
@@ -301,7 +328,46 @@ public final actor DeviceReachabilityService {
 		recalculateBestURLs()
 	}
 
-	private func recalculateBestURLs() {
+	// MARK: - Operation error handling → reprobe prompt
+	nonisolated private func shouldOfferReprobe(for error: Error) -> Bool {
+		let ns = error as NSError
+		if ns.domain == NSURLErrorDomain {
+			let codes: [URLError.Code] = [
+				.notConnectedToInternet,
+				.networkConnectionLost,
+				.cannotFindHost,
+				.cannotConnectToHost,
+				.dnsLookupFailed,
+				.timedOut,
+				.dataNotAllowed,
+				.internationalRoamingOff,
+				.callIsActive
+			]
+			return codes.contains(where: { $0.rawValue == ns.code })
+		}
+		return false
+	}
+
+	private func requestReprobeFromUI() async {
+		guard let prompt = onReprobePrompt else {
+			return
+		}
+		await MainActor.run {
+			prompt { [weak self] accepted in
+				guard let self else { return }
+				if accepted {
+					Task { await self.forceReloadDevices() }
+				}
+			}
+		}
+	}
+
+	public func forceReloadDevices() async {
+		await reloadDevices()
+		await reprobeExistingPaths()
+	}
+
+	public func recalculateBestURLs() {
 		for device in currentMerged() {
 			guard
 				let cn = device.certificateCommonName,
@@ -332,6 +398,36 @@ public final actor DeviceReachabilityService {
 	// MARK: - Observing reachability updates (bridge support)
 	public func observeReachability(_ handler: @escaping @MainActor (Bool) -> Void) {
 		self.onReachabilityChange = handler
+	}
+
+	// MARK: - Observing email validation requests (when RA tokens are required)
+	public func observeEmailValidationRequest(_ handler: @escaping @MainActor (String) -> Void) {
+		self.onEmailValidationRequest = handler
+	}
+
+	// MARK: - Reset cached reachability state (e.g., on logout)
+	public func resetState() async {
+		remoteDevices = []
+		localDevices = []
+		remotePathProbesByCN = [:]
+		loadTask?.cancel()
+		loadTask = nil
+		let merged = currentMerged()
+		if let onUpdate = onUpdate {
+			await MainActor.run { onUpdate(merged) }
+		}
+		urlProvider.clearAll()
+	}
+
+	// MARK: - Observing reprobe prompt requests (network errors from operations)
+	public func observeReprobePrompt(_ handler: @escaping @MainActor (@escaping (Bool) -> Void) -> Void) {
+		self.onReprobePrompt = handler
+	}
+
+	// MARK: - Forward operation errors to trigger a reprobe prompt
+	public nonisolated func reportOperationError(_ error: Error) {
+		guard shouldOfferReprobe(for: error) else { return }
+		Task { await self.requestReprobeFromUI() }
 	}
 
 	// MARK: - Best path selection
@@ -402,7 +498,7 @@ public final actor DeviceReachabilityService {
 		return await withTaskGroup(of: (String, PathProbe)?.self) { group in
 			for item in items {
 				group.addTask {
-					let api = DeviceAPI(baseURL: item.url)
+					let api = DeviceAPI(deviceBaseURL: item.url)
 
 					var status: Status?
 					var about: About?
@@ -447,9 +543,9 @@ public final actor DeviceReachabilityService {
 	private func appendMDNSProbeIfNeeded(_ probes: [PathProbe], local: LocalDevice) -> [PathProbe] {
 		let about: About? = {
 			guard let cn = local.certificateCommonName else { return nil }
-			return About(hostname: local.host, certificate_common_name: cn)
+			return About(hostname: local.host, certificate_common_name: cn, os_state: nil)
 		}()
-		let status = Status(state: .unknown, OOBE: .init(done: local.oobeIsDone))
+		let status = Status(state: .unknown, OOBE: .init(done: local.oobeIsDone), apps: nil)
 		let mdnsProbe = PathProbe(source: .mdns(host: local.host, port: local.port), status: status, about: about)
 		return probes + [mdnsProbe]
 	}
@@ -588,12 +684,16 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 
 	@objc(currentBaseURL)
 	public func currentBaseURL() -> URL? {
-		if let cn = preferences.currentCertificateCN,
+		if let cn = preferences.favoriteDeviceCN,
 		   let url = cachedBestURL(for: cn) {
 			Log.debug("[STX-RA]: Returned best URL: \(url)")
 			return url
 		}
 		return nil
+	}
+
+	public func clearAll() {
+		cacheQueue.async(flags: .barrier) { self.bestURLByCN.removeAll() }
 	}
 
 	private func cachedBestURL(for cn: String) -> URL? {

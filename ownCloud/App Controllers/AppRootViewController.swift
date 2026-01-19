@@ -24,7 +24,6 @@ import ownCloudAppShared
 open class AppRootViewController: EmbeddingViewController, BrowserNavigationViewControllerDelegate, BrowserNavigationBookmarkRestore {
 	var clientContext: ClientContext
 	var controllerConfiguration: AccountController.Configuration
-
 	var focusedBookmarkObservation: NSKeyValueObservation?
 
 	init(with context: ClientContext, controllerConfiguration: AccountController.Configuration = .defaultConfiguration) {
@@ -93,6 +92,18 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 
 		// Add icons
 		AppRootViewController.addIcons()
+
+		// Skip presenting alert/card controllers while code verification is onscreen
+		alertQueue.executor = { job, completion in
+			// If a code verification flow is showing, drop the job to avoid UI clashes
+			if CodeVerificationService.shared.isPresentingVerification {
+				completion()
+				return
+			}
+			DispatchQueue.main.async {
+				job(completion)
+			}
+		}
 
 		// Create client context, using contentBrowserController to manage content + sidebar
 		rootContext = ClientContext(with: clientContext, rootViewController: self, alertQueue: alertQueue, modifier: { context in
@@ -193,6 +204,19 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 
 	open override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
+
+		CodeVerificationService.shared.setup(with: self)
+		HCContext.shared.deviceReachabilityService.observeReprobePrompt { [weak self] completion in
+			guard let self else { return }
+			let alert = UIAlertController(
+				title: "Connection issue",
+				message: "Reprobe devices to find the best path?",
+				preferredStyle: .alert
+			)
+			alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in completion(false) }))
+			alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in completion(true) }))
+			self.present(alert, animated: true)
+		}
 
 		ClientSessionManager.shared.add(delegate: self)
 
@@ -454,6 +478,20 @@ extension AppRootViewController : ClientSessionManagerDelegate {
 			} else {
 				queueCompletionHandler()
 			}
+		}
+	}
+}
+
+// MARK: - Code verification flow (RA token prompt)
+extension AppRootViewController: CodeVerificationViewModelEventHandler {
+	func handle(_ event: CodeVerificationViewModel.Event) {
+		switch event {
+			case .verifyTap:
+				self.presentedViewController?.dismiss(animated: true)
+			case .resetPasswordTap:
+				break
+			case .settingsTap:
+				break
 		}
 	}
 }

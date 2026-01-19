@@ -33,7 +33,7 @@ public struct RemoteAccessToken: Codable, Equatable {
 
 public final class RemoteAccessTokenStore {
     private let keychainAccount = "curator.remoteAccess.tokens"
-    private let keyPath = "emails"
+    private let keyPath = "favoriteDeviceTokens"
     private let queue = DispatchQueue(label: "RemoteAccessTokenStore.queue")
 
     private var keychain: OCKeychain? {
@@ -42,48 +42,33 @@ public final class RemoteAccessTokenStore {
     }
 
     @discardableResult
-    public func save(tokens: RemoteAccessToken, for email: String) -> Bool {
+    public func save(_ tokens: RemoteAccessToken?) -> Bool {
         return queue.sync {
-            var all = loadAllInternal()
-            all[email] = tokens
-            return saveAllInternal(all)
+            return saveInternal(tokens)
         }
     }
 
-    public func loadTokens(for email: String) -> RemoteAccessToken? {
+    public func loadTokens() -> RemoteAccessToken? {
         return queue.sync {
-            loadAllInternal()[email]
-        }
-    }
-
-    public func loadAll() -> [String: RemoteAccessToken] {
-        return queue.sync { loadAllInternal() }
-    }
-
-    @discardableResult
-    public func clear(email: String) -> Bool {
-        return queue.sync {
-            var all = loadAllInternal()
-            all.removeValue(forKey: email)
-            return saveAllInternal(all)
+            loadInternal()
         }
     }
 
     @discardableResult
-    public func clearAll() -> Bool {
-		return queue.sync {
+    public func clear() -> Bool {
+        return queue.sync {
 			keychain?.removeItem(forAccount: keychainAccount, path: keyPath) == nil
-		}
+        }
     }
-    
-    private func loadAllInternal() -> [String: RemoteAccessToken] {
-        guard let data = keychain?.readDataFromKeychainItem(forAccount: keychainAccount, path: keyPath) else { return [:] }
-        return (try? JSONDecoder.iso8601.decode([String: RemoteAccessToken].self, from: data)) ?? [:]
+
+    private func loadInternal() -> RemoteAccessToken? {
+        guard let data = keychain?.readDataFromKeychainItem(forAccount: keychainAccount, path: keyPath) else { return nil }
+        return (try? JSONDecoder.iso8601.decode(RemoteAccessToken.self, from: data))
     }
 
     @discardableResult
-    private func saveAllInternal(_ mapping: [String: RemoteAccessToken]) -> Bool {
-        guard let data = try? JSONEncoder.iso8601.encode(mapping) else { return false }
+    private func saveInternal(_ tokens: RemoteAccessToken?) -> Bool {
+        guard let data = try? JSONEncoder.iso8601.encode(tokens) else { return false }
         return keychain?.write(data, toKeychainItemForAccount: keychainAccount, path: keyPath) == nil
     }
 }

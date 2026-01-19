@@ -4,7 +4,6 @@ import Security
 private enum CertLoadError: Error { case notFound(String), badData(String) }
 
 private func loadBundleCert(named base: String) throws -> SecCertificate {
-	// Try common extensions in order
 	let exts = ["cer", "pem", "crt", "der"]
 	var lastErr: Error?
 
@@ -46,9 +45,70 @@ private func normalizeToDER(data: Data) throws -> Data {
 	}
 }
 
+public enum RemoteAccessAPIError: Error, Sendable {
+	case unauthorized(Unauthorized) // HTTP 401
+	case tooManyRequests(RAError?) // HTTP 429
+	case forbidden(RAError?) // HTTP 403
+	case internalServerError(RAError?) // 500
+	case httpStatus(code: Int, body: Data?) // HTTP other
+
+	case cancelled
+	case transport(URLError)
+	case decoding(DecodingError)
+	case unexpected(AnySendableError)
+
+	public struct Unauthorized: Error, Sendable {
+		public let kind: Kind
+
+		public enum Kind: Sendable, Decodable {
+			case codeExpired
+			case codeInvalid
+			case emailNotRegistered
+			case unknown(name: String?, stacktrace: String?)
+
+			static func decode(from data: Data, decoder: JSONDecoder) -> Self {
+				if let raError = try? decoder.decode(RAError.self, from: data) {
+					let name = raError.name ?? ""
+					let stacktrace = raError.stacktrace ?? ""
+					switch raError.name {
+						case "invalid credentials":
+							return .codeInvalid
+						case "verification code expired":
+							return .codeExpired
+						case "not allowed":
+							return .emailNotRegistered
+						default:
+							return .unknown(name: name, stacktrace: stacktrace)
+					}
+				}
+				return .unknown(name: nil, stacktrace: nil)
+			}
+		}
+	}
+
+	init(catching error: any Error) {
+		if error is CancellationError {
+			self = .cancelled
+			return
+		}
+
+		switch error {
+			case let e as RemoteAccessAPIError:
+				self = e
+			case let e as URLError:
+				self = .transport(e)
+			case let e as DecodingError:
+				self = .decoding(e)
+			default:
+				self = .unexpected(.init(error))
+		}
+	}
+}
+
 public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTaskDelegate {
 	private let baseURL: URL
 	private var urlSession: URLSession!
+	private let decoder = JSONDecoder()
 	private let pinnedRoot: SecCertificate?
 	private let skipHostValidation: Bool
 	private let acceptAnyCertificate: Bool
@@ -76,6 +136,53 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 		self.urlSession = URLSession(configuration: cfg, delegate: self, delegateQueue: nil)
 	}
 
+	public func request<T: Decodable>(_ urlRequest: URLRequest) async throws -> T {
+		do {
+			let (data, response) = try await urlSession.data(for: urlRequest)
+			let http = try requireHTTP(response)
+
+			if (200..<300).contains(http.statusCode) {
+				do {
+					return try decoder.decode(T.self, from: data)
+				} catch let error as DecodingError {
+					throw RemoteAccessAPIError.decoding(error)
+				}
+			}
+
+			throw mapHTTPError(status: http.statusCode, body: data, headers: http.allHeaderFields)
+		}
+	}
+
+	private func requireHTTP(_ response: URLResponse) throws -> HTTPURLResponse {
+		guard let http = response as? HTTPURLResponse else {
+			throw RemoteAccessAPIError.unexpected(.init(NSError(domain: "NonHTTPResponse", code: 0)))
+		}
+		return http
+	}
+
+	private func mapHTTPError(status: Int, body: Data, headers: [AnyHashable: Any]) -> RemoteAccessAPIError {
+		switch status {
+			case 401:
+				let kind = RemoteAccessAPIError.Unauthorized.Kind.decode(from: body, decoder: decoder)
+				return .unauthorized(.init(kind: kind))
+
+			case 403:
+				let raError = try? decoder.decode(RAError.self, from: body)
+				return .forbidden(raError)
+
+			case 429:
+				let raError = try? decoder.decode(RAError.self, from: body)
+				return .tooManyRequests(raError)
+
+			case 500:
+				let raError = try? decoder.decode(RAError.self, from: body)
+				return .internalServerError(raError)
+
+			default:
+				return .httpStatus(code: status, body: body)
+		}
+	}
+
 	public func sendEmailCode(
 		email: String,
 		clientId: String,
@@ -92,12 +199,15 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 			"clientFriendlyName": clientFriendlyName
 		]
 		req.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
-		let (data, resp) = try await urlSession.data(for: req)
-		try ensureOK(resp)
-		return try JSONDecoder().decode(RAInitiateResponse.self, from: data)
+
+		return try await request(req)
 	}
 
-	public func validateEmailCode(code: String, reference: String) async throws -> RATokenResponse {
+	public func validateEmailCode(
+		code: String,
+		clientId: String,
+		reference: String
+	) async throws -> RATokenResponse {
 		var comps = URLComponents(url: baseURL.appendingPathComponent("client/v1/auth/token"), resolvingAgainstBaseURL: false)!
 		comps.queryItems = [URLQueryItem(name: "type", value: "email")]
 		var req = URLRequest(url: comps.url!)
@@ -105,47 +215,44 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 		req.addValue("application/json", forHTTPHeaderField: "Content-Type")
 		let body: [String: Any] = [
 			"code": code,
-			"reference": reference
+			"reference": reference,
+			"clientId": clientId
 		]
 		req.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
-		let (data, resp) = try await urlSession.data(for: req)
-		try ensureOK(resp)
-		return try JSONDecoder().decode(RATokenResponse.self, from: data)
+
+		return try await request(req)
 	}
 
-	public func refreshAccessToken(refreshToken: String) async throws -> RATokenResponse {
-		var comps = URLComponents(url: baseURL.appendingPathComponent("client/v1/auth/refresh"), resolvingAgainstBaseURL: false)!
-		comps.queryItems = [URLQueryItem(name: "refresh_token", value: refreshToken)]
-		var req = URLRequest(url: comps.url!)
-		req.httpMethod = "GET"
-		let (data, resp) = try await urlSession.data(for: req)
-		try ensureOK(resp)
-		return try JSONDecoder().decode(RATokenResponse.self, from: data)
+	public func refreshAccessToken(
+		clientId: String,
+		refreshToken: String
+	) async throws -> RATokenResponse {
+		var req = URLRequest(url: baseURL.appendingPathComponent("client/v1/auth/refresh"))
+		req.httpMethod = "POST"
+		req.addValue("application/json", forHTTPHeaderField: "Content-Type")
+		let body: [String: Any] = [
+			"refreshToken": refreshToken,
+			"clientId": clientId
+		]
+		req.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
+
+		return try await request(req)
 	}
 
 	public func listDevices() async throws -> [RADevice] {
 		var req = URLRequest(url: baseURL.appendingPathComponent("client/v1/devices"))
 		req.httpMethod = "GET"
 		injectAuth(&req)
-		let (data, resp) = try await urlSession.data(for: req)
-		try ensureOK(resp)
-		return try JSONDecoder().decode([RADevice].self, from: data)
+
+		return try await request(req)
 	}
 
 	public func getDevicePaths(deviceID: String) async throws -> RADevicePaths {
 		var req = URLRequest(url: baseURL.appendingPathComponent("client/v1/devices/\(deviceID)"))
 		req.httpMethod = "GET"
 		injectAuth(&req)
-		let (data, resp) = try await urlSession.data(for: req)
-		try ensureOK(resp)
-		return try JSONDecoder().decode(RADevicePaths.self, from: data)
-	}
 
-	private func ensureOK(_ response: URLResponse) throws {
-		guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-			let code = (response as? HTTPURLResponse)?.statusCode ?? -1
-			throw NSError(domain: "RemoteAccessAPI", code: code, userInfo: [NSLocalizedDescriptionKey: "HTTP \(code)"])
-		}
+		return  try await request(req)
 	}
 
 	private func injectAuth(_ request: inout URLRequest) {
@@ -154,7 +261,9 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 			request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 		}
 	}
+}
 
+extension RemoteAccessAPI {
 	private func handleServerTrust(
 		_ challenge: URLAuthenticationChallenge,
 		anchorCA: SecCertificate,
@@ -197,22 +306,22 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 		let m = describeAuthMethod(challenge.protectionSpace.authenticationMethod)
 		Log.debug("[STX-RA]: Session challenge: \(m) host: \(challenge.protectionSpace.host)")
 
-        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
-            if HCConfig.disableCertificatePinning || acceptAnyCertificate {
-                if let trust = challenge.protectionSpace.serverTrust {
-                    completionHandler(.useCredential, URLCredential(trust: trust))
-                } else {
-                    completionHandler(.performDefaultHandling, nil)
-                }
-                return
-            }
+		if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
+			if HCConfig.disableCertificatePinning || acceptAnyCertificate {
+				if let trust = challenge.protectionSpace.serverTrust {
+					completionHandler(.useCredential, URLCredential(trust: trust))
+				} else {
+					completionHandler(.performDefaultHandling, nil)
+				}
+				return
+			}
 			guard let pinnedRoot else {
 				completionHandler(.performDefaultHandling, nil)
 				return
 			}
 
 			handleServerTrust(challenge, anchorCA: pinnedRoot, completionHandler)
-        } else if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodClientCertificate {
+		} else if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodClientCertificate {
 			handleClientCert(challenge, completionHandler)
 		} else {
 			completionHandler(.performDefaultHandling, nil)
@@ -227,29 +336,28 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 		let m = describeAuthMethod(challenge.protectionSpace.authenticationMethod)
 		Log.debug("[STX-RA]: Task challenge: \(m) host: \(challenge.protectionSpace.host)")
 
-        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
-            if HCConfig.disableCertificatePinning || acceptAnyCertificate {
-                if let trust = challenge.protectionSpace.serverTrust {
-                    completionHandler(.useCredential, URLCredential(trust: trust))
-                } else {
-                    completionHandler(.performDefaultHandling, nil)
-                }
-                return
-            }
+		if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
+			if HCConfig.disableCertificatePinning || acceptAnyCertificate {
+				if let trust = challenge.protectionSpace.serverTrust {
+					completionHandler(.useCredential, URLCredential(trust: trust))
+				} else {
+					completionHandler(.performDefaultHandling, nil)
+				}
+				return
+			}
 			guard let pinnedRoot else {
 				completionHandler(.performDefaultHandling, nil)
 				return
 			}
 
 			handleServerTrust(challenge, anchorCA: pinnedRoot, completionHandler)
-        } else if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodClientCertificate {
+		} else if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodClientCertificate {
 			handleClientCert(challenge, completionHandler)
 		} else {
 			completionHandler(.performDefaultHandling, nil)
 		}
 	}
 
-	// Log redirects clearly (host changes => new challenge)
 	public func urlSession(
 		_ session: URLSession, task: URLSessionTask,
 		willPerformHTTPRedirection response: HTTPURLResponse,
@@ -273,7 +381,6 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 		}
 	}
 
-	// Add this helper to see what auth methods you’re getting.
 	private func describeAuthMethod(_ m: String) -> String {
 		switch m {
 		case NSURLAuthenticationMethodServerTrust:       return "ServerTrust"

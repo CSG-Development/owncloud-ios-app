@@ -8,7 +8,6 @@ protocol CodeVerificationViewModelEventHandler: AnyObject {
 }
 
 private enum Constants {
-	static let codeValidityDuration: TimeInterval = 600.0
     static let codeLength: Int = 6
 }
 
@@ -20,9 +19,12 @@ final public class CodeVerificationViewModel {
 	}
 
 	enum CodeVerificationError {
-		case authenticationFailed
-		case serverNotFound
 		case codeExpired
+		case codeInvalid
+		case emailNotRegistered
+
+		case connectionFailed
+		case tooManyRequests
 	}
 
 	private let eventHandler: CodeVerificationViewModelEventHandler
@@ -36,7 +38,6 @@ final public class CodeVerificationViewModel {
 	@Published private(set) var isValidateEnabled: Bool = true
 	@Published private(set) var isLoading: Bool = false
     @Published private(set) var isExpired: Bool = false
-    public private(set) var codeSentAt: Date?
 	@Published private(set) var errors: [CodeVerificationError] = []
 
 	private var cancellables = Set<AnyCancellable>()
@@ -49,9 +50,15 @@ final public class CodeVerificationViewModel {
 		HCContext.shared.remoteAccessService
 	}
 
-	init(eventHandler: CodeVerificationViewModelEventHandler, email: String) {
+	init(
+		eventHandler: CodeVerificationViewModelEventHandler,
+		email: String,
+		reference: String? = nil,
+		shouldRequestCodeOnInit: Bool = true
+	) {
 		self.eventHandler = eventHandler
 		self.email = email
+		self.reference = reference
 
         Publishers.CombineLatest($code.removeDuplicates(), $isExpired.removeDuplicates())
             .receive(on: RunLoop.main)
@@ -60,20 +67,24 @@ final public class CodeVerificationViewModel {
             }
             .store(in: &cancellables)
 
-		requestEmailCode(email)
+		if shouldRequestCodeOnInit {
+			Task {
+				await requestEmailCode(email)
+			}
+		}
 	}
 
-	private func requestEmailCode(_ email: String) {
-		raService.sendEmailCode(email: email) { result in
-			switch result {
-				case .success(let response):
-					self.reference = response.reference
-					self.codeSentAt = Date()
-					Log.debug("[STX]: Code sent. Saving reference.")
-
-				case .failure(let error):
-					Log.debug("[STX]: Code sending failed \(error)")
-					self.errors = [.serverNotFound]
+	private func requestEmailCode(_ email: String) async {
+		do {
+			let response = try await raService.sendEmailCode(email: email)
+			await MainActor.run {
+				self.reference = response.reference
+				Log.debug("[STX]: Code sent. Saving reference.")
+			}
+		} catch let error {
+			await MainActor.run {
+				Log.debug("[STX]: Code sending failed \(error)")
+				self.handleError(error)
 			}
 		}
 	}
@@ -81,43 +92,70 @@ final public class CodeVerificationViewModel {
     func didTapValidate() {
         guard
 			code.count == Constants.codeLength,
-			let reference,
-			let codeDate = codeSentAt
+			let reference
 		else {
 			return
 		}
 
-		let codeLifeSeconds = Date().timeIntervalSince1970 - codeDate.timeIntervalSince1970
+		isLoading = true
+		Task {
+			do {
+				try await raService.validateEmailCode(code: code, reference: reference)
+				await MainActor.run {
+					Log.debug("[STX]: Code verification succeeded.")
+					eventHandler.handle(.verifyTap)
+				}
+			} catch let error {
+				await MainActor.run {
+					Log.debug("[STX]: Code verification failed \(error)")
+					handleError(error)
+				}
+			}			
+		}
+	}
 
-		if codeLifeSeconds > Constants.codeValidityDuration {
-			// Consider code as expired.
-			self.errors = [.codeExpired]
+	private func handleError(_ error: Error) {
+		guard
+			let raError = error as? RemoteAccessServiceError,
+			case let .apiError(raAPIError) = raError
+		else {
+			self.errors = [.connectionFailed]
 			return
 		}
 
-		isLoading = true
-		raService.validateEmailCode(code: code, reference: reference) { [weak self] result in
-			guard let self else { return }
-			self.isLoading = false
-			switch result {
-                case .success:
-					eventHandler.handle(.verifyTap)
+		switch raAPIError {
+			case .tooManyRequests:
+				self.errors = [.tooManyRequests]
 
-                case .failure(let error):
-                    let ns = error as NSError
-                    if ns.domain == "RemoteAccessAPI" && (ns.code == 410 || ns.code == 401 || ns.code == 498) {
-                        self.errors = [.codeExpired]
-                    } else {
-                        self.errors = [.authenticationFailed]
-                    }
-			}
+			case .forbidden,
+				 .internalServerError:
+				self.errors = [.connectionFailed]
+
+			case let .unauthorized(e):
+				switch e.kind {
+					case .codeExpired:
+						self.errors = [.codeExpired]
+
+					case .codeInvalid:
+						self.errors = [.codeInvalid]
+
+					case .emailNotRegistered:
+						self.errors = [.emailNotRegistered]
+
+					default:
+						self.errors = [.connectionFailed]
+				}
+			default:
+				self.errors = [.connectionFailed]
 		}
 	}
 
 	public func didTapResendCode() {
         resetErrors()
 
-		requestEmailCode(email)
+		Task {
+			await requestEmailCode(email)
+		}
 	}
 
 	func didTapSkip() {

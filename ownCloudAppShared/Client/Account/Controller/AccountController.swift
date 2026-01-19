@@ -190,7 +190,10 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 	}
 
 	public func disconnect(completion: CompletionHandler?) {
-		connection?.disconnect(consumer: consumer, completion: completion)
+		connection?.disconnect(consumer: consumer, completion: { error in
+			Task { await HCContext.shared.deviceReachabilityService.resetState() }
+			completion?(error)
+		})
 	}
 
 	func addErrorHandler() {
