@@ -239,6 +239,7 @@
 		99E73EA72F1671C900477600 /* RAError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73EA32F1671C400477600 /* RAError.swift */; };
 		99E73EAA2F167C1E00477600 /* AnySendableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73EA92F167C1300477600 /* AnySendableError.swift */; };
 		99E73EAE2F16A62700477600 /* RemoteDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73EAD2F16A62300477600 /* RemoteDevice.swift */; };
+		99E73EB32F18FE0400477600 /* RemoteAccessSharingURLResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73EB22F18FE0400477600 /* RemoteAccessSharingURLResolver.swift */; };
 		99E83DAF2F0BDB3F00B58F59 /* ownCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */; };
 		99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F175312E8C001500FE7DEC /* ImageCropAction.swift */; };
 		99F175342E8C063E00FE7DEC /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = 99F175332E8C063E00FE7DEC /* Mantis */; };
@@ -1398,6 +1399,7 @@
 		99E73EA32F1671C400477600 /* RAError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAError.swift; sourceTree = "<group>"; };
 		99E73EA92F167C1300477600 /* AnySendableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnySendableError.swift; sourceTree = "<group>"; };
 		99E73EAD2F16A62300477600 /* RemoteDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDevice.swift; sourceTree = "<group>"; };
+		99E73EB22F18FE0400477600 /* RemoteAccessSharingURLResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessSharingURLResolver.swift; sourceTree = "<group>"; };
 		99F175312E8C001500FE7DEC /* ImageCropAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropAction.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
@@ -2754,6 +2756,7 @@
 		99E73EA02F1571A800477600 /* RemoteAccess */ = {
 			isa = PBXGroup;
 			children = (
+				99E73EB22F18FE0400477600 /* RemoteAccessSharingURLResolver.swift */,
 				99E73EAB2F16A60500477600 /* RemoteAccessService */,
 				9905DFA82EA537B800FF70B7 /* RemoteAccessAPI */,
 				99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */,
@@ -5366,6 +5369,7 @@
 				DC298C9A2934D3F8009FA87F /* AlertView.swift in Sources */,
 				DC24E10728B7BFD6002E4F5B /* ItemSearchScope.swift in Sources */,
 				DC8E99E9297FF5C300594697 /* UIViewController+Extension.swift in Sources */,
+				99E73EB32F18FE0400477600 /* RemoteAccessSharingURLResolver.swift in Sources */,
 				DC46F3D72845FCFA00038880 /* UIView+OCDataItem.swift in Sources */,
 				DCE4E43524C1999A0051722F /* Action.swift in Sources */,
 				DC298CAE2936598B009FA87F /* DriveGridCell.swift in Sources */,

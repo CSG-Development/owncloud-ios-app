@@ -5,7 +5,7 @@ public enum RADevicePathKind: String, Codable {
 }
 
 public struct RADevicePath: Codable {
-	public let type: RADevicePathKind
-	public let address: String
-	public let port: Int?
+	public var type: RADevicePathKind
+	public var address: String
+	public var port: Int?
 }

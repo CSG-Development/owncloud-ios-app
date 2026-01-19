@@ -978,78 +978,26 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 
 				bottomButtonBar?.modalActionRunning = true
 
-				core.createShare(newShare, completionHandler: { error, share in
-					OnMainThread {
-						self.bottomButtonBar?.modalActionRunning = false
-					}
-
-					if let error {
-						self.showError(error)
-					} else {
-						if let url = share?.url, andShare {
-							let existingCompletionHandler = UIDevice.current.isIpad ? { (share) in
-								// On iPad, first show Share Sheet, then close ShareViewController
-								self.complete(with: share)
-							} : self.completionHandler // On iPhone, first close ShareViewController, then show Share Sheet
-
-							let handleResultAndShowShareSheet: CompletionHandler = { (share) in
-								let absoluteURLString = url.absoluteString
-								var shareMessage: String?
-
-								if let password = self.password {
-									// Message consists of Link + Password
-									if let displayName = self.location?.displayName(in: nil) {
-										shareMessage = OCLocalizedFormat("{{itemName}} ({{link}}) | password: {{password}}", [
-											"itemName" : displayName,
-											"link" : absoluteURLString,
-											"password" : password
-										])
-									} else {
-										shareMessage = OCLocalizedFormat("{{link}} | password: {{password}}", [
-											"link" : absoluteURLString,
-											"password" : password
-										])
-									}
-								} else {
-									// Message consists of Link only
-									shareMessage = absoluteURLString
-								}
-
-								if let shareMessage, let presentingViewController {
-									// Show Share Sheet
-									OnMainThread {
-										let shareViewController = UIActivityViewController(activityItems: [shareMessage], applicationActivities:nil)
-
-										if UIDevice.current.isIpad {
-											shareViewController.popoverPresentationController?.sourceView = self.bottomButtonBar?.selectButton ?? self.view
-										}
-
-										shareViewController.completionWithItemsHandler = { (_, _, _, _) in
-											// Completed
-											existingCompletionHandler?(share)
-										}
-
-										presentingViewController.present(shareViewController, animated: true, completion: nil)
-									}
-								} else {
-									// Completed
-									existingCompletionHandler?(share)
-								}
+				if type == .link {
+					Task { [weak self] in
+						guard let self else { return }
+						let publicBaseURL = await HCContext.shared.deviceReachabilityService.currentPublicBaseURL()
+						guard publicBaseURL != nil else {
+							await MainActor.run {
+								self.bottomButtonBar?.modalActionRunning = false
+								self.showSharingUnavailableAlert(message: HCL10n.Sharing.publicNotAvilableDescription)
 							}
-
-							if UIDevice.current.isIpad {
-								// On iPad, first show Share Sheet, then close ShareViewController
-								handleResultAndShowShareSheet(share)
-								return // Avoid calling self.complete(with:), called via existingCompletionHandler
-							} else {
-								// On iPhone, first close ShareViewController, then show Share Sheet
-								self.completionHandler = handleResultAndShowShareSheet
-							}
+							return
 						}
 
-						self.complete(with: share)
+						await MainActor.run {
+							self.createShare(newShare, core: core, andShare: andShare, presentingViewController: presentingViewController)
+						}
 					}
-				})
+					return
+				}
+
+				createShare(newShare, core: core, andShare: andShare, presentingViewController: presentingViewController)
 
 			case .edit:
 				switch type {
@@ -1126,6 +1074,111 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 			let alertController = ThemedAlertController(with: OCLocalizedString("An error occurred", nil), message: error.localizedDescription, okLabel: OCLocalizedString("OK", nil), action: nil)
 			self.present(alertController, animated: true)
 		}
+	}
+
+	private func presentShareSheet(for resolvedURL: URL, share: OCShare?, presentingViewController: UIViewController?) {
+		let existingCompletionHandler = UIDevice.current.isIpad ? { (share) in
+			// On iPad, first show Share Sheet, then close ShareViewController
+			self.complete(with: share)
+		} : self.completionHandler // On iPhone, first close ShareViewController, then show Share Sheet
+
+		let handleResultAndShowShareSheet: CompletionHandler = { (share) in
+			let absoluteURLString = resolvedURL.absoluteString
+			var shareMessage: String?
+
+			if let password = self.password {
+				// Message consists of Link + Password
+				if let displayName = self.location?.displayName(in: nil) {
+					shareMessage = OCLocalizedFormat("{{itemName}} ({{link}}) | password: {{password}}", [
+						"itemName" : displayName,
+						"link" : absoluteURLString,
+						"password" : password
+					])
+				} else {
+					shareMessage = OCLocalizedFormat("{{link}} | password: {{password}}", [
+						"link" : absoluteURLString,
+						"password" : password
+					])
+				}
+			} else {
+				// Message consists of Link only
+				shareMessage = absoluteURLString
+			}
+
+			if let shareMessage, let presentingViewController {
+				// Show Share Sheet
+				OnMainThread {
+					let shareViewController = UIActivityViewController(activityItems: [shareMessage], applicationActivities:nil)
+
+					if UIDevice.current.isIpad {
+						shareViewController.popoverPresentationController?.sourceView = self.bottomButtonBar?.selectButton ?? self.view
+					}
+
+					shareViewController.completionWithItemsHandler = { (_, _, _, _) in
+						// Completed
+						existingCompletionHandler?(share)
+					}
+
+					presentingViewController.present(shareViewController, animated: true, completion: nil)
+				}
+			} else {
+				// Completed
+				existingCompletionHandler?(share)
+			}
+		}
+
+		if UIDevice.current.isIpad {
+			// On iPad, first show Share Sheet, then close ShareViewController
+			handleResultAndShowShareSheet(share)
+			return // Avoid calling self.complete(with:), called via existingCompletionHandler
+		} else {
+			// On iPhone, first close ShareViewController, then show Share Sheet
+			self.completionHandler = handleResultAndShowShareSheet
+			self.complete(with: share)
+		}
+	}
+
+	private func createShare(
+		_ newShare: OCShare,
+		core: OCCore,
+		andShare: Bool,
+		presentingViewController: UIViewController?
+	) {
+		core.createShare(newShare, completionHandler: { [weak self] error, share in
+			guard let self else { return }
+			OnMainThread {
+				self.bottomButtonBar?.modalActionRunning = false
+			}
+
+			if let error {
+				self.showError(error)
+			} else {
+				if let url = share?.url, andShare {
+					RemoteAccessSharingURLResolver.resolveRemoteSharingURL(for: url) { [weak self] resolvedURL in
+						guard let self else { return }
+						guard let resolvedURL else {
+							self.showSharingUnavailableAlert(message: HCL10n.Sharing.publicNotAvilableDescription)
+							self.complete(with: share)
+							return
+						}
+						self.presentShareSheet(for: resolvedURL, share: share, presentingViewController: presentingViewController)
+					}
+					return
+				}
+
+				self.complete(with: share)
+			}
+		})
+	}
+
+	private func showSharingUnavailableAlert(message: String) {
+		let alert = ThemedAlertController(
+			title: HCL10n.Sharing.sharingNotPossible,
+			message: message,
+			preferredStyle: .alert
+		)
+		alert.addAction(UIAlertAction(title: HCL10n.Common.ok, style: .default, handler: nil))
+		self.present(alert, animated: true)
 	}
 
 	// MARK: - Completion
