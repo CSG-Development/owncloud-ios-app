@@ -88,7 +88,7 @@ class CollaborateAction: Action {
 			}
 
 			await deviceService.forceReloadDevices()
-			guard await deviceService.currentPublicBaseURL() != nil else {
+			guard await deviceService.currentRemoteBaseURL() != nil else {
 				await MainActor.run {
 					let alert = ThemedAlertController(
 						title: HCL10n.Sharing.sharingNotPossible,

@@ -981,8 +981,8 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 				if type == .link {
 					Task { [weak self] in
 						guard let self else { return }
-						let publicBaseURL = await HCContext.shared.deviceReachabilityService.currentPublicBaseURL()
-						guard publicBaseURL != nil else {
+						let remoteBaseURL = await HCContext.shared.deviceReachabilityService.currentRemoteBaseURL()
+						guard remoteBaseURL != nil else {
 							await MainActor.run {
 								self.bottomButtonBar?.modalActionRunning = false
 								self.showSharingUnavailableAlert(message: HCL10n.Sharing.publicNotAvilableDescription)

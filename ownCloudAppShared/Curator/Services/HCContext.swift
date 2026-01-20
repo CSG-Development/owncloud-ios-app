@@ -18,7 +18,7 @@ public final class HCContext {
 
 	// Hack to provide this info for related data sources.
 	// Use `RemoteAccessSharingURLResolver` directly if possible.
-	public var lastPublicBaseURL: URL?
+	public var lastRemoteBaseURL: URL?
 
 	public init() {
 		self.preferences = HCPreferences()
@@ -38,8 +38,8 @@ public final class HCContext {
 		)
 
 		Task {
-			await self.deviceReachabilityService.observePublicBaseURL { url in
-				self.lastPublicBaseURL = url
+			await self.deviceReachabilityService.observeRemoteBaseURL { url in
+				self.lastRemoteBaseURL = url
 			}
 		}
 	}
