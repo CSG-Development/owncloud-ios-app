@@ -2,8 +2,8 @@ import Foundation
 
 public enum RemoteAccessSharingURLResolver {
 	public static func resolveRemoteSharingURLSync(for url: URL?) -> URL? {
-		guard let url, let publicBaseURL = HCContext.shared.lastPublicBaseURL else { return nil }
-		return RemoteAccessSharingURLResolver.applyRemoteBase(publicBaseURL, to: url)
+		guard let url, let remoteBaseURL = HCContext.shared.lastRemoteBaseURL else { return nil }
+		return RemoteAccessSharingURLResolver.applyRemoteBase(remoteBaseURL, to: url)
 	}
 
 	public static func resolveRemoteSharingURL(
@@ -21,8 +21,8 @@ public enum RemoteAccessSharingURLResolver {
 	public static func resolveRemoteSharingURL(for url: URL) async -> URL? {
 		let deviceService = HCContext.shared.deviceReachabilityService
 
-		if let publicBaseURL = await deviceService.currentPublicBaseURL(),
-		   let adjusted = applyRemoteBase(publicBaseURL, to: url) {
+		if let remoteBaseURL = await deviceService.currentRemoteBaseURL(),
+		   let adjusted = applyRemoteBase(remoteBaseURL, to: url) {
 			return adjusted
 		}
 
@@ -38,10 +38,10 @@ public enum RemoteAccessSharingURLResolver {
 
 		await deviceService.forceReloadDevices()
 
-		guard let publicBaseURL = await deviceService.currentPublicBaseURL() else {
+		guard let remoteBaseURL = await deviceService.currentRemoteBaseURL() else {
 			return nil
 		}
-		return applyRemoteBase(publicBaseURL, to: url)
+		return applyRemoteBase(remoteBaseURL, to: url)
 	}
 
 	private static func applyRemoteBase(_ baseURL: URL, to url: URL) -> URL? {

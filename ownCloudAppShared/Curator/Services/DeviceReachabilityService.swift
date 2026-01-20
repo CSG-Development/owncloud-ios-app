@@ -93,7 +93,7 @@ public final actor DeviceReachabilityService {
     private var onReachabilityChange: (@MainActor (Bool) -> Void)?
 	private var onEmailValidationRequest: (@MainActor (String) -> Void)?
 	private var onReprobePrompt: (@MainActor (@escaping (Bool) -> Void) -> Void)?
-	private var onPublicBaseURLChange: (@MainActor (URL?) -> Void)?
+	private var onRemoteBaseURLChange: (@MainActor (URL?) -> Void)?
 	private var triggersCancellable: AnyCancellable?
 	private var reachabilityStatusCancellable: AnyCancellable?
 	private var loadTask: Task<[MergedDevice], Error>?
@@ -379,10 +379,10 @@ public final actor DeviceReachabilityService {
 			urlProvider.setBestURL(url, for: cn)
 			Task {
 				guard let cn = preferences.favoriteDeviceCN else {
-					await onPublicBaseURLChange?(nil)
+					await onRemoteBaseURLChange?(nil)
 					return
 				}
-				await onPublicBaseURLChange?(remoteBaseURL(forCertificateCommonName: cn))
+				await onRemoteBaseURLChange?(remoteBaseURL(forCertificateCommonName: cn))
 			}
 		}
 		Log.debug("[STX-RA]: Best RA URL: \(urlProvider.currentBaseURL()?.absoluteString ?? "")")
@@ -427,8 +427,8 @@ public final actor DeviceReachabilityService {
 		urlProvider.clearAll()
 	}
 
-	public func observePublicBaseURL(_ handler: (@MainActor (URL?) -> Void)?) {
-		self.onPublicBaseURLChange = handler
+	public func observeRemoteBaseURL(_ handler: (@MainActor (URL?) -> Void)?) {
+		self.onRemoteBaseURLChange = handler
 	}
 
 	// MARK: - Observing reprobe prompt requests (network errors from operations)
@@ -467,11 +467,6 @@ public final actor DeviceReachabilityService {
 		return remoteBaseURL(forCertificateCommonName: cn)
 	}
 
-	public func currentPublicBaseURL() -> URL? {
-		guard let cn = preferences.favoriteDeviceCN else { return nil }
-		return publicBaseURL(forCertificateCommonName: cn)
-	}
-
 	public func currentBestPath(for merged: MergedDevice) -> SelectedPath? {
 		// 1) Prefer reachable probes in existing priority order (pathProbes already ordered and includes mDNS last if local exists)
 		if let probe = merged.pathProbes.first(where: { $0.isReachable }) {
@@ -507,19 +502,6 @@ public final actor DeviceReachabilityService {
 		}
 
 		return nil
-	}
-
-	private func publicBaseURL(forCertificateCommonName cn: String) -> URL? {
-		guard let remote = remoteDevices.first(where: { $0.certificateCommonName == cn }) else {
-			return nil
-		}
-
-		let ordered = remote.paths.ordered()
-		guard let publicPath = ordered.first(where: { $0.kind == .public }) else {
-			return nil
-		}
-
-		return publicPath.apiBaseURL()
 	}
 
 	private func probeAll(_ devices: [RemoteDevice]) async throws -> [String: [String: PathProbe]] {
