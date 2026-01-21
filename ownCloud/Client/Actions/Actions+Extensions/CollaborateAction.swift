@@ -48,73 +48,16 @@ class CollaborateAction: Action {
 			return
 		}
 
-		Task {
-			let presentingViewController = viewController
-			let deviceService = HCContext.shared.deviceReachabilityService
-
-			let hasTokens = await HCContext.shared.remoteAccessService.hasValidTokens()
-			let isAuthenticated: Bool
-
-			if hasTokens {
-				isAuthenticated = true
-			} else if let email = HCContext.shared.preferences.favoriteEmail {
-				isAuthenticated = await withCheckedContinuation { continuation in
-					Task { @MainActor in
-						CodeVerificationService.shared.requestEmailVerification(
-							email: email,
-							reference: nil,
-							completion: { authenticated in
-								continuation.resume(returning: authenticated)
-							}
-						)
-					}
-				}
-			} else {
-				isAuthenticated = false
-			}
-
-			guard isAuthenticated else {
-				await MainActor.run {
-					let alert = ThemedAlertController(
-						title: HCL10n.Sharing.sharingNotPossible,
-						message: HCL10n.Sharing.raNotAvilableDescription,
-						preferredStyle: .alert
-					)
-					alert.addAction(UIAlertAction(title: HCL10n.Common.ok, style: .default, handler: nil))
-					presentingViewController.present(alert, animated: true)
-				}
-				self.completed(with: NSError(ocError: .insufficientParameters))
-				return
-			}
-
-			await deviceService.forceReloadDevices()
-			guard await deviceService.currentRemoteBaseURL() != nil else {
-				await MainActor.run {
-					let alert = ThemedAlertController(
-						title: HCL10n.Sharing.sharingNotPossible,
-						message: HCL10n.Sharing.publicNotAvilableDescription,
-						preferredStyle: .alert
-					)
-					alert.addAction(UIAlertAction(title: HCL10n.Common.ok, style: .default, handler: nil))
-					presentingViewController.present(alert, animated: true)
-				}
-				self.completed(with: NSError(ocError: .insufficientParameters))
-				return
-			}
-
-			await MainActor.run {
-				let sharingViewController = SharingViewController(clientContext: clientContext, item: item)
-				let navigationController = ThemeNavigationController(rootViewController: sharingViewController)
-				navigationController.sheetPresentationController?.preferredCornerRadius = 28
-				if UIDevice.current.isIpad {
-					navigationController.modalPresentationStyle = .pageSheet
-					navigationController.preferredContentSize = CGSize(width: 704, height: 944)
-				}
-				presentingViewController.present(navigationController, animated: true)
-			}
-
-			self.completed()
+		let sharingViewController = SharingViewController(clientContext: clientContext, item: item)
+		let navigationController = ThemeNavigationController(rootViewController: sharingViewController)
+		navigationController.sheetPresentationController?.preferredCornerRadius = 28
+		if UIDevice.current.isIpad {
+			navigationController.modalPresentationStyle = .pageSheet
+			navigationController.preferredContentSize = CGSize(width: 704, height: 944)
 		}
+		viewController.present(navigationController, animated: true)
+
+		self.completed()
 	}
 
 	override class func iconForLocation(_ location: OCExtensionLocationIdentifier) -> UIImage? {
