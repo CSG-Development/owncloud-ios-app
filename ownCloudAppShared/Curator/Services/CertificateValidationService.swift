@@ -20,7 +20,47 @@ public final class CertificateValidationService {
 		)
 	}
 
+	public func validatePinnedCertificate(
+		serverCertificate: OCCertificate,
+		host: String?,
+		validateHost: Bool
+	) -> Bool {
+		if HCConfig.disableCertificatePinning {
+			return true
+		}
+		guard let trustRef = serverCertificate.trustRef()?.takeUnretainedValue() else {
+			return false
+		}
+
+		return evaluate(
+			serverTrust: trustRef,
+			pinnedCertificates: anchors,
+			validateHost: validateHost,
+			host: host
+		)
+	}
+
 	public func evaluate(
+		serverTrust: SecTrust,
+		validateHost: Bool,
+		host: String?
+	) -> Bool {
+		if HCConfig.disableCertificatePinning {
+			return true
+		}
+		guard anchors.isEmpty == false else {
+			return false
+		}
+
+		return evaluate(
+			serverTrust: serverTrust,
+			pinnedCertificates: anchors,
+			validateHost: validateHost,
+			host: host
+		)
+	}
+
+	private func evaluate(
 		serverTrust: SecTrust,
 		pinnedCertificates: [Certificate],
 		validateHost: Bool,
@@ -56,40 +96,6 @@ public final class CertificateValidationService {
 		}
 
 		return false
-	}
-
-	public func validatePinnedCertificate(
-		serverCertificate: OCCertificate,
-		host: String?,
-		validateHost: Bool
-	) -> Bool {
-		guard let trustRef = serverCertificate.trustRef()?.takeUnretainedValue() else {
-			return false
-		}
-
-		return evaluate(
-			serverTrust: trustRef,
-			pinnedCertificates: anchors,
-			validateHost: validateHost,
-			host: host
-		)
-	}
-
-	public func evaluate(
-		serverTrust: SecTrust,
-		validateHost: Bool,
-		host: String?
-	) -> Bool {
-		guard anchors.isEmpty == false else {
-			return false
-		}
-
-		return evaluate(
-			serverTrust: serverTrust,
-			pinnedCertificates: anchors,
-			validateHost: validateHost,
-			host: host
-		)
 	}
 
 	private func systemTrustPasses(
