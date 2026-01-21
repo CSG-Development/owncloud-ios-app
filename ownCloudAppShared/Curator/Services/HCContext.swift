@@ -47,5 +47,25 @@ public final class HCContext {
 	public func setup() {
 		Task { OCConnection.defaultBaseURLProvider = await deviceReachabilityService.urlProvider }
 		deviceReachabilityService.start()
+		OCConnection.certificateValidationHandler = { _, request, certificate, _, proceedHandler in
+			let ok = CertificateValidationService.shared.validatePinnedCertificate(
+				serverCertificate: certificate,
+				host: request.hostname,
+				validateHost: false
+			)
+			if ok {
+				proceedHandler(true, nil)
+				return
+			}
+
+			// Not pinned: ask user whether to trust this server, and persist decision.
+			DeviceCertificateTrustPrompt.askToTrust(host: request.hostname, certificate: certificate) { accepted in
+				if accepted {
+					proceedHandler(true, nil)
+				} else {
+					proceedHandler(false, NSError(ocError: .requestServerCertificateRejected))
+				}
+			}
+		}
 	}
 }

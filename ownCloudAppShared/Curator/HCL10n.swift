@@ -1,6 +1,7 @@
 public enum HCL10n {
 	public enum Common {
-		public static let ok = "OK"		
+		public static let ok = "OK"
+		public static let cancel = "Cancel"
 	}
 
 	public enum Logo {
@@ -178,5 +179,11 @@ public enum HCL10n {
 		public static let sharingNotPossible = "Sharing not possible"
 		public static let raNotAvilableDescription = "Sharing is not possible because remote access is not available."
 		public static let publicNotAvilableDescription = "Sharing is not possible because the public link is unavailable."
+	}
+
+	public enum TrustPrompt {
+		public static let title = "Untrusted server"
+		public static let messageFormat = "Do you want to trust the server at %@?"
+		public static let trust = "Trust"
 	}
 }

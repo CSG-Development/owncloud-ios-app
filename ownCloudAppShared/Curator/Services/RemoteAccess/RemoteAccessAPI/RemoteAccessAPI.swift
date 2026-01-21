@@ -1,50 +1,6 @@
 import Foundation
 import Security
 
-private enum CertLoadError: Error { case notFound(String), badData(String) }
-
-private func loadBundleCert(named base: String) throws -> SecCertificate {
-	let exts = ["cer", "pem", "crt", "der"]
-	var lastErr: Error?
-
-	for ext in exts {
-		if let url = Bundle.sharedAppBundle.url(forResource: base, withExtension: ext) {
-			do {
-				let data = try Data(contentsOf: url)
-				let der = try normalizeToDER(data: data)
-				if let cert = SecCertificateCreateWithData(nil, der as CFData) {
-					return cert
-				} else {
-					throw CertLoadError.badData("\(base).\(ext) not a valid X.509")
-				}
-			} catch {
-				lastErr = error
-				continue
-			}
-		}
-	}
-	throw lastErr ?? CertLoadError.notFound("Could not find \(base).{cer|pem|crt|der} in bundle")
-}
-
-/// If data is PEM, decode to DER; if already DER, return as-is.
-private func normalizeToDER(data: Data) throws -> Data {
-	if let s = String(data: data, encoding: .utf8),
-	   s.contains("-----BEGIN CERTIFICATE-----") {
-		// PEM → DER
-		let lines = s
-			.replacingOccurrences(of: "\r", with: "")
-			.components(separatedBy: "\n")
-			.filter { !$0.hasPrefix("-----BEGIN") && !$0.hasPrefix("-----END") && !$0.isEmpty }
-		guard let der = Data(base64Encoded: lines.joined()) else {
-			throw CertLoadError.badData("PEM base64 decode failed")
-		}
-		return der
-	} else {
-		// Assume DER already
-		return data
-	}
-}
-
 public enum RemoteAccessAPIError: Error, Sendable {
 	case unauthorized(Unauthorized) // HTTP 401
 	case tooManyRequests(RAError?) // HTTP 429
@@ -109,26 +65,19 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 	private let baseURL: URL
 	private var urlSession: URLSession!
 	private let decoder = JSONDecoder()
-	private let pinnedRoot: SecCertificate?
+	private var pinnedRoots: [SecCertificate] = []
 	private let skipHostValidation: Bool
-	private let acceptAnyCertificate: Bool
 	public var accessToken: String?
 
 	public init(
 		baseURL: URL,
-		pinnedRootDer: Data? = nil,
 		skipHostValidation: Bool = false,
-		acceptAnyCertificate: Bool = false
 	) {
 		self.baseURL = baseURL
-		if let der = pinnedRootDer, let cert = SecCertificateCreateWithData(nil, der as CFData) {
-			self.pinnedRoot = cert
-		} else {
-			self.pinnedRoot = try? loadBundleCert(named: "fake-device-noveo")
-		}
 		self.skipHostValidation = skipHostValidation
-		self.acceptAnyCertificate = acceptAnyCertificate
 		super.init()
+
+		self.pinnedRoots = loadRAPins()
 
 		let cfg = URLSessionConfiguration.default
 		cfg.timeoutIntervalForRequest = 15
@@ -150,6 +99,29 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 			}
 
 			throw mapHTTPError(status: http.statusCode, body: data, headers: http.allHeaderFields)
+		}
+	}
+
+	private func loadBundleCert(named base: String) -> SecCertificate? {
+		guard let url = Bundle.sharedAppBundle.url(forResource: base, withExtension: nil) else {
+			return nil
+		}
+		do {
+			let data = try Data(contentsOf: url)
+			let der = try data.normalizeToDER()
+			if let cert = SecCertificateCreateWithData(nil, der as CFData) {
+				return cert
+			} else {
+				return nil
+			}
+		} catch {
+			return nil
+		}
+	}
+
+	private func loadRAPins() -> [SecCertificate] {
+		HCConfig.raPinnedCertificateFiles.compactMap {
+			loadBundleCert(named: $0)
 		}
 	}
 
@@ -266,7 +238,7 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 extension RemoteAccessAPI {
 	private func handleServerTrust(
 		_ challenge: URLAuthenticationChallenge,
-		anchorCA: SecCertificate,
+		anchors: [SecCertificate],
 		_ completion: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
 	) {
 		guard
@@ -278,7 +250,7 @@ extension RemoteAccessAPI {
 		}
 
 		SecTrustSetPolicies(trust, SecPolicyCreateSSL(false, nil))
-		SecTrustSetAnchorCertificates(trust, [anchorCA] as CFArray)
+		SecTrustSetAnchorCertificates(trust, anchors as CFArray)
 		SecTrustSetAnchorCertificatesOnly(trust, true)
 		SecTrustSetNetworkFetchAllowed(trust, false)
 
@@ -307,7 +279,7 @@ extension RemoteAccessAPI {
 		Log.debug("[STX-RA]: Session challenge: \(m) host: \(challenge.protectionSpace.host)")
 
 		if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
-			if HCConfig.disableCertificatePinning || acceptAnyCertificate {
+			if HCConfig.disableCertificatePinning {
 				if let trust = challenge.protectionSpace.serverTrust {
 					completionHandler(.useCredential, URLCredential(trust: trust))
 				} else {
@@ -315,12 +287,12 @@ extension RemoteAccessAPI {
 				}
 				return
 			}
-			guard let pinnedRoot else {
+			guard pinnedRoots.isEmpty == false else {
 				completionHandler(.performDefaultHandling, nil)
 				return
 			}
 
-			handleServerTrust(challenge, anchorCA: pinnedRoot, completionHandler)
+			handleServerTrust(challenge, anchors: pinnedRoots, completionHandler)
 		} else if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodClientCertificate {
 			handleClientCert(challenge, completionHandler)
 		} else {
@@ -337,7 +309,7 @@ extension RemoteAccessAPI {
 		Log.debug("[STX-RA]: Task challenge: \(m) host: \(challenge.protectionSpace.host)")
 
 		if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
-			if HCConfig.disableCertificatePinning || acceptAnyCertificate {
+			if HCConfig.disableCertificatePinning {
 				if let trust = challenge.protectionSpace.serverTrust {
 					completionHandler(.useCredential, URLCredential(trust: trust))
 				} else {
@@ -345,12 +317,12 @@ extension RemoteAccessAPI {
 				}
 				return
 			}
-			guard let pinnedRoot else {
+			guard pinnedRoots.isEmpty == false else {
 				completionHandler(.performDefaultHandling, nil)
 				return
 			}
 
-			handleServerTrust(challenge, anchorCA: pinnedRoot, completionHandler)
+			handleServerTrust(challenge, anchors: pinnedRoots, completionHandler)
 		} else if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodClientCertificate {
 			handleClientCert(challenge, completionHandler)
 		} else {
