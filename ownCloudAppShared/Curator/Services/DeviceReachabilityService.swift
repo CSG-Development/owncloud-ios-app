@@ -497,7 +497,7 @@ public final actor DeviceReachabilityService {
 		}
 
 		let ordered = remote.paths.ordered()
-		if let remotePath = ordered.first(where: { $0.kind == .remote }) ?? ordered.first(where: { $0.kind == .public }) {
+		if let remotePath = ordered.first(where: { $0.kind == .remote }) {
 			return remotePath.apiBaseURL()
 		}
 
