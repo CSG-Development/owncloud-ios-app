@@ -141,6 +141,8 @@
 		6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E5FC171221590B000F60846 /* DisplayHostViewController.swift */; };
 		6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E91F37D21ECA6FD009436D2 /* CopyAction.swift */; };
 		6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EA78B8E2179B55400A5216A /* ImageScrollView.swift */; };
+		9903EF382F20C9D10090C477 /* X509 in Frameworks */ = {isa = PBXBuildFile; productRef = 9903EF372F20C9D10090C477 /* X509 */; };
+		9903EF3A2F2110E90090C477 /* ca.crt in Resources */ = {isa = PBXBuildFile; fileRef = 9903EF392F2110E90090C477 /* ca.crt */; };
 		9905DFAD2EA5380D00FF70B7 /* RemoteAccessAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFAC2EA5380300FF70B7 /* RemoteAccessAPI.swift */; };
 		9905DFC12EA53EA400FF70B7 /* Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFC02EA53EA100FF70B7 /* Status.swift */; };
 		9905DFC32EA53EB500FF70B7 /* About.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9905DFC22EA53EB100FF70B7 /* About.swift */; };
@@ -216,6 +218,12 @@
 		99C42E222EB4FE7E00E36414 /* DeviceReachabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */; };
 		99CE0A5E2E49F31200380EB8 /* HCKeyboardTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */; };
 		99CE0A602E4A232200380EB8 /* HCSpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */; };
+		99CE73F52F1E7644001804EA /* CertificateValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE73F42F1E7644001804EA /* CertificateValidationService.swift */; };
+		99CE74052F1F7D84001804EA /* _.noveogroup.com.pem in Resources */ = {isa = PBXBuildFile; fileRef = 99CE74022F1F7D84001804EA /* _.noveogroup.com.pem */; };
+		99CE74062F1F7D84001804EA /* tdci.pem in Resources */ = {isa = PBXBuildFile; fileRef = 99CE74042F1F7D84001804EA /* tdci.pem */; };
+		99CE74072F1F7D84001804EA /* _.remote.lasea.fr.pem in Resources */ = {isa = PBXBuildFile; fileRef = 99CE74032F1F7D84001804EA /* _.remote.lasea.fr.pem */; };
+		99CE740D2F1F9DDF001804EA /* DeviceCertificateTrustPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE740C2F1F9DDF001804EA /* DeviceCertificateTrustPrompt.swift */; };
+		99CE74122F1FA370001804EA /* Data+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE74112F1FA363001804EA /* Data+Extensions.swift */; };
 		99DA8B692E0EB4B700D726DC /* HCNavigationLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */; };
 		99DA8B712E127B5D00D726DC /* telemetry.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99DA8B6F2E127B3500D726DC /* telemetry.xcframework */; };
 		99DA8B722E127B5D00D726DC /* telemetry.xcframework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 99DA8B6F2E127B3500D726DC /* telemetry.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1305,6 +1313,7 @@
 		6EB8EDBE2114358300C2BF44 /* folder-create.tvg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "folder-create.tvg"; path = "img/filetypes-tvg/folder-create.tvg"; sourceTree = SOURCE_ROOT; };
 		6ED1B80A21A4004900E16C95 /* CreateFolderAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFolderAction.swift; sourceTree = "<group>"; };
 		990131672E337AF800B9D138 /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
+		9903EF392F2110E90090C477 /* ca.crt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ca.crt; sourceTree = "<group>"; };
 		9905DFAC2EA5380300FF70B7 /* RemoteAccessAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessAPI.swift; sourceTree = "<group>"; };
 		9905DFC02EA53EA100FF70B7 /* Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Status.swift; sourceTree = "<group>"; };
 		9905DFC22EA53EB100FF70B7 /* About.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = About.swift; sourceTree = "<group>"; };
@@ -1377,6 +1386,12 @@
 		99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceReachabilityService.swift; sourceTree = "<group>"; };
 		99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCKeyboardTracker.swift; sourceTree = "<group>"; };
 		99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpinnerView.swift; sourceTree = "<group>"; };
+		99CE73F42F1E7644001804EA /* CertificateValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateValidationService.swift; sourceTree = "<group>"; };
+		99CE74022F1F7D84001804EA /* _.noveogroup.com.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = _.noveogroup.com.pem; sourceTree = "<group>"; };
+		99CE74032F1F7D84001804EA /* _.remote.lasea.fr.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = _.remote.lasea.fr.pem; sourceTree = "<group>"; };
+		99CE74042F1F7D84001804EA /* tdci.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = tdci.pem; sourceTree = "<group>"; };
+		99CE740C2F1F9DDF001804EA /* DeviceCertificateTrustPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCertificateTrustPrompt.swift; sourceTree = "<group>"; };
+		99CE74112F1FA363001804EA /* Data+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Extensions.swift"; sourceTree = "<group>"; };
 		99DA8B652E0EB4B100D726DC /* HCNavigationLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCNavigationLogoView.swift; sourceTree = "<group>"; };
 		99DA8B6F2E127B3500D726DC /* telemetry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = telemetry.xcframework; sourceTree = "<group>"; };
 		99DA8B732E12806F00D726DC /* TelemetryAnalyticsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryAnalyticsTracker.swift; sourceTree = "<group>"; };
@@ -1953,6 +1968,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9903EF382F20C9D10090C477 /* X509 in Frameworks */,
 				DC9B4FCA29413B480037F8F8 /* Down in Frameworks */,
 				998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */,
 				998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */,
@@ -2511,7 +2527,6 @@
 				9905DFC62EA53EDA00FF70B7 /* Models */,
 				9905DFAC2EA5380300FF70B7 /* RemoteAccessAPI.swift */,
 				99BBBBB12EA5400000FF70B7 /* TokenSecureStorage.swift */,
-				99C42DF52EA91F7F00E36414 /* fake-device-noveo.cer */,
 			);
 			path = RemoteAccessAPI;
 			sourceTree = "<group>";
@@ -2640,6 +2655,8 @@
 		99C42DD72EA666CD00E36414 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				99CE740C2F1F9DDF001804EA /* DeviceCertificateTrustPrompt.swift */,
+				99CE73F42F1E7644001804EA /* CertificateValidationService.swift */,
 				99E73EA82F167C0C00477600 /* Common */,
 				99E73EA02F1571A800477600 /* RemoteAccess */,
 				9908FE2F2EC4AE4F004A4137 /* HCContext.swift */,
@@ -2669,6 +2686,18 @@
 				99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */,
 			);
 			path = OldLoginViewController;
+			sourceTree = "<group>";
+		};
+		99CE74012F1F7D5F001804EA /* Certificates */ = {
+			isa = PBXGroup;
+			children = (
+				99CE74022F1F7D84001804EA /* _.noveogroup.com.pem */,
+				99CE74032F1F7D84001804EA /* _.remote.lasea.fr.pem */,
+				99CE74042F1F7D84001804EA /* tdci.pem */,
+				99C42DF52EA91F7F00E36414 /* fake-device-noveo.cer */,
+				9903EF392F2110E90090C477 /* ca.crt */,
+			);
+			path = Certificates;
 			sourceTree = "<group>";
 		};
 		99DA8B6B2E127B1E00D726DC /* Telemetry */ = {
@@ -2767,6 +2796,7 @@
 		99E73EA82F167C0C00477600 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				99CE74112F1FA363001804EA /* Data+Extensions.swift */,
 				99E73EA92F167C1300477600 /* AnySendableError.swift */,
 			);
 			path = Common;
@@ -2845,6 +2875,7 @@
 		99F472F12E095C1500104592 /* Curator */ = {
 			isa = PBXGroup;
 			children = (
+				99CE74012F1F7D5F001804EA /* Certificates */,
 				99E73E942F1186DD00477600 /* CrossDissolveTransition.swift */,
 				99C42DD72EA666CD00E36414 /* Services */,
 				99C42DD62EA666C000E36414 /* API */,
@@ -4582,6 +4613,7 @@
 				DC9B4FC929413B480037F8F8 /* Down */,
 				99F472FF2E095CD600104592 /* SnapKit */,
 				995611892E6B6E5100FA252D /* Reusable */,
+				9903EF372F20C9D10090C477 /* X509 */,
 			);
 			productName = ownCloudAppShared;
 			productReference = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */;
@@ -4839,6 +4871,7 @@
 				998CC82D2DF97A9700BDA4CB /* XCRemoteSwiftPackageReference "SnapKit" */,
 				995611882E6B6E5100FA252D /* XCRemoteSwiftPackageReference "Reusable" */,
 				99F175302E8BF9DA00FE7DEC /* XCRemoteSwiftPackageReference "Mantis" */,
+				9903EF362F20C9D10090C477 /* XCRemoteSwiftPackageReference "swift-certificates" */,
 			);
 			productRefGroup = 233BDE9D204FEFE500C06732 /* Products */;
 			projectDirPath = "";
@@ -4963,6 +4996,7 @@
 				DCE4E4A324C1FB750051722F /* icon-search.tvg in Resources */,
 				DCE4E48E24C1FB750051722F /* folder-external.tvg in Resources */,
 				DCE4E48924C1FB750051722F /* application-pdf.tvg in Resources */,
+				9903EF3A2F2110E90090C477 /* ca.crt in Resources */,
 				DCB330EB29F6864D00BFF393 /* Assets.xcassets in Resources */,
 				DCE4E48D24C1FB750051722F /* folder-drag-accept.tvg in Resources */,
 				DCE4E49E24C1FB750051722F /* text.tvg in Resources */,
@@ -4972,6 +5006,9 @@
 				DCE4E49A24C1FB750051722F /* status-flash.tvg in Resources */,
 				DCE4E4A024C1FB750051722F /* x-office-document.tvg in Resources */,
 				DC2A68D529D492B300BFF393 /* space.tvg in Resources */,
+				99CE74052F1F7D84001804EA /* _.noveogroup.com.pem in Resources */,
+				99CE74062F1F7D84001804EA /* tdci.pem in Resources */,
+				99CE74072F1F7D84001804EA /* _.remote.lasea.fr.pem in Resources */,
 				DCE4E49124C1FB750051722F /* folder-starred.tvg in Resources */,
 				DCE4E4A124C1FB750051722F /* x-office-presentation.tvg in Resources */,
 				DCE4E49924C1FB750051722F /* package-x-generic.tvg in Resources */,
@@ -5428,6 +5465,7 @@
 				DC298C9E2934D6D9009FA87F /* AccountAuthenticationUpdater.swift in Sources */,
 				9905DFD02EA53F8900FF70B7 /* RADevice.swift in Sources */,
 				DC2A8E6A2B57EA8F001F0522 /* AccountControllerSearchViewController.swift in Sources */,
+				99CE74122F1FA370001804EA /* Data+Extensions.swift in Sources */,
 				DC0A356D24C0E42200FB58FC /* PasscodeViewController.swift in Sources */,
 				DC24B2AB25BA316D005783E2 /* Branding+App.swift in Sources */,
 				991B36902E22CCB000369B7D /* HCFieldView.swift in Sources */,
@@ -5440,6 +5478,8 @@
 				DC0A357A24C0E43700FB58FC /* CardViewController.swift in Sources */,
 				DC46F3D1284546F000038880 /* OCItem+Interactions.swift in Sources */,
 				DCBAEAED29A627D900BFF393 /* DataSourceCondition.swift in Sources */,
+				99CE73F52F1E7644001804EA /* CertificateValidationService.swift in Sources */,
+				99CE740D2F1F9DDF001804EA /* DeviceCertificateTrustPrompt.swift in Sources */,
 				99B8B1DE2E7330F000535240 /* UIViewController+NavSeparator.swift in Sources */,
 				DC0A356B24C0E42200FB58FC /* AppLockManager.swift in Sources */,
 				DCFA9CAF2987E14B00004F24 /* BrowserNavigationBookmark.swift in Sources */,
@@ -7040,6 +7080,14 @@
 				version = 1.12.0;
 			};
 		};
+		9903EF362F20C9D10090C477 /* XCRemoteSwiftPackageReference "swift-certificates" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-certificates.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.17.1;
+			};
+		};
 		995611882E6B6E5100FA252D /* XCRemoteSwiftPackageReference "Reusable" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AliSoftware/Reusable";
@@ -7108,6 +7156,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 024F3A1F24A3AB410083E11E /* XCRemoteSwiftPackageReference "plcrashreporter" */;
 			productName = CrashReporter;
+		};
+		9903EF372F20C9D10090C477 /* X509 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9903EF362F20C9D10090C477 /* XCRemoteSwiftPackageReference "swift-certificates" */;
+			productName = X509;
 		};
 		995611892E6B6E5100FA252D /* Reusable */ = {
 			isa = XCSwiftPackageProductDependency;
