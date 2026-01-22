@@ -104,13 +104,15 @@ final public class CodeVerificationViewModel {
 				await MainActor.run {
 					Log.debug("[STX]: Code verification succeeded.")
 					eventHandler.handle(.verifyTap)
+					isLoading = false
 				}
 			} catch let error {
 				await MainActor.run {
 					Log.debug("[STX]: Code verification failed \(error)")
 					handleError(error)
+					isLoading = false
 				}
-			}			
+			}
 		}
 	}
 
@@ -135,6 +137,7 @@ final public class CodeVerificationViewModel {
 				switch e.kind {
 					case .codeExpired:
 						self.errors = [.codeExpired]
+						self.isExpired = true
 
 					case .codeInvalid:
 						self.errors = [.codeInvalid]
@@ -164,5 +167,6 @@ final public class CodeVerificationViewModel {
 
 	func resetErrors() {
 		errors = []
+		isExpired = false
 	}
 }
