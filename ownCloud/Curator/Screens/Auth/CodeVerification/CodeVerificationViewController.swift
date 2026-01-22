@@ -300,11 +300,11 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 				}
 				.store(in: &cancellables)
 
-        viewModel.$isExpired
+		viewModel.$isExpired.combineLatest(viewModel.$isLoading)
 			.receive(on: DispatchQueue.main)
-			.sink { [weak self] expired in
-				self?.validateButton.isHidden = expired || (self?.viewModel.isLoading ?? false)
-				self?.resendCodeButton.isHidden = !expired
+			.sink { [weak self] expired, isLoading in
+				self?.validateButton.isHidden = expired || isLoading
+				self?.resendCodeButton.isHidden = !expired || isLoading
 			}
 			.store(in: &cancellables)
 	}
@@ -317,6 +317,7 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 	@objc private func didTapResendCode() {
 		viewModel.didTapResendCode()
 		codeView.clearCode()
+		codeView.focus()
 	}
 
 	@objc private func didTapSkip() {
