@@ -205,6 +205,17 @@ public final actor DeviceReachabilityService {
 		if let onUpdate { Task { @MainActor in onUpdate(merged) } }
 	}
 
+	public nonisolated func restart() {
+		Task {
+			await self.mdnsService.stop()
+			await self.reachability.stop()
+			await self.uninstallReloadTriggers()
+			await self.mdnsService.start()
+			await self.reachability.start()
+			await self.installReloadTriggers()
+		}
+	}
+
 	public nonisolated func start() {
 		Task {
 			await self.mdnsService.start()
@@ -533,12 +544,12 @@ public final actor DeviceReachabilityService {
 					var status: Status?
 					var about: About?
 
-					do { status = try await self.withTimeout(30) { try await api.getStatus() } } catch {
+					do { status = try await self.withTimeout(5) { try await api.getStatus() } } catch {
 #if DEBUG
 						Log.debug("[STX-RA]: Failed to get status. URL: \(item.url). Error \(error)")
 #endif
 					}
-					do { about  = try await self.withTimeout(30) { try await api.getAbout() } } catch {
+					do { about  = try await self.withTimeout(5) { try await api.getAbout() } } catch {
 #if DEBUG
 						Log.debug("[STX-RA]: Failed to get about. URL: \(item.url). Error \(error)")
 #endif
@@ -562,7 +573,6 @@ public final actor DeviceReachabilityService {
 					map[k] = v
 					if v.isReachable && !foundReachable {
 						foundReachable = true
-						group.cancelAll() // Short-circuit: we have a reachable path; stop probing slower ones
 					}
 				}
 			}
