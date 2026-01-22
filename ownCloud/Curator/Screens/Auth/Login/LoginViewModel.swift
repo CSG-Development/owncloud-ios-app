@@ -472,7 +472,8 @@ final public class LoginViewModel {
 		   let newIdx = merged.firstIndex(where: { $0.certificateCommonName == cn }) {
 			await MainActor.run { self.selectedDeviceIndex = newIdx }
 		}
-
+		// Ensure we have all probes before picking the login URL.
+		await deviceReachabilityService.reprobeExistingPaths()
 		guard
 			let bestPath = await deviceReachabilityService.currentBestPath(for: selectedDevice),
 			let deviceURL = bestPath.url
@@ -484,7 +485,7 @@ final public class LoginViewModel {
 			return
 		}
 		let owncloudServerURL = deviceURL.appendingPathComponent("files")
-
+		Log.debug("[STX]: Login best path: \(owncloudServerURL)")
 		let api = DeviceAPI(deviceBaseURL: deviceURL)
 		let about = try? await api.getAbout()
 		if let about, (about.os_state?.lowercased() ?? "normal") != "normal" {

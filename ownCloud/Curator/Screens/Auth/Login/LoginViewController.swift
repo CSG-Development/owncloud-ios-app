@@ -207,6 +207,8 @@ final public class LoginViewController: UIViewController, Themeable {
 		passwordTextField.textField.text = viewModel.password
 
 		Theme.shared.register(client: self, applyImmediately: true)
+		HCContext.shared.deviceReachabilityService.stop()
+		HCContext.shared.deviceReachabilityService.start()
 	}
 
 	public override func viewWillAppear(_ animated: Bool) {
