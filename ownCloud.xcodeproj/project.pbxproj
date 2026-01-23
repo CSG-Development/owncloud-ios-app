@@ -201,8 +201,8 @@
 		99C42DD92EA6670600E36414 /* HCCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DD82EA6670200E36414 /* HCCardView.swift */; };
 		99C42DDB2EA667FE00E36414 /* HCOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DDA2EA667F800E36414 /* HCOverlayView.swift */; };
 		99C42DDF2EA6692E00E36414 /* HCDropdownTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DDD2EA668AA00E36414 /* HCDropdownTextFieldView.swift */; };
-		99C42DF32EA8CCB200E36414 /* CodeVerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DD22EA65E0000E36414 /* CodeVerificationViewController.swift */; };
-		99C42DF42EA8CCB200E36414 /* CodeVerificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DD42EA65E4700E36414 /* CodeVerificationViewModel.swift */; };
+		99C42DF32EA8CCB200E36414 /* CodeVerificationCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DD22EA65E0000E36414 /* CodeVerificationCardViewController.swift */; };
+		99C42DF42EA8CCB200E36414 /* CodeVerificationCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DD42EA65E4700E36414 /* CodeVerificationCardViewModel.swift */; };
 		99C42DF62EA91F7F00E36414 /* fake-device-noveo.cer in Resources */ = {isa = PBXBuildFile; fileRef = 99C42DF52EA91F7F00E36414 /* fake-device-noveo.cer */; };
 		99C42DF82EA9423B00E36414 /* RemoteAccessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */; };
 		99C42DFC2EAA5C7400E36414 /* RemoteAccessTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */; };
@@ -248,6 +248,11 @@
 		99E73EAA2F167C1E00477600 /* AnySendableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73EA92F167C1300477600 /* AnySendableError.swift */; };
 		99E73EAE2F16A62700477600 /* RemoteDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73EAD2F16A62300477600 /* RemoteDevice.swift */; };
 		99E73EB32F18FE0400477600 /* RemoteAccessSharingURLResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E73EB22F18FE0400477600 /* RemoteAccessSharingURLResolver.swift */; };
+		99E7B9742F2370D900B0EC27 /* CodeVerification500CardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E7B9712F2370D900B0EC27 /* CodeVerification500CardViewController.swift */; };
+		99E7B9782F23872400B0EC27 /* CodeVerificationUnknownEmailCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E7B9772F23871A00B0EC27 /* CodeVerificationUnknownEmailCardViewController.swift */; };
+		99E7B97A2F23987A00B0EC27 /* CodeVerificationContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E7B9792F23986E00B0EC27 /* CodeVerificationContainerViewController.swift */; };
+		99E7B97C2F2399CB00B0EC27 /* ContainerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E7B97B2F2399CB00B0EC27 /* ContainerController.swift */; };
+		99E7B9832F23D6E700B0EC27 /* CodeVerificationLoaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E7B97F2F23D6D900B0EC27 /* CodeVerificationLoaderViewController.swift */; };
 		99E83DAF2F0BDB3F00B58F59 /* ownCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */; };
 		99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F175312E8C001500FE7DEC /* ImageCropAction.swift */; };
 		99F175342E8C063E00FE7DEC /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = 99F175332E8C063E00FE7DEC /* Mantis */; };
@@ -1366,8 +1371,8 @@
 		99BBBBB12EA5400000FF70B7 /* TokenSecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSecureStorage.swift; sourceTree = "<group>"; };
 		99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCErrorView.swift; sourceTree = "<group>"; };
 		99BD2B872E93C62C00DFBDF0 /* ItemLayoutPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemLayoutPreference.swift; sourceTree = "<group>"; };
-		99C42DD22EA65E0000E36414 /* CodeVerificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationViewController.swift; sourceTree = "<group>"; };
-		99C42DD42EA65E4700E36414 /* CodeVerificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationViewModel.swift; sourceTree = "<group>"; };
+		99C42DD22EA65E0000E36414 /* CodeVerificationCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationCardViewController.swift; sourceTree = "<group>"; };
+		99C42DD42EA65E4700E36414 /* CodeVerificationCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationCardViewModel.swift; sourceTree = "<group>"; };
 		99C42DD82EA6670200E36414 /* HCCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCCardView.swift; sourceTree = "<group>"; };
 		99C42DDA2EA667F800E36414 /* HCOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCOverlayView.swift; sourceTree = "<group>"; };
 		99C42DDD2EA668AA00E36414 /* HCDropdownTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCDropdownTextFieldView.swift; sourceTree = "<group>"; };
@@ -1415,6 +1420,11 @@
 		99E73EA92F167C1300477600 /* AnySendableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnySendableError.swift; sourceTree = "<group>"; };
 		99E73EAD2F16A62300477600 /* RemoteDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDevice.swift; sourceTree = "<group>"; };
 		99E73EB22F18FE0400477600 /* RemoteAccessSharingURLResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessSharingURLResolver.swift; sourceTree = "<group>"; };
+		99E7B9712F2370D900B0EC27 /* CodeVerification500CardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerification500CardViewController.swift; sourceTree = "<group>"; };
+		99E7B9772F23871A00B0EC27 /* CodeVerificationUnknownEmailCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationUnknownEmailCardViewController.swift; sourceTree = "<group>"; };
+		99E7B9792F23986E00B0EC27 /* CodeVerificationContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationContainerViewController.swift; sourceTree = "<group>"; };
+		99E7B97B2F2399CB00B0EC27 /* ContainerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerController.swift; sourceTree = "<group>"; };
+		99E7B97F2F23D6D900B0EC27 /* CodeVerificationLoaderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationLoaderViewController.swift; sourceTree = "<group>"; };
 		99F175312E8C001500FE7DEC /* ImageCropAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropAction.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
@@ -2626,11 +2636,10 @@
 		99C42DCD2EA65DC800E36414 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
-				99E73E962F11878B00477600 /* CodeVerificationService.swift */,
 				99E73E8A2F11233100477600 /* Errors */,
 				99C42E052EAFC22600E36414 /* OldLoginViewController */,
-				99C42DD12EA65DDA00E36414 /* CodeVerification */,
 				99DF68682E1E672000F1A0B9 /* Login */,
+				99C42DD12EA65DDA00E36414 /* CodeVerification */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -2638,8 +2647,13 @@
 		99C42DD12EA65DDA00E36414 /* CodeVerification */ = {
 			isa = PBXGroup;
 			children = (
-				99C42DD22EA65E0000E36414 /* CodeVerificationViewController.swift */,
-				99C42DD42EA65E4700E36414 /* CodeVerificationViewModel.swift */,
+				99E7B97F2F23D6D900B0EC27 /* CodeVerificationLoaderViewController.swift */,
+				99E7B9792F23986E00B0EC27 /* CodeVerificationContainerViewController.swift */,
+				99C42DD22EA65E0000E36414 /* CodeVerificationCardViewController.swift */,
+				99C42DD42EA65E4700E36414 /* CodeVerificationCardViewModel.swift */,
+				99E7B9772F23871A00B0EC27 /* CodeVerificationUnknownEmailCardViewController.swift */,
+				99E7B9712F2370D900B0EC27 /* CodeVerification500CardViewController.swift */,
+				99E73E962F11878B00477600 /* CodeVerificationService.swift */,
 			);
 			path = CodeVerification;
 			sourceTree = "<group>";
@@ -2848,6 +2862,7 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				99E7B97B2F2399CB00B0EC27 /* ContainerController.swift */,
 				99C42E172EB3890C00E36414 /* HCCodeView.swift */,
 				99C42DDA2EA667F800E36414 /* HCOverlayView.swift */,
 				99C42DD82EA6670200E36414 /* HCCardView.swift */,
@@ -5198,6 +5213,7 @@
 				DC82D6FA23171339001551C5 /* ScanAction.swift in Sources */,
 				DCC3700724D466D2008B0DEB /* DiagnosticManager.swift in Sources */,
 				23EC775D2137FB6B0032D4E6 /* WebViewDisplayViewController.swift in Sources */,
+				99E7B9832F23D6E700B0EC27 /* CodeVerificationLoaderViewController.swift in Sources */,
 				4C464BF12187AF1500D30602 /* PDFTocTableViewCell.swift in Sources */,
 				DCE4E43E24C19C3E0051722F /* Action+UserInterface.swift in Sources */,
 				DC2323DE2AA7B6BB00BFF393 /* BookmarkComposerConfiguration.swift in Sources */,
@@ -5266,6 +5282,7 @@
 				DC6CC3152642C3560040ECAC /* ExternalBrowserBusyHandler.swift in Sources */,
 				232F7CAF2097260400EE22E4 /* SettingsViewController.swift in Sources */,
 				DCA35D3F24CEDA5200DBE2B0 /* DiagnosticViewController.swift in Sources */,
+				99E7B9782F23872400B0EC27 /* CodeVerificationUnknownEmailCardViewController.swift in Sources */,
 				4C464BF32187AF1500D30602 /* PDFOutlineViewController.swift in Sources */,
 				233BDEA0204FEFE500C06732 /* AppDelegate.swift in Sources */,
 				4C51727E22DE04BD001BC97F /* BackgroundFetchUpdateTaskAction.swift in Sources */,
@@ -5274,11 +5291,13 @@
 				DCB6B1FB292CD76200D27573 /* OCBookmarkManager+Management.swift in Sources */,
 				23957A6D209AFFE8003C8537 /* MoreSettingsSection.swift in Sources */,
 				4C464BEF2187AF1500D30602 /* PDFThumbnailCollectionViewCell.swift in Sources */,
+				99E7B9742F2370D900B0EC27 /* CodeVerification500CardViewController.swift in Sources */,
 				4C96463C238489E4003278B7 /* MediaUploadActivity.swift in Sources */,
 				02633EFF2483D2EB00B5F58F /* UNUserNotificationCenter+Extensions.swift in Sources */,
 				6E91F37E21ECA6FD009436D2 /* CopyAction.swift in Sources */,
 				4CC4A21922FB4F4C00AE7E2C /* MediaUploadQueue.swift in Sources */,
 				DC2EB4352D6E303C00100A67 /* EditSpaceDescriptionAction.swift in Sources */,
+				99E7B97A2F23987A00B0EC27 /* CodeVerificationContainerViewController.swift in Sources */,
 				4CC46D212284C677009E938F /* BookmarkInfoViewController.swift in Sources */,
 				DCB6B1F5292CC46B00D27573 /* AccountController+ItemActions.swift in Sources */,
 				6E5FC172221590B000F60846 /* DisplayHostViewController.swift in Sources */,
@@ -5318,9 +5337,9 @@
 				025FC73A247BF8BE009307A7 /* PHAsset+InstantUploads.swift in Sources */,
 				399DD7C722A691BC00B45EB2 /* UnshareAction.swift in Sources */,
 				DC9CE3D62D10814400979C44 /* DisableSpaceAction.swift in Sources */,
-				99C42DF32EA8CCB200E36414 /* CodeVerificationViewController.swift in Sources */,
+				99C42DF32EA8CCB200E36414 /* CodeVerificationCardViewController.swift in Sources */,
 				99C42E0D2EAFC88B00E36414 /* OldFirstRunCoordinator.swift in Sources */,
-				99C42DF42EA8CCB200E36414 /* CodeVerificationViewModel.swift in Sources */,
+				99C42DF42EA8CCB200E36414 /* CodeVerificationCardViewModel.swift in Sources */,
 				397754F82327A33500119FCB /* OpenSceneAction.swift in Sources */,
 				4CAF783C2282FD40000C85CF /* FileManager+Extension.swift in Sources */,
 				99139B7E2E438C0E0044889B /* OnboardingPage.swift in Sources */,
@@ -5673,6 +5692,7 @@
 				DCB6B20F292F843800D27573 /* CollectionViewAction.swift in Sources */,
 				DC0A357524C0E43200FB58FC /* ProgressView.swift in Sources */,
 				DC62F57429268D710095BB5D /* ClientWebAppViewController.swift in Sources */,
+				99E7B97C2F2399CB00B0EC27 /* ContainerController.swift in Sources */,
 				DC24E10B28B7C185002E4F5B /* SingleFolderSearchScope.swift in Sources */,
 				99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */,
 				99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */,

@@ -205,17 +205,6 @@ public final actor DeviceReachabilityService {
 		if let onUpdate { Task { @MainActor in onUpdate(merged) } }
 	}
 
-	public nonisolated func restart() {
-		Task {
-			await self.mdnsService.stop()
-			await self.reachability.stop()
-			await self.uninstallReloadTriggers()
-			await self.mdnsService.start()
-			await self.reachability.start()
-			await self.installReloadTriggers()
-		}
-	}
-
 	public nonisolated func start() {
 		Task {
 			await self.mdnsService.start()

@@ -34,7 +34,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		HCContext.shared.emailVerificationHandler = { email, completion in
 			CodeVerificationService.shared.requestEmailVerification(
 				email: email,
-				reference: nil,
 				completion: completion
 			)
 		}

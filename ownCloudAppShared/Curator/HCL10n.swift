@@ -168,10 +168,21 @@ public enum HCL10n {
 			public static let skipButtonTitle = "Skip"
 
 			public static let invalidCodeError = "Incorrect code."
-			public static let codeExpiredError = "Your code has expired."
-			public static let emailNotRegisteredError = "Not allowed. Contact the device owner."
+			public static let codeExpiredError = "Your code has expired."			
 			public static let tooManyRequestsError = "Too many requests."
 			public static let connectionError = "Connection error. Unable to reach the server."
+		}
+
+		public enum Code500 {
+			public static let title = "Unable to connect"
+			public static let description = "Could not reach your Personal Cloud."
+			public static let cancelButtonTitle = "Cancel"
+			public static let retryButtonTitle = "Retry"
+		}
+		public enum CodeUnknownEmail {
+			public static let title = "Email not registered"
+			public static let description = "This email isn’t authorized to access this device. Please contact the owner."
+			public static let cancelButtonTitle = "OK"
 		}
 	}
 
