@@ -42,6 +42,21 @@ public final class MDNSService {
 
 		browser.stateUpdateHandler = { state in
 			Log.debug("[STX-MDNS]: Browser state: \"\(state)\"")
+
+			switch state {
+				case .failed(let error):
+					if error == NWError.dns(DNSServiceErrorType(kDNSServiceErr_DefunctConnection)) {
+						browser.cancel()
+						Log.debug("[STX-MDNS]: Browser state DefunctConnection. Restarting browser")
+						self.start()
+					} else {
+						Log.debug("[STX-MDNS]: Browser failed with error \(error). Stopping.")
+						browser.cancel()
+					}
+
+				default:
+					break
+			}
 		}
 
 		browser.browseResultsChangedHandler = { results, changes in
