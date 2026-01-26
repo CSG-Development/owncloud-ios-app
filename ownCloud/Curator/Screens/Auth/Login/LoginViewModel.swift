@@ -391,7 +391,6 @@ final public class LoginViewModel {
 			await MainActor.run {
 				CodeVerificationService.shared.requestEmailVerification(
 					email: self.email,
-					reference: nil,
 					completion: { [weak self] isAuthenticated in
 						guard isAuthenticated else { return }
 						self?.refreshDevices()

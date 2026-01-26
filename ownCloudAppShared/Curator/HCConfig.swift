@@ -11,7 +11,7 @@ public enum HCConfig {
 	]
 	public static let devicePinnedCertificateFiles: [String] = [
 		"_.remote.lasea.fr.pem",
-		"tdci.pem",		
+		"tdci.pem",
 		"_.noveogroup.com.pem",
 		"ca.crt"
 	]
