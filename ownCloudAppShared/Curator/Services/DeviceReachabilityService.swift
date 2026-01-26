@@ -93,6 +93,7 @@ public final actor DeviceReachabilityService {
     private var onReachabilityChange: (@MainActor (Bool) -> Void)?
 	private var onEmailValidationRequest: (@MainActor (String) -> Void)?
 	private var onReprobePrompt: (@MainActor (@escaping (Bool) -> Void) -> Void)?
+	private var onRemoteBaseURLChange: (@MainActor (URL?) -> Void)?
 	private var triggersCancellable: AnyCancellable?
 	private var reachabilityStatusCancellable: AnyCancellable?
 	private var loadTask: Task<[MergedDevice], Error>?
@@ -376,6 +377,13 @@ public final actor DeviceReachabilityService {
 			else { continue }
 
 			urlProvider.setBestURL(url, for: cn)
+			Task {
+				guard let cn = preferences.favoriteDeviceCN else {
+					await onRemoteBaseURLChange?(nil)
+					return
+				}
+				await onRemoteBaseURLChange?(remoteBaseURL(forCertificateCommonName: cn))
+			}
 		}
 		Log.debug("[STX-RA]: Best RA URL: \(urlProvider.currentBaseURL()?.absoluteString ?? "")")
 	}
@@ -419,6 +427,10 @@ public final actor DeviceReachabilityService {
 		urlProvider.clearAll()
 	}
 
+	public func observeRemoteBaseURL(_ handler: (@MainActor (URL?) -> Void)?) {
+		self.onRemoteBaseURLChange = handler
+	}
+
 	// MARK: - Observing reprobe prompt requests (network errors from operations)
 	public func observeReprobePrompt(_ handler: @escaping @MainActor (@escaping (Bool) -> Void) -> Void) {
 		self.onReprobePrompt = handler
@@ -450,6 +462,11 @@ public final actor DeviceReachabilityService {
 		return nil
 	}
 
+	public func currentRemoteBaseURL() -> URL? {
+		guard let cn = preferences.favoriteDeviceCN else { return nil }
+		return remoteBaseURL(forCertificateCommonName: cn)
+	}
+
 	public func currentBestPath(for merged: MergedDevice) -> SelectedPath? {
 		// 1) Prefer reachable probes in existing priority order (pathProbes already ordered and includes mDNS last if local exists)
 		if let probe = merged.pathProbes.first(where: { $0.isReachable }) {
@@ -469,6 +486,19 @@ public final actor DeviceReachabilityService {
 		// 3) Fallback: local mDNS if available
 		if let local = merged.localDevice {
 			return .mdns(host: local.host, port: local.port)
+		}
+
+		return nil
+	}
+
+	private func remoteBaseURL(forCertificateCommonName cn: String) -> URL? {
+		guard let remote = remoteDevices.first(where: { $0.certificateCommonName == cn }) else {
+			return nil
+		}
+
+		let ordered = remote.paths.ordered()
+		if let remotePath = ordered.first(where: { $0.kind == .remote }) {
+			return remotePath.apiBaseURL()
 		}
 
 		return nil
@@ -503,12 +533,12 @@ public final actor DeviceReachabilityService {
 					var status: Status?
 					var about: About?
 
-					do { status = try await self.withTimeout(30) { try await api.getStatus() } } catch {
+					do { status = try await self.withTimeout(5) { try await api.getStatus() } } catch {
 #if DEBUG
 						Log.debug("[STX-RA]: Failed to get status. URL: \(item.url). Error \(error)")
 #endif
 					}
-					do { about  = try await self.withTimeout(30) { try await api.getAbout() } } catch {
+					do { about  = try await self.withTimeout(5) { try await api.getAbout() } } catch {
 #if DEBUG
 						Log.debug("[STX-RA]: Failed to get about. URL: \(item.url). Error \(error)")
 #endif
@@ -532,7 +562,6 @@ public final actor DeviceReachabilityService {
 					map[k] = v
 					if v.isReachable && !foundReachable {
 						foundReachable = true
-						group.cancelAll() // Short-circuit: we have a reachable path; stop probing slower ones
 					}
 				}
 			}

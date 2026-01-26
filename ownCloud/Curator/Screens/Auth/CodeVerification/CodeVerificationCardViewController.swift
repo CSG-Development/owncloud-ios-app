@@ -3,8 +3,8 @@ import UIKit
 import SnapKit
 import ownCloudAppShared
 
-final public class CodeVerificationViewController: UIViewController, Themeable {
-    private let viewModel: CodeVerificationViewModel
+final public class CodeVerificationCardViewController: UIViewController, Themeable {
+    private let viewModel: CodeVerificationCardViewModel
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -44,11 +44,6 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 		let scrollView = UIScrollView()
 		scrollView.contentInsetAdjustmentBehavior = .never
 		return scrollView
-	}()
-
-	private lazy var overlay: HCOverlayView = {
-		let overlayView = HCOverlayView()
-		return overlayView
 	}()
 
 	private lazy var cardView: HCCardView = {
@@ -91,9 +86,7 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 
 	private var codeView: HCCodeView!
 
-	private var containerStackView: UIStackView!
-
-	init(viewModel: CodeVerificationViewModel) {
+	init(viewModel: CodeVerificationCardViewModel) {
 		self.viewModel = viewModel
 
 		super.init(nibName: nil, bundle: nil)
@@ -123,45 +116,10 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 
 	private func setupUI() {
 		view.backgroundColor = .clear
+		view.translatesAutoresizingMaskIntoConstraints = false
 
-		view.addSubview(overlay)
-		overlay.snp.makeConstraints { $0.edges.equalToSuperview() }
-
-		let containerStackView = UIStackView()
-		containerStackView.axis = .vertical
-		containerStackView.spacing = 0
-		containerStackView.isLayoutMarginsRelativeArrangement = true
-		containerStackView.layoutMargins = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
-		containerStackView.alignment = .center
-		view.addSubview(containerStackView)
-		self.containerStackView = containerStackView
-		let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapOverlay))
-		tapRecognizer.delegate = self
-		containerStackView.addGestureRecognizer(tapRecognizer)
-		containerStackView.snp.makeConstraints {
-			$0.top.equalTo(view.safeAreaLayoutGuide)
-			$0.leading.trailing.equalToSuperview()
-			$0.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
-		}
-
-		let topSpacer = HCSpacerView(nil, .vertical)
-		let bottomSpacer = HCSpacerView(nil, .vertical)
-
-		containerStackView.addArrangedSubviews([
-			topSpacer,
-			cardView,
-			bottomSpacer
-		])
-
-		topSpacer.snp.makeConstraints { make in
-			make.height.equalTo(bottomSpacer.snp.height)
-		}
-
-		cardView.snp.makeConstraints {
-			$0.leading.greaterThanOrEqualTo(view.safeAreaLayoutGuide).offset(24)
-			$0.trailing.lessThanOrEqualTo(view.safeAreaLayoutGuide).offset(-24)
-			$0.width.lessThanOrEqualTo(UIDevice.current.isIpad ? 480 : 350)
-		}
+		view.addSubview(cardView)
+		cardView.snp.makeConstraints { $0.edges.equalToSuperview() }
 
 		cardView.addSubview(scrollView)
 		scrollView.snp.makeConstraints { $0.edges.equalToSuperview() }
@@ -210,8 +168,6 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 		let errorLabelContainer = UIStackView(arrangedSubviews: [
 			HCSpacerView(16, .horizontal), errorLabel, HCSpacerView(nil, .horizontal)
 		])
-		buttonsContainer.axis = .horizontal
-		buttonsContainer.spacing = 0
 
 		let codeView = HCCodeView(codeLength: viewModel.codeLength)
 		self.codeView = codeView
@@ -219,21 +175,9 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 			self.viewModel.code = code
 		}
 
-		let preservedErrors: [CodeVerificationViewModel.CodeVerificationError] = [
-			.tooManyRequests,
-			.connectionFailed,
-			.emailNotRegistered
-		]
-
-		codeView.onFocus = {
-			let shouldPreserveSendErrors = self.viewModel.errors.contains {
-				preservedErrors.contains($0)
-			}
-
-			if !shouldPreserveSendErrors {
-				self.viewModel.resetErrors()
-			}
-			self.scrollToCodeView()
+		codeView.onFocus = { [weak self] in
+			self?.viewModel.onCodeFocus()
+			self?.scrollToCodeView()
 		}
 
 		cardContent.addArrangedSubviews([
@@ -255,56 +199,35 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 			.assign(to: \UIButton.isEnabled, on: validateButton)
 			.store(in: &cancellables)
 
-		viewModel.$errors
+		viewModel.$isValidateHidden
 			.receive(on: DispatchQueue.main)
-			.sink { [weak self] errors in
-				guard let self else { return }
-				self.errorLabel.isHidden = true
-				self.errorLabel.text = nil
-				var shouldHighlightError = false
-				for e in errors {
-					if case .codeInvalid = e {
-						self.errorLabel.text = HCL10n.Auth.CodeVerification.invalidCodeError
-						shouldHighlightError = true
-					}
-					if case .codeExpired = e {
-						self.errorLabel.text = HCL10n.Auth.CodeVerification.codeExpiredError
-						shouldHighlightError = true
-					}
-					if case .emailNotRegistered = e {
-						self.errorLabel.text = HCL10n.Auth.CodeVerification.emailNotRegisteredError
-					}
-					if case .tooManyRequests = e {
-						self.errorLabel.text = HCL10n.Auth.CodeVerification.tooManyRequestsError
-					}
-					if case .connectionFailed = e {
-						self.errorLabel.text = HCL10n.Auth.CodeVerification.connectionError
-					}
-				}
-				let isCodeExpired = errors.contains(where: {
-					$0 == .codeExpired
-				})
-				self.errorLabel.isHidden = (self.errorLabel.text?.isEmpty ?? true)
-				self.codeView.isError = shouldHighlightError
+			.assign(to: \UIButton.isHidden, on: validateButton)
+			.store(in: &cancellables)
 
-				self.resendCodeButton.isHidden = !isCodeExpired
-				self.validateButton.isHidden = isCodeExpired
+		viewModel.$isResendHidden
+			.receive(on: DispatchQueue.main)
+			.assign(to: \UIButton.isHidden, on: resendCodeButton)
+			.store(in: &cancellables)
+
+		viewModel.$errorMessage
+			.receive(on: DispatchQueue.main)
+			.sink { [weak self] message in
+				self?.errorLabel.isHidden = message == nil
+				self?.errorLabel.text = message
 			}
 			.store(in: &cancellables)
 
-			viewModel.$isLoading
-				.receive(on: DispatchQueue.main)
-				.sink { [weak self] isLoading in
-					self?.spinner.isHidden = !isLoading
-					self?.validateButton.isHidden = isLoading || (self?.viewModel.isExpired ?? false)
-				}
-				.store(in: &cancellables)
-
-        viewModel.$isExpired
+		viewModel.$shouldHighlightError
 			.receive(on: DispatchQueue.main)
-			.sink { [weak self] expired in
-				self?.validateButton.isHidden = expired || (self?.viewModel.isLoading ?? false)
-				self?.resendCodeButton.isHidden = !expired
+			.sink { [weak self] shouldHighlightError in
+				self?.codeView.isError = shouldHighlightError
+			}
+			.store(in: &cancellables)
+
+		viewModel.$isLoaderHidden
+			.receive(on: DispatchQueue.main)
+			.sink { [weak self] isLoaderHidden in
+				self?.spinner.isHidden = isLoaderHidden
 			}
 			.store(in: &cancellables)
 	}
@@ -317,16 +240,11 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 	@objc private func didTapResendCode() {
 		viewModel.didTapResendCode()
 		codeView.clearCode()
+		codeView.focus()
 	}
 
 	@objc private func didTapSkip() {
 		viewModel.didTapSkip()
-	}
-
-	@objc private func didTapOverlay() {
-		self.dismiss(animated: true) {
-			CodeVerificationService.shared.notifyDismissedExternally()
-		}
 	}
 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
@@ -350,20 +268,5 @@ final public class CodeVerificationViewController: UIViewController, Themeable {
 				scrollToField()
 			}
 		}
-	}
-}
-
-extension CodeVerificationViewController: UITextFieldDelegate, UIGestureRecognizerDelegate {
-	public func gestureRecognizer(
-		_ gestureRecognizer: UIGestureRecognizer,
-		shouldReceive touch: UITouch
-	) -> Bool {
-		let point = touch.location(in: containerStackView)
-
-		if cardView.frame.contains(point) {
-			return false
-		}
-
-		return true
 	}
 }

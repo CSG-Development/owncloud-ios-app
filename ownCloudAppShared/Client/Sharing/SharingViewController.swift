@@ -35,6 +35,7 @@ open class SharingViewController: CollectionViewController {
 	var linksSection: CollectionViewSection?
 	var addLinkDataSource: OCDataSourceArray?
 	var linksSectionDatasource: OCDataSourceComposition?
+	var linksLoadingDataSource: OCDataSourceArray?
 
 	var itemTracker: OCCoreItemTracking?
 	public var item: OCItem {
@@ -53,6 +54,97 @@ open class SharingViewController: CollectionViewController {
 	private var recipientsIdentifiers: [String]?
 
 	private var navigationSeparatorView: UIView?
+
+	private var isCheckingRemoteAccess: Bool = false
+
+	public override func viewDidLoad() {
+		super.viewDidLoad()
+
+		// Start in "checking" state: show spinner section if available
+		isCheckingRemoteAccess = true
+		updatePublicLinksVisibility()
+
+		// Kick off RA flow to try to enable remote access and refresh links
+		Task { [weak self] in
+			await self?.ensureRemoteAccessAndRefreshLinks()
+		}
+	}
+
+	private func updatePublicLinksVisibility() {
+		guard let linksSection else { return }
+
+		if let remoteURL = HCContext.shared.lastRemoteBaseURL, remoteURL.absoluteString.isEmpty == false {
+			// Remote URL available → show real links data
+			if let ds = linksSectionDatasource {
+				linksSection.dataSource = ds
+			}
+			linksSection.hidden = false
+		} else if isCheckingRemoteAccess, let loadingDS = linksLoadingDataSource {
+			// Still checking RA → show spinner
+			linksSection.dataSource = loadingDS
+			linksSection.hidden = false
+		} else {
+			// No RA and not checking → hide section
+			linksSection.hidden = true
+		}
+	}
+
+	private func ensureRemoteAccessAndRefreshLinks() async {
+		// Already have a remote URL → stop checking and show links
+		if HCContext.shared.lastRemoteBaseURL != nil {
+			await MainActor.run { [weak self] in
+				guard let self else { return }
+				self.isCheckingRemoteAccess = false
+				self.updatePublicLinksVisibility()
+			}
+			return
+		}
+
+		let raService = HCContext.shared.remoteAccessService
+		let deviceService = HCContext.shared.deviceReachabilityService
+
+		let hasTokens = await raService.hasValidTokens()
+		var isAuthenticated = hasTokens
+
+		if !hasTokens {
+			guard
+				let email = HCContext.shared.preferences.favoriteEmail,
+				let handler = HCContext.shared.emailVerificationHandler
+			else {
+				await MainActor.run { [weak self] in
+					guard let self else { return }
+					self.isCheckingRemoteAccess = false
+					self.updatePublicLinksVisibility()
+				}
+				return
+			}
+
+			isAuthenticated = await withCheckedContinuation { continuation in
+				Task { @MainActor in
+					handler(email) { authenticated in
+						continuation.resume(returning: authenticated)
+					}
+				}
+			}
+		}
+
+		guard isAuthenticated else {
+			await MainActor.run { [weak self] in
+				guard let self else { return }
+				self.isCheckingRemoteAccess = false
+				self.updatePublicLinksVisibility()
+			}
+			return
+		}
+
+		await deviceService.forceReloadDevices()
+
+		await MainActor.run { [weak self] in
+			guard let self else { return }
+			self.isCheckingRemoteAccess = false
+			self.updatePublicLinksVisibility()
+		}
+	}
 
 	public init(clientContext: ClientContext, item: OCItem) {
 		var sections: [CollectionViewSection] = []
@@ -126,12 +218,30 @@ open class SharingViewController: CollectionViewController {
 		if clientContext.core?.connection.capabilities?.publicSharingEnabled == true {
 			addLinkDataSource = OCDataSourceArray(items: [])
 
-			if let itemSharesQueryDataSource = itemSharesQuery?.dataSource, let addLinkDataSource {
+			// Loading (spinner) container for RA checks, with clear background
+			let spinnerView = HCSpinnerView(frame: .zero)
+			let spinnerContainer = UIView()
+			spinnerContainer.backgroundColor = .clear
+			spinnerContainer.translatesAutoresizingMaskIntoConstraints = false
+			spinnerContainer.addSubview(spinnerView)
+			spinnerView.translatesAutoresizingMaskIntoConstraints = false
+
+			let inset: CGFloat = 16
+			NSLayoutConstraint.activate([
+				spinnerView.centerXAnchor.constraint(equalTo: spinnerContainer.centerXAnchor),
+				spinnerView.centerYAnchor.constraint(equalTo: spinnerContainer.centerYAnchor),
+				// Ensure vertical padding so the spinner doesn't touch section bounds
+				spinnerContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 48 + inset * 2)
+			])
+			linksLoadingDataSource = OCDataSourceArray(items: [spinnerContainer])
+
+			if let itemSharesQueryDataSource = itemSharesQuery?.dataSource,
+			   let addLinkDataSource {
+
 				linksSectionDatasource = OCDataSourceComposition(sources: [
 					// Unified solution based on a single data source, not currently possible for oCIS due to to https://github.com/owncloud/ocis/issues/5355
 					// with let sharedByLinkDataSource = clientContext.core?.sharedByLinkDataSource in if-clause
 					// sharedByLinkDataSource,
-
 					itemSharesQueryDataSource,
 					addLinkDataSource
 				], applyCustomizations: { composedDataSource in
@@ -161,7 +271,6 @@ open class SharingViewController: CollectionViewController {
 				linksSection?.boundarySupplementaryItems = [
 					.smallTitle(OCLocalizedString("Public Links", nil))
 				]
-				linksSection?.hideIfEmptyDataSource = linksSectionDatasource
 				sections.append(linksSection!)
 			}
 		}
@@ -202,17 +311,27 @@ open class SharingViewController: CollectionViewController {
 			})
 		]
 
-		if managementClientContext.core?.connection.capabilities?.supportsPrivateLinks == true {
+		if false { //managementClientContext.core?.connection.capabilities?.supportsPrivateLinks == true {
 			linkActions.append(
 				OCAction(title: OCLocalizedString("Copy Private Link", nil), icon: UIImage(named: "copy-clipboard", in: Bundle.sharedAppBundle, with: nil), action: { [weak self] _, _, completion in
 					if let item = self?.item, let core = self?.clientContext?.core {
-						core.retrievePrivateLink(for: item, completionHandler: { (error, url) in
-							guard let url = url else { return }
-							if error == nil, let presentationViewController = self?.clientContext?.presentationViewController {
-								OnMainThread {
-									UIPasteboard.general.url = url
+						core.retrievePrivateLink(for: item, completionHandler: { [weak self] (error, url) in
+							guard let self else { return }
+							guard error == nil, let url = url else { return }
 
-									_ = NotificationHUDViewController(on: presentationViewController, title: OCLocalizedString("Private Link", nil), subtitle: OCLocalizedString("URL was copied to the clipboard", nil), completion: nil)
+							RemoteAccessSharingURLResolver.resolveRemoteSharingURL(for: url) { [weak self] resolvedURL in
+								guard let self else { return }
+								guard let resolvedURL else {
+									self.showSharingUnavailableAlert(message: HCL10n.Sharing.publicNotAvilableDescription)
+									return
+								}
+
+								if let presentationViewController = self.clientContext?.presentationViewController {
+									OnMainThread {
+										UIPasteboard.general.url = resolvedURL
+
+										_ = NotificationHUDViewController(on: presentationViewController, title: OCLocalizedString("Private Link", nil), subtitle: OCLocalizedString("URL was copied to the clipboard", nil), completion: nil)
+									}
 								}
 							}
 						})
@@ -415,6 +534,17 @@ open class SharingViewController: CollectionViewController {
 			recipientsSection?.cellStyle = managementCellStyle
 			linksSection?.cellStyle = managementCellStyle
 		}
+	}
+
+	private func showSharingUnavailableAlert(message: String) {
+		let alert = ThemedAlertController(
+			title: HCL10n.Sharing.sharingNotPossible,
+			message: message,
+			preferredStyle: .alert
+		)
+
+		alert.addAction(UIAlertAction(title: HCL10n.Common.ok, style: .default, handler: nil))
+		self.present(alert, animated: true)
 	}
 }
 

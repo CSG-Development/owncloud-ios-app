@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import ownCloudSDK
 
 public final class DeviceAPI: NSObject, URLSessionDelegate, URLSessionTaskDelegate {
 	private let apiBaseURL: URL
@@ -66,21 +67,25 @@ extension DeviceAPI {
             return
         }
 
-        guard let anchor = rootCertificate else {
-            completionHandler(.performDefaultHandling, nil)
+        let host = challenge.protectionSpace.host
+		let ok = CertificateValidationService.shared.evaluate(
+            serverTrust: serverTrust,
+            validateHost: false,
+            host: host
+        )
+        if ok {
+            completionHandler(.useCredential, URLCredential(trust: serverTrust))
             return
         }
 
-        // Basic X509 policy, no hostname enforcement
-        let policy = SecPolicyCreateBasicX509()
-        SecTrustSetPolicies(serverTrust, policy)
-        SecTrustSetAnchorCertificates(serverTrust, [anchor] as CFArray)
-        SecTrustSetAnchorCertificatesOnly(serverTrust, true)
-        var evalError: CFError?
-        if SecTrustEvaluateWithError(serverTrust, &evalError) {
-            completionHandler(.useCredential, URLCredential(trust: serverTrust))
-        } else {
-            completionHandler(.cancelAuthenticationChallenge, nil)
+        // Not pinned: ask user whether to trust this server, and persist decision.
+        let ocCert = OCCertificate(certificateTrustRef: serverTrust, hostName: host)
+        DeviceCertificateTrustPrompt.askToTrust(host: host, certificate: ocCert) { accepted in
+            if accepted {
+                completionHandler(.useCredential, URLCredential(trust: serverTrust))
+            } else {
+                completionHandler(.cancelAuthenticationChallenge, nil)
+            }
         }
     }
 }

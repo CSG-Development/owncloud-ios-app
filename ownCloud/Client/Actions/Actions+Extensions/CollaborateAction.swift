@@ -56,6 +56,8 @@ class CollaborateAction: Action {
 			navigationController.preferredContentSize = CGSize(width: 704, height: 944)
 		}
 		viewController.present(navigationController, animated: true)
+
+		self.completed()
 	}
 
 	override class func iconForLocation(_ location: OCExtensionLocationIdentifier) -> UIImage? {

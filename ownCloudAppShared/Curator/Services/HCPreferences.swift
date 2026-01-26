@@ -1,6 +1,5 @@
 import Foundation
 import ownCloudSDK
-import Foundation
 
 private enum UserDefaultsKeys {
 	static let keyShouldShowOnboarding = "shouldShowOnboarding"
@@ -10,6 +9,8 @@ private enum UserDefaultsKeys {
 	static let keyFavoriteEmail = "favoriteEmail"
 
 	static let keyCurrentDevice = "currentConnectedDevice"
+
+	static let keyTrustedDeviceCerts = "trustedDeviceCerts"
 }
 
 @objcMembers
@@ -126,6 +127,30 @@ public final class HCPreferences: NSObject {
 				} else {
 					self.userDefaults.removeObject(forKey: UserDefaultsKeys.keyCurrentDevice)
 				}
+			}
+		}
+	}
+
+	// MARK: - Trusted device/ownCloud certificates (user-accepted)
+	public var trustedDeviceCertificates: [Data] {
+		get {
+			queue.sync {
+				(userDefaults.array(forKey: UserDefaultsKeys.keyTrustedDeviceCerts) as? [Data]) ?? []
+			}
+		}
+		set {
+			queue.async {
+				self.userDefaults.set(newValue, forKey: UserDefaultsKeys.keyTrustedDeviceCerts)
+			}
+		}
+	}
+
+	public func addTrustedDeviceCertificate(_ der: Data) {
+		queue.async {
+			var current = (self.userDefaults.array(forKey: UserDefaultsKeys.keyTrustedDeviceCerts) as? [Data]) ?? []
+			if current.contains(der) == false {
+				current.append(der)
+				self.userDefaults.set(current, forKey: UserDefaultsKeys.keyTrustedDeviceCerts)
 			}
 		}
 	}

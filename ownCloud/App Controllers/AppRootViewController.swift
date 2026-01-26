@@ -482,20 +482,6 @@ extension AppRootViewController : ClientSessionManagerDelegate {
 	}
 }
 
-// MARK: - Code verification flow (RA token prompt)
-extension AppRootViewController: CodeVerificationViewModelEventHandler {
-	func handle(_ event: CodeVerificationViewModel.Event) {
-		switch event {
-			case .verifyTap:
-				self.presentedViewController?.dismiss(animated: true)
-			case .resetPasswordTap:
-				break
-			case .settingsTap:
-				break
-		}
-	}
-}
-
 // MARK: - Sidebar toolbar
 extension ClientSidebarViewController {
 	// MARK: - Add toolbar items

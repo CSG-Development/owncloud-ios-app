@@ -21,8 +21,8 @@ import ownCloudSDK
 
 extension OCShare {
 	func copyToClipboard() -> Bool {
-		if let url {
-			UIPasteboard.general.url = url
+		if let shareURL = RemoteAccessSharingURLResolver.resolveRemoteSharingURLSync(for: url) {			
+			UIPasteboard.general.url = shareURL
 			return true
 		}
 		return false

@@ -92,10 +92,12 @@ extension OCShare: UniversalItemListCellContentProvider {
 							detailText = roleName
 						}
 					} else {
+
 						// Link shares
 						content.title = .text(((name?.count ?? 0 > 0) ? name : nil) ?? token ?? OCLocalizedString("Link", nil))
 
-						if let urlString = url?.absoluteString, urlString.count > 0 {
+						let shareURL = RemoteAccessSharingURLResolver.resolveRemoteSharingURLSync(for: url)
+						if let urlString = shareURL?.absoluteString, urlString.count > 0 {
 							if let roleName {
 								detailText = "\(roleName) | \(urlString)"
 							} else {
@@ -121,7 +123,8 @@ extension OCShare: UniversalItemListCellContentProvider {
 						}
 						detailText = recipients
 					} else {
-						if let urlString = url?.absoluteString, urlString.count > 0 {
+						let shareURL = RemoteAccessSharingURLResolver.resolveRemoteSharingURLSync(for: url)
+						if let urlString = shareURL?.absoluteString, urlString.count > 0 {
 							if let name, name.count > 0 {
 								detailText = "\(name) | \(urlString)"
 							} else {
