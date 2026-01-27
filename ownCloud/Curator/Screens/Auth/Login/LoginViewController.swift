@@ -130,14 +130,6 @@ final public class LoginViewController: UIViewController, Themeable {
 		return button
 	}()
 
-	private lazy var oldLoginButton: UIButton = {
-		let button = ThemeRoundedButton(withSelectors: [.primary, .plain])
-		button.setTitle(HCL10n.Auth.Login.oldLoginButtonTitle, for: .normal)
-		button.snp.makeConstraints { $0.height.equalTo(40) }
-		button.addTarget(self, action: #selector(didTapOldLogin), for: .touchUpInside)
-		return button
-	}()
-
 	private lazy var cantFindButton: UIButton = {
 		let button = ThemeRoundedButton(withSelectors: [.primary, .plain])
 		button.setTitle("Can't find your device", for: .normal)
@@ -154,7 +146,6 @@ final public class LoginViewController: UIViewController, Themeable {
 	private var smallSpinner: HCSpinnerView!
 	private var addressRowView: UIStackView!
 	private var resetPasswordButtonContainerRef: UIStackView!
-	private var oldLoginButtonContainerRef: UIStackView!
 	private var cantFindButtonContainerRef: UIStackView!
 
 	init(viewModel: LoginViewModel) {
@@ -287,13 +278,6 @@ final public class LoginViewController: UIViewController, Themeable {
 		cantFindButtonContainer.spacing = 0
 		self.cantFindButtonContainerRef = cantFindButtonContainer
 
-		let oldLoginButtonContainer = UIStackView(arrangedSubviews: [
-			oldLoginButton, HCSpacerView(nil, .horizontal)
-		])
-		oldLoginButtonContainer.axis = .horizontal
-		oldLoginButtonContainer.spacing = 0
-		self.oldLoginButtonContainerRef = oldLoginButtonContainer
-
 		let navigationBarView = UIView()
 
 		view.addSubview(navigationBarView)
@@ -376,8 +360,7 @@ final public class LoginViewController: UIViewController, Themeable {
 					emailTextField,
 					HCSpacerView(24),
 					loginButton,
-					HCSpacerView(24),
-					oldLoginButtonContainerRef
+					HCSpacerView(24)
 				]
 			case .deviceSelection:
 				return [
@@ -565,10 +548,6 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	@objc private func didTapResetPassword() {
 		viewModel.didTapResetPassword()
-	}
-
-	@objc private func didTapOldLogin() {
-		viewModel.didTapOldLogin()
 	}
 
 	@objc private func didTapSettings() {

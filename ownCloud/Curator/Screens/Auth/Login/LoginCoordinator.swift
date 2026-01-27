@@ -13,7 +13,6 @@ final class LoginCoordinator {
 		case loginTap
 		case resetPasswordTap
 		case settingsTap
-		case oldLoginTap
 	}
 
 	init(eventHandler: LoginCoordinatorEventHandler) {
@@ -83,9 +82,6 @@ extension LoginCoordinator: LoginViewModelEventHandler {
 					}
 				}
 				mainVC?.present(vc, animated: true)
-
-			case .oldLoginTap:
-				eventHandler?.handle(.oldLoginTap)
 
 			case .developerOptionsTap:
 				let viewModel = DeveloperOptionsViewModel { [weak self] in

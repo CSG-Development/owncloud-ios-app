@@ -79,28 +79,6 @@ public enum HCL10n {
 	}
 
 	public enum Auth {
-
-		public enum OldLogin {
-			public static let loadingViewTitle = "Logging in to your account"
-			public static let incorrectEmailPassword = "Incorrect email or password"
-
-			public enum EmailField {
-				public static let title = "Email"
-				public static let placeholder = "Enter email address"
-			}
-			public enum AddressField {
-				public static let title = "Connecting to"
-				public static let placeholder = "No device detected"
-			}
-			public enum PasswordField {
-				public static let title = "Password"
-				public static let placeholder = "Password"
-			}
-			public static let loginButtonTitle = "Login"
-			public static let resetPasswordButtonTitle = "Reset Password"
-			public static let serverNotFoundError = "An error ocurred while connecting to the server."
-		}
-
 		public enum Login {
 			public static let loadingViewTitle = "Logging in to your account"
 			public static let incorrectEmailPassword = "Incorrect email or password"
@@ -124,8 +102,7 @@ public enum HCL10n {
 
 			public static let loginButtonTitle = "Login"
 			public static let nextButtonTitle = "Next"
-			public static let resetPasswordButtonTitle = "Reset Password"
-			public static let oldLoginButtonTitle = "Old login path"
+			public static let resetPasswordButtonTitle = "Reset Password"			
 			public static let detectingDevices = "Detecting devices..."
 			public static let noDeviceDetected = "No device detected"
 		}

@@ -209,10 +209,6 @@
 		99C42DF82EA9423B00E36414 /* RemoteAccessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */; };
 		99C42DFC2EAA5C7400E36414 /* RemoteAccessTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */; };
 		99C42DFF2EAFA5BA00E36414 /* UnableToConnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */; };
-		99C42E062EAFC22600E36414 /* OldLoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */; };
-		99C42E072EAFC22600E36414 /* OldLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */; };
-		99C42E082EAFC22600E36414 /* OldLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E032EAFC22600E36414 /* OldLoginViewController.swift */; };
-		99C42E0D2EAFC88B00E36414 /* OldFirstRunCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */; };
 		99C42E0F2EB0CDC900E36414 /* HCConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E0E2EB0CDC100E36414 /* HCConfig.swift */; };
 		99C42E112EB0F38400E36414 /* HCIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E102EB0F37D00E36414 /* HCIcon.swift */; };
 		99C42E132EB10E1D00E36414 /* Network+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E122EB10E0800E36414 /* Network+Extensions.swift */; };
@@ -1384,10 +1380,6 @@
 		99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessService.swift; sourceTree = "<group>"; };
 		99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessTokenStore.swift; sourceTree = "<group>"; };
 		99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnableToConnectViewController.swift; sourceTree = "<group>"; };
-		99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginCoordinator.swift; sourceTree = "<group>"; };
-		99C42E032EAFC22600E36414 /* OldLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginViewController.swift; sourceTree = "<group>"; };
-		99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginViewModel.swift; sourceTree = "<group>"; };
-		99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldFirstRunCoordinator.swift; sourceTree = "<group>"; };
 		99C42E0E2EB0CDC100E36414 /* HCConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCConfig.swift; sourceTree = "<group>"; };
 		99C42E102EB0F37D00E36414 /* HCIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCIcon.swift; sourceTree = "<group>"; };
 		99C42E122EB10E0800E36414 /* Network+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network+Extensions.swift"; sourceTree = "<group>"; };
@@ -2651,7 +2643,6 @@
 			children = (
 				99C18E3B2F28AE600001C7F0 /* DeveloperOptions */,
 				99E73E8A2F11233100477600 /* Errors */,
-				99C42E052EAFC22600E36414 /* OldLoginViewController */,
 				99DF68682E1E672000F1A0B9 /* Login */,
 				99C42DD12EA65DDA00E36414 /* CodeVerification */,
 			);
@@ -2703,17 +2694,6 @@
 				99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */,
 			);
 			path = UnableToConnect;
-			sourceTree = "<group>";
-		};
-		99C42E052EAFC22600E36414 /* OldLoginViewController */ = {
-			isa = PBXGroup;
-			children = (
-				99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */,
-				99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */,
-				99C42E032EAFC22600E36414 /* OldLoginViewController.swift */,
-				99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */,
-			);
-			path = OldLoginViewController;
 			sourceTree = "<group>";
 		};
 		99CE74012F1F7D5F001804EA /* Certificates */ = {
@@ -5334,9 +5314,6 @@
 				025F063324AA163C009D8FC5 /* DisplayExifMetadataAction.swift in Sources */,
 				DCC085512293ED52008CC05C /* DisplaySettingsSection.swift in Sources */,
 				23EC77582137F3DD0032D4E6 /* PDFViewerViewController.swift in Sources */,
-				99C42E062EAFC22600E36414 /* OldLoginCoordinator.swift in Sources */,
-				99C42E072EAFC22600E36414 /* OldLoginViewModel.swift in Sources */,
-				99C42E082EAFC22600E36414 /* OldLoginViewController.swift in Sources */,
 				99DA8B762E12809D00D726DC /* AnalyticsEvent.swift in Sources */,
 				DCC8535823CE1236007BA3EB /* LicenseInAppProductListViewController.swift in Sources */,
 				DC1621382B8FE9BF00EB17F8 /* AddToSidebarAction.swift in Sources */,
@@ -5352,7 +5329,6 @@
 				399DD7C722A691BC00B45EB2 /* UnshareAction.swift in Sources */,
 				DC9CE3D62D10814400979C44 /* DisableSpaceAction.swift in Sources */,
 				99C42DF32EA8CCB200E36414 /* CodeVerificationCardViewController.swift in Sources */,
-				99C42E0D2EAFC88B00E36414 /* OldFirstRunCoordinator.swift in Sources */,
 				99C42DF42EA8CCB200E36414 /* CodeVerificationCardViewModel.swift in Sources */,
 				397754F82327A33500119FCB /* OpenSceneAction.swift in Sources */,
 				4CAF783C2282FD40000C85CF /* FileManager+Extension.swift in Sources */,

@@ -16,7 +16,6 @@ final public class LoginViewModel {
     enum Event {
         case loginTap
         case resetPasswordTap
-		case oldLoginTap
         case settingsTap
         case backToEmail
 		case unableToConnect
@@ -550,11 +549,6 @@ final public class LoginViewModel {
 	func didTapResetPassword() {
 		Log.debug("[STX]: Reset password tap.")
 		eventHandler.handle(.resetPasswordTap)
-	}
-
-	func didTapOldLogin() {
-		Log.debug("[STX]: Old login tap.")
-		eventHandler.handle(.oldLoginTap)
 	}
 
 	func didTapSettings() {
