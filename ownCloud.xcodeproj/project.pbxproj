@@ -191,6 +191,7 @@
 		99743C6A2E1E6DE700DB77C2 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */; };
 		99743C6C2E1E6FF800DB77C2 /* UITextField+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */; };
 		99743C772E1E9FD900DB77C2 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */; };
+		997882872F28AFF600BCBB67 /* DeveloperOptionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997882832F28AFEB00BCBB67 /* DeveloperOptionsViewModel.swift */; };
 		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
 		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
 		99AAAAAA2EA53B9E00FF70B7 /* DeviceAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */; };
@@ -198,6 +199,7 @@
 		99B8B1DE2E7330F000535240 /* UIViewController+NavSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */; };
 		99BC9F2E2E4C72DE0004F6B2 /* HCErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */; };
 		99BD2B882E93C62C00DFBDF0 /* ItemLayoutPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BD2B872E93C62C00DFBDF0 /* ItemLayoutPreference.swift */; };
+		99C18E3D2F28AE760001C7F0 /* DeveloperOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C18E3C2F28AE6C0001C7F0 /* DeveloperOptionsViewController.swift */; };
 		99C42DD92EA6670600E36414 /* HCCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DD82EA6670200E36414 /* HCCardView.swift */; };
 		99C42DDB2EA667FE00E36414 /* HCOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DDA2EA667F800E36414 /* HCOverlayView.swift */; };
 		99C42DDF2EA6692E00E36414 /* HCDropdownTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DDD2EA668AA00E36414 /* HCDropdownTextFieldView.swift */; };
@@ -207,10 +209,6 @@
 		99C42DF82EA9423B00E36414 /* RemoteAccessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */; };
 		99C42DFC2EAA5C7400E36414 /* RemoteAccessTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */; };
 		99C42DFF2EAFA5BA00E36414 /* UnableToConnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */; };
-		99C42E062EAFC22600E36414 /* OldLoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */; };
-		99C42E072EAFC22600E36414 /* OldLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */; };
-		99C42E082EAFC22600E36414 /* OldLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E032EAFC22600E36414 /* OldLoginViewController.swift */; };
-		99C42E0D2EAFC88B00E36414 /* OldFirstRunCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */; };
 		99C42E0F2EB0CDC900E36414 /* HCConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E0E2EB0CDC100E36414 /* HCConfig.swift */; };
 		99C42E112EB0F38400E36414 /* HCIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E102EB0F37D00E36414 /* HCIcon.swift */; };
 		99C42E132EB10E1D00E36414 /* Network+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E122EB10E0800E36414 /* Network+Extensions.swift */; };
@@ -1365,12 +1363,14 @@
 		99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Combine.swift"; sourceTree = "<group>"; };
 		99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
+		997882832F28AFEB00BCBB67 /* DeveloperOptionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperOptionsViewModel.swift; sourceTree = "<group>"; };
 		99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAPIClient.swift; sourceTree = "<group>"; };
 		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
 		99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+NavSeparator.swift"; sourceTree = "<group>"; };
 		99BBBBB12EA5400000FF70B7 /* TokenSecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSecureStorage.swift; sourceTree = "<group>"; };
 		99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCErrorView.swift; sourceTree = "<group>"; };
 		99BD2B872E93C62C00DFBDF0 /* ItemLayoutPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemLayoutPreference.swift; sourceTree = "<group>"; };
+		99C18E3C2F28AE6C0001C7F0 /* DeveloperOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperOptionsViewController.swift; sourceTree = "<group>"; };
 		99C42DD22EA65E0000E36414 /* CodeVerificationCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationCardViewController.swift; sourceTree = "<group>"; };
 		99C42DD42EA65E4700E36414 /* CodeVerificationCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationCardViewModel.swift; sourceTree = "<group>"; };
 		99C42DD82EA6670200E36414 /* HCCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCCardView.swift; sourceTree = "<group>"; };
@@ -1380,10 +1380,6 @@
 		99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessService.swift; sourceTree = "<group>"; };
 		99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessTokenStore.swift; sourceTree = "<group>"; };
 		99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnableToConnectViewController.swift; sourceTree = "<group>"; };
-		99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginCoordinator.swift; sourceTree = "<group>"; };
-		99C42E032EAFC22600E36414 /* OldLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginViewController.swift; sourceTree = "<group>"; };
-		99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginViewModel.swift; sourceTree = "<group>"; };
-		99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldFirstRunCoordinator.swift; sourceTree = "<group>"; };
 		99C42E0E2EB0CDC100E36414 /* HCConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCConfig.swift; sourceTree = "<group>"; };
 		99C42E102EB0F37D00E36414 /* HCIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCIcon.swift; sourceTree = "<group>"; };
 		99C42E122EB10E0800E36414 /* Network+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network+Extensions.swift"; sourceTree = "<group>"; };
@@ -2633,11 +2629,20 @@
 			path = Combine;
 			sourceTree = "<group>";
 		};
+		99C18E3B2F28AE600001C7F0 /* DeveloperOptions */ = {
+			isa = PBXGroup;
+			children = (
+				99C18E3C2F28AE6C0001C7F0 /* DeveloperOptionsViewController.swift */,
+				997882832F28AFEB00BCBB67 /* DeveloperOptionsViewModel.swift */,
+			);
+			path = DeveloperOptions;
+			sourceTree = "<group>";
+		};
 		99C42DCD2EA65DC800E36414 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				99C18E3B2F28AE600001C7F0 /* DeveloperOptions */,
 				99E73E8A2F11233100477600 /* Errors */,
-				99C42E052EAFC22600E36414 /* OldLoginViewController */,
 				99DF68682E1E672000F1A0B9 /* Login */,
 				99C42DD12EA65DDA00E36414 /* CodeVerification */,
 			);
@@ -2689,17 +2694,6 @@
 				99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */,
 			);
 			path = UnableToConnect;
-			sourceTree = "<group>";
-		};
-		99C42E052EAFC22600E36414 /* OldLoginViewController */ = {
-			isa = PBXGroup;
-			children = (
-				99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */,
-				99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */,
-				99C42E032EAFC22600E36414 /* OldLoginViewController.swift */,
-				99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */,
-			);
-			path = OldLoginViewController;
 			sourceTree = "<group>";
 		};
 		99CE74012F1F7D5F001804EA /* Certificates */ = {
@@ -5320,9 +5314,6 @@
 				025F063324AA163C009D8FC5 /* DisplayExifMetadataAction.swift in Sources */,
 				DCC085512293ED52008CC05C /* DisplaySettingsSection.swift in Sources */,
 				23EC77582137F3DD0032D4E6 /* PDFViewerViewController.swift in Sources */,
-				99C42E062EAFC22600E36414 /* OldLoginCoordinator.swift in Sources */,
-				99C42E072EAFC22600E36414 /* OldLoginViewModel.swift in Sources */,
-				99C42E082EAFC22600E36414 /* OldLoginViewController.swift in Sources */,
 				99DA8B762E12809D00D726DC /* AnalyticsEvent.swift in Sources */,
 				DCC8535823CE1236007BA3EB /* LicenseInAppProductListViewController.swift in Sources */,
 				DC1621382B8FE9BF00EB17F8 /* AddToSidebarAction.swift in Sources */,
@@ -5338,7 +5329,6 @@
 				399DD7C722A691BC00B45EB2 /* UnshareAction.swift in Sources */,
 				DC9CE3D62D10814400979C44 /* DisableSpaceAction.swift in Sources */,
 				99C42DF32EA8CCB200E36414 /* CodeVerificationCardViewController.swift in Sources */,
-				99C42E0D2EAFC88B00E36414 /* OldFirstRunCoordinator.swift in Sources */,
 				99C42DF42EA8CCB200E36414 /* CodeVerificationCardViewModel.swift in Sources */,
 				397754F82327A33500119FCB /* OpenSceneAction.swift in Sources */,
 				4CAF783C2282FD40000C85CF /* FileManager+Extension.swift in Sources */,
@@ -5348,6 +5338,7 @@
 				99139B812E438C0E0044889B /* OnboardingContentView.swift in Sources */,
 				99DA8B7E2E128A8700D726DC /* AnalyticsTracker.swift in Sources */,
 				DCEE1C9C23A0EADD00FE8D98 /* LicenseOfferView.swift in Sources */,
+				99C18E3D2F28AE760001C7F0 /* DeveloperOptionsViewController.swift in Sources */,
 				6E3A104D219D6F0100F90C96 /* DuplicateAction.swift in Sources */,
 				39D06BEC229BE8D8000D7FC9 /* SettingsSection.swift in Sources */,
 				99DA8B792E1281D900D726DC /* FileManager+Extensions.swift in Sources */,
@@ -5359,6 +5350,7 @@
 				39969904260A3CF500E5AEBA /* CutAction.swift in Sources */,
 				4C464BF22187AF1500D30602 /* PDFSearchViewController.swift in Sources */,
 				DC6C0A4929239E560045FF2A /* AppRootViewController.swift in Sources */,
+				997882872F28AFF600BCBB67 /* DeveloperOptionsViewModel.swift in Sources */,
 				02DC7C9024CB354800DCB2C6 /* ProPhotoUploadSettingsSection.swift in Sources */,
 				99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */,
 				99743C772E1E9FD900DB77C2 /* LoginCoordinator.swift in Sources */,

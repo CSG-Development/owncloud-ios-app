@@ -96,9 +96,11 @@ public final actor DeviceReachabilityService {
 	private var onRemoteBaseURLChange: (@MainActor (URL?) -> Void)?
 	private var triggersCancellable: AnyCancellable?
 	private var reachabilityStatusCancellable: AnyCancellable?
+	private var staticDeviceAddressCancellable: AnyCancellable?
 	private var loadTask: Task<[MergedDevice], Error>?
 	private var isReloading: Bool = false
 	private var lastNetworkState: NetworkState?
+	private var staticRemoteDevice: RemoteDevice?
 
 	private let reachability: ReachabilityObserving
 	private let remoteAccessService: RemoteAccessService
@@ -117,6 +119,14 @@ public final actor DeviceReachabilityService {
 		self.preferences = preferences
 
 		urlProvider = DeviceReachabilityURLProvider(preferences: preferences)
+
+		staticRemoteDevice = Self.buildStaticRemoteDevice(from: preferences.staticDeviceAddress)
+		staticDeviceAddressCancellable = preferences.staticDeviceAddressPublisher
+			.removeDuplicates()
+			.sink { [weak self] address in
+				guard let self else { return }
+				Task { await self.handleStaticDeviceAddressChange(address) }
+			}
 
 		mdnsService.onUpdate = { [weak self] locals in
 			guard let self else { return }
@@ -200,7 +210,8 @@ public final actor DeviceReachabilityService {
 		let merged = rebuildMerged(
 			localDevices: localDevices,
 			remoteDevices: remoteDevices,
-			remotePathProbesByCN: remotePathProbesByCN
+			remotePathProbesByCN: remotePathProbesByCN,
+			staticRemoteDevice: staticRemoteDevice
 		)
 		if let onUpdate { Task { @MainActor in onUpdate(merged) } }
 	}
@@ -372,7 +383,7 @@ public final actor DeviceReachabilityService {
 		for device in currentMerged() {
 			guard
 				let cn = device.certificateCommonName,
-				let path = currentBestPath(certificateCommonName: cn),
+				let path = currentBestPath(for: device),
 				let url = path.url
 			else { continue }
 
@@ -392,7 +403,8 @@ public final actor DeviceReachabilityService {
 		rebuildMerged(
 			localDevices: localDevices,
 			remoteDevices: remoteDevices,
-			remotePathProbesByCN: remotePathProbesByCN
+			remotePathProbesByCN: remotePathProbesByCN,
+			staticRemoteDevice: staticRemoteDevice
 		)
 	}
 
@@ -453,6 +465,17 @@ public final actor DeviceReachabilityService {
 				}
 			}
 		}
+		if let staticRemoteDevice, staticRemoteDevice.certificateCommonName == cn {
+			let probesDict = remotePathProbesByCN[cn] ?? [:]
+			for path in staticRemoteDevice.paths.ordered() {
+				if let probe = probesDict[path.key], probe.isReachable {
+					return .remote(path)
+				}
+			}
+			if let first = staticRemoteDevice.paths.ordered().first {
+				return .remote(first)
+			}
+		}
 
 		// Fallback: local by CN
 		if let local = localDevices.first(where: { $0.certificateCommonName == cn }) {
@@ -493,6 +516,12 @@ public final actor DeviceReachabilityService {
 
 	private func remoteBaseURL(forCertificateCommonName cn: String) -> URL? {
 		guard let remote = remoteDevices.first(where: { $0.certificateCommonName == cn }) else {
+			if let staticRemoteDevice, staticRemoteDevice.certificateCommonName == cn {
+				if let remotePath = staticRemoteDevice.paths.ordered().first(where: { $0.kind == .remote }) {
+					return remotePath.apiBaseURL()
+				}
+				return staticRemoteDevice.paths.ordered().first?.apiBaseURL()
+			}
 			return nil
 		}
 
@@ -582,7 +611,8 @@ public final actor DeviceReachabilityService {
 	private func rebuildMerged(
 		localDevices: [LocalDevice],
 		remoteDevices: [RemoteDevice],
-		remotePathProbesByCN: [String: [String: PathProbe]]
+		remotePathProbesByCN: [String: [String: PathProbe]],
+		staticRemoteDevice: RemoteDevice?
 	) -> [MergedDevice] {
 		var map: [String: MergedDevice] = [:]
 
@@ -635,15 +665,47 @@ public final actor DeviceReachabilityService {
 			}
 		}
 
-		let merged = Array(map.values).sorted { a, b in
+		var merged = Array(map.values).sorted { a, b in
 			let nameA = a.remoteDevice?.friendlyName ?? a.localDevice?.name ?? ""
 			let nameB = b.remoteDevice?.friendlyName ?? b.localDevice?.name ?? ""
 			return nameA.localizedCaseInsensitiveCompare(nameB) == .orderedAscending
 		}
 
+		if let staticRemoteDevice {
+			let probesDict = remotePathProbesByCN[staticRemoteDevice.certificateCommonName] ?? [:]
+			let staticProbes = staticRemoteDevice.paths.compactMap { probesDict[$0.key] }
+			let staticMerged = MergedDevice(
+				remoteDevice: staticRemoteDevice,
+				localDevice: nil,
+				pathProbes: staticProbes
+			)
+			merged.insert(staticMerged, at: 0)
+		}
+
 		Log.debug("[STX-RA]: Merged: ")
 		merged.forEach { Log.debug($0.asJSON() ?? "") }
 		return merged
+	}
+
+	private func handleStaticDeviceAddressChange(_ address: String?) async {
+		staticRemoteDevice = Self.buildStaticRemoteDevice(from: address)
+		let merged = currentMerged()
+		if let onUpdate { await MainActor.run { onUpdate(merged) } }
+		recalculateBestURLs()
+	}
+
+	private static func buildStaticRemoteDevice(from address: String?) -> RemoteDevice? {
+		guard let address, address.isEmpty == false else { return nil }
+		guard let components = URLComponents(string: address) else { return nil }
+		guard let host = components.host, host.isEmpty == false else { return nil }
+		let path = RemoteDevice.Path(kind: .remote, address: address, port: nil)
+		return RemoteDevice(
+			seagateDeviceID: address,
+			friendlyName: address,
+			hostname: host,
+			certificateCommonName: address,
+			paths: [path]
+		)
 	}
 }
 
