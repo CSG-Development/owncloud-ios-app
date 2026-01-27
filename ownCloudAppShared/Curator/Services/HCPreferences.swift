@@ -20,7 +20,7 @@ private enum UserDefaultsKeys {
 public final class HCPreferences: NSObject {
 	public static let shared = HCPreferences()
 
-	private let queue = DispatchQueue(label: "com.curator.preferences")
+	private let queue = DispatchQueue(label: "com.personalCloudFiles.preferences")
 	private let userDefaults = OCAppIdentity.shared.userDefaults ?? UserDefaults.standard
 	private let loginSettingsEnabledSubject: CurrentValueSubject<Bool, Never>
 	private let staticDeviceAddressSubject: CurrentValueSubject<String?, Never>

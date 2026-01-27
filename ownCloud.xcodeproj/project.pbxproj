@@ -1147,7 +1147,7 @@
 		232B01F32126B0CE00366FA0 /* MoreViewHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreViewHeader.swift; sourceTree = "<group>"; };
 		232B01F52126B10900366FA0 /* MoreStaticTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreStaticTableViewController.swift; sourceTree = "<group>"; };
 		232F7CAE2097260400EE22E4 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
-		233BDE9C204FEFE500C06732 /* curatorFiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = curatorFiles.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		233BDE9C204FEFE500C06732 /* personalCloudFiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = personalCloudFiles.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		233BDE9F204FEFE500C06732 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		233BDEA6204FEFE500C06732 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		233BDEAB204FEFE500C06732 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2093,7 +2093,7 @@
 		233BDE9D204FEFE500C06732 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				233BDE9C204FEFE500C06732 /* curatorFiles.app */,
+				233BDE9C204FEFE500C06732 /* personalCloudFiles.app */,
 				233BDEB0204FEFE500C06732 /* ownCloudTests.xctest */,
 				DC7DBA34207F84BF00E7337D /* MakeTVG */,
 				DCC6564620C9B7E300110A97 /* ownCloud File Provider.appex */,
@@ -4553,7 +4553,7 @@
 				99F175332E8C063E00FE7DEC /* Mantis */,
 			);
 			productName = ownCloud;
-			productReference = 233BDE9C204FEFE500C06732 /* curatorFiles.app */;
+			productReference = 233BDE9C204FEFE500C06732 /* personalCloudFiles.app */;
 			productType = "com.apple.product-type.application";
 		};
 		233BDEAF204FEFE500C06732 /* ownCloudTests */ = {
@@ -6146,6 +6146,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Personal Cloud Files";
 				INFOPLIST_PREPROCESSOR_DEFINITIONS = "$(APP_BUILD_FLAGS)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -6214,6 +6215,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Personal Cloud Files";
 				INFOPLIST_PREPROCESSOR_DEFINITIONS = "$(APP_BUILD_FLAGS)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -6249,6 +6251,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				INFOPLIST_FILE = ownCloud/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Personal Cloud Files";
 				INFOPLIST_PREPROCESS = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6263,7 +6266,7 @@
 				);
 				MARKETING_VERSION = "${APP_SHORT_VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app";
-				PRODUCT_NAME = curatorFiles;
+				PRODUCT_NAME = personalCloudFiles;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(APP_BUILD_FLAGS_SWIFT) DISABLE_APPSTORE_LICENSING";
@@ -6292,6 +6295,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				INFOPLIST_FILE = ownCloud/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Personal Cloud Files";
 				INFOPLIST_PREPROCESS = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6306,7 +6310,7 @@
 				);
 				MARKETING_VERSION = "${APP_SHORT_VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app";
-				PRODUCT_NAME = curatorFiles;
+				PRODUCT_NAME = personalCloudFiles;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(APP_BUILD_FLAGS_SWIFT) DISABLE_APPSTORE_LICENSING";
@@ -6375,7 +6379,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ownCloud Action Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Save to $(APP_PRODUCT_NAME)";
+				INFOPLIST_KEY_CFBundleDisplayName = "Save to Personal Cloud Files";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 ownCloud GmbH. All rights reserved.";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -6419,7 +6423,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ownCloud Action Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Save to $(APP_PRODUCT_NAME)";
+				INFOPLIST_KEY_CFBundleDisplayName = "Save to Personal Cloud Files";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 ownCloud GmbH. All rights reserved.";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
