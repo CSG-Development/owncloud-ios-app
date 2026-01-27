@@ -5,7 +5,7 @@
 	<key>branding.can-add-account</key>
 	<false/>
 	<key>branding.organization-name</key>
-	<string>Curator Files</string>
+	<string>Personal Cloud Files</string>
 	<key>app.recommend-to-friend-enabled</key>
 	<false/>
 	<key>branding.theme-colors</key>

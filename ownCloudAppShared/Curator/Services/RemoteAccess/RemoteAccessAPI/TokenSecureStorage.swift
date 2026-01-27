@@ -8,7 +8,7 @@ public struct TokenBundle: Codable {
 }
 
 public final class TokenSecureStorage {
-	private let keychainAccount = "curator.tokens"
+	private let keychainAccount = "personalCloudFiles.tokens"
 	private let keyPath: String
 	private let queue = DispatchQueue(label: "TokenSecureStorage.queue")
 

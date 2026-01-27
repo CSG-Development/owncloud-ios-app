@@ -632,7 +632,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.confidentialLabel],		property: .stroke, value: tintColor.withAlphaComponent(0.8)),
 			ThemeCSSRecord(selectors: [.confidentialSecondaryLabel],		property: .stroke, value: tintColor.withAlphaComponent(0.4)),
 
-			// # Curator Files
+			// # Personal Cloud Files
 
 			ThemeCSSRecord(selectors: [.primaryText], property: .fill, value: HCColor.Content.textPrimary(isDark)),
 

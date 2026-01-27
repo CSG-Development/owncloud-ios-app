@@ -50,9 +50,9 @@ platform :ios do
       CONFIGURATION: "Release",
       BETA_APP_ICON: false,
       BUILD_NUMBER: values[:BUILD_NUMBER],
-      APP_NAME: "curatorFiles",
+      APP_NAME: "Personal Cloud Files",
       URL_SCHEME: "curatorFiles-app",
-      IPA_NAME: "curatorFiles-noveo"
+      IPA_NAME: "personalCloudFiles-noveo"
     )
   end
 
@@ -78,9 +78,9 @@ platform :ios do
       CONFIGURATION: "Release",
       BETA_APP_ICON: false,
       BUILD_NUMBER: values[:BUILD_NUMBER],
-      APP_NAME: "curatorFiles",
+      APP_NAME: "Personal Cloud Files",
       URL_SCHEME: "curatorFiles-app",
-      IPA_NAME: "curatorFiles-appStore"
+      IPA_NAME: "personalCloudFiles-appStore"
     )
   end
 

@@ -712,7 +712,7 @@ public final actor DeviceReachabilityService {
 // MARK: - URL Provider Bridge (OCBaseURLProvider)
 @objcMembers
 public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
-	private let cacheQueue = DispatchQueue(label: "com.curator.best-url-cache", attributes: .concurrent)
+	private let cacheQueue = DispatchQueue(label: "com.personalCloudFiles.best-url-cache", attributes: .concurrent)
 	private var bestURLByCN: [String: URL] = [:]
 
 	private let preferences: HCPreferences

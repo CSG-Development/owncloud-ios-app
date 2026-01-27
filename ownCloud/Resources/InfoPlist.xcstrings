@@ -8,7 +8,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "curatorFiles"
+            "value" : "Personal Cloud Files"
           }
         }
       }
@@ -20,7 +20,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "curatorFiles"
+            "value" : "personalCloudFiles"
           }
         }
       }

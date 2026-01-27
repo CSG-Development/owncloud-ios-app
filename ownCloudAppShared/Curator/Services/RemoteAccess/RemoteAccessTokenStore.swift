@@ -32,7 +32,7 @@ public struct RemoteAccessToken: Codable, Equatable {
 }
 
 public final class RemoteAccessTokenStore {
-    private let keychainAccount = "curator.remoteAccess.tokens"
+    private let keychainAccount = "personalCloudFiles.remoteAccess.tokens"
     private let keyPath = "favoriteDeviceTokens"
     private let queue = DispatchQueue(label: "RemoteAccessTokenStore.queue")
 

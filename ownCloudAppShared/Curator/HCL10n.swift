@@ -5,7 +5,7 @@ public enum HCL10n {
 	}
 
 	public enum Logo {
-		public static let firstPart = "Curator "
+		public static let firstPart = "Personal Cloud "
 		public static let secondPart = "Files"
 	}
 
@@ -102,7 +102,7 @@ public enum HCL10n {
 
 			public static let loginButtonTitle = "Login"
 			public static let nextButtonTitle = "Next"
-			public static let resetPasswordButtonTitle = "Reset Password"			
+			public static let resetPasswordButtonTitle = "Reset Password"
 			public static let detectingDevices = "Detecting devices..."
 			public static let noDeviceDetected = "No device detected"
 		}
@@ -110,7 +110,7 @@ public enum HCL10n {
 		public enum UnableToConnect {
 			public static let navbarTitle = "Unable to connect"
 
-			public static let headerText = "We are unable to detect the Curator device. Please ensure the following:"
+			public static let headerText = "We are unable to detect the Personal Cloud device. Please ensure the following:"
 			public static let point1 = "Verify that the device is properly connected to the network and that the internet connection is stable"
 			public static let point2 = "Make sure the device is powered on and functioning correctly"
 			public static let point3 = "Check firewall settings to confirm they are not blocking the connection"
@@ -138,7 +138,7 @@ public enum HCL10n {
 
 		public enum CodeVerification {
 			public static let title = "Allow remote access"
-			public static let description = "We have sent a one-time code to authorize this device to access your Curator. Check your email for the code and enter it here. If you do not see it in your inbox, please check your spam folder."
+			public static let description = "We have sent a one-time code to authorize this device to access your Personal Cloud. Check your email for the code and enter it here. If you do not see it in your inbox, please check your spam folder."
 
 			public static let allowAccessButtonTitle = "Allow access"
 			public static let resendCodeButtonTitle = "Resend code"
