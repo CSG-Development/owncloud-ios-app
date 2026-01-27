@@ -88,12 +88,13 @@ extension LoginCoordinator: LoginViewModelEventHandler {
 				eventHandler?.handle(.oldLoginTap)
 
 			case .developerOptionsTap:
-				let viewModel = DeveloperOptionsViewModel()
+				let viewModel = DeveloperOptionsViewModel { [weak self] in
+					self?.mainVC?.viewModel.refreshDevices()
+				}
 				let vc = DeveloperOptionsViewController(viewModel: viewModel)
 				vc.modalPresentationStyle = .overFullScreen
 				vc.modalTransitionStyle = .crossDissolve
 				mainVC?.present(vc, animated: true)
-
 		}
 	}
 }

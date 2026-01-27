@@ -226,12 +226,14 @@ final public class DeveloperOptionsViewController: UIViewController, Themeable {
 		dismiss(animated: true)
 	}
 
-	@objc private func didToggleSettingsSwitch() {
-		viewModel.isLoginSettingsEnabled = settingsSwitch.isOn
+	@objc private func didTapOverlay() {
+		viewModel.didTapOverlay()
+		dismiss(animated: true)
 	}
 
-	@objc private func didTapOverlay() {
-		dismiss(animated: true)
+
+	@objc private func didToggleSettingsSwitch() {
+		viewModel.isLoginSettingsEnabled = settingsSwitch.isOn
 	}
 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {

@@ -16,7 +16,14 @@ final public class DeveloperOptionsViewModel {
 		HCContext.shared.preferences
 	}
 
-	init() {
+	private var deviceReachabilityService: DeviceReachabilityService {
+		HCContext.shared.deviceReachabilityService
+	}
+
+	private let onClose: (() -> Void)?
+
+	init(onClose: (() -> Void)?) {
+		self.onClose = onClose
 		staticDeviceAddress = preferences.staticDeviceAddress ?? ""
 		isLoginSettingsEnabled = preferences.isLoginSettingsEnabled
 	}
@@ -29,11 +36,16 @@ final public class DeveloperOptionsViewModel {
 
 		preferences.staticDeviceAddress = trimmedAddress.isEmpty ? nil : trimmedAddress
 		preferences.isLoginSettingsEnabled = isLoginSettingsEnabled
+		onClose?()
 		return true
 	}
 
 	func didTapCancel() {
+		onClose?()
+	}
 
+	func didTapOverlay() {
+		onClose?()
 	}
 
 	private func isValidUrlString(_ string: String) -> Bool {
