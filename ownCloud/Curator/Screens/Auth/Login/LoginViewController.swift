@@ -16,13 +16,13 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private var cancellables = Set<AnyCancellable>()
 
+	private var preferences: HCPreferences {
+		HCContext.shared.preferences
+	}
+
 	private lazy var logoView: HCAppLogoView = {
 		let logoView = HCAppLogoView(frame: .zero)
-
-		let recognizer = UITapGestureRecognizer(target: self, action: #selector(fillTestInfo))
-		recognizer.numberOfTapsRequired = 5
-		logoView.addGestureRecognizer(recognizer)
-
+		logoView.isUserInteractionEnabled = false
 		return logoView
 	}()
 
@@ -88,6 +88,7 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private lazy var logoImageContainer: UIView = {
 		let view = UIView()
+		view.isUserInteractionEnabled = false
 		view.backgroundColor = .clear
 
 		let imageView = UIImageView()
@@ -101,6 +102,16 @@ final public class LoginViewController: UIViewController, Themeable {
 		}
 		view.snp.makeConstraints { $0.height.equalTo(140) }
 		return view
+	}()
+
+	private lazy var logoContainer: UIStackView = {
+		let container = UIStackView(arrangedSubviews: [logoImageContainer, logoView])
+		container.axis = .vertical
+		container.spacing = 0
+		container.alignment = .center
+		container.isUserInteractionEnabled = true
+		container.addGestureRecognizer(makeDeveloperOptionsRecognizer())
+		return container
 	}()
 
 	private lazy var loginButton: UIButton = {
@@ -167,6 +178,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		settingsButton.setImage(HCIcon.settings, for: .normal)
 		settingsButton.addTarget(self, action: #selector(didTapSettings), for: .touchUpInside)
 		self.settingsButton = settingsButton
+		self.settingsButton.isHidden = true
 
 		let backButton = UIButton(type: .system)
 		backButton.setImage(HCIcon.arrowBack, for: .normal)
@@ -351,8 +363,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	private func arrangedSubviews(for step: LoginViewModel.Step, isLoading: Bool) -> [UIView] {
 		if isLoading {
 			return [
-				logoImageContainer,
-				logoView,
+				logoContainer,
 				HCSpacerView(24),
 				loadingView
 			]
@@ -360,8 +371,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		switch step {
 			case .emailEntry:
 				return [
-					logoImageContainer,
-					logoView,
+					logoContainer,
 					HCSpacerView(24),
 					emailTextField,
 					HCSpacerView(24),
@@ -371,8 +381,7 @@ final public class LoginViewController: UIViewController, Themeable {
 				]
 			case .deviceSelection:
 				return [
-					logoImageContainer,
-					logoView,
+					logoContainer,
 					HCSpacerView(24),
 					emailLabelContainer,
 					HCSpacerView(32),
@@ -409,8 +418,8 @@ final public class LoginViewController: UIViewController, Themeable {
 		view.layoutIfNeeded()
 	}
 
-	@objc private func fillTestInfo() {
-		viewModel.fillTestInfo()
+	@objc private func didTriggerDeveloperOptions() {
+		viewModel.didTapDeveloperOptions()
 	}
 
 	@objc private func closeKeyboard() {
@@ -524,10 +533,24 @@ final public class LoginViewController: UIViewController, Themeable {
 				}
 			}
 			.store(in: &cancellables)
+
+		preferences.loginSettingsEnabledPublisher
+			.receive(on: DispatchQueue.main)
+			.sink { [weak self] isEnabled in
+				self?.updateSettingsButtonVisibility(isEnabled: isEnabled)
+			}
+			.store(in: &cancellables)
 	}
 
 	@objc private func didTapRefreshDevices() {
 		viewModel.refreshDevices()
+	}
+
+	private func makeDeveloperOptionsRecognizer() -> UITapGestureRecognizer {
+		let recognizer = UITapGestureRecognizer(target: self, action: #selector(didTriggerDeveloperOptions))
+		recognizer.numberOfTapsRequired = 5
+		recognizer.numberOfTouchesRequired = 2
+		return recognizer
 	}
 
 	@objc private func didTapCantFindDevice() {
@@ -562,6 +585,10 @@ final public class LoginViewController: UIViewController, Themeable {
 		settingsButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
 		refreshButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
 		backButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
+	}
+
+	private func updateSettingsButtonVisibility(isEnabled: Bool) {
+		settingsButton.isHidden = !isEnabled
 	}
 }
 

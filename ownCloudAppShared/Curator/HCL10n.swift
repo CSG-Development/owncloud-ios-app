@@ -168,7 +168,7 @@ public enum HCL10n {
 			public static let skipButtonTitle = "Skip"
 
 			public static let invalidCodeError = "Incorrect code."
-			public static let codeExpiredError = "Your code has expired."			
+			public static let codeExpiredError = "Your code has expired."
 			public static let tooManyRequestsError = "Too many requests."
 			public static let connectionError = "Connection error. Unable to reach the server."
 		}
@@ -183,6 +183,13 @@ public enum HCL10n {
 			public static let title = "Email not registered"
 			public static let description = "This email isn’t authorized to access this device. Please contact the owner."
 			public static let cancelButtonTitle = "OK"
+		}
+
+		public enum DevOptions {
+			public static let title = "Developer options"
+			public static let deviceTextFieldTitle = "Static device"
+			public static let deviceTextFieldInvalidURLError = "Invalid URL"
+			public static let settingsSwitchLabel = "Display settings on login"
 		}
 	}
 

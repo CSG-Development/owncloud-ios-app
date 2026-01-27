@@ -86,6 +86,14 @@ extension LoginCoordinator: LoginViewModelEventHandler {
 
 			case .oldLoginTap:
 				eventHandler?.handle(.oldLoginTap)
+
+			case .developerOptionsTap:
+				let viewModel = DeveloperOptionsViewModel()
+				let vc = DeveloperOptionsViewController(viewModel: viewModel)
+				vc.modalPresentationStyle = .overFullScreen
+				vc.modalTransitionStyle = .crossDissolve
+				mainVC?.present(vc, animated: true)
+
 		}
 	}
 }
