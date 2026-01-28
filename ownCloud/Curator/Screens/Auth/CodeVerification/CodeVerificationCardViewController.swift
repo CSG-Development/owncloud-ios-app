@@ -171,8 +171,8 @@ final public class CodeVerificationCardViewController: UIViewController, Themeab
 
 		let codeView = HCCodeView(codeLength: viewModel.codeLength)
 		self.codeView = codeView
-		codeView.onChange = { code in
-			self.viewModel.code = code
+		codeView.onChange = { [weak self] code in
+			self?.viewModel.code = code
 		}
 
 		codeView.onFocus = { [weak self] in

@@ -517,6 +517,13 @@ final public class LoginViewController: UIViewController, Themeable {
 			}
 			.store(in: &cancellables)
 
+		viewModel.$emailEntryError
+			.receive(on: DispatchQueue.main)
+			.sink { [weak self] errorText in
+				self?.emailTextField.errorText = errorText
+			}
+			.store(in: &cancellables)
+
 		preferences.loginSettingsEnabledPublisher
 			.receive(on: DispatchQueue.main)
 			.sink { [weak self] isEnabled in

@@ -193,6 +193,7 @@
 		99743C772E1E9FD900DB77C2 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */; };
 		997882872F28AFF600BCBB67 /* DeveloperOptionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997882832F28AFEB00BCBB67 /* DeveloperOptionsViewModel.swift */; };
 		997882932F2A1DEF00BCBB67 /* HCHStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9978828F2F2A1DEB00BCBB67 /* HCHStack.swift */; };
+		997882972F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997882962F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift */; };
 		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
 		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
 		99AAAAAA2EA53B9E00FF70B7 /* DeviceAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */; };
@@ -1366,6 +1367,7 @@
 		99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		997882832F28AFEB00BCBB67 /* DeveloperOptionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperOptionsViewModel.swift; sourceTree = "<group>"; };
 		9978828F2F2A1DEB00BCBB67 /* HCHStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCHStack.swift; sourceTree = "<group>"; };
+		997882962F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationTooManyRequestsCardViewController.swift; sourceTree = "<group>"; };
 		99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAPIClient.swift; sourceTree = "<group>"; };
 		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
 		99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+NavSeparator.swift"; sourceTree = "<group>"; };
@@ -2654,6 +2656,7 @@
 		99C42DD12EA65DDA00E36414 /* CodeVerification */ = {
 			isa = PBXGroup;
 			children = (
+				997882962F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift */,
 				99E7B97F2F23D6D900B0EC27 /* CodeVerificationLoaderViewController.swift */,
 				99E7B9792F23986E00B0EC27 /* CodeVerificationContainerViewController.swift */,
 				99C42DD22EA65E0000E36414 /* CodeVerificationCardViewController.swift */,
@@ -5326,6 +5329,7 @@
 				025FC7272478123E009307A7 /* MediaExportSettingsSection.swift in Sources */,
 				025FC720247810AB009307A7 /* MediaUploadSettingsViewController.swift in Sources */,
 				4CB8ADDE22DF5D3700F1FEBC /* PHPhotoLibrary+Extension.swift in Sources */,
+				997882972F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift in Sources */,
 				6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */,
 				DCD954DF247D62FA00E184E6 /* MessageTableViewController.swift in Sources */,
 				025FC73A247BF8BE009307A7 /* PHAsset+InstantUploads.swift in Sources */,

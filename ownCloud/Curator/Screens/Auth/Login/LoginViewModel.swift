@@ -41,6 +41,7 @@ final public class LoginViewModel {
 	@Published private(set) var isLoginEnabled: Bool = true
 	@Published private(set) var isLoading: Bool = false
 	@Published private(set) var errors: [LoginError] = []
+	@Published private(set) var emailEntryError: String?
     @Published private(set) var deviceItems: [String] = []
     @Published var selectedDeviceIndex: Int?
     @Published private(set) var isDetectingDevices: Bool = false
@@ -275,6 +276,13 @@ final public class LoginViewModel {
 
 	func resetErrors() {
 		errors = []
+		emailEntryError = nil
+	}
+
+	func handleUnknownEmailNotAllowed() {
+		Log.debug("[STX]: Email not allowed during verification flow.")
+		backToEmailEntry()
+		emailEntryError = HCL10n.Auth.Login.notAllowedEmailError
 	}
 
     func didTapLogin() {
@@ -393,6 +401,9 @@ final public class LoginViewModel {
 			await MainActor.run {
 				CodeVerificationService.shared.requestEmailVerification(
 					email: self.email,
+					onUnknownEmailCancel: { [weak self] in
+						self?.handleUnknownEmailNotAllowed()
+					},
 					completion: { [weak self] isAuthenticated in
 						guard isAuthenticated else { return }
 						self?.refreshDevices()

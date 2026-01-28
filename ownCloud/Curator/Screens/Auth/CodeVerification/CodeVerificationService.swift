@@ -22,11 +22,13 @@ public final class CodeVerificationService {
 	private var isSetup: Bool = false
 	private var currentEmail: String?
 	private var reference: String?
+	private var onUnknownEmailCancel: (() -> Void)?
 
 	private var codeVerificationVM: CodeVerificationCardViewModel!
 	private var codeVerificationVC: CodeVerificationCardViewController!
 	private var code500CardVC: CodeVerification500CardViewController!
 	private var codeUnknownEmailCardVC: CodeVerificationUnknownEmailCardViewController!
+	private var codeTooManyRequestsCardVC: CodeVerificationTooManyRequestsCardViewController!
 
 	@Published private(set) var isLoading: Bool = false
 	@Published private(set) var error: Error?
@@ -55,11 +57,13 @@ public final class CodeVerificationService {
 	/// and will fire once the active flow finishes.
 	public func requestEmailVerification(
 		email: String,
+		onUnknownEmailCancel: (() -> Void)? = nil,
 		completion: Completion?
 	) {
 		if let completion { pendingCompletions.append(completion) }
 		guard isPresenting == false else { return }
 		isPresenting = true
+		self.onUnknownEmailCancel = onUnknownEmailCancel
 
 		Task {
 			await self.startEmailVerificationFlow(email: email)
@@ -75,6 +79,7 @@ public final class CodeVerificationService {
 		email: String,
 		onSuccess: @escaping (RAInitiateResponse) async -> Void,
 		onNonInternalServerError: @escaping (Error) async -> Void,
+		onTooManyRequestsError: @escaping (RemoteAccessAPIError) async -> Void,
 		onInternalServerError: @escaping (RemoteAccessAPIError) async -> Void,
 		onUnknownEmailError: @escaping (RemoteAccessAPIError) async -> Void
 	) async {
@@ -97,6 +102,9 @@ public final class CodeVerificationService {
 					switch apiError {
 						case .internalServerError:
 							await onInternalServerError(apiError)
+
+						case .tooManyRequests:
+							await onTooManyRequestsError(apiError)
 
 						case let .unauthorized(error):
 							if case .emailNotRegistered = error.kind {
@@ -144,6 +152,10 @@ public final class CodeVerificationService {
 			await MainActor.run {
 				self.container?.setContent(self.codeVerificationVC)
 			}
+		} onTooManyRequestsError: { error in
+			await MainActor.run {
+				self.container?.setContent(self.codeTooManyRequestsCardVC)
+			}
 		} onInternalServerError: { error in
 			await MainActor.run {
 				self.container?.setContent(self.code500CardVC)
@@ -168,7 +180,20 @@ public final class CodeVerificationService {
 	func buildCodeUnknownEmailCardViewController() -> CodeVerificationUnknownEmailCardViewController {
 		CodeVerificationUnknownEmailCardViewController(
 			onCancel: { [weak self] in
-				self?.onCancelTap()
+				guard let self else { return }
+				let handler = self.onUnknownEmailCancel
+				self.dismiss(isAuthenticated: false) {
+					handler?()
+				}
+			}
+		)
+	}
+
+	func buildCodeVerificationTooManyRequestsViewController() -> CodeVerificationTooManyRequestsCardViewController {
+		CodeVerificationTooManyRequestsCardViewController(
+			onCancel: { [weak self] in
+				guard let self else { return }
+				self.dismiss(isAuthenticated: false)
 			}
 		)
 	}
@@ -236,16 +261,18 @@ public final class CodeVerificationService {
 		self.error = nil
 	}
 
-	private func dismiss(isAuthenticated: Bool) {
+	private func dismiss(isAuthenticated: Bool, completion: (() -> Void)? = nil) {
 		container?.dismiss(animated: true) {
 			self.isPresenting = false
 			self.reference = nil
 			self.currentEmail = nil
+			self.onUnknownEmailCancel = nil
 			self.resetError()
 			self.buildVCs()
 			let completions = self.pendingCompletions
 			self.pendingCompletions = []
 			completions.forEach { $0(isAuthenticated) }
+			completion?()
 		}
 	}
 
@@ -265,5 +292,6 @@ public final class CodeVerificationService {
 
 		code500CardVC = buildCode500CardViewController()
 		codeUnknownEmailCardVC = buildCodeUnknownEmailCardViewController()
+		codeTooManyRequestsCardVC = buildCodeVerificationTooManyRequestsViewController()
 	}
 }
