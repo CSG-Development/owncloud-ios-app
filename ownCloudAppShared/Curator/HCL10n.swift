@@ -84,6 +84,7 @@ public enum HCL10n {
 			public static let incorrectEmailPassword = "Incorrect email or password"
 			public static let invalidEmail = "Please enter a valid email address"
 			public static let connectionError = "Connection error. Unable to reach the server."
+			public static let notAllowedEmailError = "Not allowed. Contact the device owner"
 
 			public enum EmailField {
 				public static let title = "Email"
@@ -159,6 +160,12 @@ public enum HCL10n {
 		public enum CodeUnknownEmail {
 			public static let title = "Email not registered"
 			public static let description = "This email isn’t authorized to access this device. Please contact the owner."
+			public static let cancelButtonTitle = "OK"
+		}
+
+		public enum TooManyRequests {
+			public static let title = "Access to Personal Cloud"
+			public static let description = "There have been too many attempts for access within the last minute. Please wait at least two minutes before retrying."
 			public static let cancelButtonTitle = "OK"
 		}
 
