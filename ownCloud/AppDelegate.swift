@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 				completion: completion
 			)
 		}
-		
+
 		_ = HCKeyboardTracker.shared
 
 #if !DEBUG

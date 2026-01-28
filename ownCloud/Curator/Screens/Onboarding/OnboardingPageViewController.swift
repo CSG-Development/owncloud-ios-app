@@ -2,7 +2,7 @@ import UIKit
 import SnapKit
 import ownCloudAppShared
 
-class OnboardingPageViewController: UIViewController {
+class OnboardingPageViewController: UIViewController, Themeable {
 	let page: OnboardingPage
 
 	private lazy var pageContentView: OnboardingContentView = {
@@ -16,10 +16,15 @@ class OnboardingPageViewController: UIViewController {
 		self.page = page
 
 		super.init(nibName: nil, bundle: nil)
+		Theme.shared.register(client: self, applyImmediately: true)
 	}
 
 	required init?(coder: NSCoder) {
 		fatalError("Not implemented")
+	}
+
+	deinit {
+		Theme.shared.unregister(client: self)
 	}
 
 	override func viewDidLoad() {
@@ -51,6 +56,9 @@ class OnboardingPageViewController: UIViewController {
 				$0.bottom.equalToSuperview().priority(.low)
 			}
 		}
+		var insets = scrollView.contentInset
+		insets.bottom = 68
+		scrollView.contentInset = insets
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
@@ -71,4 +79,6 @@ class OnboardingPageViewController: UIViewController {
 
 		pageContentView.useSmallerImage = isPhone && isLandscape
 	}
+
+	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {}
 }
