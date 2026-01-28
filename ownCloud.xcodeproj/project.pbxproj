@@ -192,6 +192,7 @@
 		99743C6C2E1E6FF800DB77C2 /* UITextField+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */; };
 		99743C772E1E9FD900DB77C2 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */; };
 		997882872F28AFF600BCBB67 /* DeveloperOptionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997882832F28AFEB00BCBB67 /* DeveloperOptionsViewModel.swift */; };
+		997882932F2A1DEF00BCBB67 /* HCHStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9978828F2F2A1DEB00BCBB67 /* HCHStack.swift */; };
 		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
 		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
 		99AAAAAA2EA53B9E00FF70B7 /* DeviceAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */; };
@@ -1364,6 +1365,7 @@
 		99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Combine.swift"; sourceTree = "<group>"; };
 		99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		997882832F28AFEB00BCBB67 /* DeveloperOptionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperOptionsViewModel.swift; sourceTree = "<group>"; };
+		9978828F2F2A1DEB00BCBB67 /* HCHStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCHStack.swift; sourceTree = "<group>"; };
 		99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAPIClient.swift; sourceTree = "<group>"; };
 		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
 		99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+NavSeparator.swift"; sourceTree = "<group>"; };
@@ -2856,6 +2858,7 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				9978828F2F2A1DEB00BCBB67 /* HCHStack.swift */,
 				99E7B97B2F2399CB00B0EC27 /* ContainerController.swift */,
 				99C42E172EB3890C00E36414 /* HCCodeView.swift */,
 				99C42DDA2EA667F800E36414 /* HCOverlayView.swift */,
@@ -5434,6 +5437,7 @@
 				DC89EA5C2993A0E000BFF393 /* AppStateActionConnect.swift in Sources */,
 				DCB330C929EF30BD00BFF393 /* OCIdentity+UniversalItemListCellContentProvider.swift in Sources */,
 				DCB6B206292E1D8400D27573 /* RoundedLabel.swift in Sources */,
+				997882932F2A1DEF00BCBB67 /* HCHStack.swift in Sources */,
 				DC99155028E63D8300DA0AB8 /* SegmentViewItemView.swift in Sources */,
 				991B368E2E2199B500369B7D /* HCTextFieldView.swift in Sources */,
 				DC3AB2462810602500789435 /* UILabel+Extension.swift in Sources */,

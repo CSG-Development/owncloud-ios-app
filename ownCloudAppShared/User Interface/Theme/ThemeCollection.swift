@@ -144,6 +144,7 @@ public enum ThemeCollectionStyle : String, CaseIterable {
 
 public class ThemeCollection : NSObject {
 	@objc var identifier : String = UUID().uuidString
+	public let style: ThemeCollectionStyle
 
 	// MARK: - ThemeCSS
 	public var css: ThemeCSS
@@ -209,7 +210,7 @@ public class ThemeCollection : NSObject {
 
 	init(darkBrandColor inDarkColor: UIColor, lightBrandColor inLightColor: UIColor, style: ThemeCollectionStyle = .dark, interfaceStyles: NSDictionary? = nil, useSystemColors: Bool = false, systemTintColor: UIColor? = nil) {
 		var logoFillColor : UIColor?
-
+		self.style = style
 		self.css = ThemeCSS()
 
 		var interfaceStyle : UIUserInterfaceStyle = .unspecified

@@ -19,24 +19,24 @@ public enum HCL10n {
 		public static let skipButtonTitle = "Skip"
 
 		public enum Step_ManageFiles {
-			public static let title = "Manage all your synced files"
-			public static let subtitle = "You can move, copy, delete. You can move, copy, delete.You can move, copy, delete.You can move, copy, delete. You can move, copy, delete"
+			public static let title = "Welcome to Personal Cloud Files"
+			public static let subtitle = "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage.\n\nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
 		}
-		public enum Step_ShareFiles {
-			public static let title = "Share files and folders"
-			public static let subtitle = "You can share privately or publicly. You can share privately or publicly. You can share privately or publicly. You can share privately or publicly"
+		public enum Step_SyncFiles {
+			public static let title = "Sync your files to Personal Cloud"
+			public static let subtitle = "Use the desktop app to upload files directly from your computer to Personal Cloud Files.\n\nEnsure your files are synced and backed up to Personal Cloud for easy access across all your devices."
 		}
-		public enum Step_MultiAccount {
-			public static let title = "Multi account"
-			public static let subtitle = "Connect to all your owncloud Servers. Connect to all your owncloud Servers. Connect to all your owncloud Servers. Connect to all your owncloud Servers"
+		public enum Step_FileDeduplication {
+			public static let title = "File deduplication"
+			public static let subtitle = "Identify and manage duplicate files uploaded to your account.\n\nSee exactly how many copies exist and access them all from the Duplicates page."
 		}
-		public enum Step_CameraUploads {
-			public static let title = "Camera uploads"
-			public static let subtitle = "Your pictures/videos automatically uploaded. Your pictures/videos automatically uploaded. Your pictures/videos automatically uploaded. Your pictures/videos automatically uploaded"
+		public enum Step_Search {
+			public static let title = "Quickly find what you need"
+			public static let subtitle = "Search files on Personal Cloud by name, date, type, size, and folder."
 		}
-		public enum Step_VideoStreaming {
-			public static let title = "Video streaming"
-			public static let subtitle = "Play your videos without downloding them. Play your videos without downloding them. Play your videos without downloding them. Play your videos without downloding them"
+		public enum Step_SecureSharing {
+			public static let title = "Secure sharing made simple"
+			public static let subtitle = "Share files and folders securely with family and friends. You can control access by setting expiration dates for shared links so that files remain private over time."
 		}
 	}
 

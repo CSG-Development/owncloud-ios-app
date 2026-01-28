@@ -231,7 +231,6 @@ final public class DeveloperOptionsViewController: UIViewController, Themeable {
 		dismiss(animated: true)
 	}
 
-
 	@objc private func didToggleSettingsSwitch() {
 		viewModel.isLoginSettingsEnabled = settingsSwitch.isOn
 	}
