@@ -142,6 +142,9 @@ final public class LoginViewController: UIViewController, Themeable {
 	private var settingsButton: UIButton!
 	private var backButton: UIButton!
 	private var stackView: UIStackView!
+	private var formStackView: UIStackView!
+	private var topAreaView: UIView!
+	private var loginButtonBottomSpacer: UIView!
 	private var refreshButton: UIButton!
 	private var smallSpinner: HCSpinnerView!
 	private var addressRowView: UIStackView!
@@ -255,13 +258,39 @@ final public class LoginViewController: UIViewController, Themeable {
 		contentContainer.addSubview(stackView)
 		self.stackView = stackView
 		stackView.snp.makeConstraints {
-			$0.top.greaterThanOrEqualToSuperview()
-			$0.bottom.lessThanOrEqualToSuperview()
-			$0.centerY.equalToSuperview().offset(-24).priority(.low)
+			$0.top.equalToSuperview()
+			$0.bottom.equalToSuperview()
 			$0.centerX.equalToSuperview()
 			$0.leading.greaterThanOrEqualToSuperview().offset(24)
 			$0.width.equalToSuperview().priority(.high)
 			$0.width.lessThanOrEqualTo(400)
+		}
+
+		let formStackView = UIStackView()
+		formStackView.axis = .vertical
+		formStackView.spacing = 0
+		formStackView.setContentHuggingPriority(.required, for: .vertical)
+		formStackView.setContentCompressionResistancePriority(.required, for: .vertical)
+		self.formStackView = formStackView
+
+		let topAreaView = UIView()
+		topAreaView.setContentHuggingPriority(.defaultLow, for: .vertical)
+		topAreaView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+		self.topAreaView = topAreaView
+
+		let loginButtonBottomSpacer = HCSpacerView(24)
+		self.loginButtonBottomSpacer = loginButtonBottomSpacer
+
+		stackView.addArrangedSubview(topAreaView)
+		stackView.addArrangedSubview(loginButton)
+		stackView.addArrangedSubview(loginButtonBottomSpacer)
+
+		topAreaView.addSubview(formStackView)
+		formStackView.snp.makeConstraints {
+			$0.centerY.equalToSuperview().priority(.low)
+			$0.top.greaterThanOrEqualToSuperview()
+			$0.bottom.lessThanOrEqualToSuperview()
+			$0.leading.trailing.equalToSuperview()
 		}
 
 		let resetPasswordButtonContainer = UIStackView(arrangedSubviews: [
@@ -339,7 +368,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		self.smallSpinner = smallSpinner
 		self.addressRowView = addressRow
 
-		stackView.addArrangedSubviews(arrangedSubviews(for: viewModel.step, isLoading: viewModel.isLoading))
+		formStackView.addArrangedSubviews(arrangedSubviews(for: viewModel.step, isLoading: viewModel.isLoading))
 
 		update(for: viewModel.step)
 	}
@@ -358,8 +387,6 @@ final public class LoginViewController: UIViewController, Themeable {
 					logoContainer,
 					HCSpacerView(24),
 					emailTextField,
-					HCSpacerView(24),
-					loginButton,
 					HCSpacerView(24)
 				]
 			case .deviceSelection:
@@ -374,18 +401,20 @@ final public class LoginViewController: UIViewController, Themeable {
 					passwordTextField,
 					HCSpacerView(4),
 					(resetPasswordButtonContainerRef ?? UIStackView(arrangedSubviews: [resetPasswordButton, HCSpacerView(nil, .horizontal)])),
-					HCSpacerView(24),
-					loginButton,
-					HCSpacerView(24),
+					HCSpacerView(16),
 					errorStackView
 				]
 		}
 	}
 
 	private func update(for step: LoginViewModel.Step) {
-		guard let stackView else { return }
-		stackView.arrangedSubviews.forEach { stackView.removeArrangedSubview($0); $0.removeFromSuperview() }
-		stackView.addArrangedSubviews(arrangedSubviews(for: step, isLoading: viewModel.isLoading))
+		guard let formStackView else { return }
+		formStackView.arrangedSubviews.forEach { formStackView.removeArrangedSubview($0); $0.removeFromSuperview() }
+		formStackView.addArrangedSubviews(arrangedSubviews(for: step, isLoading: viewModel.isLoading))
+
+		let isLoading = viewModel.isLoading
+		loginButton.isHidden = isLoading
+		loginButtonBottomSpacer.isHidden = isLoading
 
 		switch step {
 			case .emailEntry:
