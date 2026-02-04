@@ -1,0 +1,67 @@
+input:
+  frontend: "spreadsheet"
+  spreadsheet_key: "19hst4kSiZtin54cHnIc925wquhXXWMR6_E3Wih1sTGk"
+  credentials_json: "Scripts/L10n/homecloud-l10n-5f2611435b25.json"
+  worksheet_names: ["iOS"]
+  key_column_name: "KEY_IOS"
+  value_column_names: ["ca", "cs", "de", "en", "en-GB", "es", "eu", "fr", "ko", "mk", "nb-NO", "nn-NO", "pt-BR", "pt-PT", "ru", "sq", "th-TH", "tr", "zh-Hans"]
+  namespace_column_name: "NAMESPACE"
+
+output:
+  - backend: "ios_xcstrings"
+    namespace_paths: 
+      - ["iOS", "owncloud_localization_xcstrings"]
+      - ["iOS", "personal_cloud"]      
+    output_dir: "ownCloud/Resources/"
+    output_filename: "Localizable.xcstrings"
+    source_language: "en"
+
+  - backend: "ios_xcstrings"
+    namespace_paths: 
+      - ["iOS", "owncloud_infoplist_xcstrings"]      
+    output_dir: "ownCloud/Resources/"
+    output_filename: "InfoPlist.xcstrings"
+    source_language: "en"
+
+  - backend: "ios_xcstrings"
+    namespace_paths: 
+      - ["iOS", "owncloud_app_framework_xcstrings"]      
+    output_dir: "ownCloudAppFramework/Resources/"
+    output_filename: "Localizable.xcstrings"
+    source_language: "en"
+
+  - backend: "ios_xcstrings"
+    namespace_paths: 
+      - ["iOS", "owncloud_file_provider_xcstrings"]      
+    output_dir: "ownCloud File Provider/"
+    output_filename: "Localizable.xcstrings"
+    source_language: "en"
+
+  - backend: "ios_xcstrings"
+    namespace_paths: 
+      - ["iOS", "owncloud_share_extension_infoplist_xcstrings"]      
+    output_dir: "ownCloud Share Extension/"
+    output_filename: "InfoPlist.xcstrings"
+    source_language: "en"
+
+  - backend: "ios_xcstrings"
+    namespace_paths: 
+      - ["iOS", "owncloud_action_extension_infoplist_xcstrings"]      
+    output_dir: "ownCloud Action Extension/"
+    output_filename: "InfoPlist.xcstrings"
+    source_language: "en"
+
+  - backend: "ios_xcstrings"
+    namespace_paths: 
+      - ["iOS", "owncloud_sdk_xcstrings"]      
+    output_dir: "ios-sdk/ownCloudSDK/Resources/"
+    output_filename: "Localizable.xcstrings"
+    source_language: "en"
+
+  - backend: "ios_xcstrings"
+    namespace_paths: 
+      - ["iOS", "owncloud_sdk_ui_xcstrings"]      
+    output_dir: "ios-sdk/ownCloudUI/Resources/"
+    output_filename: "Localizable.xcstrings"
+    source_language: "en"
+

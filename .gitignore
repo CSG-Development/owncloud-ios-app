@@ -140,3 +140,6 @@ Pods/
 /Gemfile.lock
 
 .cursor
+
+# L10n service account credentials.
+homecloud-l10n-5f2611435b25.json
