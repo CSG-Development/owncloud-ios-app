@@ -2,7 +2,6 @@
   "sourceLanguage" : "en",
   "strings" : {
     "Authorization failed" : {
-      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -307,7 +306,6 @@
       }
     },
     "Log into your account %@ in the app for more details." : {
-      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -460,7 +458,6 @@
       }
     },
     "The destination folder couldn't be found on this server. Moving items across servers is currently not supported." : {
-      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {

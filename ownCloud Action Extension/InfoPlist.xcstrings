@@ -6,19 +6,19 @@
       "localizations" : {
         "ca" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Desa a ownCloud"
           }
         },
         "cs" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Save to ownCloud"
           }
         },
         "de" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Speichern in ownCloud"
           }
         },
@@ -30,49 +30,49 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Save to ownCloud"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Save to ownCloud"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Save to ownCloud"
           }
         },
         "mk" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Save to ownCloud"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Сохранить в ownCloud"
           }
         },
         "sq" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Ruajeni në ownCloud"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Save to ownCloud"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Save to ownCloud"
           }
         }
@@ -233,7 +233,7 @@
       }
     },
     "Share Extension unavailable" : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -310,7 +310,7 @@
       }
     },
     "The Share Extension is not available on this system." : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {

@@ -1244,7 +1244,6 @@
 		39D091B32D07963B001329DF /* ConfidentialManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConfidentialManager.h; sourceTree = "<group>"; };
 		39D091B52D079644001329DF /* ConfidentialManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConfidentialManager.m; sourceTree = "<group>"; };
 		39D8397F25A7219100FAA0A8 /* sq */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sq; path = sq.lproj/Intents.strings; sourceTree = "<group>"; };
-		39D8398925A7219300FAA0A8 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Intents.strings; sourceTree = "<group>"; };
 		39D8399325A7219600FAA0A8 /* eu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = eu; path = eu.lproj/Intents.strings; sourceTree = "<group>"; };
 		39D8399D25A7219700FAA0A8 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Intents.strings"; sourceTree = "<group>"; };
 		39D839A725A7219900FAA0A8 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Intents.strings; sourceTree = "<group>"; };
@@ -4873,7 +4872,6 @@
 				"pt-PT",
 				"th-TH",
 				eu,
-				ar,
 				fr,
 			);
 			mainGroup = 233BDE93204FEFE500C06732;
@@ -6065,7 +6063,6 @@
 				39057AA9233BA7A60008E6C0 /* Base */,
 				39057AB1233BA7AE0008E6C0 /* en */,
 				39D8397F25A7219100FAA0A8 /* sq */,
-				39D8398925A7219300FAA0A8 /* ar */,
 				39D8399325A7219600FAA0A8 /* eu */,
 				39D8399D25A7219700FAA0A8 /* zh-Hans */,
 				39D839A725A7219900FAA0A8 /* cs */,

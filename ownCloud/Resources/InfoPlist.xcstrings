@@ -3,11 +3,10 @@
   "strings" : {
     "CFBundleDisplayName" : {
       "comment" : "Bundle display name",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Personal Cloud Files"
           }
         }
@@ -15,25 +14,18 @@
     },
     "CFBundleName" : {
       "comment" : "Bundle name",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "personalCloudFiles"
           }
         }
       }
     },
     "NSAppleMusicUsageDescription" : {
-      "extractionState" : "manual",
+      "comment" : "Privacy - Media Library Usage Description",
       "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "هذا الإذن مطلوب لتحميل ملفات الوسائط من الخادم"
-          }
-        },
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
@@ -152,25 +144,18 @@
     },
     "NSCameraUsageDescription" : {
       "comment" : "Privacy - Camera Usage Description",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "This permission is needed to scan documents."
           }
         }
       }
     },
     "NSFaceIDUsageDescription" : {
-      "extractionState" : "manual",
+      "comment" : "Privacy - Face ID Usage Description",
       "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "إلغاء قفل التطبيق دون كتابة الرمز المروري"
-          }
-        },
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
@@ -289,25 +274,18 @@
     },
     "NSLocalNetworkUsageDescription" : {
       "comment" : "Privacy - Local Network Usage Description",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "This app discovers HomeCloud devices on your local network."
           }
         }
       }
     },
     "NSLocationAlwaysAndWhenInUseUsageDescription" : {
-      "extractionState" : "manual",
+      "comment" : "Privacy - Location Always and When In Use Usage Description",
       "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "هذا الإذن مطلوب لتمكين التحميل التلقائي للصور ومقاطع الفيديو في الخلفية."
-          }
-        },
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
@@ -419,14 +397,8 @@
       }
     },
     "NSLocationAlwaysUsageDescription" : {
-      "extractionState" : "manual",
+      "comment" : "Privacy - Location Always Usage Description",
       "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "هذا الإذن مطلوب لتمكين التحميل التلقائي للصور ومقاطع الفيديو في الخلفية."
-          }
-        },
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
@@ -538,14 +510,8 @@
       }
     },
     "NSLocationWhenInUseUsageDescription" : {
-      "extractionState" : "manual",
+      "comment" : "Privacy - Location When In Use Usage Description",
       "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "هذا الإذن مطلوب لتمكين التحميل التلقائي للصور ومقاطع الفيديو في الخلفية."
-          }
-        },
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
@@ -657,14 +623,8 @@
       }
     },
     "NSMicrophoneUsageDescription" : {
-      "extractionState" : "manual",
+      "comment" : "Privacy - Microphone Usage Description",
       "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "هذا الإذن مطلوب لتسجيل مقاطع الفيديو"
-          }
-        },
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
@@ -782,14 +742,8 @@
       }
     },
     "NSPhotoLibraryAddUsageDescription" : {
-      "extractionState" : "manual",
+      "comment" : "Privacy - Photo Library Additions Usage Description",
       "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "هذا الإذن مطلوب لتحميل الصور والفيديوهات من مكتبة الصور"
-          }
-        },
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
@@ -907,14 +861,8 @@
       }
     },
     "NSPhotoLibraryUsageDescription" : {
-      "extractionState" : "manual",
+      "comment" : "Privacy - Photo Library Usage Description",
       "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "هذا الإذن مطلوب لتحميل الصور والفيديوهات من مكتبة الصور"
-          }
-        },
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
