@@ -17,8 +17,8 @@ else
 fi
 
 if ! [ -x "$(command -v localization_tool)" ]; then
-	#pip install git+https://gitlabfr.noveogroup.com/totalenergies/localization-tool.git
-    pip install -e ../../tde/localization-tool
+	pip install git+https://gitlabfr.noveogroup.com/internal/localization-tool.git
+    #pip install -e ../../localization-tool
 fi
 
 localization_tool -c Scripts/L10n/config.yaml
