@@ -25,7 +25,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Save to ownCloud"
+            "value" : "Save to Personal Cloud Files"
           }
         },
         "es" : {
@@ -233,7 +233,7 @@
       }
     },
     "Share Extension unavailable" : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -310,7 +310,7 @@
       }
     },
     "The Share Extension is not available on this system." : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {

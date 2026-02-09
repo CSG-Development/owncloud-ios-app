@@ -2,39 +2,46 @@ import UIKit
 import SnapKit
 import ownCloudAppShared
 
-class OnboardingViewController: UIViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+class OnboardingViewController: UIViewController, Themeable, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
 	private let pages: [OnboardingPage] = [
 		.init(
-			imageName: "onboarding/step_1",
+			imageNameLight: "onboarding/step_1_light",
+			imageNameDark: "onboarding/step_1_dark",
 			title: HCL10n.Onboarding.Step_ManageFiles.title,
 			subtitle: HCL10n.Onboarding.Step_ManageFiles.subtitle
 		),
 		.init(
-			imageName: "onboarding/step_1",
-			title: HCL10n.Onboarding.Step_ShareFiles.title,
-			subtitle: HCL10n.Onboarding.Step_ShareFiles.subtitle
+			imageNameLight: "onboarding/step_2_light",
+			imageNameDark: "onboarding/step_2_dark",
+			installAppImageNameLight: "onboarding/install_app_light",
+			installAppImageNameDark: "onboarding/install_app_dark",
+			title: HCL10n.Onboarding.Step_SyncFiles.title,
+			subtitle: HCL10n.Onboarding.Step_SyncFiles.subtitle
 		),
 		.init(
-			imageName: "onboarding/step_1",
-			title: HCL10n.Onboarding.Step_MultiAccount.title,
-			subtitle: HCL10n.Onboarding.Step_MultiAccount.subtitle
+			imageNameLight: "onboarding/step_3_light",
+			imageNameDark: "onboarding/step_3_dark",
+			title: HCL10n.Onboarding.Step_FileDeduplication.title,
+			subtitle: HCL10n.Onboarding.Step_FileDeduplication.subtitle
 		),
 		.init(
-			imageName: "onboarding/step_1",
-			title: HCL10n.Onboarding.Step_CameraUploads.title,
-			subtitle: HCL10n.Onboarding.Step_CameraUploads.subtitle
+			imageNameLight: "onboarding/step_4_light",
+			imageNameDark: "onboarding/step_4_dark",
+			title: HCL10n.Onboarding.Step_Search.title,
+			subtitle: HCL10n.Onboarding.Step_Search.subtitle
 		),
 		.init(
-			imageName: "onboarding/step_1",
-			title: HCL10n.Onboarding.Step_VideoStreaming.title,
-			subtitle: HCL10n.Onboarding.Step_VideoStreaming.subtitle
+			imageNameLight: "onboarding/step_5_light",
+			imageNameDark: "onboarding/step_5_dark",
+			title: HCL10n.Onboarding.Step_SecureSharing.title,
+			subtitle: HCL10n.Onboarding.Step_SecureSharing.subtitle
 		)
 	]
 	private var currentPage = 0
 	private var seenPageIndices: Set<Int> = HCPreferences.shared.onboardingSeenPageIndices
 
 	private lazy var imageView: UIImageView = {
-		let imageView = UIImageView(image: UIImage(named: "onboarding/background"))
+		let imageView = UIImageView()
 		imageView.contentMode = .scaleAspectFit
 		imageView.clipsToBounds = true
 		return imageView
@@ -51,12 +58,14 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 		navigationOrientation: .horizontal
 	)
 
+	private lazy var controlsGradientLayer: CAGradientLayer = {
+		CAGradientLayer()
+	}()
+
 	private lazy var pageControl: UIPageControl = {
 		let pageControl = UIPageControl()
 		pageControl.numberOfPages = pages.count
 		pageControl.currentPage = currentPage
-		pageControl.currentPageIndicatorTintColor = .white
-		pageControl.pageIndicatorTintColor = UIColor.white.withAlphaComponent(0.5)
 		pageControl.isUserInteractionEnabled = false
 		pageControl.setContentCompressionResistancePriority(.required, for: .horizontal)
 		return pageControl
@@ -64,7 +73,6 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 
 	private lazy var skipButton: UIButton = {
 		let button = UIButton(type: .system)
-		button.setTitleColor(.white, for: .normal)
 		button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
 		button.addTarget(self, action: #selector(skipTapped), for: .touchUpInside)
 		button.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -74,12 +82,17 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 
 	private lazy var nextButton: UIButton = {
 		let button = UIButton(type: .system)
-		button.tintColor = .white
 		button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
 		button.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
 		button.setContentCompressionResistancePriority(.required, for: .horizontal)
 		button.snp.makeConstraints { $0.width.greaterThanOrEqualTo(50) }
 		return button
+	}()
+
+	private lazy var controlsStackViewContainer: UIView = {
+		let view = UIView()
+		view.backgroundColor = .clear
+		return view
 	}()
 
 	private lazy var controlsStackView: UIStackView = {
@@ -95,10 +108,15 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 
 	init() {
 		super.init(nibName: nil, bundle: nil)
+		Theme.shared.register(client: self, applyImmediately: true)
 	}
 
 	required init?(coder: NSCoder) {
 		fatalError("Not implemented")
+	}
+
+	deinit {
+		Theme.shared.unregister(client: self)
 	}
 
 	override func viewDidLoad() {
@@ -110,29 +128,13 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 		updateButtons()
 	}
 
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+
+		controlsGradientLayer.frame = controlsStackViewContainer.bounds
+	}
+
 	private func configureViews() {
-		view.backgroundColor = .black
-
-		view.addSubview(imageViewContainer)
-		imageViewContainer.snp.makeConstraints { $0.edges.equalToSuperview() }
-
-		imageViewContainer.addSubview(imageView)
-		imageView.snp.makeConstraints {
-			$0.leading.centerY.trailing.equalToSuperview()
-			if let image = imageView.image, image.size.width > 0 {
-				$0.height.equalTo(imageView.snp.width)
-					.multipliedBy(image.size.height / image.size.width)
-			}
-		}
-
-		view.addSubview(controlsStackView)
-		controlsStackView.snp.makeConstraints {
-			$0.bottom.equalTo(view.safeAreaLayoutGuide)
-			$0.height.equalTo(68)
-			$0.centerX.equalToSuperview()
-			$0.leading.greaterThanOrEqualToSuperview().offset(24)
-		}
-
 		// PageViewController
 		addChild(pageVC)
 		view.addSubview(pageVC.view)
@@ -143,8 +145,24 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 		pageVC.view.snp.makeConstraints {
 			$0.top.equalTo(view.safeAreaLayoutGuide)
 			$0.leading.trailing.equalToSuperview()
-			$0.bottom.equalTo(controlsStackView.snp.top)
+			$0.bottom.equalTo(view.safeAreaLayoutGuide)
 		}
+
+		view.addSubview(controlsStackViewContainer)
+		controlsStackViewContainer.snp.makeConstraints {
+			$0.bottom.equalTo(view.safeAreaLayoutGuide)
+			$0.height.equalTo(68)
+			$0.leading.trailing.equalToSuperview()
+		}
+		controlsStackViewContainer.layer.insertSublayer(controlsGradientLayer, at: 0)
+
+		controlsStackViewContainer.addSubview(controlsStackView)
+		controlsStackView.snp.makeConstraints {
+			$0.bottom.top.equalToSuperview()
+			$0.centerX.equalToSuperview()
+			$0.leading.greaterThanOrEqualToSuperview().offset(24)
+		}
+		controlsStackView.backgroundColor = .clear
 
 		let spacer1 = HCSpacerView(nil, .horizontal)
 		let spacer2 = HCSpacerView(nil, .horizontal)
@@ -263,5 +281,25 @@ class OnboardingViewController: UIViewController, UIPageViewControllerDataSource
 			}
 		}
 		return 0
+	}
+
+	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
+		let backgroundColor = collection.css.getColor(.fill, selectors: [.hcCardView, .background], for: nil)
+		view.backgroundColor = backgroundColor
+
+		let textColor = collection.css.getColor(.fill, selectors: [.text], for: nil) ?? .white
+
+		pageControl.currentPageIndicatorTintColor = textColor
+		pageControl.pageIndicatorTintColor = textColor.withAlphaComponent(0.435)
+		skipButton.tintColor = textColor
+		nextButton.tintColor = textColor
+
+		let topColor = (backgroundColor ?? .clear).withAlphaComponent(0)
+		let bottomColor = backgroundColor ?? .clear
+
+		controlsGradientLayer.colors = [topColor.cgColor, bottomColor.cgColor]
+		controlsGradientLayer.locations = [0.0, 0.33, 1.0]
+		controlsGradientLayer.startPoint = CGPoint(x: 0.5, y: 0.0)
+		controlsGradientLayer.endPoint = CGPoint(x: 0.5, y: 1.0)
 	}
 }

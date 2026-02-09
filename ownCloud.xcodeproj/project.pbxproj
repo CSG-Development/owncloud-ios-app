@@ -191,6 +191,9 @@
 		99743C6A2E1E6DE700DB77C2 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */; };
 		99743C6C2E1E6FF800DB77C2 /* UITextField+Combine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */; };
 		99743C772E1E9FD900DB77C2 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */; };
+		997882872F28AFF600BCBB67 /* DeveloperOptionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997882832F28AFEB00BCBB67 /* DeveloperOptionsViewModel.swift */; };
+		997882932F2A1DEF00BCBB67 /* HCHStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9978828F2F2A1DEB00BCBB67 /* HCHStack.swift */; };
+		997882972F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997882962F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift */; };
 		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
 		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
 		99AAAAAA2EA53B9E00FF70B7 /* DeviceAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */; };
@@ -198,6 +201,7 @@
 		99B8B1DE2E7330F000535240 /* UIViewController+NavSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */; };
 		99BC9F2E2E4C72DE0004F6B2 /* HCErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */; };
 		99BD2B882E93C62C00DFBDF0 /* ItemLayoutPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BD2B872E93C62C00DFBDF0 /* ItemLayoutPreference.swift */; };
+		99C18E3D2F28AE760001C7F0 /* DeveloperOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C18E3C2F28AE6C0001C7F0 /* DeveloperOptionsViewController.swift */; };
 		99C42DD92EA6670600E36414 /* HCCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DD82EA6670200E36414 /* HCCardView.swift */; };
 		99C42DDB2EA667FE00E36414 /* HCOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DDA2EA667F800E36414 /* HCOverlayView.swift */; };
 		99C42DDF2EA6692E00E36414 /* HCDropdownTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DDD2EA668AA00E36414 /* HCDropdownTextFieldView.swift */; };
@@ -207,10 +211,6 @@
 		99C42DF82EA9423B00E36414 /* RemoteAccessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */; };
 		99C42DFC2EAA5C7400E36414 /* RemoteAccessTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */; };
 		99C42DFF2EAFA5BA00E36414 /* UnableToConnectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */; };
-		99C42E062EAFC22600E36414 /* OldLoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */; };
-		99C42E072EAFC22600E36414 /* OldLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */; };
-		99C42E082EAFC22600E36414 /* OldLoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E032EAFC22600E36414 /* OldLoginViewController.swift */; };
-		99C42E0D2EAFC88B00E36414 /* OldFirstRunCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */; };
 		99C42E0F2EB0CDC900E36414 /* HCConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E0E2EB0CDC100E36414 /* HCConfig.swift */; };
 		99C42E112EB0F38400E36414 /* HCIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E102EB0F37D00E36414 /* HCIcon.swift */; };
 		99C42E132EB10E1D00E36414 /* Network+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E122EB10E0800E36414 /* Network+Extensions.swift */; };
@@ -1149,7 +1149,7 @@
 		232B01F32126B0CE00366FA0 /* MoreViewHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreViewHeader.swift; sourceTree = "<group>"; };
 		232B01F52126B10900366FA0 /* MoreStaticTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreStaticTableViewController.swift; sourceTree = "<group>"; };
 		232F7CAE2097260400EE22E4 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
-		233BDE9C204FEFE500C06732 /* curatorFiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = curatorFiles.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		233BDE9C204FEFE500C06732 /* personalCloudFiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = personalCloudFiles.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		233BDE9F204FEFE500C06732 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		233BDEA6204FEFE500C06732 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		233BDEAB204FEFE500C06732 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1244,7 +1244,6 @@
 		39D091B32D07963B001329DF /* ConfidentialManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConfidentialManager.h; sourceTree = "<group>"; };
 		39D091B52D079644001329DF /* ConfidentialManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConfidentialManager.m; sourceTree = "<group>"; };
 		39D8397F25A7219100FAA0A8 /* sq */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sq; path = sq.lproj/Intents.strings; sourceTree = "<group>"; };
-		39D8398925A7219300FAA0A8 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Intents.strings; sourceTree = "<group>"; };
 		39D8399325A7219600FAA0A8 /* eu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = eu; path = eu.lproj/Intents.strings; sourceTree = "<group>"; };
 		39D8399D25A7219700FAA0A8 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Intents.strings"; sourceTree = "<group>"; };
 		39D839A725A7219900FAA0A8 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Intents.strings; sourceTree = "<group>"; };
@@ -1365,12 +1364,16 @@
 		99743C692E1E6DE200DB77C2 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		99743C6B2E1E6FEC00DB77C2 /* UITextField+Combine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Combine.swift"; sourceTree = "<group>"; };
 		99743C762E1E9FD300DB77C2 /* LoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
+		997882832F28AFEB00BCBB67 /* DeveloperOptionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperOptionsViewModel.swift; sourceTree = "<group>"; };
+		9978828F2F2A1DEB00BCBB67 /* HCHStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCHStack.swift; sourceTree = "<group>"; };
+		997882962F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationTooManyRequestsCardViewController.swift; sourceTree = "<group>"; };
 		99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAPIClient.swift; sourceTree = "<group>"; };
 		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
 		99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+NavSeparator.swift"; sourceTree = "<group>"; };
 		99BBBBB12EA5400000FF70B7 /* TokenSecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSecureStorage.swift; sourceTree = "<group>"; };
 		99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCErrorView.swift; sourceTree = "<group>"; };
 		99BD2B872E93C62C00DFBDF0 /* ItemLayoutPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemLayoutPreference.swift; sourceTree = "<group>"; };
+		99C18E3C2F28AE6C0001C7F0 /* DeveloperOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeveloperOptionsViewController.swift; sourceTree = "<group>"; };
 		99C42DD22EA65E0000E36414 /* CodeVerificationCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationCardViewController.swift; sourceTree = "<group>"; };
 		99C42DD42EA65E4700E36414 /* CodeVerificationCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationCardViewModel.swift; sourceTree = "<group>"; };
 		99C42DD82EA6670200E36414 /* HCCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCCardView.swift; sourceTree = "<group>"; };
@@ -1380,10 +1383,6 @@
 		99C42DF72EA9423B00E36414 /* RemoteAccessService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessService.swift; sourceTree = "<group>"; };
 		99C42DFB2EAA5C7400E36414 /* RemoteAccessTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAccessTokenStore.swift; sourceTree = "<group>"; };
 		99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnableToConnectViewController.swift; sourceTree = "<group>"; };
-		99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginCoordinator.swift; sourceTree = "<group>"; };
-		99C42E032EAFC22600E36414 /* OldLoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginViewController.swift; sourceTree = "<group>"; };
-		99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldLoginViewModel.swift; sourceTree = "<group>"; };
-		99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldFirstRunCoordinator.swift; sourceTree = "<group>"; };
 		99C42E0E2EB0CDC100E36414 /* HCConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCConfig.swift; sourceTree = "<group>"; };
 		99C42E102EB0F37D00E36414 /* HCIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCIcon.swift; sourceTree = "<group>"; };
 		99C42E122EB10E0800E36414 /* Network+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network+Extensions.swift"; sourceTree = "<group>"; };
@@ -2097,7 +2096,7 @@
 		233BDE9D204FEFE500C06732 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				233BDE9C204FEFE500C06732 /* curatorFiles.app */,
+				233BDE9C204FEFE500C06732 /* personalCloudFiles.app */,
 				233BDEB0204FEFE500C06732 /* ownCloudTests.xctest */,
 				DC7DBA34207F84BF00E7337D /* MakeTVG */,
 				DCC6564620C9B7E300110A97 /* ownCloud File Provider.appex */,
@@ -2633,11 +2632,20 @@
 			path = Combine;
 			sourceTree = "<group>";
 		};
+		99C18E3B2F28AE600001C7F0 /* DeveloperOptions */ = {
+			isa = PBXGroup;
+			children = (
+				99C18E3C2F28AE6C0001C7F0 /* DeveloperOptionsViewController.swift */,
+				997882832F28AFEB00BCBB67 /* DeveloperOptionsViewModel.swift */,
+			);
+			path = DeveloperOptions;
+			sourceTree = "<group>";
+		};
 		99C42DCD2EA65DC800E36414 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				99C18E3B2F28AE600001C7F0 /* DeveloperOptions */,
 				99E73E8A2F11233100477600 /* Errors */,
-				99C42E052EAFC22600E36414 /* OldLoginViewController */,
 				99DF68682E1E672000F1A0B9 /* Login */,
 				99C42DD12EA65DDA00E36414 /* CodeVerification */,
 			);
@@ -2647,6 +2655,7 @@
 		99C42DD12EA65DDA00E36414 /* CodeVerification */ = {
 			isa = PBXGroup;
 			children = (
+				997882962F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift */,
 				99E7B97F2F23D6D900B0EC27 /* CodeVerificationLoaderViewController.swift */,
 				99E7B9792F23986E00B0EC27 /* CodeVerificationContainerViewController.swift */,
 				99C42DD22EA65E0000E36414 /* CodeVerificationCardViewController.swift */,
@@ -2689,17 +2698,6 @@
 				99C42DFE2EAFA5A100E36414 /* UnableToConnectViewController.swift */,
 			);
 			path = UnableToConnect;
-			sourceTree = "<group>";
-		};
-		99C42E052EAFC22600E36414 /* OldLoginViewController */ = {
-			isa = PBXGroup;
-			children = (
-				99C42E0C2EAFC88B00E36414 /* OldFirstRunCoordinator.swift */,
-				99C42E022EAFC22600E36414 /* OldLoginCoordinator.swift */,
-				99C42E032EAFC22600E36414 /* OldLoginViewController.swift */,
-				99C42E042EAFC22600E36414 /* OldLoginViewModel.swift */,
-			);
-			path = OldLoginViewController;
 			sourceTree = "<group>";
 		};
 		99CE74012F1F7D5F001804EA /* Certificates */ = {
@@ -2862,6 +2860,7 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				9978828F2F2A1DEB00BCBB67 /* HCHStack.swift */,
 				99E7B97B2F2399CB00B0EC27 /* ContainerController.swift */,
 				99C42E172EB3890C00E36414 /* HCCodeView.swift */,
 				99C42DDA2EA667F800E36414 /* HCOverlayView.swift */,
@@ -4559,7 +4558,7 @@
 				99F175332E8C063E00FE7DEC /* Mantis */,
 			);
 			productName = ownCloud;
-			productReference = 233BDE9C204FEFE500C06732 /* curatorFiles.app */;
+			productReference = 233BDE9C204FEFE500C06732 /* personalCloudFiles.app */;
 			productType = "com.apple.product-type.application";
 		};
 		233BDEAF204FEFE500C06732 /* ownCloudTests */ = {
@@ -4873,7 +4872,6 @@
 				"pt-PT",
 				"th-TH",
 				eu,
-				ar,
 				fr,
 			);
 			mainGroup = 233BDE93204FEFE500C06732;
@@ -5320,9 +5318,6 @@
 				025F063324AA163C009D8FC5 /* DisplayExifMetadataAction.swift in Sources */,
 				DCC085512293ED52008CC05C /* DisplaySettingsSection.swift in Sources */,
 				23EC77582137F3DD0032D4E6 /* PDFViewerViewController.swift in Sources */,
-				99C42E062EAFC22600E36414 /* OldLoginCoordinator.swift in Sources */,
-				99C42E072EAFC22600E36414 /* OldLoginViewModel.swift in Sources */,
-				99C42E082EAFC22600E36414 /* OldLoginViewController.swift in Sources */,
 				99DA8B762E12809D00D726DC /* AnalyticsEvent.swift in Sources */,
 				DCC8535823CE1236007BA3EB /* LicenseInAppProductListViewController.swift in Sources */,
 				DC1621382B8FE9BF00EB17F8 /* AddToSidebarAction.swift in Sources */,
@@ -5332,13 +5327,13 @@
 				025FC7272478123E009307A7 /* MediaExportSettingsSection.swift in Sources */,
 				025FC720247810AB009307A7 /* MediaUploadSettingsViewController.swift in Sources */,
 				4CB8ADDE22DF5D3700F1FEBC /* PHPhotoLibrary+Extension.swift in Sources */,
+				997882972F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift in Sources */,
 				6EA78B8F2179B55400A5216A /* ImageScrollView.swift in Sources */,
 				DCD954DF247D62FA00E184E6 /* MessageTableViewController.swift in Sources */,
 				025FC73A247BF8BE009307A7 /* PHAsset+InstantUploads.swift in Sources */,
 				399DD7C722A691BC00B45EB2 /* UnshareAction.swift in Sources */,
 				DC9CE3D62D10814400979C44 /* DisableSpaceAction.swift in Sources */,
 				99C42DF32EA8CCB200E36414 /* CodeVerificationCardViewController.swift in Sources */,
-				99C42E0D2EAFC88B00E36414 /* OldFirstRunCoordinator.swift in Sources */,
 				99C42DF42EA8CCB200E36414 /* CodeVerificationCardViewModel.swift in Sources */,
 				397754F82327A33500119FCB /* OpenSceneAction.swift in Sources */,
 				4CAF783C2282FD40000C85CF /* FileManager+Extension.swift in Sources */,
@@ -5348,6 +5343,7 @@
 				99139B812E438C0E0044889B /* OnboardingContentView.swift in Sources */,
 				99DA8B7E2E128A8700D726DC /* AnalyticsTracker.swift in Sources */,
 				DCEE1C9C23A0EADD00FE8D98 /* LicenseOfferView.swift in Sources */,
+				99C18E3D2F28AE760001C7F0 /* DeveloperOptionsViewController.swift in Sources */,
 				6E3A104D219D6F0100F90C96 /* DuplicateAction.swift in Sources */,
 				39D06BEC229BE8D8000D7FC9 /* SettingsSection.swift in Sources */,
 				99DA8B792E1281D900D726DC /* FileManager+Extensions.swift in Sources */,
@@ -5359,6 +5355,7 @@
 				39969904260A3CF500E5AEBA /* CutAction.swift in Sources */,
 				4C464BF22187AF1500D30602 /* PDFSearchViewController.swift in Sources */,
 				DC6C0A4929239E560045FF2A /* AppRootViewController.swift in Sources */,
+				997882872F28AFF600BCBB67 /* DeveloperOptionsViewModel.swift in Sources */,
 				02DC7C9024CB354800DCB2C6 /* ProPhotoUploadSettingsSection.swift in Sources */,
 				99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */,
 				99743C772E1E9FD900DB77C2 /* LoginCoordinator.swift in Sources */,
@@ -5442,6 +5439,7 @@
 				DC89EA5C2993A0E000BFF393 /* AppStateActionConnect.swift in Sources */,
 				DCB330C929EF30BD00BFF393 /* OCIdentity+UniversalItemListCellContentProvider.swift in Sources */,
 				DCB6B206292E1D8400D27573 /* RoundedLabel.swift in Sources */,
+				997882932F2A1DEF00BCBB67 /* HCHStack.swift in Sources */,
 				DC99155028E63D8300DA0AB8 /* SegmentViewItemView.swift in Sources */,
 				991B368E2E2199B500369B7D /* HCTextFieldView.swift in Sources */,
 				DC3AB2462810602500789435 /* UILabel+Extension.swift in Sources */,
@@ -6065,7 +6063,6 @@
 				39057AA9233BA7A60008E6C0 /* Base */,
 				39057AB1233BA7AE0008E6C0 /* en */,
 				39D8397F25A7219100FAA0A8 /* sq */,
-				39D8398925A7219300FAA0A8 /* ar */,
 				39D8399325A7219600FAA0A8 /* eu */,
 				39D8399D25A7219700FAA0A8 /* zh-Hans */,
 				39D839A725A7219900FAA0A8 /* cs */,
@@ -6103,7 +6100,7 @@
 				APP_BUILD_FLAGS = "$(inherited)";
 				APP_BUILD_FLAGS_SWIFT = "$(APP_BUILD_FLAGS)";
 				APP_PRODUCT_NAME = ownCloud;
-				APP_SHORT_VERSION = 1.0.17;
+				APP_SHORT_VERSION = 1.0.18;
 				APP_VERSION = 1;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -6154,6 +6151,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Personal Cloud Files";
 				INFOPLIST_PREPROCESSOR_DEFINITIONS = "$(APP_BUILD_FLAGS)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -6174,7 +6172,7 @@
 				APP_BUILD_FLAGS = "$(inherited)";
 				APP_BUILD_FLAGS_SWIFT = "$(APP_BUILD_FLAGS)";
 				APP_PRODUCT_NAME = ownCloud;
-				APP_SHORT_VERSION = 1.0.17;
+				APP_SHORT_VERSION = 1.0.18;
 				APP_VERSION = 1;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -6222,6 +6220,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Personal Cloud Files";
 				INFOPLIST_PREPROCESSOR_DEFINITIONS = "$(APP_BUILD_FLAGS)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -6257,6 +6256,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				INFOPLIST_FILE = ownCloud/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Personal Cloud Files";
 				INFOPLIST_PREPROCESS = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6271,7 +6271,7 @@
 				);
 				MARKETING_VERSION = "${APP_SHORT_VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app";
-				PRODUCT_NAME = curatorFiles;
+				PRODUCT_NAME = personalCloudFiles;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(APP_BUILD_FLAGS_SWIFT) DISABLE_APPSTORE_LICENSING";
@@ -6300,6 +6300,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				INFOPLIST_FILE = ownCloud/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Personal Cloud Files";
 				INFOPLIST_PREPROCESS = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6314,7 +6315,7 @@
 				);
 				MARKETING_VERSION = "${APP_SHORT_VERSION}";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.noveogroup.owncloud.ios-app";
-				PRODUCT_NAME = curatorFiles;
+				PRODUCT_NAME = personalCloudFiles;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-16";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(APP_BUILD_FLAGS_SWIFT) DISABLE_APPSTORE_LICENSING";
@@ -6383,7 +6384,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ownCloud Action Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Save to $(APP_PRODUCT_NAME)";
+				INFOPLIST_KEY_CFBundleDisplayName = "Save to Personal Cloud Files";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 ownCloud GmbH. All rights reserved.";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -6427,7 +6428,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "ownCloud Action Extension/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Save to $(APP_PRODUCT_NAME)";
+				INFOPLIST_KEY_CFBundleDisplayName = "Save to Personal Cloud Files";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 ownCloud GmbH. All rights reserved.";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

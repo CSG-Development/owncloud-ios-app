@@ -4,12 +4,6 @@
     "CFBundleDisplayName" : {
       "comment" : "Bundle display name",
       "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Share to ownCloud"
-          }
-        },
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
@@ -31,7 +25,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Share to ownCloud"
+            "value" : "Share to Personal Cloud Files"
           }
         },
         "en-GB" : {
@@ -240,7 +234,7 @@
       }
     },
     "Share Extension unavailable" : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -353,7 +347,7 @@
       }
     },
     "The Share Extension is not available on this system." : {
-      "extractionState" : "manual",
+      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {

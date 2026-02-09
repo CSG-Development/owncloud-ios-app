@@ -29,6 +29,12 @@ public struct RemoteDevice: Sendable, Codable {
 			self.address = raDevicePath.address
 			self.port = raDevicePath.port
 		}
+
+		init(kind: Kind, address: String, port: Int?) {
+			self.kind = kind
+			self.address = address
+			self.port = port
+		}
 	}
 
 	public init(

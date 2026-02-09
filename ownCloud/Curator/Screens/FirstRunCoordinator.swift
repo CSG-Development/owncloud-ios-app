@@ -38,9 +38,6 @@ extension FirstRunCoordinator: LoginCoordinatorEventHandler {
 
 			case .settingsTap:
 				openSettings()
-
-			case .oldLoginTap:
-				rootVC?.contentViewController = OldFirstRunCoordinator(rootVC: rootVC).makeInitial()
 		}
 	}
 }

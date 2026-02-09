@@ -30,7 +30,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "233BDE9B204FEFE500C06732"
-               BuildableName = "curatorFiles.app"
+               BuildableName = "personalCloudFiles.app"
                BlueprintName = "ownCloud"
                ReferencedContainer = "container:ownCloud.xcodeproj">
             </BuildableReference>
@@ -66,7 +66,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "233BDE9B204FEFE500C06732"
-            BuildableName = "curatorFiles.app"
+            BuildableName = "personalCloudFiles.app"
             BlueprintName = "ownCloud"
             ReferencedContainer = "container:ownCloud.xcodeproj">
          </BuildableReference>
@@ -123,7 +123,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "233BDE9B204FEFE500C06732"
-            BuildableName = "curatorFiles.app"
+            BuildableName = "personalCloudFiles.app"
             BlueprintName = "ownCloud"
             ReferencedContainer = "container:ownCloud.xcodeproj">
          </BuildableReference>

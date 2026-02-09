@@ -16,13 +16,13 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private var cancellables = Set<AnyCancellable>()
 
+	private var preferences: HCPreferences {
+		HCContext.shared.preferences
+	}
+
 	private lazy var logoView: HCAppLogoView = {
 		let logoView = HCAppLogoView(frame: .zero)
-
-		let recognizer = UITapGestureRecognizer(target: self, action: #selector(fillTestInfo))
-		recognizer.numberOfTapsRequired = 5
-		logoView.addGestureRecognizer(recognizer)
-
+		logoView.isUserInteractionEnabled = false
 		return logoView
 	}()
 
@@ -88,6 +88,7 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private lazy var logoImageContainer: UIView = {
 		let view = UIView()
+		view.isUserInteractionEnabled = false
 		view.backgroundColor = .clear
 
 		let imageView = UIImageView()
@@ -101,6 +102,16 @@ final public class LoginViewController: UIViewController, Themeable {
 		}
 		view.snp.makeConstraints { $0.height.equalTo(140) }
 		return view
+	}()
+
+	private lazy var logoContainer: UIStackView = {
+		let container = UIStackView(arrangedSubviews: [logoImageContainer, logoView])
+		container.axis = .vertical
+		container.spacing = 0
+		container.alignment = .center
+		container.isUserInteractionEnabled = true
+		container.addGestureRecognizer(makeDeveloperOptionsRecognizer())
+		return container
 	}()
 
 	private lazy var loginButton: UIButton = {
@@ -119,14 +130,6 @@ final public class LoginViewController: UIViewController, Themeable {
 		return button
 	}()
 
-	private lazy var oldLoginButton: UIButton = {
-		let button = ThemeRoundedButton(withSelectors: [.primary, .plain])
-		button.setTitle(HCL10n.Auth.Login.oldLoginButtonTitle, for: .normal)
-		button.snp.makeConstraints { $0.height.equalTo(40) }
-		button.addTarget(self, action: #selector(didTapOldLogin), for: .touchUpInside)
-		return button
-	}()
-
 	private lazy var cantFindButton: UIButton = {
 		let button = ThemeRoundedButton(withSelectors: [.primary, .plain])
 		button.setTitle("Can't find your device", for: .normal)
@@ -139,11 +142,13 @@ final public class LoginViewController: UIViewController, Themeable {
 	private var settingsButton: UIButton!
 	private var backButton: UIButton!
 	private var stackView: UIStackView!
+	private var formStackView: UIStackView!
+	private var topAreaView: UIView!
+	private var loginButtonBottomSpacer: UIView!
 	private var refreshButton: UIButton!
 	private var smallSpinner: HCSpinnerView!
 	private var addressRowView: UIStackView!
 	private var resetPasswordButtonContainerRef: UIStackView!
-	private var oldLoginButtonContainerRef: UIStackView!
 	private var cantFindButtonContainerRef: UIStackView!
 
 	init(viewModel: LoginViewModel) {
@@ -167,6 +172,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		settingsButton.setImage(HCIcon.settings, for: .normal)
 		settingsButton.addTarget(self, action: #selector(didTapSettings), for: .touchUpInside)
 		self.settingsButton = settingsButton
+		self.settingsButton.isHidden = true
 
 		let backButton = UIButton(type: .system)
 		backButton.setImage(HCIcon.arrowBack, for: .normal)
@@ -252,13 +258,39 @@ final public class LoginViewController: UIViewController, Themeable {
 		contentContainer.addSubview(stackView)
 		self.stackView = stackView
 		stackView.snp.makeConstraints {
-			$0.top.greaterThanOrEqualToSuperview()
-			$0.bottom.lessThanOrEqualToSuperview()
-			$0.centerY.equalToSuperview().offset(-24).priority(.low)
+			$0.top.equalToSuperview()
+			$0.bottom.equalToSuperview()
 			$0.centerX.equalToSuperview()
 			$0.leading.greaterThanOrEqualToSuperview().offset(24)
 			$0.width.equalToSuperview().priority(.high)
 			$0.width.lessThanOrEqualTo(400)
+		}
+
+		let formStackView = UIStackView()
+		formStackView.axis = .vertical
+		formStackView.spacing = 0
+		formStackView.setContentHuggingPriority(.required, for: .vertical)
+		formStackView.setContentCompressionResistancePriority(.required, for: .vertical)
+		self.formStackView = formStackView
+
+		let topAreaView = UIView()
+		topAreaView.setContentHuggingPriority(.defaultLow, for: .vertical)
+		topAreaView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+		self.topAreaView = topAreaView
+
+		let loginButtonBottomSpacer = HCSpacerView(24)
+		self.loginButtonBottomSpacer = loginButtonBottomSpacer
+
+		stackView.addArrangedSubview(topAreaView)
+		stackView.addArrangedSubview(loginButton)
+		stackView.addArrangedSubview(loginButtonBottomSpacer)
+
+		topAreaView.addSubview(formStackView)
+		formStackView.snp.makeConstraints {
+			$0.centerY.equalToSuperview().priority(.low)
+			$0.top.greaterThanOrEqualToSuperview()
+			$0.bottom.lessThanOrEqualToSuperview()
+			$0.leading.trailing.equalToSuperview()
 		}
 
 		let resetPasswordButtonContainer = UIStackView(arrangedSubviews: [
@@ -274,13 +306,6 @@ final public class LoginViewController: UIViewController, Themeable {
 		cantFindButtonContainer.axis = .horizontal
 		cantFindButtonContainer.spacing = 0
 		self.cantFindButtonContainerRef = cantFindButtonContainer
-
-		let oldLoginButtonContainer = UIStackView(arrangedSubviews: [
-			oldLoginButton, HCSpacerView(nil, .horizontal)
-		])
-		oldLoginButtonContainer.axis = .horizontal
-		oldLoginButtonContainer.spacing = 0
-		self.oldLoginButtonContainerRef = oldLoginButtonContainer
 
 		let navigationBarView = UIView()
 
@@ -343,7 +368,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		self.smallSpinner = smallSpinner
 		self.addressRowView = addressRow
 
-		stackView.addArrangedSubviews(arrangedSubviews(for: viewModel.step, isLoading: viewModel.isLoading))
+		formStackView.addArrangedSubviews(arrangedSubviews(for: viewModel.step, isLoading: viewModel.isLoading))
 
 		update(for: viewModel.step)
 	}
@@ -351,8 +376,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	private func arrangedSubviews(for step: LoginViewModel.Step, isLoading: Bool) -> [UIView] {
 		if isLoading {
 			return [
-				logoImageContainer,
-				logoView,
+				logoContainer,
 				HCSpacerView(24),
 				loadingView
 			]
@@ -360,19 +384,14 @@ final public class LoginViewController: UIViewController, Themeable {
 		switch step {
 			case .emailEntry:
 				return [
-					logoImageContainer,
-					logoView,
+					logoContainer,
 					HCSpacerView(24),
 					emailTextField,
-					HCSpacerView(24),
-					loginButton,
-					HCSpacerView(24),
-					oldLoginButtonContainerRef
+					HCSpacerView(24)
 				]
 			case .deviceSelection:
 				return [
-					logoImageContainer,
-					logoView,
+					logoContainer,
 					HCSpacerView(24),
 					emailLabelContainer,
 					HCSpacerView(32),
@@ -382,18 +401,20 @@ final public class LoginViewController: UIViewController, Themeable {
 					passwordTextField,
 					HCSpacerView(4),
 					(resetPasswordButtonContainerRef ?? UIStackView(arrangedSubviews: [resetPasswordButton, HCSpacerView(nil, .horizontal)])),
-					HCSpacerView(24),
-					loginButton,
-					HCSpacerView(24),
+					HCSpacerView(16),
 					errorStackView
 				]
 		}
 	}
 
 	private func update(for step: LoginViewModel.Step) {
-		guard let stackView else { return }
-		stackView.arrangedSubviews.forEach { stackView.removeArrangedSubview($0); $0.removeFromSuperview() }
-		stackView.addArrangedSubviews(arrangedSubviews(for: step, isLoading: viewModel.isLoading))
+		guard let formStackView else { return }
+		formStackView.arrangedSubviews.forEach { formStackView.removeArrangedSubview($0); $0.removeFromSuperview() }
+		formStackView.addArrangedSubviews(arrangedSubviews(for: step, isLoading: viewModel.isLoading))
+
+		let isLoading = viewModel.isLoading
+		loginButton.isHidden = isLoading
+		loginButtonBottomSpacer.isHidden = isLoading
 
 		switch step {
 			case .emailEntry:
@@ -409,8 +430,8 @@ final public class LoginViewController: UIViewController, Themeable {
 		view.layoutIfNeeded()
 	}
 
-	@objc private func fillTestInfo() {
-		viewModel.fillTestInfo()
+	@objc private func didTriggerDeveloperOptions() {
+		viewModel.didTapDeveloperOptions()
 	}
 
 	@objc private func closeKeyboard() {
@@ -524,10 +545,31 @@ final public class LoginViewController: UIViewController, Themeable {
 				}
 			}
 			.store(in: &cancellables)
+
+		viewModel.$emailEntryError
+			.receive(on: DispatchQueue.main)
+			.sink { [weak self] errorText in
+				self?.emailTextField.errorText = errorText
+			}
+			.store(in: &cancellables)
+
+		preferences.loginSettingsEnabledPublisher
+			.receive(on: DispatchQueue.main)
+			.sink { [weak self] isEnabled in
+				self?.updateSettingsButtonVisibility(isEnabled: isEnabled)
+			}
+			.store(in: &cancellables)
 	}
 
 	@objc private func didTapRefreshDevices() {
 		viewModel.refreshDevices()
+	}
+
+	private func makeDeveloperOptionsRecognizer() -> UITapGestureRecognizer {
+		let recognizer = UITapGestureRecognizer(target: self, action: #selector(didTriggerDeveloperOptions))
+		recognizer.numberOfTapsRequired = 5
+		recognizer.numberOfTouchesRequired = 2
+		return recognizer
 	}
 
 	@objc private func didTapCantFindDevice() {
@@ -544,10 +586,6 @@ final public class LoginViewController: UIViewController, Themeable {
 		viewModel.didTapResetPassword()
 	}
 
-	@objc private func didTapOldLogin() {
-		viewModel.didTapOldLogin()
-	}
-
 	@objc private func didTapSettings() {
 		viewModel.didTapSettings()
 	}
@@ -562,6 +600,10 @@ final public class LoginViewController: UIViewController, Themeable {
 		settingsButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
 		refreshButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
 		backButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
+	}
+
+	private func updateSettingsButtonVisibility(isEnabled: Bool) {
+		settingsButton.isHidden = !isEnabled
 	}
 }
 

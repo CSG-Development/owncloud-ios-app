@@ -16,7 +16,6 @@ final public class LoginViewModel {
     enum Event {
         case loginTap
         case resetPasswordTap
-		case oldLoginTap
         case settingsTap
         case backToEmail
 		case unableToConnect
@@ -24,6 +23,7 @@ final public class LoginViewModel {
 		case wrongState
 		case setupRequired
 		case deviceStarting
+		case developerOptionsTap
     }
 
 	enum LoginError {
@@ -41,6 +41,7 @@ final public class LoginViewModel {
 	@Published private(set) var isLoginEnabled: Bool = true
 	@Published private(set) var isLoading: Bool = false
 	@Published private(set) var errors: [LoginError] = []
+	@Published private(set) var emailEntryError: String?
     @Published private(set) var deviceItems: [String] = []
     @Published var selectedDeviceIndex: Int?
     @Published private(set) var isDetectingDevices: Bool = false
@@ -275,6 +276,13 @@ final public class LoginViewModel {
 
 	func resetErrors() {
 		errors = []
+		emailEntryError = nil
+	}
+
+	func handleUnknownEmailNotAllowed() {
+		Log.debug("[STX]: Email not allowed during verification flow.")
+		backToEmailEntry()
+		emailEntryError = HCL10n.Auth.Login.notAllowedEmailError
 	}
 
     func didTapLogin() {
@@ -323,16 +331,7 @@ final public class LoginViewModel {
 				self.isDetectingDevices = false
 				self.mergedDevices = merged
 				self.deviceItems = merged.map { $0.remoteDevice?.friendlyName ?? $0.localDevice?.name ?? "" }
-				if self.selectedDeviceIndex == nil, let cn = self.preferences.favoriteDeviceCN {
-					self.selectedDeviceIndex = self.mergedDevices.firstIndex(where: {
-						$0.certificateCommonName == cn
-					})
-				}
-
-				let previousSelection = self.selectedDeviceIndex
-				if let sel = previousSelection, sel < self.deviceItems.count {
-					self.selectedDeviceIndex = sel
-				} else if self.deviceItems.isEmpty {
+				if self.deviceItems.isEmpty {
 						// Give mDNS a short grace period on the very first load before triggering the cant-find flow.
 						if self.didPerformInitialLoad == false {
 							self.didPerformInitialLoad = true
@@ -354,8 +353,19 @@ final public class LoginViewModel {
 							self.selectedDeviceIndex = nil
 							self.triggerCantFindDeviceFlow(autoTriggered: true)
 						}
-				} else if previousSelection == nil {
-					self.selectedDeviceIndex = 0
+				} else {
+					if
+						let staticAddress = self.preferences.staticDeviceAddress,
+						let staticIndex = self.mergedDevices.firstIndex(where: { $0.localDevice?.name == staticAddress })
+					{
+						self.selectedDeviceIndex = staticIndex
+					} else if let cn = self.preferences.favoriteDeviceCN {
+						self.selectedDeviceIndex = self.mergedDevices.firstIndex(where: {
+							$0.certificateCommonName == cn
+						}) ?? 0
+					} else {
+						self.selectedDeviceIndex = 0
+					}
 				}
 			}
 		}
@@ -391,6 +401,9 @@ final public class LoginViewModel {
 			await MainActor.run {
 				CodeVerificationService.shared.requestEmailVerification(
 					email: self.email,
+					onUnknownEmailCancel: { [weak self] in
+						self?.handleUnknownEmailNotAllowed()
+					},
 					completion: { [weak self] isAuthenticated in
 						guard isAuthenticated else { return }
 						self?.refreshDevices()
@@ -549,19 +562,13 @@ final public class LoginViewModel {
 		eventHandler.handle(.resetPasswordTap)
 	}
 
-	func didTapOldLogin() {
-		Log.debug("[STX]: Old login tap.")
-		eventHandler.handle(.oldLoginTap)
-	}
-
 	func didTapSettings() {
 		Log.debug("[STX]: Setings tap.")
 		eventHandler.handle(.settingsTap)
 	}
 
-	// Updated in CI. If you change something be sure to change the CI script as well.
-	func fillTestInfo() {
-		email = ""
-		password = ""
+	func didTapDeveloperOptions() {
+		Log.debug("[STX]: Developer options tap.")
+		eventHandler.handle(.developerOptionsTap)
 	}
 }

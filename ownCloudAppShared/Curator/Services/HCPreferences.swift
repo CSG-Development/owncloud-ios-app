@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import ownCloudSDK
 
@@ -11,16 +12,28 @@ private enum UserDefaultsKeys {
 	static let keyCurrentDevice = "currentConnectedDevice"
 
 	static let keyTrustedDeviceCerts = "trustedDeviceCerts"
+	static let keyStaticDeviceAddress = "staticDeviceAddress"
+	static let keyLoginSettingsEnabled = "loginSettingsEnabled"
 }
 
 @objcMembers
 public final class HCPreferences: NSObject {
 	public static let shared = HCPreferences()
 
-	private let queue = DispatchQueue(label: "com.curator.preferences")
+	private let queue = DispatchQueue(label: "com.personalCloudFiles.preferences")
 	private let userDefaults = OCAppIdentity.shared.userDefaults ?? UserDefaults.standard
+	private let loginSettingsEnabledSubject: CurrentValueSubject<Bool, Never>
+	private let staticDeviceAddressSubject: CurrentValueSubject<String?, Never>
 
-	public override init() { super.init() }
+	public override init() {
+		loginSettingsEnabledSubject = CurrentValueSubject<Bool, Never>(
+			userDefaults.bool(forKey: UserDefaultsKeys.keyLoginSettingsEnabled)
+		)
+		staticDeviceAddressSubject = CurrentValueSubject<String?, Never>(
+			userDefaults.string(forKey: UserDefaultsKeys.keyStaticDeviceAddress)
+		)
+		super.init()
+	}
 
 	public var shouldShowOnboarding: Bool {
 		get {
@@ -83,6 +96,43 @@ public final class HCPreferences: NSObject {
 				}
 			}
 		}
+	}
+
+	public var staticDeviceAddress: String? {
+		get {
+			staticDeviceAddressSubject.value
+		}
+		set {
+			queue.async {
+				let sanitized = newValue?.trimmingCharacters(in: .whitespacesAndNewlines)
+				if let sanitized, !sanitized.isEmpty {
+					self.userDefaults.set(sanitized, forKey: UserDefaultsKeys.keyStaticDeviceAddress)
+				} else {
+					self.userDefaults.removeObject(forKey: UserDefaultsKeys.keyStaticDeviceAddress)
+				}
+				self.staticDeviceAddressSubject.send(sanitized?.isEmpty == false ? sanitized : nil)
+			}
+		}
+	}
+
+	public var isLoginSettingsEnabled: Bool {
+		get {
+			loginSettingsEnabledSubject.value
+		}
+		set {
+			queue.async {
+				self.userDefaults.set(newValue, forKey: UserDefaultsKeys.keyLoginSettingsEnabled)
+				self.loginSettingsEnabledSubject.send(newValue)
+			}
+		}
+	}
+
+	public var loginSettingsEnabledPublisher: AnyPublisher<Bool, Never> {
+		loginSettingsEnabledSubject.eraseToAnyPublisher()
+	}
+
+	public var staticDeviceAddressPublisher: AnyPublisher<String?, Never> {
+		staticDeviceAddressSubject.eraseToAnyPublisher()
 	}
 
 	// MARK: - Connected device (persist full device to probe after relaunch)
