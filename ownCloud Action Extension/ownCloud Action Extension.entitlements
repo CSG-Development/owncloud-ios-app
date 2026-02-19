@@ -10,6 +10,7 @@
 	<array>
 		<string>$(AppIdentifierPrefix)group.com.noveogroup.owncloud.ios-app</string>
 		<string>$(AppIdentifierPrefix)com.noveogroup.owncloud.ios-app.ownCloud-Action-Extension</string>
+		<string>$(AppIdentifierPrefix)group.com.seagate.personalcloud.shared</string>
 	</array>
 </dict>
 </plist>

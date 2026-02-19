@@ -220,6 +220,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	public override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 
+		viewModel.attemptAutoLoginFromKeychainIfNeeded()
 		update(for: viewModel.step)
 	}
 

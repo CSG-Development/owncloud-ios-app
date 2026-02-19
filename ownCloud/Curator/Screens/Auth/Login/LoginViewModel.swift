@@ -96,6 +96,13 @@ final public class LoginViewModel {
 		return connection
 	}
 
+	/// When true, we should attempt auto-login from shared keychain on first load.
+	private var shouldAttemptAutoLogin = false
+	/// Set during auto-login attempt so we can run RA fetch on success.
+	private var isAutoLoginAttempt = false
+	/// Prevents multiple auto-login attempts per session (e.g. after injecting test credentials).
+	private var hasAttemptedAutoLoginThisSession = false
+
 	init(eventHandler: LoginViewModelEventHandler) {
 		self.eventHandler = eventHandler
 		self.bookmark = OCBookmark()
@@ -103,6 +110,10 @@ final public class LoginViewModel {
 		if let favoriteEmail = preferences.favoriteEmail {
 			email = favoriteEmail
 			step = .deviceSelection
+		} else if let ocCreds = SharedCredentialsKeychain.readOCCredentials() {
+			email = ocCreds.email
+			step = .deviceSelection
+			shouldAttemptAutoLogin = true
 		} else {
 			step = .emailEntry
 		}
@@ -255,21 +266,44 @@ final public class LoginViewModel {
 						if let username, !username.isEmpty {
 							self.preferences.favoriteEmail = username
 						}
-						if let selectedDeviceIndex = self.selectedDeviceIndex, selectedDeviceIndex < self.mergedDevices.count {
+						if self.isAutoLoginAttempt == false, let selectedDeviceIndex = self.selectedDeviceIndex, selectedDeviceIndex < self.mergedDevices.count {
 							let device = self.mergedDevices[selectedDeviceIndex]
 							self.preferences.favoriteDeviceCN = device.certificateCommonName
 						}
 						Log.debug("[STX]: Bookmark is complete. Adding bookmark")
 						self.bookmark.authenticationDataStorage = .keychain // Commit auth changes to keychain
 						OCBookmarkManager.shared.addBookmark(self.bookmark)
+						if self.isAutoLoginAttempt {
+							self.isAutoLoginAttempt = false
+							self.handleAutoLoginSuccess()
+						} else {
+							// Save credentials to shared keychain for other apps / auto-login
+							if let url = self.bookmark.url, !self.email.isEmpty, !self.password.isEmpty {
+								var baseURL = url
+								if url.lastPathComponent == "files" {
+									baseURL = url.deletingLastPathComponent()
+								}
+								_ = SharedCredentialsKeychain.writeOC(baseURL: baseURL.absoluteString, email: self.email, password: self.password)
+							}
+							self.isLoading = false
+						}
 					} else {
 						Log.debug("[STX]: Bookmark is not complete")
+						if self.isAutoLoginAttempt {
+							self.isAutoLoginAttempt = false
+							self.handleAutoLoginError()
+						}
 					}
 				})
 			} else {
 				Log.debug("[STX]: Authentication generation failed with error: \(error?.localizedDescription ?? "")")
-				self.errors = [.authenticationFailed]
-				self.isLoading = false
+				if self.isAutoLoginAttempt {
+					self.isAutoLoginAttempt = false
+					self.handleAutoLoginError()
+				} else {
+					self.errors = [.authenticationFailed]
+					self.isLoading = false
+				}
 			}
 		}
 	}
@@ -277,6 +311,109 @@ final public class LoginViewModel {
 	func resetErrors() {
 		errors = []
 		emailEntryError = nil
+	}
+
+	// MARK: - Auto-login from shared keychain
+
+	/// Call when login screen appears. If OC credentials exist in keychain, attempts login with loading state.
+	func attemptAutoLoginFromKeychainIfNeeded() {
+		if HCConfig.skipAutoLoginOnNextLoginScreen {
+			HCConfig.skipAutoLoginOnNextLoginScreen = false
+			return
+		}
+
+		guard let creds = SharedCredentialsKeychain.readOCCredentials() else {
+			return
+		}
+		guard !hasAttemptedAutoLoginThisSession else { return }
+		hasAttemptedAutoLoginThisSession = true
+		shouldAttemptAutoLogin = false
+		email = creds.email
+		password = creds.password
+		step = .deviceSelection
+		isLoading = true
+		resetErrors()
+		loginWithSharedCredentials(creds)
+	}
+
+	private func loginWithSharedCredentials(_ creds: SharedCredentialsKeychain.OCCredentials) {
+		isAutoLoginAttempt = true
+		bookmark.url = creds.baseURL
+		let connection = instantiateConnection(for: bookmark)
+		OCConnection.setupHTTPPolicy = .allow
+		connection.prepareForSetup(options: nil) { [weak self] (issue, _, supportedMethods, _, _) in
+			guard let self else { return }
+			if let issues = issue?.issues, issues.contains(where: { $0.type == .error }) {
+				self.handleAutoLoginError()
+				return
+			}
+			guard let supportedMethods, supportedMethods.contains(.basicAuth) else {
+				self.handleAutoLoginError()
+				return
+			}
+			self.bookmark.authenticationMethodIdentifier = .basicAuth
+			self.authenticate(username: creds.email, password: creds.password)
+		}
+	}
+
+	private func handleAutoLoginError() {
+		isLoading = false
+		step = .deviceSelection
+		if let creds = SharedCredentialsKeychain.readOCCredentials() {
+			email = creds.email
+			preferences.favoriteEmail = creds.email
+		}
+		loadDevices()
+	}
+
+	private func handleAutoLoginSuccess() {
+		preferences.favoriteEmail = email
+		Task {
+			await fetchAndApplyRADataIfPresent()
+		}
+	}
+
+	private func fetchAndApplyRADataIfPresent() async {
+		let raCreds = SharedCredentialsKeychain.readRACredentials()
+		guard let raCreds else {
+			// No RA creds in keychain; still reload devices so path switching works with existing tokens
+			if await raService.hasValidTokens() {
+				await deviceReachabilityService.forceReloadDevices()
+			}
+			await MainActor.run { self.isLoading = false }
+			return
+		}
+		do {
+			try await raService.importFromRefreshToken(refreshToken: raCreds.refreshToken, clientId: raCreds.clientId)
+			let remoteDevices = try await raService.getRemoteDevices(email: email, clientId: raCreds.clientId)
+			let favCN = raCreds.favoriteDeviceCertificateCommonName
+			if let matchingDevice = remoteDevices.first(where: { $0.certificateCommonName == favCN }) {
+				preferences.favoriteDeviceCN = favCN
+				let savedPaths: [HCPreferences.SavedConnectedDevice.SavedPath] = matchingDevice.paths.map {
+					let kind: HCPreferences.SavedConnectedDevice.SavedPath.Kind
+					switch $0.kind {
+						case .local: kind = .local
+						case .public: kind = .public
+						case .remote: kind = .remote
+					}
+					return .init(kind: kind, address: $0.address, port: $0.port)
+				}
+				let saved = HCPreferences.SavedConnectedDevice(
+					seagateDeviceID: matchingDevice.seagateDeviceID,
+					certificateCommonName: matchingDevice.certificateCommonName,
+					friendlyName: matchingDevice.friendlyName,
+					hostname: matchingDevice.hostname,
+					paths: savedPaths
+				)
+				preferences.currentConnectedDevice = saved
+			} else {
+				preferences.favoriteDeviceCN = favCN
+			}
+			await deviceReachabilityService.forceReloadDevices()
+		} catch {
+			Log.debug("[STX]: RA import/fetch failed: \(error)")
+		}
+		await MainActor.run { self.isLoading = false }
 	}
 
 	func handleUnknownEmailNotAllowed() {

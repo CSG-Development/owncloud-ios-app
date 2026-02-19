@@ -46,5 +46,7 @@
 	<true/>
 	<key>OCKeychainAccessGroupIdentifier</key>
 	<string>group.com.noveogroup.owncloud.ios-app</string>
+	<key>STXKeychainAccessGroupIdentifier</key>
+	<string>group.com.seagate.personalcloud.shared</string>
 </dict>
 </plist>

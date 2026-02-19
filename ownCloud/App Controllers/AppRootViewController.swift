@@ -126,7 +126,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 			guard let bookmark = OCBookmarkManager.shared.bookmarks.first else { return }
 			let accountController = self?.sidebarViewController?.accountController(for: bookmark.uuid)
 			accountController?.disconnect(completion: { _ in
-				OCBookmarkManager.shared.removeBookmark(bookmark)
+				OCBookmarkManager.shared.removeBookmarkForLogout(bookmark)
 			})
 		}
 

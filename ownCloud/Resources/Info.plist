@@ -123,6 +123,8 @@
 	<string>group.$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
 	<true/>
+	<key>STXKeychainAccessGroupIdentifier</key>
+	<string>group.com.seagate.personalcloud.shared</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

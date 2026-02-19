@@ -216,6 +216,7 @@
 		99C42E132EB10E1D00E36414 /* Network+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E122EB10E0800E36414 /* Network+Extensions.swift */; };
 		99C42E1B2EB3891200E36414 /* HCCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E172EB3890C00E36414 /* HCCodeView.swift */; };
 		99C42E222EB4FE7E00E36414 /* DeviceReachabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */; };
+		99C42E352EB5FE7E00E36414 /* SharedCredentialsKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E342EB5FE7E00E36414 /* SharedCredentialsKeychain.swift */; };
 		99CE0A5E2E49F31200380EB8 /* HCKeyboardTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */; };
 		99CE0A602E4A232200380EB8 /* HCSpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */; };
 		99CE73F52F1E7644001804EA /* CertificateValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE73F42F1E7644001804EA /* CertificateValidationService.swift */; };
@@ -1388,6 +1389,7 @@
 		99C42E122EB10E0800E36414 /* Network+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network+Extensions.swift"; sourceTree = "<group>"; };
 		99C42E172EB3890C00E36414 /* HCCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCCodeView.swift; sourceTree = "<group>"; };
 		99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceReachabilityService.swift; sourceTree = "<group>"; };
+		99C42E342EB5FE7E00E36414 /* SharedCredentialsKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedCredentialsKeychain.swift; sourceTree = "<group>"; };
 		99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCKeyboardTracker.swift; sourceTree = "<group>"; };
 		99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpinnerView.swift; sourceTree = "<group>"; };
 		99CE73F42F1E7644001804EA /* CertificateValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateValidationService.swift; sourceTree = "<group>"; };
@@ -2684,6 +2686,7 @@
 				99E73EA02F1571A800477600 /* RemoteAccess */,
 				9908FE2F2EC4AE4F004A4137 /* HCContext.swift */,
 				9908FE2D2EC370BA004A4137 /* HCPreferences.swift */,
+				99C42E342EB5FE7E00E36414 /* SharedCredentialsKeychain.swift */,
 				993A26052EBCCD7E00A28D8F /* DeviceReachability */,
 				99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */,
 				99FFF1032F2B000100ABCDEF /* AppExtensionBootstrap.swift */,
@@ -5649,6 +5652,7 @@
 				99139B792E438B960044889B /* HCScrollDirectionProcessor.swift in Sources */,
 				DC0A358724C0E44600FB58FC /* ThemeImage.swift in Sources */,
 				9908FE2E2EC370BA004A4137 /* HCPreferences.swift in Sources */,
+				99C42E352EB5FE7E00E36414 /* SharedCredentialsKeychain.swift in Sources */,
 				DC0A355824C0E35B00FB58FC /* Synchronized.swift in Sources */,
 				DCB1B99729D1813D00BFF393 /* ThemeCSSTextField.swift in Sources */,
 				DCA2EDE4279B1789001F04E6 /* ResourceItemIcon.swift in Sources */,

@@ -9,6 +9,7 @@
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)group.com.noveogroup.owncloud.ios-app</string>
+		<string>$(AppIdentifierPrefix)group.com.seagate.personalcloud.shared</string>
 	</array>
 </dict>
 </plist>

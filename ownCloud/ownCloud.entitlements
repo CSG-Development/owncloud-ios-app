@@ -11,6 +11,7 @@
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)group.$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<string>$(AppIdentifierPrefix)group.com.seagate.personalcloud.shared</string>
 	</array>
 	<key>com.apple.developer.networking.multicast</key>
 	<true/>

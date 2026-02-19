@@ -739,25 +739,33 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 
 		DispatchQueue.main.async {
 			let bookmarks = OCBookmarkManager.shared.bookmarks
+			let favCN = self.preferences.favoriteDeviceCN
 			for bookmark in bookmarks {
-				// If the bookmark currently points to the previous host/port, update it to the new best host/port
-				if let prev = previous, let bmURL = bookmark.url {
-					let prevHost = prev.host?.lowercased()
-					let bmHost = bmURL.host?.lowercased()
-					let sameHost = (prevHost?.isEmpty == false) && (prevHost == bmHost)
-					let prevPort = prev.port
-					let bmPort = bmURL.port
-					let portsEqual = (prevPort != nil) ? (prevPort == bmPort) : (bmPort == nil)
-					if sameHost && portsEqual {
-						var comps = URLComponents(url: bmURL, resolvingAgainstBaseURL: false)
-						let newComps = URLComponents(url: url, resolvingAgainstBaseURL: false)
-						if let newScheme = newComps?.scheme, !newScheme.isEmpty { comps?.scheme = newScheme }
-						if let newHost = newComps?.host, !newHost.isEmpty { comps?.host = newHost }
-						comps?.port = newComps?.port
-						if let adjusted = comps?.url {
-							bookmark.url = adjusted
-							OCBookmarkManager.shared.updateBookmark(bookmark)
-						}
+				var shouldUpdate = false
+				if let bmURL = bookmark.url {
+					if let prev = previous {
+						// Bookmark points to previous host/port → update to new best
+						let prevHost = prev.host?.lowercased()
+						let bmHost = bmURL.host?.lowercased()
+						let sameHost = (prevHost?.isEmpty == false) && (prevHost == bmHost)
+						let prevPort = prev.port
+						let bmPort = bmURL.port
+						let portsEqual = (prevPort != nil) ? (prevPort == bmPort) : (bmPort == nil)
+						shouldUpdate = sameHost && portsEqual
+					} else if favCN == cn {
+						// First time setting best URL for favorite device (e.g. after auto-login) → update bookmark
+						shouldUpdate = true
+					}
+				}
+				if shouldUpdate, let bmURL = bookmark.url {
+					var comps = URLComponents(url: bmURL, resolvingAgainstBaseURL: false)
+					let newComps = URLComponents(url: url, resolvingAgainstBaseURL: false)
+					if let newScheme = newComps?.scheme, !newScheme.isEmpty { comps?.scheme = newScheme }
+					if let newHost = newComps?.host, !newHost.isEmpty { comps?.host = newHost }
+					comps?.port = newComps?.port
+					if let adjusted = comps?.url {
+						bookmark.url = adjusted
+						OCBookmarkManager.shared.updateBookmark(bookmark)
 					}
 				}
 

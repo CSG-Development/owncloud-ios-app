@@ -20,6 +20,12 @@ import UIKit
 import ownCloudSDK
 
 public extension OCBookmarkManager {
+	/// Removes a bookmark and sets flag to skip auto-login on the next login screen.
+	func removeBookmarkForLogout(_ bookmark: OCBookmark) {
+		HCConfig.skipAutoLoginOnNextLoginScreen = true
+		removeBookmark(bookmark)
+	}
+
 	func delete(withAlertOn hostViewController: UIViewController, bookmark: OCBookmark, completion: (() -> Void)? = nil) {
 		var presentationStyle: UIAlertController.Style = .actionSheet
 		if UIDevice.current.isIpad {
@@ -64,7 +70,7 @@ public extension OCBookmarkManager {
 								OCMessageQueue.global.dequeueAllMessages(forBookmarkUUID: bookmark.uuid)
 
 								if let bookmark = OCBookmarkManager.shared.bookmark(for: bookmark.uuid) {
-									OCBookmarkManager.shared.removeBookmark(bookmark)
+									OCBookmarkManager.shared.removeBookmarkForLogout(bookmark)
 								}
 							}
 

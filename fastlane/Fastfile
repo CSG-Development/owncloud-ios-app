@@ -46,6 +46,7 @@ platform :ios do
       ENTERPRISE_TEAM: "HVE639V94N",
       ENTERPRISE_IDENTITY: "iPhone Distribution: Noveo Inc. (HVE639V94N)",
       APP_GROUP_IDENTIFIERS: "group.com.noveogroup.curator.stxfiles.ios-app",
+      SHARED_KEYCHAIN_GROUP: "group.com.seagate.personalcloud.shared",
       EXPORT_METHOD: "ad-hoc",
       CONFIGURATION: "Release",
       BETA_APP_ICON: false,
@@ -74,6 +75,7 @@ platform :ios do
       ENTERPRISE_TEAM: "57HJ3KH2XC",
       ENTERPRISE_IDENTITY: "Apple Distribution: Seagate Technologies LLC (57HJ3KH2XC)",
       APP_GROUP_IDENTIFIERS: "group.com.seagate.curator.stxfiles",
+      SHARED_KEYCHAIN_GROUP: "group.com.seagate.personalcloud.shared",
       EXPORT_METHOD: "app-store",
       CONFIGURATION: "Release",
       BETA_APP_ICON: false,
@@ -133,6 +135,7 @@ platform :ios do
     ENTERPRISE_TEAM = values[:ENTERPRISE_TEAM]
     ENTERPRISE_IDENTITY = values[:ENTERPRISE_IDENTITY]
     APP_GROUP_IDENTIFIERS = values[:APP_GROUP_IDENTIFIERS]
+    SHARED_KEYCHAIN_GROUP = values[:SHARED_KEYCHAIN_GROUP]
     OC_APP_GROUP_IDENTIFIERS = values[:APP_GROUP_IDENTIFIERS]
     EXPORT_METHOD = values[:EXPORT_METHOD]
     CONFIGURATION = values[:CONFIGURATION]
@@ -381,7 +384,7 @@ platform :ios do
     )
     update_keychain_access_groups(
       entitlements_file: "ownCloud/ownCloud.entitlements",
-      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS]
+      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS, ENTERPRISE_TEAM + "." + SHARED_KEYCHAIN_GROUP]
 	  )
 
     update_app_group_identifiers(
@@ -390,7 +393,7 @@ platform :ios do
     )
     update_keychain_access_groups(
       entitlements_file: "ownCloud File Provider/ownCloud_File_Provider.entitlements",
-      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS]
+      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS, ENTERPRISE_TEAM + "." + SHARED_KEYCHAIN_GROUP]
 	  )
 
     update_app_group_identifiers(
@@ -399,7 +402,7 @@ platform :ios do
     )
     update_keychain_access_groups(
       entitlements_file: "ownCloud File Provider UI/ownCloud_File_Provider_UI.entitlements",
-      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS]
+      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS, ENTERPRISE_TEAM + "." + SHARED_KEYCHAIN_GROUP]
 	  )
 
     update_app_group_identifiers(
@@ -408,7 +411,7 @@ platform :ios do
     )
     update_keychain_access_groups(
       entitlements_file: "ownCloud Intents/ownCloud Intents.entitlements",
-      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS]
+      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS, ENTERPRISE_TEAM + "." + SHARED_KEYCHAIN_GROUP]
 	  )
 
     update_app_group_identifiers(
@@ -417,7 +420,7 @@ platform :ios do
     )
     update_keychain_access_groups(
       entitlements_file: "ownCloud Share Extension/ownCloud Share Extension.entitlements",
-      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS]
+      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS, ENTERPRISE_TEAM + "." + SHARED_KEYCHAIN_GROUP]
 	  )
 
     update_app_group_identifiers(
@@ -426,22 +429,28 @@ platform :ios do
     )
     update_keychain_access_groups(
       entitlements_file: "ownCloud Action Extension/ownCloud Action Extension.entitlements",
-      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS]
+      identifiers: [ENTERPRISE_TEAM + "." + APP_GROUP_IDENTIFIERS, ENTERPRISE_TEAM + "." + SHARED_KEYCHAIN_GROUP]
 	  )
 
     set_info_plist_value(path: "ownCloud File Provider/Info.plist", key: "OCAppGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
     set_info_plist_value(path: "ownCloud File Provider/Info.plist", key: "OCKeychainAccessGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
+    set_info_plist_value(path: "ownCloud File Provider/Info.plist", key: "STXKeychainAccessGroupIdentifier", value: SHARED_KEYCHAIN_GROUP)
     set_info_plist_value(path: "ownCloud File Provider/Info.plist", key: "NSExtension", subkey: "NSExtensionFileProviderDocumentGroup", value: APP_GROUP_IDENTIFIERS)
     set_info_plist_value(path: "ownCloud File Provider UI/Info.plist", key: "OCAppGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
     set_info_plist_value(path: "ownCloud File Provider UI/Info.plist", key: "OCKeychainAccessGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
+    set_info_plist_value(path: "ownCloud File Provider UI/Info.plist", key: "STXKeychainAccessGroupIdentifier", value: SHARED_KEYCHAIN_GROUP)
     set_info_plist_value(path: "ownCloud Intents/Info.plist", key: "OCAppGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
     set_info_plist_value(path: "ownCloud Intents/Info.plist", key: "OCKeychainAccessGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
+    set_info_plist_value(path: "ownCloud Intents/Info.plist", key: "STXKeychainAccessGroupIdentifier", value: SHARED_KEYCHAIN_GROUP)
     set_info_plist_value(path: "ownCloud Share Extension/Info.plist", key: "OCAppGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
     set_info_plist_value(path: "ownCloud Share Extension/Info.plist", key: "OCKeychainAccessGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
+    set_info_plist_value(path: "ownCloud Share Extension/Info.plist", key: "STXKeychainAccessGroupIdentifier", value: SHARED_KEYCHAIN_GROUP)
     set_info_plist_value(path: "ownCloud Action Extension/Info.plist", key: "OCAppGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
     set_info_plist_value(path: "ownCloud Action Extension/Info.plist", key: "OCKeychainAccessGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
+    set_info_plist_value(path: "ownCloud Action Extension/Info.plist", key: "STXKeychainAccessGroupIdentifier", value: SHARED_KEYCHAIN_GROUP)
     set_info_plist_value(path: "ownCloud/Resources/Info.plist", key: "OCAppGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
     set_info_plist_value(path: "ownCloud/Resources/Info.plist", key: "OCKeychainAccessGroupIdentifier", value: OC_APP_GROUP_IDENTIFIERS)
+    set_info_plist_value(path: "ownCloud/Resources/Info.plist", key: "STXKeychainAccessGroupIdentifier", value: SHARED_KEYCHAIN_GROUP)
 
     automatic_code_signing(
       path: "ownCloud.xcodeproj",

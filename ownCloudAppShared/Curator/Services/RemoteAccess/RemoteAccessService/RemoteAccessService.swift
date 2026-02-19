@@ -39,7 +39,7 @@ public actor RemoteAccessService {
 	}
 
 	public func validateEmailCode(code: String, reference: String) async throws {
-		let token = try await performTokenUpdate {
+		let token = try await performTokenUpdate(clientId: Constants.clientId) {
 			try await self.api.validateEmailCode(
 				code: code,
 				clientId: Constants.clientId,
@@ -108,11 +108,16 @@ public actor RemoteAccessService {
 	}
 
 	public func getRemoteDevices(email: String) async throws -> [RemoteDevice] {
-		let apiDevices = try await listDevices(clientId: Constants.clientId)
+		try await getRemoteDevices(email: email, clientId: Constants.clientId)
+	}
+
+	/// Fetch remote devices using a specific client ID (e.g. from shared keychain).
+	public func getRemoteDevices(email: String, clientId: String) async throws -> [RemoteDevice] {
+		let apiDevices = try await listDevices(clientId: clientId)
 		return try await withThrowingTaskGroup(of: RemoteDevice.self) { group in
 			for device in apiDevices {
 				group.addTask {
-					let paths = try await self.getDevicePaths(clientId: Constants.clientId, deviceID: device.seagateDeviceID)
+					let paths = try await self.getDevicePaths(clientId: clientId, deviceID: device.seagateDeviceID)
 					return RemoteDevice(raDevice: device, raDevicePaths: paths)
 				}
 			}
@@ -123,6 +128,15 @@ public actor RemoteAccessService {
 			}
 			return gathered
 		}
+	}
+
+	/// Import tokens from a refresh token (e.g. from shared keychain). Refreshes and saves.
+	public func importFromRefreshToken(refreshToken: String, clientId: String) async throws {
+		let resp = try await api.refreshAccessToken(clientId: clientId, refreshToken: refreshToken)
+		let tokens = RemoteAccessToken(raTokenResponse: resp)
+		_ = tokenStore.save(tokens)
+		saveRACredentialsToSharedKeychain(refreshToken: tokens.refreshToken, clientId: clientId)
+		api.accessToken = tokens.accessToken
 	}
 
 	private func mapErrors<T>(_ body: @Sendable () async throws -> T) async throws -> T {
@@ -183,7 +197,7 @@ public actor RemoteAccessService {
 			return tokens.accessToken
 		}
 
-		return try await performTokenUpdate {
+		return try await performTokenUpdate(clientId: clientId) {
 			try await self.api.refreshAccessToken(clientId: clientId, refreshToken: tokens.refreshToken)
 		}
 	}
@@ -198,7 +212,7 @@ public actor RemoteAccessService {
 			throw RemoteAccessServiceError.missingTokens
 		}
 
-		return try await performTokenUpdate {
+		return try await performTokenUpdate(clientId: clientId) {
 			do {
 				return try await self.api.refreshAccessToken(clientId: clientId, refreshToken: tokens.refreshToken)
 			} catch let error as RemoteAccessServiceError {
@@ -212,6 +226,7 @@ public actor RemoteAccessService {
 	}
 
 	private func performTokenUpdate(
+		clientId: String,
 		_ op: @escaping @Sendable () async throws -> RATokenResponse
 	) async throws -> String {
 		if let t = inFlightTokenUpdate {
@@ -221,7 +236,7 @@ public actor RemoteAccessService {
 		let task = Task<String, Error> { [weak self] in
 			guard let self else { throw CancellationError() }
 			return try await mapErrors {
-				try await self.runTokenUpdate(op)
+				try await self.runTokenUpdate(clientId: clientId, op)
 			}
 		}
 
@@ -232,6 +247,7 @@ public actor RemoteAccessService {
 	}
 
 	private func runTokenUpdate(
+		clientId: String,
 		_ op: @Sendable () async throws -> RATokenResponse
 	) async throws -> String {
 		do {
@@ -239,6 +255,7 @@ public actor RemoteAccessService {
 
 			let tokens = RemoteAccessToken(raTokenResponse: resp)
 			_ = tokenStore.save(tokens)
+			saveRACredentialsToSharedKeychain(refreshToken: tokens.refreshToken, clientId: clientId)
 
 			guard let updated = tokenStore.loadTokens() else {
 				_ = tokenStore.clear()
@@ -252,5 +269,10 @@ public actor RemoteAccessService {
 		} catch {
 			throw RemoteAccessServiceError.unexpected(.init(error))
 		}
+	}
+
+	private func saveRACredentialsToSharedKeychain(refreshToken: String, clientId: String) {
+		let favoriteDeviceCN = HCPreferences.shared.favoriteDeviceCN ?? ""
+		_ = SharedCredentialsKeychain.writeRA(refreshToken: refreshToken, clientId: clientId, favoriteDeviceCN: favoriteDeviceCN)
 	}
 }
