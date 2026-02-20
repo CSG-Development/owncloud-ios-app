@@ -53,7 +53,7 @@ final public class CodeVerificationCardViewModel {
 			let isExpired = self.isExpiredError(error)
 
 			self.isLoaderHidden = !isLoading
-			self.isValidateEnabled = (code.count == Constants.codeLength) && !isExpired
+			self.isValidateEnabled = (code.count == Constants.codeLength) && !isExpired && !self.isCodeFieldError(error)
 
 			self.isValidateHidden = isExpired || isLoading
 			self.isResendHidden = !isExpired || isLoading
@@ -131,6 +131,22 @@ final public class CodeVerificationCardViewModel {
 			return true
 		}
 		return false
+	}
+
+	private func isCodeFieldError(_ error: Error?) -> Bool {
+		guard let error else { return false }
+
+		guard let raError = error as? RemoteAccessServiceError,
+		      case let .apiError(raAPIError) = raError,
+		      case let .unauthorized(e) = raAPIError else {
+			return false
+		}
+		switch e.kind {
+		case .codeExpired, .codeInvalid:
+			return true
+		default:
+			return false
+		}
 	}
 
 	private func handleError(_ error: Error?) {
