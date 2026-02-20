@@ -78,8 +78,8 @@ final class HCSidebarFooterView: ThemeCSSView {
 
 		if let bytesRemaining {
 			let bytesTotal = bytesUsed + bytesRemaining
-			let bytesUsedIEC = HCBytesFormatter.formatBytesIEC(bytesUsed)
-			let bytesTotalIEC = HCBytesFormatter.formatBytesIEC(bytesTotal)
+			let bytesUsedIEC = HCBytesFormatter.formatBytesSI(bytesUsed)
+			let bytesTotalIEC = HCBytesFormatter.formatBytesSI(bytesTotal)
 
 			remainingLabel.text = HCL10n.Sidebar.used(bytesUsedIEC, of: bytesTotalIEC)
 			progressView.isHidden = false
