@@ -122,13 +122,19 @@ class OpenInAction: Action {
 							self.interactionController?.presentOptionsMenu(from: sourceRect, in: hostViewController.view, animated: true)
 						} else if let barButtonItem = self.context.sender as? UIBarButtonItem {
 							self.interactionController?.presentOptionsMenu(from: barButtonItem, animated: true)
-//						} else if let cell = self.context.sender as? UITableViewCell, let clientQueryViewController = viewController as? ClientQueryViewController {
-//							if let indexPath = clientQueryViewController.tableView.indexPath(for: cell) {
-//								let cellRect = clientQueryViewController.tableView.rectForRow(at: indexPath)
-//								self.interactionController?.presentOptionsMenu(from: cellRect, in: clientQueryViewController.tableView, animated: true)
-//							}
+						} else if let sourceView = self.context.sender as? UIView, sourceView.window != nil {
+							// Pin popover to the cell/view (e.g. UniversalItemListCell) for proper positioning and size
+							let sourceRect = sourceView.convert(sourceView.bounds, to: viewController.view)
+							self.interactionController?.presentOptionsMenu(from: sourceRect, in: viewController.view, animated: true)
 						} else {
-							self.interactionController?.presentOptionsMenu(from: viewController.view.frame, in: viewController.view, animated: true)
+							// Fallback: center in top area when sender is not a usable view
+							let sourceRect = CGRect(
+								x: viewController.view.bounds.midX,
+								y: viewController.navigationController?.navigationBar.frame.maxY ?? 0,
+								width: 0,
+								height: 0
+							)
+							self.interactionController?.presentOptionsMenu(from: sourceRect, in: viewController.view, animated: true)
 						}
 					}
 				} else {
@@ -147,7 +153,11 @@ class OpenInAction: Action {
 
 					if UIDevice.current.isIpad {
 						activityController.popoverPresentationController?.sourceView = viewController.view
-						activityController.popoverPresentationController?.sourceRect = viewController.view.frame
+						if let sourceView = self.context.sender as? UIView, sourceView.window != nil {
+							activityController.popoverPresentationController?.sourceRect = sourceView.convert(sourceView.bounds, to: viewController.view)
+						} else {
+							activityController.popoverPresentationController?.sourceRect = CGRect(x: viewController.view.bounds.midX, y: viewController.view.bounds.midY, width: 0, height: 0)
+						}
 					}
 
 					viewController.present(activityController, animated: true, completion: nil)
