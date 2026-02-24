@@ -2,7 +2,6 @@
   "sourceLanguage" : "en",
   "strings" : {
     "CFBundleDisplayName" : {
-      "comment" : "Bundle display name",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13,7 +12,6 @@
       }
     },
     "CFBundleName" : {
-      "comment" : "Bundle name",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -24,7 +22,6 @@
       }
     },
     "NSAppleMusicUsageDescription" : {
-      "comment" : "Privacy - Media Library Usage Description",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -143,7 +140,6 @@
       }
     },
     "NSCameraUsageDescription" : {
-      "comment" : "Privacy - Camera Usage Description",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -154,7 +150,6 @@
       }
     },
     "NSFaceIDUsageDescription" : {
-      "comment" : "Privacy - Face ID Usage Description",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -273,7 +268,6 @@
       }
     },
     "NSLocalNetworkUsageDescription" : {
-      "comment" : "Privacy - Local Network Usage Description",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -284,7 +278,6 @@
       }
     },
     "NSLocationAlwaysAndWhenInUseUsageDescription" : {
-      "comment" : "Privacy - Location Always and When In Use Usage Description",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -397,7 +390,6 @@
       }
     },
     "NSLocationAlwaysUsageDescription" : {
-      "comment" : "Privacy - Location Always Usage Description",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -510,7 +502,6 @@
       }
     },
     "NSLocationWhenInUseUsageDescription" : {
-      "comment" : "Privacy - Location When In Use Usage Description",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -623,7 +614,6 @@
       }
     },
     "NSMicrophoneUsageDescription" : {
-      "comment" : "Privacy - Microphone Usage Description",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -742,7 +732,6 @@
       }
     },
     "NSPhotoLibraryAddUsageDescription" : {
-      "comment" : "Privacy - Photo Library Additions Usage Description",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -861,7 +850,6 @@
       }
     },
     "NSPhotoLibraryUsageDescription" : {
-      "comment" : "Privacy - Photo Library Usage Description",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
