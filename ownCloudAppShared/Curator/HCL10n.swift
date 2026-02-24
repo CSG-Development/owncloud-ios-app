@@ -40,6 +40,7 @@ public enum HCL10n {
 	public enum Sidebar {
 		public static var storageSpace: String { OCLocalizedString("Sidebar.storageSpace" , nil) }
 		public static func used(_ a: String, of b: String) -> String { String(format: OCLocalizedString("Sidebar.usedFormat" , nil), a, b) }
+		public static func inUse(_ a: String) -> String { String(format: OCLocalizedString("Sidebar.inUseFormat" , nil), a) }
 		public static var unlimitedSpace: String { OCLocalizedString("Sidebar.unlimitedSpace" , nil) }
 		public static var signOut: String { OCLocalizedString("Sidebar.signOut" , nil) }
 	}

@@ -2,7 +2,6 @@
   "sourceLanguage" : "en",
   "strings" : {
     "CFBundleDisplayName" : {
-      "comment" : "Bundle display name",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -79,7 +78,6 @@
       }
     },
     "CFBundleName" : {
-      "comment" : "Bundle name",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -156,7 +154,6 @@
       }
     },
     "NSHumanReadableCopyright" : {
-      "comment" : "Copyright (human-readable)",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -233,7 +230,6 @@
       }
     },
     "Share Extension unavailable" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -310,7 +306,6 @@
       }
     },
     "The Share Extension is not available on this system." : {
-      "extractionState" : "stale",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
