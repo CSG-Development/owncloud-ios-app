@@ -26,6 +26,10 @@ public protocol BrowserNavigationViewControllerDelegate: AnyObject {
 		contentViewControllerDidChange: UIViewController?)
 }
 
+public protocol ScrollViewProviding: AnyObject {
+	var providedScrollView: UIScrollView? { get }
+}
+
 open class BrowserNavigationViewController: EmbeddingViewController, Themeable, BrowserNavigationHistoryDelegate, ThemeCSSAutoSelector {
 	lazy var contentContainerView: UIView = {
 		let view = UIView()
@@ -701,6 +705,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			self.delegate?.browserNavigation(
 				viewController: self, contentViewControllerDidChange: self.contentViewController)
 			self.updateTabBar()
+			DispatchQueue.main.async { self.applyScrollabilityCheckForCurrentContent() }
 			completion?(true)
 		}
 
@@ -924,10 +929,46 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		if isLandscape && isPhone {
 			setTabBarHidden(true, animated: hasCompletedInitialLayout)
 			setNavigationBarHidden(true, animated: hasCompletedInitialLayout)
+
+			let runScrollabilityCheck = { [weak self] in
+				self?.view.layoutIfNeeded()
+				guard let self, !self.isContentScrollable else { return }
+				self.setTabBarHidden(false)
+				self.setNavigationBarHidden(false, animated: true)
+			}
+
+			if let coordinator = transitionCoordinator {
+				coordinator.animate(alongsideTransition: nil) { _ in runScrollabilityCheck() }
+			} else {
+				DispatchQueue.main.async { runScrollabilityCheck() }
+			}
 		} else {
 			setTabBarHidden(false, animated: hasCompletedInitialLayout)
 			setNavigationBarHidden(false, animated: hasCompletedInitialLayout)
 		}
+	}
+
+	func applyScrollabilityCheckForCurrentContent() {
+		guard traitCollection.userInterfaceIdiom == .phone,
+		      traitCollection.verticalSizeClass == .compact else { return }
+
+		view.layoutIfNeeded()
+		if isContentScrollable {
+			setTabBarHidden(true)
+			setNavigationBarHidden(true, animated: true)
+		} else {
+			setTabBarHidden(false)
+			setNavigationBarHidden(false, animated: true)
+		}
+	}
+
+	private var isContentScrollable: Bool {
+		guard let scrollView = contentScrollView() else { return false }
+		return scrollView.contentSize.height > scrollView.bounds.height
+	}
+
+	private func contentScrollView() -> UIScrollView? {
+		(contentViewController as? ScrollViewProviding)?.providedScrollView
 	}
 
 	func notifyScroll(_ direction: HCScrollDirectionProcessor.ScrollDirection) {

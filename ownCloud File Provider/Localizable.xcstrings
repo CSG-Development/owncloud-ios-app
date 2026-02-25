@@ -2,6 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "Authorization failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -78,6 +79,7 @@
       }
     },
     "File Provider access has been disabled by the administrator. Please use the app to create new folders." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -154,6 +156,7 @@
       }
     },
     "File Provider access has been disabled by the administrator. Please use the share extension to import files." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -230,6 +233,7 @@
       }
     },
     "Importing files through the File Provider is not allowed on this device." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -306,6 +310,7 @@
       }
     },
     "Log into your account %@ in the app for more details." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -382,6 +387,7 @@
       }
     },
     "Log into your account in the app for more details." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -458,6 +464,7 @@
       }
     },
     "The destination folder couldn't be found on this server. Moving items across servers is currently not supported." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {

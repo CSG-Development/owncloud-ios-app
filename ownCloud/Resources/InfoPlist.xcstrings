@@ -2,6 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "CFBundleDisplayName" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12,6 +13,7 @@
       }
     },
     "CFBundleName" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22,6 +24,7 @@
       }
     },
     "NSAppleMusicUsageDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -140,6 +143,7 @@
       }
     },
     "NSCameraUsageDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -150,6 +154,7 @@
       }
     },
     "NSFaceIDUsageDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -268,6 +273,7 @@
       }
     },
     "NSLocalNetworkUsageDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -278,6 +284,7 @@
       }
     },
     "NSLocationAlwaysAndWhenInUseUsageDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -390,6 +397,7 @@
       }
     },
     "NSLocationAlwaysUsageDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -502,6 +510,7 @@
       }
     },
     "NSLocationWhenInUseUsageDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -614,6 +623,7 @@
       }
     },
     "NSMicrophoneUsageDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -732,6 +742,7 @@
       }
     },
     "NSPhotoLibraryAddUsageDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -850,6 +861,7 @@
       }
     },
     "NSPhotoLibraryUsageDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
