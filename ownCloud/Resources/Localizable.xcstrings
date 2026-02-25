@@ -2,6 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "\nThis is a BETA release that may - and likely will - still contain bugs.\n\nYOU SHOULD NOT USE THIS BETA VERSION WITH PRODUCTION SYSTEMS, PRODUCTION DATA OR DATA OF VALUE. YOU'RE USING THIS BETA AT YOUR OWN RISK." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -114,6 +115,7 @@
       }
     },
     " couldn't download file(s)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -232,6 +234,7 @@
       }
     },
     "'%@' is currently locked" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -350,6 +353,7 @@
       }
     },
     "{{attribute}} {{direction}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -462,6 +466,7 @@
       }
     },
     "{{fileName}} (file)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -574,6 +579,7 @@
       }
     },
     "{{folderName}} (folder)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -686,9 +692,10 @@
       }
     },
     "{{freeSpace}} of {{totalSpace}} available" : {
-
+      "extractionState" : "manual"
     },
     "{{itemCount}} items with {{totalSize}} total ({{fileCount}} files, {{folderCount}} folders)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -801,6 +808,7 @@
       }
     },
     "{{itemName}} ({{link}}) | password: {{password}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -913,6 +921,7 @@
       }
     },
     "{{link}} | password: {{password}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1025,6 +1034,7 @@
       }
     },
     "{{remaining}} available" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1137,6 +1147,7 @@
       }
     },
     "{{spaceName}} (space)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1249,6 +1260,7 @@
       }
     },
     "%@ (%d bits/channel)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1361,6 +1373,7 @@
       }
     },
     "%@ / %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1479,6 +1492,7 @@
       }
     },
     "%@ / %@ – starting immediately" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1597,6 +1611,7 @@
       }
     },
     "%@ is not available for this item." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1709,6 +1724,7 @@
       }
     },
     "%@ is not available, when this account is offline. Please open the app and log into your account before you can do this action." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1821,6 +1837,7 @@
       }
     },
     "%@ of %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1939,6 +1956,7 @@
       }
     },
     "%@ was updated" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2051,6 +2069,7 @@
       }
     },
     "%@%@ %@ version %@ build %@\n(app: %@, sdk: %@)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2163,6 +2182,7 @@
       }
     },
     "%ld digit code" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2275,6 +2295,7 @@
       }
     },
     "%ld Item was copied to the clipboard" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2387,6 +2408,7 @@
       }
     },
     "%ld Items were copied to the clipboard" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2499,6 +2521,7 @@
       }
     },
     "+ %ld more" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2611,6 +2634,7 @@
       }
     },
     "Accept" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2729,6 +2753,7 @@
       }
     },
     "Accept or decline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2841,6 +2866,7 @@
       }
     },
     "Accept share" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2953,6 +2979,7 @@
       }
     },
     "Accept Share failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3071,6 +3098,7 @@
       }
     },
     "Accepted" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3189,6 +3217,7 @@
       }
     },
     "Access denied" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3307,6 +3336,7 @@
       }
     },
     "Access for the media selected for upload is limited" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3419,6 +3449,7 @@
       }
     },
     "Account" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3537,6 +3568,7 @@
       }
     },
     "Account setup complete" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3649,6 +3681,7 @@
       }
     },
     "Accounts" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3767,6 +3800,7 @@
       }
     },
     "Acknowledgements" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3885,6 +3919,7 @@
       }
     },
     "Action" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3997,6 +4032,7 @@
       }
     },
     "Action executed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4109,6 +4145,7 @@
       }
     },
     "Actions" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4227,6 +4264,7 @@
       }
     },
     "Add" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4339,6 +4377,7 @@
       }
     },
     "Add account" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4457,6 +4496,7 @@
       }
     },
     "Add item" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4569,6 +4609,7 @@
       }
     },
     "Add to sidebar" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4681,6 +4722,7 @@
       }
     },
     "Advanced settings" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4799,6 +4841,7 @@
       }
     },
     "after %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4917,6 +4960,7 @@
       }
     },
     "After %ld seconds" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5029,6 +5073,7 @@
       }
     },
     "After 1 minute" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5147,6 +5192,7 @@
       }
     },
     "After 5 minutes" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5265,6 +5311,7 @@
       }
     },
     "After 30 minutes" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5383,6 +5430,7 @@
       }
     },
     "after free %@ trial" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5501,6 +5549,7 @@
       }
     },
     "Agree" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5613,6 +5662,7 @@
       }
     },
     "Albums" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5731,6 +5781,7 @@
       }
     },
     "All done" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5843,6 +5894,7 @@
       }
     },
     "All Photos" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5961,6 +6013,7 @@
       }
     },
     "Allow this app to refresh the content when on Wi-Fi or mobile network in background." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6073,6 +6126,7 @@
       }
     },
     "Altitude" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6185,6 +6239,7 @@
       }
     },
     "An error occurred" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6297,6 +6352,7 @@
       }
     },
     "An item with the same name already exists in this location." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6409,6 +6465,7 @@
       }
     },
     "An operation is currently performed that prevents connecting to '%@'. Please try again later." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6527,6 +6584,7 @@
       }
     },
     "Aperture" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6639,6 +6697,7 @@
       }
     },
     "Aperture priority" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6751,6 +6810,7 @@
       }
     },
     "App Version" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6863,6 +6923,7 @@
       }
     },
     "Apply choice to all similar issues" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6975,6 +7036,7 @@
       }
     },
     "Apply to all" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7087,6 +7149,7 @@
       }
     },
     "Approve" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7205,6 +7268,7 @@
       }
     },
     "Approved" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7323,6 +7387,7 @@
       }
     },
     "Are you sure you want to delete these items from the server?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7441,6 +7506,7 @@
       }
     },
     "Are you sure you want to delete this item from the server?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7559,9 +7625,10 @@
       }
     },
     "Are you sure you want to delete this space? This action cannot be undone." : {
-
+      "extractionState" : "manual"
     },
     "Are you sure you want to unshare these items?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7680,6 +7747,7 @@
       }
     },
     "Are you sure you want to unshare this item?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7798,6 +7866,7 @@
       }
     },
     "ascending" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7910,6 +7979,7 @@
       }
     },
     "Audio" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8028,6 +8098,7 @@
       }
     },
     "Audios" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8140,6 +8211,7 @@
       }
     },
     "Authenticated as %@ via %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8258,6 +8330,7 @@
       }
     },
     "Authenticated via" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8376,6 +8449,7 @@
       }
     },
     "Authenticating…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8494,6 +8568,7 @@
       }
     },
     "Authentication error" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8606,6 +8681,7 @@
       }
     },
     "Authentication failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8718,6 +8794,7 @@
       }
     },
     "Authentication with %@ is no longer allowed. Re-authentication needed." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8830,6 +8907,7 @@
       }
     },
     "Authoring" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8942,6 +9020,7 @@
       }
     },
     "Authorization failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9060,6 +9139,7 @@
       }
     },
     "Auto" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9172,6 +9252,7 @@
       }
     },
     "Auto mode" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9284,6 +9365,7 @@
       }
     },
     "Auto Upload" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9396,6 +9478,7 @@
       }
     },
     "Auto upload disabled" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9508,6 +9591,7 @@
       }
     },
     "Auto upload of media was disabled since configured account / folder was not found" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9626,6 +9710,7 @@
       }
     },
     "Auto Upload Photos" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9744,6 +9829,7 @@
       }
     },
     "Auto Upload Videos" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9862,6 +9948,7 @@
       }
     },
     "Auto-approved" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9980,6 +10067,7 @@
       }
     },
     "Available offline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10092,6 +10180,7 @@
       }
     },
     "Available Offline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10210,9 +10299,10 @@
       }
     },
     "Available space" : {
-
+      "extractionState" : "manual"
     },
     "Average" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10325,6 +10415,7 @@
       }
     },
     "Back" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10443,6 +10534,7 @@
       }
     },
     "Background upload notifications" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10555,6 +10647,7 @@
       }
     },
     "Background uploads (Lab Version)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10667,6 +10760,7 @@
       }
     },
     "beta" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10785,6 +10879,7 @@
       }
     },
     "Beta Warning" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10897,6 +10992,7 @@
       }
     },
     "Biometric authentication failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11015,6 +11111,7 @@
       }
     },
     "Bookmark Metadata" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11127,6 +11224,7 @@
       }
     },
     "Browse" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11245,6 +11343,7 @@
       }
     },
     "Busy" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11357,6 +11456,7 @@
       }
     },
     "By feature" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11469,9 +11569,10 @@
       }
     },
     "Bytes" : {
-
+      "extractionState" : "manual"
     },
     "Camera details" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11584,9 +11685,10 @@
       }
     },
     "Can't edit only manager" : {
-
+      "extractionState" : "manual"
     },
     "Cancel" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11705,6 +11807,7 @@
       }
     },
     "Cannot connect to " : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11823,6 +11926,7 @@
       }
     },
     "Capture settings" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11935,6 +12039,7 @@
       }
     },
     "Cellular Data Usage" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -12047,6 +12152,7 @@
       }
     },
     "Cellular Data Usage have been disabled via MDM configuration. Please contact your administrator for more information." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -12159,6 +12265,7 @@
       }
     },
     "CenterWeightedAverage" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -12271,6 +12378,7 @@
       }
     },
     "Certificate Details" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -12389,6 +12497,7 @@
       }
     },
     "Certificate has issues.\nOpen 'Certificate Details' for more informations." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -12507,6 +12616,7 @@
       }
     },
     "Certificate may have issues, but was accepted by user.\nOpen 'Certificate Details' for more informations." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -12625,6 +12735,7 @@
       }
     },
     "Certificate was rejected by user." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -12743,6 +12854,7 @@
       }
     },
     "Certificates" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -12861,6 +12973,7 @@
       }
     },
     "Change" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -12979,6 +13092,7 @@
       }
     },
     "Change password" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -13091,6 +13205,7 @@
       }
     },
     "Change Sort Order" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -13209,6 +13324,7 @@
       }
     },
     "Changed {{settingID}} to {{newValue}}." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -13321,9 +13437,10 @@
       }
     },
     "Choose an image for the space" : {
-
+      "extractionState" : "manual"
     },
     "Choose destination directory…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -13436,6 +13553,7 @@
       }
     },
     "Clear" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -13548,6 +13666,7 @@
       }
     },
     "Cleared {{settingID}}." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -13660,6 +13779,7 @@
       }
     },
     "Cleared all." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -13772,9 +13892,10 @@
       }
     },
     "Close" : {
-
+      "extractionState" : "manual"
     },
     "Close actions menu" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -13893,6 +14014,7 @@
       }
     },
     "Close Search" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -14005,6 +14127,7 @@
       }
     },
     "Close Window" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -14123,6 +14246,7 @@
       }
     },
     "Color model" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -14235,6 +14359,7 @@
       }
     },
     "Color space" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -14347,6 +14472,7 @@
       }
     },
     "Compacting" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -14465,6 +14591,7 @@
       }
     },
     "Compacting of '%@' failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -14583,6 +14710,7 @@
       }
     },
     "Completed update scans" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -14695,6 +14823,7 @@
       }
     },
     "Compulsory flash firing" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -14807,6 +14936,7 @@
       }
     },
     "Compulsory flash supression" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -14919,6 +15049,7 @@
       }
     },
     "Connecting" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -15031,6 +15162,7 @@
       }
     },
     "Connecting..." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -15149,6 +15281,7 @@
       }
     },
     "Connecting…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -15267,6 +15400,7 @@
       }
     },
     "Contact info" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -15379,6 +15513,7 @@
       }
     },
     "Contacting server…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -15497,6 +15632,7 @@
       }
     },
     "contents" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -15609,6 +15745,7 @@
       }
     },
     "Contents from cache." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -15727,6 +15864,7 @@
       }
     },
     "Continue" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -15845,6 +15983,7 @@
       }
     },
     "Continue offline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -15963,6 +16102,7 @@
       }
     },
     "Convert HEIC to JPEG" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -16081,6 +16221,7 @@
       }
     },
     "Convert videos to MP4" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -16199,6 +16340,7 @@
       }
     },
     "Coordinates" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -16311,6 +16453,7 @@
       }
     },
     "Copy" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -16429,6 +16572,7 @@
       }
     },
     "Copy \"{{itemName}}\"" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -16541,6 +16685,7 @@
       }
     },
     "Copy {{itemCount}} items" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -16653,6 +16798,7 @@
       }
     },
     "Copy here" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -16771,6 +16917,7 @@
       }
     },
     "Copy Private Link" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -16889,6 +17036,7 @@
       }
     },
     "Copy to clipboard" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -17001,6 +17149,7 @@
       }
     },
     "Copying %ld items…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -17119,6 +17268,7 @@
       }
     },
     "Copyright" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -17231,6 +17381,7 @@
       }
     },
     "Could not get the picture" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -17349,6 +17500,7 @@
       }
     },
     "Couldn't resolve a private link since the item is not known to the server." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -17467,6 +17619,7 @@
       }
     },
     "Couldn't resolve a private link since you are offline and corresponding item is not cached locally." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -17585,6 +17738,7 @@
       }
     },
     "Create" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -17703,6 +17857,7 @@
       }
     },
     "Create folder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -17821,9 +17976,10 @@
       }
     },
     "Create image" : {
-
+      "extractionState" : "manual"
     },
     "Create link" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -17936,6 +18092,7 @@
       }
     },
     "Create one file per page" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -18054,6 +18211,7 @@
       }
     },
     "Create shortcut" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -18166,9 +18324,10 @@
       }
     },
     "Create space" : {
-
+      "extractionState" : "manual"
     },
     "Creating %ld folders…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -18287,6 +18446,7 @@
       }
     },
     "Creative" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -18399,6 +18559,7 @@
       }
     },
     "Credentials" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -18517,6 +18678,7 @@
       }
     },
     "Cut" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -18635,6 +18797,7 @@
       }
     },
     "Dark" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -18753,6 +18916,7 @@
       }
     },
     "Data usage" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -18865,6 +19029,7 @@
       }
     },
     "date" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -18983,6 +19148,7 @@
       }
     },
     "Date" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -19101,6 +19267,7 @@
       }
     },
     "Debug" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -19213,6 +19380,7 @@
       }
     },
     "Decline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -19331,6 +19499,7 @@
       }
     },
     "Decline share" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -19443,6 +19612,7 @@
       }
     },
     "Decline Share failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -19561,6 +19731,7 @@
       }
     },
     "Declined" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -19679,6 +19850,7 @@
       }
     },
     "Decrease Slider Value" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -19797,6 +19969,7 @@
       }
     },
     "Default search scope" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -19909,6 +20082,7 @@
       }
     },
     "Delete" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -20027,6 +20201,7 @@
       }
     },
     "Delete all" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -20145,6 +20320,7 @@
       }
     },
     "Delete all log files?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -20263,6 +20439,7 @@
       }
     },
     "Delete all Offline Files" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -20381,6 +20558,7 @@
       }
     },
     "Delete Authentication Data" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -20499,6 +20677,7 @@
       }
     },
     "Delete code" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -20617,9 +20796,10 @@
       }
     },
     "Delete space \"{{driveName}}\"?" : {
-
+      "extractionState" : "manual"
     },
     "Delete unused local copies" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -20738,6 +20918,7 @@
       }
     },
     "Deleting %ld items…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -20856,6 +21037,7 @@
       }
     },
     "Deletion of '%@' failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -20974,6 +21156,7 @@
       }
     },
     "Density" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -21086,6 +21269,7 @@
       }
     },
     "descending" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -21198,6 +21382,7 @@
       }
     },
     "Description" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -21310,6 +21495,7 @@
       }
     },
     "Deselect All" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -21428,9 +21614,10 @@
       }
     },
     "Details" : {
-
+      "extractionState" : "manual"
     },
     "Diagnostic Overview" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -21543,6 +21730,7 @@
       }
     },
     "Diagnostics" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -21655,6 +21843,7 @@
       }
     },
     "Didn't fire" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -21767,6 +21956,7 @@
       }
     },
     "Digitized date" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -21879,6 +22069,7 @@
       }
     },
     "Disable" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -21991,6 +22182,7 @@
       }
     },
     "Disable gestures" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -22109,12 +22301,13 @@
       }
     },
     "Disable space" : {
-
+      "extractionState" : "manual"
     },
     "Disabled" : {
-
+      "extractionState" : "manual"
     },
     "Discard changes" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -22233,6 +22426,7 @@
       }
     },
     "Disconnect" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -22351,6 +22545,7 @@
       }
     },
     "Do you want to log out from '%@'?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -22463,6 +22658,7 @@
       }
     },
     "Do you want to open the following URL?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -22581,6 +22777,7 @@
       }
     },
     "Document Scanner" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -22699,6 +22896,7 @@
       }
     },
     "Documentation" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -22811,6 +23009,7 @@
       }
     },
     "Documents" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -22929,6 +23128,7 @@
       }
     },
     "Done" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -23047,6 +23247,7 @@
       }
     },
     "Download" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -23159,6 +23360,7 @@
       }
     },
     "Download / View" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -23277,6 +23479,7 @@
       }
     },
     "Download / View / Upload" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -23395,6 +23598,7 @@
       }
     },
     "Download instead of streaming" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -23507,6 +23711,7 @@
       }
     },
     "Downloaded Files" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -23619,6 +23824,7 @@
       }
     },
     "Downloading %ld files…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -23737,6 +23943,7 @@
       }
     },
     "Duplicate" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -23855,6 +24062,7 @@
       }
     },
     "E" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -23967,6 +24175,7 @@
       }
     },
     "Edit" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -24085,6 +24294,7 @@
       }
     },
     "Edit account" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -24203,18 +24413,19 @@
       }
     },
     "Edit description" : {
-
+      "extractionState" : "manual"
     },
     "Edit image" : {
-
+      "extractionState" : "manual"
     },
     "Edit space" : {
-
+      "extractionState" : "manual"
     },
     "Emoji or text" : {
-
+      "extractionState" : "manual"
     },
     "Enable" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -24327,6 +24538,7 @@
       }
     },
     "Enable diagnostics" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -24439,6 +24651,7 @@
       }
     },
     "Enable logging" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -24557,6 +24770,7 @@
       }
     },
     "Enable Pro Features (QA)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -24669,6 +24883,7 @@
       }
     },
     "enabled" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -24781,6 +24996,7 @@
       }
     },
     "Enabling presentation mode will prevent the display from sleep mode until the view is closed." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -24893,6 +25109,7 @@
       }
     },
     "Enabling this option will attempt to mask private data, so it does not become part of any log. Since logging is a development and debugging feature, though, we can't guarantee that the log file will be free of any private data even with this option enabled. Therefore, please look through any log file and verify its free of any data you're not comfortable sharing before sharing it with anybody." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -25011,9 +25228,10 @@
       }
     },
     "Enter a emoji or text" : {
-
+      "extractionState" : "manual"
     },
     "Enter a new code with %ld digits" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -25126,6 +25344,7 @@
       }
     },
     "Enter a search term" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -25238,6 +25457,7 @@
       }
     },
     "Enter code" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -25356,6 +25576,7 @@
       }
     },
     "Enter multiple selection" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -25474,6 +25695,7 @@
       }
     },
     "Enter the user or group you want to invite." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -25586,6 +25808,7 @@
       }
     },
     "Error" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -25704,6 +25927,7 @@
       }
     },
     "Error creating {{itemName}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -25816,18 +26040,19 @@
       }
     },
     "Error creating space" : {
-
+      "extractionState" : "manual"
     },
     "Error deleting {{driveName}}" : {
-
+      "extractionState" : "manual"
     },
     "Error disabling {{driveName}}" : {
-
+      "extractionState" : "manual"
     },
     "Error enabling {{driveName}}" : {
-
+      "extractionState" : "manual"
     },
     "Error fetching transactions" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -25946,6 +26171,7 @@
       }
     },
     "Error importing %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -26058,6 +26284,7 @@
       }
     },
     "Error loading item" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -26170,6 +26397,7 @@
       }
     },
     "Error loading product info from App Store" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -26288,6 +26516,7 @@
       }
     },
     "Error opening {{itemName}} in {{appName}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -26400,6 +26629,7 @@
       }
     },
     "Error opening %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -26512,6 +26742,7 @@
       }
     },
     "Error restoring purchases" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -26630,6 +26861,7 @@
       }
     },
     "EXIF aux info" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -26742,6 +26974,7 @@
       }
     },
     "Exit Full Screen" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -26854,6 +27087,7 @@
       }
     },
     "Exit multiple selection" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -26966,6 +27200,7 @@
       }
     },
     "Expiration date" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -27084,6 +27319,7 @@
       }
     },
     "Expires {{expirationDate}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -27196,6 +27432,7 @@
       }
     },
     "Exposure bias" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -27308,6 +27545,7 @@
       }
     },
     "Extend by one week" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -27420,6 +27658,7 @@
       }
     },
     "Extended upload settings" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -27532,6 +27771,7 @@
       }
     },
     "Face ID" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -27650,6 +27890,7 @@
       }
     },
     "Favorite item" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -27768,6 +28009,7 @@
       }
     },
     "Favorites" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -27886,6 +28128,7 @@
       }
     },
     "Feedback" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -28004,6 +28247,7 @@
       }
     },
     "Fetching server information…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -28116,6 +28360,7 @@
       }
     },
     "Fetching user information…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -28234,6 +28479,7 @@
       }
     },
     "File" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -28346,6 +28592,7 @@
       }
     },
     "File an issue" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -28458,6 +28705,7 @@
       }
     },
     "File couldn't be opened" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -28576,6 +28824,7 @@
       }
     },
     "File format" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -28694,6 +28943,7 @@
       }
     },
     "File name cannot contain / or \\" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -28812,6 +29062,7 @@
       }
     },
     "File no longer exists" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -28930,6 +29181,7 @@
       }
     },
     "File Provider access has been disabled by the administrator.\n\nPlease use the app to access your files." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -29042,6 +29294,7 @@
       }
     },
     "File Provider access has been disabled by the administrator. Please use the app to create new folders." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -29154,6 +29407,7 @@
       }
     },
     "File Provider access has been disabled by the administrator. Please use the share extension to import files." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -29266,6 +29520,7 @@
       }
     },
     "Files" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -29378,6 +29633,7 @@
       }
     },
     "Files and folders marked as Available Offline will become unavailable. They will be re-downloaded next time you log into your account (connectivity required)." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -29496,6 +29752,7 @@
       }
     },
     "Files selected and downloaded for offline availability will show up here." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -29608,6 +29865,7 @@
       }
     },
     "Find information, answers and solutions in the detailed documentation." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -29720,6 +29978,7 @@
       }
     },
     "Find Next" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -29832,6 +30091,7 @@
       }
     },
     "Find Previous" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -29944,6 +30204,7 @@
       }
     },
     "Fired" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -30056,6 +30317,7 @@
       }
     },
     "Firmware" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -30168,6 +30430,7 @@
       }
     },
     "Flash" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -30280,6 +30543,7 @@
       }
     },
     "Flash compensation" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -30392,6 +30656,7 @@
       }
     },
     "Focal length" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -30504,6 +30769,7 @@
       }
     },
     "Focal length @ 35 mm" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -30616,6 +30882,7 @@
       }
     },
     "Folder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -30734,6 +31001,7 @@
       }
     },
     "Folder name" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -30852,6 +31120,7 @@
       }
     },
     "Folder removed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -30970,6 +31239,7 @@
       }
     },
     "Forbidden Characters" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -31088,9 +31358,10 @@
       }
     },
     "Forward" : {
-
+      "extractionState" : "manual"
     },
     "Free" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -31209,6 +31480,7 @@
       }
     },
     "Free on %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -31327,6 +31599,7 @@
       }
     },
     "Full Screen" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -31439,9 +31712,10 @@
       }
     },
     "GB" : {
-
+      "extractionState" : "manual"
     },
     "General" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -31554,6 +31828,7 @@
       }
     },
     "Generate" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -31666,6 +31941,7 @@
       }
     },
     "Get in touch with our community in the forums - or file a GitHub issue to report a bug or request a feature." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -31778,6 +32054,7 @@
       }
     },
     "Go to Beginning" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -31890,6 +32167,7 @@
       }
     },
     "Go to page" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -32008,6 +32286,7 @@
       }
     },
     "GPS Location" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -32120,6 +32399,7 @@
       }
     },
     "Grid" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -32232,6 +32512,7 @@
       }
     },
     "Group" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -32344,6 +32625,7 @@
       }
     },
     "Groups" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -32462,6 +32744,7 @@
       }
     },
     "Help" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -32580,6 +32863,7 @@
       }
     },
     "Help & Contact" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -32692,6 +32976,7 @@
       }
     },
     "Hide" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -32804,9 +33089,10 @@
       }
     },
     "Hide disabled spaces" : {
-
+      "extractionState" : "manual"
     },
     "Histogram" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -32919,6 +33205,7 @@
       }
     },
     "How should this file be saved?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -33037,6 +33324,7 @@
       }
     },
     "https://example.com" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -33155,9 +33443,10 @@
       }
     },
     "If only one member is a manager, that member's permissions can't be edited." : {
-
+      "extractionState" : "manual"
     },
     "If you 'Continue', you will be prompted to allow the '{{app.name}}' app to open the {{authmethodName}} login page where you can enter your credentials." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -33270,6 +33559,7 @@
       }
     },
     "If you 'Continue', you will be prompted to allow the '{{app.name}}' app to open the login page where you can enter your credentials." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -33382,6 +33672,7 @@
       }
     },
     "If you choose \"Immediately\" the App will be locked, when it is no longer in foreground." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -33494,6 +33785,7 @@
       }
     },
     "If you have a moment to give us your feedback, please take our survey." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -33606,6 +33898,7 @@
       }
     },
     "If you make an item a favorite, it will turn up here." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -33718,6 +34011,7 @@
       }
     },
     "If you would like background media uploads to be more reliable, you should enable background location updates." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -33830,6 +34124,7 @@
       }
     },
     "If you'd like to give the account a custom name, please enter it below:" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -33942,6 +34237,7 @@
       }
     },
     "Ignore updates" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -34054,6 +34350,7 @@
       }
     },
     "Image details" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -34166,6 +34463,7 @@
       }
     },
     "Image grid" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -34278,6 +34576,7 @@
       }
     },
     "Image metadata" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -34390,6 +34689,7 @@
       }
     },
     "Image metadata, extended upload options" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -34502,9 +34802,10 @@
       }
     },
     "Image Playground" : {
-
+      "extractionState" : "manual"
     },
     "Images" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -34623,6 +34924,7 @@
       }
     },
     "Immediately" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -34741,6 +35043,7 @@
       }
     },
     "Import \"{{itemName}}\"" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -34853,6 +35156,7 @@
       }
     },
     "Import {{itemCount}} files" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -34965,6 +35269,7 @@
       }
     },
     "Import from Clipboard" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -35083,6 +35388,7 @@
       }
     },
     "Import not allowed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -35195,6 +35501,7 @@
       }
     },
     "Importing %@ media files for upload" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -35313,6 +35620,7 @@
       }
     },
     "Importing files through opening is not allowed on this device." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -35425,6 +35733,7 @@
       }
     },
     "Importing files through the Share Extension is not allowed on this device." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -35537,6 +35846,7 @@
       }
     },
     "Importing item %ld of %ld" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -35649,6 +35959,7 @@
       }
     },
     "In order to accurately determine your current licensing status, please add one or more accounts first." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -35761,6 +36072,7 @@
       }
     },
     "In the cloud" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -35873,6 +36185,7 @@
       }
     },
     "In-App Purchases" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -35991,6 +36304,7 @@
       }
     },
     "Include available offline files" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -36109,6 +36423,7 @@
       }
     },
     "Incorrect code" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -36227,6 +36542,7 @@
       }
     },
     "Increase Slider Value" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -36345,6 +36661,7 @@
       }
     },
     "Info" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -36463,6 +36780,7 @@
       }
     },
     "Invalid Page" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -36581,6 +36899,7 @@
       }
     },
     "Invite" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -36693,6 +37012,7 @@
       }
     },
     "ISO" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -36805,6 +37125,7 @@
       }
     },
     "Issues" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -36917,6 +37238,7 @@
       }
     },
     "Item grid" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -37029,6 +37351,7 @@
       }
     },
     "Item with same name already exists" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -37141,9 +37464,10 @@
       }
     },
     "KB" : {
-
+      "extractionState" : "manual"
     },
     "Keywords" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -37256,6 +37580,7 @@
       }
     },
     "kind" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -37374,6 +37699,7 @@
       }
     },
     "Landscape" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -37486,6 +37812,7 @@
       }
     },
     "last used" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -37598,6 +37925,7 @@
       }
     },
     "Lens ID" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -37710,6 +38038,7 @@
       }
     },
     "Lens info" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -37822,6 +38151,7 @@
       }
     },
     "Lens make" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -37934,6 +38264,7 @@
       }
     },
     "Lens model" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -38046,6 +38377,7 @@
       }
     },
     "Lens serial" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -38158,6 +38490,7 @@
       }
     },
     "license" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -38270,6 +38603,7 @@
       }
     },
     "Light" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -38388,9 +38722,10 @@
       }
     },
     "Limit space" : {
-
+      "extractionState" : "manual"
     },
     "Limited Photo Access" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -38503,6 +38838,7 @@
       }
     },
     "Link" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -38621,6 +38957,7 @@
       }
     },
     "Link points to an account bookmark which is not configured in the app." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -38739,6 +39076,7 @@
       }
     },
     "Link resolution failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -38857,6 +39195,7 @@
       }
     },
     "Links" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -38975,6 +39314,7 @@
       }
     },
     "List" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -39087,6 +39427,7 @@
       }
     },
     "Loading…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -39199,6 +39540,7 @@
       }
     },
     "Local copy" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -39311,6 +39653,7 @@
       }
     },
     "Local version" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -39423,6 +39766,7 @@
       }
     },
     "Location permission denied" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -39535,6 +39879,7 @@
       }
     },
     "Locations" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -39647,6 +39992,7 @@
       }
     },
     "Lock application" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -39765,6 +40111,7 @@
       }
     },
     "Log Destinations" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -39883,6 +40230,7 @@
       }
     },
     "Log Files" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -40001,6 +40349,7 @@
       }
     },
     "Log Level" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -40119,6 +40468,7 @@
       }
     },
     "Log out" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -40231,6 +40581,7 @@
       }
     },
     "Log out of '%@' failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -40343,6 +40694,7 @@
       }
     },
     "Logging" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -40461,6 +40813,7 @@
       }
     },
     "Login" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -40573,6 +40926,7 @@
       }
     },
     "Make available offline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -40691,6 +41045,7 @@
       }
     },
     "Make unavailable offline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -40809,6 +41164,7 @@
       }
     },
     "Manage" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -40927,6 +41283,7 @@
       }
     },
     "Manual" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -41039,9 +41396,10 @@
       }
     },
     "Markdown" : {
-
+      "extractionState" : "manual"
     },
     "Markup" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -41160,6 +41518,7 @@
       }
     },
     "Markup Documents" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -41278,6 +41637,7 @@
       }
     },
     "Markup photos and PDF files." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -41396,6 +41756,7 @@
       }
     },
     "Mask private data" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -41514,9 +41875,10 @@
       }
     },
     "MB" : {
-
+      "extractionState" : "manual"
     },
     "Media Export" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -41629,6 +41991,7 @@
       }
     },
     "Media Files" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -41747,6 +42110,7 @@
       }
     },
     "Media import" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -41865,6 +42229,7 @@
       }
     },
     "Media Upload" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -41983,9 +42348,10 @@
       }
     },
     "Members" : {
-
+      "extractionState" : "manual"
     },
     "Messages" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -42098,6 +42464,7 @@
       }
     },
     "Metering" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -42210,6 +42577,7 @@
       }
     },
     "Missing hostname" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -42328,6 +42696,7 @@
       }
     },
     "Missing permissions" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -42446,6 +42815,7 @@
       }
     },
     "More" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -42564,6 +42934,7 @@
       }
     },
     "More for {{title}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -42676,6 +43047,7 @@
       }
     },
     "More information" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -42788,6 +43160,7 @@
       }
     },
     "Move" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -42906,6 +43279,7 @@
       }
     },
     "Move \"{{itemName}}\"" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -43018,6 +43392,7 @@
       }
     },
     "Move {{itemCount}} items" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -43130,6 +43505,7 @@
       }
     },
     "Move here" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -43248,6 +43624,7 @@
       }
     },
     "Moving %ld items…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -43366,6 +43743,7 @@
       }
     },
     "Multiple items" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -43484,6 +43862,7 @@
       }
     },
     "MultiSpot" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -43596,6 +43975,7 @@
       }
     },
     "Mute/Unmute" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -43708,6 +44088,7 @@
       }
     },
     "N" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -43820,6 +44201,7 @@
       }
     },
     "name" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -43938,6 +44320,7 @@
       }
     },
     "Name" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -44056,6 +44439,7 @@
       }
     },
     "name + contents" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -44168,6 +44552,7 @@
       }
     },
     "Name of saved search" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -44280,6 +44665,7 @@
       }
     },
     "Name of template" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -44392,6 +44778,7 @@
       }
     },
     "names" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -44504,6 +44891,7 @@
       }
     },
     "Network unavailable" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -44622,6 +45010,7 @@
       }
     },
     "never" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -44740,6 +45129,7 @@
       }
     },
     "New document" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -44852,6 +45242,7 @@
       }
     },
     "New Folder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -44970,6 +45361,7 @@
       }
     },
     "New in %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -45088,6 +45480,7 @@
       }
     },
     "New settings received from MDM" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -45200,6 +45593,7 @@
       }
     },
     "Next" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -45318,6 +45712,7 @@
       }
     },
     "Next item" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -45430,6 +45825,7 @@
       }
     },
     "No Access to the media selected for upload" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -45542,6 +45938,7 @@
       }
     },
     "No account configured" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -45654,6 +46051,7 @@
       }
     },
     "No account has been set up in the {{app.name}} app yet." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -45766,6 +46164,7 @@
       }
     },
     "No accounts found" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -45878,6 +46277,7 @@
       }
     },
     "No actions available" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -45996,6 +46396,7 @@
       }
     },
     "No authentication data has been found for this connection." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -46114,6 +46515,7 @@
       }
     },
     "No contents" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -46226,6 +46628,7 @@
       }
     },
     "No favorites found" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -46338,6 +46741,7 @@
       }
     },
     "No files available offline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -46450,6 +46854,7 @@
       }
     },
     "No issues found. Certificate passed validation." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -46568,6 +46973,7 @@
       }
     },
     "No items found matching the search criteria." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -46680,6 +47086,7 @@
       }
     },
     "No items shared by link" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -46792,6 +47199,7 @@
       }
     },
     "No items shared by you" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -46904,6 +47312,7 @@
       }
     },
     "No items shared with you" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -47016,6 +47425,7 @@
       }
     },
     "No matches" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -47134,6 +47544,7 @@
       }
     },
     "No pending messages or ongoing actions." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -47246,6 +47657,7 @@
       }
     },
     "No spaces" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -47358,6 +47770,7 @@
       }
     },
     "No strobe return detection" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -47470,6 +47883,7 @@
       }
     },
     "No user or group matches your search." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -47582,6 +47996,7 @@
       }
     },
     "none" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -47700,6 +48115,7 @@
       }
     },
     "Normal" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -47812,6 +48228,7 @@
       }
     },
     "Not defined" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -47924,6 +48341,7 @@
       }
     },
     "Not now" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -48042,6 +48460,7 @@
       }
     },
     "not present" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -48154,6 +48573,7 @@
       }
     },
     "off" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -48266,6 +48686,7 @@
       }
     },
     "Off" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -48384,6 +48805,7 @@
       }
     },
     "Offline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -48496,6 +48918,7 @@
       }
     },
     "Offline files use" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -48614,6 +49037,7 @@
       }
     },
     "OK" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -48732,6 +49156,7 @@
       }
     },
     "on" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -48844,6 +49269,7 @@
       }
     },
     "Online" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -48956,6 +49382,7 @@
       }
     },
     "Open app" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -49068,6 +49495,7 @@
       }
     },
     "Open file" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -49186,6 +49614,7 @@
       }
     },
     "Open help page" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -49298,6 +49727,7 @@
       }
     },
     "Open in" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -49416,6 +49846,7 @@
       }
     },
     "Open in {{appName}} (web)" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -49528,6 +49959,7 @@
       }
     },
     "Open in a new Window" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -49646,6 +50078,7 @@
       }
     },
     "Open link" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -49758,6 +50191,7 @@
       }
     },
     "Open login page" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -49870,6 +50304,7 @@
       }
     },
     "Open Selected" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -49988,6 +50423,7 @@
       }
     },
     "Open shortcut" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -50100,6 +50536,7 @@
       }
     },
     "Opening documents is not supported by the app provider on this instance." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -50212,6 +50649,7 @@
       }
     },
     "Opening link failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -50324,6 +50762,7 @@
       }
     },
     "Opening not allowed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -50436,6 +50875,7 @@
       }
     },
     "Opening…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -50548,6 +50988,7 @@
       }
     },
     "Optic ID" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -50660,6 +51101,7 @@
       }
     },
     "Options" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -50778,6 +51220,7 @@
       }
     },
     "Original date" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -50890,6 +51333,7 @@
       }
     },
     "Otherwise background media uploads using background refresh technology would depend on how frequently you use the app." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -51002,6 +51446,7 @@
       }
     },
     "Outline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -51120,6 +51565,7 @@
       }
     },
     "Overwrite original" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -51238,6 +51684,7 @@
       }
     },
     "Owner" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -51356,6 +51803,7 @@
       }
     },
     "Page" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -51474,6 +51922,7 @@
       }
     },
     "Partial" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -51586,6 +52035,7 @@
       }
     },
     "Passcode Lock" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -51704,6 +52154,7 @@
       }
     },
     "Passcode option" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -51816,6 +52267,7 @@
       }
     },
     "Passcode protection is not supported on this device.\nPlease disable passcode lock in the app settings." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -51928,6 +52380,7 @@
       }
     },
     "Passcode setup" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -52040,6 +52493,7 @@
       }
     },
     "Passed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -52158,6 +52612,7 @@
       }
     },
     "Password" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -52276,6 +52731,7 @@
       }
     },
     "Paste" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -52388,6 +52844,7 @@
       }
     },
     "Pattern" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -52500,9 +52957,10 @@
       }
     },
     "PB" : {
-
+      "extractionState" : "manual"
     },
     "PDF Documents" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -52621,6 +53079,7 @@
       }
     },
     "Pending" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -52739,6 +53198,7 @@
       }
     },
     "Permissions" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -52857,6 +53317,7 @@
       }
     },
     "Photo Pro Features" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -52969,6 +53430,7 @@
       }
     },
     "Photo upload" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -53081,6 +53543,7 @@
       }
     },
     "Photo upload path" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -53199,6 +53662,7 @@
       }
     },
     "Photometric interpretation" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -53311,6 +53775,7 @@
       }
     },
     "Photos" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -53429,6 +53894,7 @@
       }
     },
     "Pick a destination for photo uploads" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -53541,6 +54007,7 @@
       }
     },
     "Pick a destination for video uploads" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -53653,6 +54120,7 @@
       }
     },
     "Pick a document type to create:" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -53765,6 +54233,7 @@
       }
     },
     "Pick a name" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -53877,9 +54346,10 @@
       }
     },
     "Pick a photo" : {
-
+      "extractionState" : "manual"
     },
     "Pick file or folder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -53992,6 +54462,7 @@
       }
     },
     "Place" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -54104,6 +54575,7 @@
       }
     },
     "Play/Pause" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -54216,6 +54688,7 @@
       }
     },
     "Please choose how many digits you want to use for the passcode lock?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -54328,6 +54801,7 @@
       }
     },
     "Please configure an email account" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -54446,9 +54920,10 @@
       }
     },
     "Please enter a quota equal or less than 1 PB." : {
-
+      "extractionState" : "manual"
     },
     "Please note: Folders can only be pasted into the %@ app and the same account." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -54561,6 +55036,7 @@
       }
     },
     "Please open the app and select the account to re-authenticate." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -54673,6 +55149,7 @@
       }
     },
     "Please re-enable location acquisition in system settings" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -54785,6 +55262,7 @@
       }
     },
     "Please try again in %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -54903,6 +55381,7 @@
       }
     },
     "Please wait…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -55021,6 +55500,7 @@
       }
     },
     "Portions of this app may utilize the following copyrighted material, the use of which is hereby acknowledged." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -55133,6 +55613,7 @@
       }
     },
     "Portrait" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -55245,6 +55726,7 @@
       }
     },
     "Prefer original videos" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -55357,6 +55839,7 @@
       }
     },
     "Prefer RAW photos" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -55469,6 +55952,7 @@
       }
     },
     "Prefer unedited photos" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -55581,6 +56065,7 @@
       }
     },
     "Preparing account" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -55693,6 +56178,7 @@
       }
     },
     "Preparing…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -55811,6 +56297,7 @@
       }
     },
     "Presentation Mode" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -55923,6 +56410,7 @@
       }
     },
     "Preserve original media file names" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -56041,6 +56529,7 @@
       }
     },
     "Prevent dragging of files and folders and multiselection using system defined gestures" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -56159,9 +56648,10 @@
       }
     },
     "Preview" : {
-
+      "extractionState" : "manual"
     },
     "Previous" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -56280,6 +56770,7 @@
       }
     },
     "Previous item" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -56392,6 +56883,7 @@
       }
     },
     "Privacy" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -56510,6 +57002,7 @@
       }
     },
     "Privacy Policy" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -56628,6 +57121,7 @@
       }
     },
     "Private Link" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -56746,6 +57240,7 @@
       }
     },
     "Pro Features" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -56864,6 +57359,7 @@
       }
     },
     "Proceed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -56982,6 +57478,7 @@
       }
     },
     "Processing on server" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -57094,6 +57591,7 @@
       }
     },
     "Profile" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -57206,6 +57704,7 @@
       }
     },
     "Program" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -57318,6 +57817,7 @@
       }
     },
     "Public Link" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -57436,9 +57936,10 @@
       }
     },
     "Public Links" : {
-
+      "extractionState" : "manual"
     },
     "Purchase" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -57551,6 +58052,7 @@
       }
     },
     "Purchase failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -57669,6 +58171,7 @@
       }
     },
     "Purchases & Subscriptions" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -57781,6 +58284,7 @@
       }
     },
     "Quick Access" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -57899,12 +58403,13 @@
       }
     },
     "Quota" : {
-
+      "extractionState" : "manual"
     },
     "Quota too high" : {
-
+      "extractionState" : "manual"
     },
     "Read" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -58023,6 +58528,7 @@
       }
     },
     "Really delete '%@'?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -58141,6 +58647,7 @@
       }
     },
     "Really include available offline files?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -58259,6 +58766,7 @@
       }
     },
     "Recents" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -58377,6 +58885,7 @@
       }
     },
     "Recommend to a friend" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -58495,6 +59004,7 @@
       }
     },
     "Red eye detection supported" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -58607,6 +59117,7 @@
       }
     },
     "Refresh without asking" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -58719,6 +59230,7 @@
       }
     },
     "Rejected" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -58837,6 +59349,7 @@
       }
     },
     "release" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -58955,6 +59468,7 @@
       }
     },
     "Remove" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -59067,6 +59581,7 @@
       }
     },
     "Remove expiration date" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -59179,6 +59694,7 @@
       }
     },
     "Remove from sidebar" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -59291,6 +59807,7 @@
       }
     },
     "Remove password" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -59403,6 +59920,7 @@
       }
     },
     "Removes downloaded files and local copies of items marked as Available Offline. The latter will be re-downloaded next time you log into your account (connectivity required)." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -59515,6 +60033,7 @@
       }
     },
     "Rename" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -59633,6 +60152,7 @@
       }
     },
     "Repeat code" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -59751,6 +60271,7 @@
       }
     },
     "Resolving link…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -59869,6 +60390,7 @@
       }
     },
     "Restore purchases" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -59987,6 +60509,7 @@
       }
     },
     "Restoring purchases…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -60105,6 +60628,7 @@
       }
     },
     "Resume" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -60223,6 +60747,7 @@
       }
     },
     "Reveal" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -60335,6 +60860,7 @@
       }
     },
     "Reveal in folder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -60447,6 +60973,7 @@
       }
     },
     "Review Connection" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -60565,6 +61092,7 @@
       }
     },
     "Revoke approval" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -60683,6 +61211,7 @@
       }
     },
     "RGB" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -60795,6 +61324,7 @@
       }
     },
     "S" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -60907,6 +61437,7 @@
       }
     },
     "Save" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -61025,6 +61556,7 @@
       }
     },
     "Save as" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -61143,6 +61675,7 @@
       }
     },
     "Save as copy" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -61261,6 +61794,7 @@
       }
     },
     "Save as search template" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -61373,6 +61907,7 @@
       }
     },
     "Save changes" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -61485,6 +62020,7 @@
       }
     },
     "Save File" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -61603,6 +62139,7 @@
       }
     },
     "Save here" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -61715,6 +62252,7 @@
       }
     },
     "Save search" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -61827,6 +62365,7 @@
       }
     },
     "Saved search" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -61939,6 +62478,7 @@
       }
     },
     "Saved searches" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -62051,6 +62591,7 @@
       }
     },
     "Saving" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -62169,6 +62710,7 @@
       }
     },
     "Saving edited file failed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -62287,6 +62829,7 @@
       }
     },
     "Scan" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -62405,6 +62948,7 @@
       }
     },
     "Scan additional" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -62523,6 +63067,7 @@
       }
     },
     "Scan document" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -62641,6 +63186,7 @@
       }
     },
     "Scan documents and photos with your camera." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -62759,6 +63305,7 @@
       }
     },
     "Scans" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -62877,6 +63424,7 @@
       }
     },
     "Scene" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -62989,6 +63537,7 @@
       }
     },
     "Scheduled upload of %ld media assets" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -63101,6 +63650,7 @@
       }
     },
     "Scroll to Bottom" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -63219,6 +63769,7 @@
       }
     },
     "Scroll to Top" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -63337,6 +63888,7 @@
       }
     },
     "Search" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -63455,6 +64007,7 @@
       }
     },
     "Search {{space.name}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -63567,6 +64120,7 @@
       }
     },
     "Search account" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -63679,6 +64233,7 @@
       }
     },
     "Search folder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -63791,6 +64346,7 @@
       }
     },
     "Search for users or groups" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -63903,6 +64459,7 @@
       }
     },
     "Search from {{folder.name}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -64015,6 +64572,7 @@
       }
     },
     "Search in" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -64127,6 +64685,7 @@
       }
     },
     "Search on the server is unavailable while not connected. To search offline, switch to the Account scope." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -64239,6 +64798,7 @@
       }
     },
     "Search PDF" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -64357,6 +64917,7 @@
       }
     },
     "Search server" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -64469,6 +65030,7 @@
       }
     },
     "Search Settings" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -64581,6 +65143,7 @@
       }
     },
     "Search space" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -64693,6 +65256,7 @@
       }
     },
     "Search template" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -64805,6 +65369,7 @@
       }
     },
     "Search templates" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -64917,6 +65482,7 @@
       }
     },
     "Search tree" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -65029,6 +65595,7 @@
       }
     },
     "Searches in the current space ONLY." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -65141,6 +65708,7 @@
       }
     },
     "Searches the current folder and its subfolders." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -65253,6 +65821,7 @@
       }
     },
     "Searches the current folder ONLY." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -65365,6 +65934,7 @@
       }
     },
     "Searches the personal folder and all spaces." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -65477,6 +66047,7 @@
       }
     },
     "Searches using the server." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -65589,6 +66160,7 @@
       }
     },
     "Security" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -65707,6 +66279,7 @@
       }
     },
     "Select" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -65825,6 +66398,7 @@
       }
     },
     "Select All" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -65943,6 +66517,7 @@
       }
     },
     "Select Destination" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -66055,6 +66630,7 @@
       }
     },
     "Select folder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -66167,6 +66743,7 @@
       }
     },
     "Select Last Item on Page" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -66285,6 +66862,7 @@
       }
     },
     "Select Next" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -66403,6 +66981,7 @@
       }
     },
     "Select one or more items." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -66515,6 +67094,7 @@
       }
     },
     "Select Previous" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -66633,6 +67213,7 @@
       }
     },
     "Select target." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -66745,6 +67326,7 @@
       }
     },
     "Send feedback" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -66863,6 +67445,7 @@
       }
     },
     "Serial number" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -66975,6 +67558,7 @@
       }
     },
     "Server" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -67087,6 +67671,7 @@
       }
     },
     "Server name" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -67205,6 +67790,7 @@
       }
     },
     "Server Password" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -67323,6 +67909,7 @@
       }
     },
     "Server search requires a connection" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -67435,6 +68022,7 @@
       }
     },
     "Server URL" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -67553,6 +68141,7 @@
       }
     },
     "Server Username" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -67671,6 +68260,7 @@
       }
     },
     "Set" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -67783,6 +68373,7 @@
       }
     },
     "Settings" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -67901,6 +68492,7 @@
       }
     },
     "Setup a new account in the app to save to." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -68013,6 +68605,7 @@
       }
     },
     "Share" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -68131,6 +68724,7 @@
       }
     },
     "Share Diagnostics" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -68243,6 +68837,7 @@
       }
     },
     "Share Extension disabled" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -68355,6 +68950,7 @@
       }
     },
     "Share Extension unavailable" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -68467,6 +69063,7 @@
       }
     },
     "Share with" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -68579,6 +69176,7 @@
       }
     },
     "shared" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -68697,6 +69295,7 @@
       }
     },
     "Shared" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -68809,6 +69408,7 @@
       }
     },
     "Shared by {{owner}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -68927,6 +69527,7 @@
       }
     },
     "Shared by link" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -69039,6 +69640,7 @@
       }
     },
     "Shared by me" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -69151,6 +69753,7 @@
       }
     },
     "Shared with" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -69269,6 +69872,7 @@
       }
     },
     "Shared with {{recipient}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -69381,6 +69985,7 @@
       }
     },
     "Shared with {{recipients}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -69493,6 +70098,7 @@
       }
     },
     "Shared with me" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -69605,6 +70211,7 @@
       }
     },
     "Shares" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -69723,6 +70330,7 @@
       }
     },
     "Sharing" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -69841,6 +70449,7 @@
       }
     },
     "Sharing requires an active connection." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -69953,6 +70562,7 @@
       }
     },
     "Shortcut" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -70065,6 +70675,7 @@
       }
     },
     "Shortcut to '{{hostname}}'" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -70177,6 +70788,7 @@
       }
     },
     "Shortcuts Actions" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -70295,6 +70907,7 @@
       }
     },
     "Shorten by one week" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -70407,6 +71020,7 @@
       }
     },
     "Show" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -70519,6 +71133,7 @@
       }
     },
     "Show all" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -70631,9 +71246,10 @@
       }
     },
     "Show disabled spaces" : {
-
+      "extractionState" : "manual"
     },
     "Show folders on top" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -70752,6 +71368,7 @@
       }
     },
     "Show hidden files and folders" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -70870,6 +71487,7 @@
       }
     },
     "Show message" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -70982,6 +71600,7 @@
       }
     },
     "Show more results" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -71094,6 +71713,7 @@
       }
     },
     "Show new version" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -71206,6 +71826,7 @@
       }
     },
     "Show/Hide sidebar" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -71318,6 +71939,7 @@
       }
     },
     "Shutter priority" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -71430,6 +72052,7 @@
       }
     },
     "Shutter speed" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -71542,6 +72165,7 @@
       }
     },
     "Sign in" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -71660,6 +72284,7 @@
       }
     },
     "size" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -71778,6 +72403,7 @@
       }
     },
     "Size" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -71890,6 +72516,7 @@
       }
     },
     "Skip" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -72002,6 +72629,7 @@
       }
     },
     "Skip Ahead" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -72114,6 +72742,7 @@
       }
     },
     "Skip Back" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -72226,6 +72855,7 @@
       }
     },
     "Some cellular data may still be used. To completely avoid the usage of cellular data, please turn off access to cellular for the entire app in the Settings app." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -72338,6 +72968,7 @@
       }
     },
     "Sort by {{attribute}} in {{direction}} order" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -72450,6 +73081,7 @@
       }
     },
     "Sort by %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -72568,9 +73200,10 @@
       }
     },
     "space" : {
-
+      "extractionState" : "manual"
     },
     "Space" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -72683,9 +73316,10 @@
       }
     },
     "Space Actions" : {
-
+      "extractionState" : "manual"
     },
     "Spaces" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -72798,6 +73432,7 @@
       }
     },
     "Spot" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -72910,6 +73545,7 @@
       }
     },
     "Start setup" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -73022,6 +73658,7 @@
       }
     },
     "Status" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -73140,6 +73777,7 @@
       }
     },
     "Storage" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -73258,6 +73896,7 @@
       }
     },
     "Strobe return light detected" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -73370,6 +74009,7 @@
       }
     },
     "Strobe return light not detected" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -73482,6 +74122,7 @@
       }
     },
     "Subscribe" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -73594,6 +74235,7 @@
       }
     },
     "Subscribe Now" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -73712,9 +74354,10 @@
       }
     },
     "Subtitle" : {
-
+      "extractionState" : "manual"
     },
     "Switch Theme Style" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -73827,6 +74470,7 @@
       }
     },
     "System" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -73945,6 +74589,7 @@
       }
     },
     "System Appeareance" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -74063,6 +74708,7 @@
       }
     },
     "Tab %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -74181,6 +74827,7 @@
       }
     },
     "Take photo or video" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -74299,6 +74946,7 @@
       }
     },
     "Take survey" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -74411,6 +75059,7 @@
       }
     },
     "Tap to launch the app." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -74523,6 +75172,7 @@
       }
     },
     "Tap to quit the app." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -74635,9 +75285,10 @@
       }
     },
     "TB" : {
-
+      "extractionState" : "manual"
     },
     "Terms Of Use" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -74756,6 +75407,7 @@
       }
     },
     "Text" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -74874,9 +75526,10 @@
       }
     },
     "Text/Emoji" : {
-
+      "extractionState" : "manual"
     },
     "Thank you for using %@.\n" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -74995,6 +75648,7 @@
       }
     },
     "Thank you for using %@.\nIf you like our App, please leave an AppStore review.\n❤️" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -75113,6 +75767,7 @@
       }
     },
     "The {{app.name}} share extension is not available on this system." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -75225,6 +75880,7 @@
       }
     },
     "The account has been disabled." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -75343,6 +75999,7 @@
       }
     },
     "The connection's access token has expired or become invalid. Sign in again to re-gain access." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -75461,6 +76118,7 @@
       }
     },
     "The destination this shortcut points to could not be found. It may have been deleted or you may not have access to it." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -75573,6 +76231,7 @@
       }
     },
     "The entered codes are different" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -75691,6 +76350,7 @@
       }
     },
     "The entered page number doesn't exist" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -75809,6 +76469,7 @@
       }
     },
     "The entered URL does not include a hostname." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -75927,6 +76588,7 @@
       }
     },
     "The following steps will guide you through the setup process." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -76039,6 +76701,7 @@
       }
     },
     "The last 10 archived logs are kept on the device - with each log covering up to 24 hours of usage. When sharing please bear in mind that logs may contain sensitive information such as server URLs and user-specific information." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -76157,6 +76820,7 @@
       }
     },
     "The password was copied to the clipboard" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -76269,6 +76933,7 @@
       }
     },
     "The search term you entered did not match any item in the selected scope." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -76381,6 +77046,7 @@
       }
     },
     "The server declined access with the credentials stored for this connection." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -76499,6 +77165,7 @@
       }
     },
     "The shortcut points to a URL, but the configuration of this app prohibits opening it." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -76611,6 +77278,7 @@
       }
     },
     "The shortcut points to another item, but the configuration of this app prohibits opening it." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -76723,6 +77391,7 @@
       }
     },
     "Theme" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -76841,6 +77510,7 @@
       }
     },
     "This action can't be undone." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -76959,6 +77629,7 @@
       }
     },
     "This document has %@ pages" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -77077,6 +77748,7 @@
       }
     },
     "This folder is empty." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -77189,6 +77861,7 @@
       }
     },
     "This folder is empty. Fill it with content:" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -77301,6 +77974,7 @@
       }
     },
     "This folder no longer exists on the server." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -77419,6 +78093,7 @@
       }
     },
     "This permission is needed to upload photos and videos from your photo library." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -77537,6 +78212,7 @@
       }
     },
     "This shortcut points to:\n{{url}}" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -77649,6 +78325,7 @@
       }
     },
     "This will also delete all locally stored file copies." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -77767,6 +78444,7 @@
       }
     },
     "TIFF" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -77879,6 +78557,7 @@
       }
     },
     "Time" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -77991,6 +78670,7 @@
       }
     },
     "Time measured since uploading, editing, downloading or viewing the respective file through this device. Does not apply to files downloaded via the Available Offline feature. Local copies may be deleted before the given period of time has passed, f.ex. because there's a newer version of a file on the server - or through the manual deletion of offline copies. Also, local copies may not be deleted after the given period of time has passed, f.ex. if an action is performed on it, the file is still in use - or the account holding the file hasn't been used in the app." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -78109,6 +78789,7 @@
       }
     },
     "To use the app, you need to create a passcode." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -78221,6 +78902,7 @@
       }
     },
     "Toggle layout" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -78333,6 +79015,7 @@
       }
     },
     "Toggle Search Scope" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -78445,6 +79128,7 @@
       }
     },
     "Total update scans" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -78557,6 +79241,7 @@
       }
     },
     "Touch ID" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -78675,6 +79360,7 @@
       }
     },
     "Tree" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -78787,6 +79473,7 @@
       }
     },
     "Type" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -78905,6 +79592,7 @@
       }
     },
     "Uncalibrated" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -79017,6 +79705,7 @@
       }
     },
     "undated" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -79129,6 +79818,7 @@
       }
     },
     "Unfavorite item" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -79247,6 +79937,7 @@
       }
     },
     "unknown" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -79365,6 +80056,7 @@
       }
     },
     "Unknown" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -79477,6 +80169,7 @@
       }
     },
     "Unlock" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -79595,6 +80288,7 @@
       }
     },
     "Unlock %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -79713,6 +80407,7 @@
       }
     },
     "Unlock all Pro Features." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -79831,6 +80526,7 @@
       }
     },
     "Unlock using %@?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -79943,6 +80639,7 @@
       }
     },
     "Unlocked" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -80061,6 +80758,7 @@
       }
     },
     "Unshare" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -80179,6 +80877,7 @@
       }
     },
     "Update Status" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -80291,6 +80990,7 @@
       }
     },
     "Updating %ld items…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -80409,6 +81109,7 @@
       }
     },
     "Updating connection…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -80527,6 +81228,7 @@
       }
     },
     "Upload" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -80645,6 +81347,7 @@
       }
     },
     "Upload file" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -80763,6 +81466,7 @@
       }
     },
     "Upload from your photo library" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -80881,6 +81585,7 @@
       }
     },
     "Uploading {{remainingFileCount}} files…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -80993,6 +81698,7 @@
       }
     },
     "Uploading %ld files…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -81111,6 +81817,7 @@
       }
     },
     "URL" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -81223,6 +81930,7 @@
       }
     },
     "URL of webpage or item" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -81335,6 +82043,7 @@
       }
     },
     "URL was copied to the clipboard" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -81453,6 +82162,7 @@
       }
     },
     "Usage terms" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -81565,6 +82275,7 @@
       }
     },
     "Use background location updates" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -81677,6 +82388,7 @@
       }
     },
     "Use background refresh" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -81789,6 +82501,7 @@
       }
     },
     "Use ownCloud actions in Shortcuts." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -81907,9 +82620,10 @@
       }
     },
     "User" : {
-
+      "extractionState" : "manual"
     },
     "User Interface" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -82028,6 +82742,7 @@
       }
     },
     "User-approved certificates" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -82146,6 +82861,7 @@
       }
     },
     "Username" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -82264,6 +82980,7 @@
       }
     },
     "Users" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -82382,6 +83099,7 @@
       }
     },
     "Validation Error" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -82500,6 +83218,7 @@
       }
     },
     "Verbose" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -82612,6 +83331,7 @@
       }
     },
     "Verifying password…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -82724,6 +83444,7 @@
       }
     },
     "Version information were copied to the clipboard" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -82836,6 +83557,7 @@
       }
     },
     "Video upload" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -82948,6 +83670,7 @@
       }
     },
     "Video upload path" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -83066,6 +83789,7 @@
       }
     },
     "Videos" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -83184,6 +83908,7 @@
       }
     },
     "View documentation" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -83296,6 +84021,7 @@
       }
     },
     "Visit the forums" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -83408,6 +84134,7 @@
       }
     },
     "W" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -83520,6 +84247,7 @@
       }
     },
     "Waiting for response from login session in external browser…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -83632,6 +84360,7 @@
       }
     },
     "Waiting for server response…" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -83750,6 +84479,7 @@
       }
     },
     "Warning" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -83868,6 +84598,7 @@
       }
     },
     "Welcome to %@" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -83980,6 +84711,7 @@
       }
     },
     "When activated, logs may impact performance and include sensitive information. However the logs are not subject to automatic submission to %@ servers. Sharing logs with others is sole user responsibility." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -84098,6 +84830,7 @@
       }
     },
     "White balance" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -84210,6 +84943,7 @@
       }
     },
     "Would you like to view the updated version?" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -84322,6 +85056,7 @@
       }
     },
     "YCbCr" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -84434,6 +85169,7 @@
       }
     },
     "You are required to set the passcode" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -84546,6 +85282,7 @@
       }
     },
     "You need to configure an email account first to be able to send emails." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -84664,6 +85401,7 @@
       }
     },
     "Common.ok" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -84782,6 +85520,7 @@
       }
     },
     "Common.cancel" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -84900,6 +85639,7 @@
       }
     },
     "Logo.firstPart" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -85018,6 +85758,7 @@
       }
     },
     "Logo.secondPart" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -85136,6 +85877,7 @@
       }
     },
     "Onboarding.doneButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -85254,6 +85996,7 @@
       }
     },
     "Onboarding.skipButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -85372,6 +86115,7 @@
       }
     },
     "Onboarding.Step_ManageFiles.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -85490,6 +86234,7 @@
       }
     },
     "Onboarding.Step_ManageFiles.subtitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -85608,6 +86353,7 @@
       }
     },
     "Onboarding.Step_SyncFiles.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -85726,6 +86472,7 @@
       }
     },
     "Onboarding.Step_SyncFiles.subtitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -85844,6 +86591,7 @@
       }
     },
     "Onboarding.Step_FileDeduplication.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -85962,6 +86710,7 @@
       }
     },
     "Onboarding.Step_FileDeduplication.subtitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -86080,6 +86829,7 @@
       }
     },
     "Onboarding.Step_Search.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -86198,6 +86948,7 @@
       }
     },
     "Onboarding.Step_Search.subtitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -86316,6 +87067,7 @@
       }
     },
     "Onboarding.Step_SecureSharing.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -86434,6 +87186,7 @@
       }
     },
     "Onboarding.Step_SecureSharing.subtitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -86552,6 +87305,7 @@
       }
     },
     "Sidebar.storageSpace" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -86670,6 +87424,7 @@
       }
     },
     "Sidebar.usedFormat" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -86788,6 +87543,7 @@
       }
     },
     "Sidebar.inUseFormat" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -86906,6 +87662,7 @@
       }
     },
     "Sidebar.unlimitedSpace" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -87024,6 +87781,7 @@
       }
     },
     "Sidebar.signOut" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -87142,6 +87900,7 @@
       }
     },
     "TabBar.files" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -87260,6 +88019,7 @@
       }
     },
     "TabBar.search" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -87378,6 +88138,7 @@
       }
     },
     "TabBar.status" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -87496,6 +88257,7 @@
       }
     },
     "TabBar.offline" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -87614,6 +88376,7 @@
       }
     },
     "Search.Empty.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -87732,6 +88495,7 @@
       }
     },
     "Offline.Empty.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -87850,6 +88614,7 @@
       }
     },
     "Offline.Empty.subtitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -87968,6 +88733,7 @@
       }
     },
     "ImageCropAction.name" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -88086,6 +88852,7 @@
       }
     },
     "ImageCropAction.SaveAlert.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -88204,6 +88971,7 @@
       }
     },
     "ImageCropAction.SaveAlert.overwrite" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -88322,6 +89090,7 @@
       }
     },
     "ImageCropAction.SaveAlert.saveACopy" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -88440,6 +89209,7 @@
       }
     },
     "ImageCropAction.SaveAlert.discard" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -88558,6 +89328,7 @@
       }
     },
     "Auth.Login.loadingViewTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -88676,6 +89447,7 @@
       }
     },
     "Auth.Login.incorrectEmailPassword" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -88794,6 +89566,7 @@
       }
     },
     "Auth.Login.invalidEmail" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -88912,6 +89685,7 @@
       }
     },
     "Auth.Login.connectionError" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -89030,6 +89804,7 @@
       }
     },
     "Auth.Login.notAllowedEmailError" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -89148,6 +89923,7 @@
       }
     },
     "Auth.Login.EmailField.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -89266,6 +90042,7 @@
       }
     },
     "Auth.Login.EmailField.placeholder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -89384,6 +90161,7 @@
       }
     },
     "Auth.Login.PasswordField.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -89502,6 +90280,7 @@
       }
     },
     "Auth.Login.PasswordField.placeholder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -89620,6 +90399,7 @@
       }
     },
     "Auth.Login.DeviceDropdownField.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -89738,6 +90518,7 @@
       }
     },
     "Auth.Login.DeviceDropdownField.placeholder" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -89856,6 +90637,7 @@
       }
     },
     "Auth.Login.loginButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -89974,6 +90756,7 @@
       }
     },
     "Auth.Login.nextButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -90092,6 +90875,7 @@
       }
     },
     "Auth.Login.resetPasswordButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -90210,6 +90994,7 @@
       }
     },
     "Auth.Login.detectingDevices" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -90328,6 +91113,7 @@
       }
     },
     "Auth.Login.noDeviceDetected" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -90446,6 +91232,7 @@
       }
     },
     "Auth.UnableToConnect.navbarTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -90564,6 +91351,7 @@
       }
     },
     "Auth.UnableToConnect.headerText" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -90682,6 +91470,7 @@
       }
     },
     "Auth.UnableToConnect.point1" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -90800,6 +91589,7 @@
       }
     },
     "Auth.UnableToConnect.point2" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -90918,6 +91708,7 @@
       }
     },
     "Auth.UnableToConnect.point3" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -91036,6 +91827,7 @@
       }
     },
     "Auth.UnableToConnect.point4" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -91154,6 +91946,7 @@
       }
     },
     "Auth.UnableToConnect.point5" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -91272,6 +92065,7 @@
       }
     },
     "Auth.UnableToConnect.footerText" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -91390,6 +92184,7 @@
       }
     },
     "Auth.UnableToConnect.footerLinkText" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -91508,6 +92303,7 @@
       }
     },
     "Auth.UnableToConnect.retryButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -91626,6 +92422,7 @@
       }
     },
     "Auth.UnableToDetect.navbarTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -91744,6 +92541,7 @@
       }
     },
     "Auth.UnableToDetect.headerText" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -91862,6 +92660,7 @@
       }
     },
     "Auth.UnableToDetect.point1" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -91980,6 +92779,7 @@
       }
     },
     "Auth.UnableToDetect.point2" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -92098,6 +92898,7 @@
       }
     },
     "Auth.UnableToDetect.point3" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -92216,6 +93017,7 @@
       }
     },
     "Auth.UnableToDetect.point4" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -92334,6 +93136,7 @@
       }
     },
     "Auth.UnableToDetect.point5" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -92452,6 +93255,7 @@
       }
     },
     "Auth.UnableToDetect.point6" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -92570,6 +93374,7 @@
       }
     },
     "Auth.UnableToDetect.footerText" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -92688,6 +93493,7 @@
       }
     },
     "Auth.UnableToDetect.footerLinkText" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -92806,6 +93612,7 @@
       }
     },
     "Auth.UnableToDetect.retryButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -92924,6 +93731,7 @@
       }
     },
     "Auth.CodeVerification.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -93042,6 +93850,7 @@
       }
     },
     "Auth.CodeVerification.description" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -93160,6 +93969,7 @@
       }
     },
     "Auth.CodeVerification.allowAccessButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -93278,6 +94088,7 @@
       }
     },
     "Auth.CodeVerification.resendCodeButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -93396,6 +94207,7 @@
       }
     },
     "Auth.CodeVerification.skipButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -93514,6 +94326,7 @@
       }
     },
     "Auth.CodeVerification.invalidCodeError" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -93632,6 +94445,7 @@
       }
     },
     "Auth.CodeVerification.codeExpiredError" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -93750,6 +94564,7 @@
       }
     },
     "Auth.CodeVerification.tooManyRequestsError" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -93868,6 +94683,7 @@
       }
     },
     "Auth.CodeVerification.connectionError" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -93986,6 +94802,7 @@
       }
     },
     "Auth.Code500.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -94104,6 +94921,7 @@
       }
     },
     "Auth.Code500.description" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -94222,6 +95040,7 @@
       }
     },
     "Auth.Code500.cancelButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -94340,6 +95159,7 @@
       }
     },
     "Auth.Code500.retryButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -94458,6 +95278,7 @@
       }
     },
     "Auth.CodeUnknownEmail.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -94576,6 +95397,7 @@
       }
     },
     "Auth.CodeUnknownEmail.description" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -94694,6 +95516,7 @@
       }
     },
     "Auth.CodeUnknownEmail.cancelButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -94812,6 +95635,7 @@
       }
     },
     "Auth.TooManyRequests.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -94930,6 +95754,7 @@
       }
     },
     "Auth.TooManyRequests.description" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -95048,6 +95873,7 @@
       }
     },
     "Auth.TooManyRequests.cancelButtonTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -95166,6 +95992,7 @@
       }
     },
     "Auth.DevOptions.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -95284,6 +96111,7 @@
       }
     },
     "Auth.DevOptions.deviceTextFieldTitle" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -95402,6 +96230,7 @@
       }
     },
     "Auth.DevOptions.deviceTextFieldInvalidURLError" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -95520,6 +96349,7 @@
       }
     },
     "Auth.DevOptions.settingsSwitchLabel" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -95638,6 +96468,7 @@
       }
     },
     "Sharing.sharingNotPossible" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -95756,6 +96587,7 @@
       }
     },
     "Sharing.raNotAvilableDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -95874,6 +96706,7 @@
       }
     },
     "Sharing.publicNotAvilableDescription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -95992,6 +96825,7 @@
       }
     },
     "TrustPrompt.title" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -96110,6 +96944,7 @@
       }
     },
     "TrustPrompt.messageFormat" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -96228,6 +97063,7 @@
       }
     },
     "TrustPrompt.trust" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
