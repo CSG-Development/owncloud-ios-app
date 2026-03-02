@@ -76,16 +76,17 @@ final class HCSidebarFooterView: ThemeCSSView {
 
 		spaceLabel.text = HCL10n.Sidebar.storageSpace
 
+		let bytesUsedIEC = HCBytesFormatter.formatBytesSI(bytesUsed)
+
 		if let bytesRemaining {
 			let bytesTotal = bytesUsed + bytesRemaining
-			let bytesUsedIEC = HCBytesFormatter.formatBytesIEC(bytesUsed)
-			let bytesTotalIEC = HCBytesFormatter.formatBytesIEC(bytesTotal)
+			let bytesTotalIEC = HCBytesFormatter.formatBytesSI(bytesTotal)
 
 			remainingLabel.text = HCL10n.Sidebar.used(bytesUsedIEC, of: bytesTotalIEC)
 			progressView.isHidden = false
 			progressView.fraction = Float(bytesUsed) / Float(bytesTotal)
 		} else {
-			remainingLabel.text = HCL10n.Sidebar.unlimitedSpace
+			remainingLabel.text = HCL10n.Sidebar.inUse(bytesUsedIEC)
 			progressView.isHidden = true
 			progressView.fraction = 0
 		}

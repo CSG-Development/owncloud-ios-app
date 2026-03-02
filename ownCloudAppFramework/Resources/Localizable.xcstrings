@@ -2,6 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "%@ already unlocked for %@." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -120,6 +121,7 @@
       }
     },
     "%@ unlocked for QA." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -232,6 +234,7 @@
       }
     },
     "%lu day" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -350,6 +353,7 @@
       }
     },
     "%lu days" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -468,6 +472,7 @@
       }
     },
     "%lu month" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -586,6 +591,7 @@
       }
     },
     "%lu months" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -704,6 +710,7 @@
       }
     },
     "%lu week" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -822,6 +829,7 @@
       }
     },
     "%lu weeks" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -940,6 +948,7 @@
       }
     },
     "%lu year" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1058,6 +1067,7 @@
       }
     },
     "%lu years" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1176,7 +1186,7 @@
       }
     },
     "> %d months ago" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1289,7 +1299,7 @@
       }
     },
     "> %d years ago" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1402,7 +1412,7 @@
       }
     },
     ">%d days ago" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1515,7 +1525,7 @@
       }
     },
     ">%d weeks ago" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1628,7 +1638,7 @@
       }
     },
     "After" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1741,6 +1751,7 @@
       }
     },
     "App Store" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1859,7 +1870,7 @@
       }
     },
     "Audio" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -1972,7 +1983,7 @@
       }
     },
     "Before" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2085,7 +2096,7 @@
       }
     },
     "Before last month" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2198,7 +2209,7 @@
       }
     },
     "Before last week" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2311,7 +2322,7 @@
       }
     },
     "Before last year" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2424,7 +2435,7 @@
       }
     },
     "Before this month" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2537,7 +2548,7 @@
       }
     },
     "Before this week" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2650,7 +2661,7 @@
       }
     },
     "Before this year" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2763,7 +2774,7 @@
       }
     },
     "Before today" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2876,7 +2887,7 @@
       }
     },
     "Before yesterday" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -2989,6 +3000,7 @@
       }
     },
     "Cancelled" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3107,6 +3119,7 @@
       }
     },
     "Date" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3225,6 +3238,7 @@
       }
     },
     "day" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3343,7 +3357,7 @@
       }
     },
     "Document" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3456,6 +3470,7 @@
       }
     },
     "EMM" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3568,6 +3583,7 @@
       }
     },
     "Ends" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3686,6 +3702,7 @@
       }
     },
     "Enterprise" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3798,7 +3815,7 @@
       }
     },
     "File" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -3911,7 +3928,7 @@
       }
     },
     "Folder" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4024,6 +4041,7 @@
       }
     },
     "Free" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4136,7 +4154,7 @@
       }
     },
     "Image" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4249,6 +4267,7 @@
       }
     },
     "In-app purchases are not supported for copies purchased through the Volume Purchase Program. For access to additional features, please purchase the EMM version." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4361,7 +4380,7 @@
       }
     },
     "keyword_after" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4474,7 +4493,7 @@
       }
     },
     "keyword_audio" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4587,7 +4606,7 @@
       }
     },
     "keyword_before" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4700,7 +4719,7 @@
       }
     },
     "keyword_d" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4813,7 +4832,7 @@
       }
     },
     "keyword_document" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -4926,7 +4945,7 @@
       }
     },
     "keyword_file" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5039,7 +5058,7 @@
       }
     },
     "keyword_folder" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5152,7 +5171,7 @@
       }
     },
     "keyword_greater" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5265,7 +5284,7 @@
       }
     },
     "keyword_image" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5378,7 +5397,7 @@
       }
     },
     "keyword_m" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5491,7 +5510,7 @@
       }
     },
     "keyword_month" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5604,7 +5623,7 @@
       }
     },
     "keyword_on" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5717,7 +5736,7 @@
       }
     },
     "keyword_owner" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5830,7 +5849,7 @@
       }
     },
     "keyword_pdf" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -5943,7 +5962,7 @@
       }
     },
     "keyword_presentation" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6056,7 +6075,7 @@
       }
     },
     "keyword_recent" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6169,7 +6188,7 @@
       }
     },
     "keyword_smaller" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6282,7 +6301,7 @@
       }
     },
     "keyword_spreadsheet" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6395,7 +6414,7 @@
       }
     },
     "keyword_today" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6508,7 +6527,7 @@
       }
     },
     "keyword_type" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6621,7 +6640,7 @@
       }
     },
     "keyword_video" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6734,7 +6753,7 @@
       }
     },
     "keyword_w" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6847,7 +6866,7 @@
       }
     },
     "keyword_week" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -6960,7 +6979,7 @@
       }
     },
     "keyword_y" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7073,7 +7092,7 @@
       }
     },
     "keyword_year" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7186,7 +7205,7 @@
       }
     },
     "Last %d days" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7299,7 +7318,7 @@
       }
     },
     "Last %d months" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7412,7 +7431,7 @@
       }
     },
     "Last %d weeks" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7525,7 +7544,7 @@
       }
     },
     "Last %d years" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7638,6 +7657,7 @@
       }
     },
     "Manage subscription" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7756,6 +7776,7 @@
       }
     },
     "month" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7874,7 +7895,7 @@
       }
     },
     "No audio" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -7987,7 +8008,7 @@
       }
     },
     "No Document" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8100,7 +8121,7 @@
       }
     },
     "No file" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8213,7 +8234,7 @@
       }
     },
     "No folder" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8326,7 +8347,7 @@
       }
     },
     "No image" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8439,7 +8460,7 @@
       }
     },
     "No PDF" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8552,7 +8573,7 @@
       }
     },
     "No presentation" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8665,7 +8686,7 @@
       }
     },
     "No spreadsheet" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8778,7 +8799,7 @@
       }
     },
     "No video" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -8891,7 +8912,7 @@
       }
     },
     "none" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9010,7 +9031,7 @@
       }
     },
     "Not" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9123,7 +9144,7 @@
       }
     },
     "Not on" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9236,7 +9257,7 @@
       }
     },
     "Not recently used" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9349,7 +9370,7 @@
       }
     },
     "On" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9462,7 +9483,7 @@
       }
     },
     "PDF" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9575,7 +9596,7 @@
       }
     },
     "Presentation" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9688,6 +9709,7 @@
       }
     },
     "Product" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9806,7 +9828,7 @@
       }
     },
     "purchase" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -9925,6 +9947,7 @@
       }
     },
     "Purchased App Version" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10043,6 +10066,7 @@
       }
     },
     "Purchases are not allowed on this device." : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10161,6 +10185,7 @@
       }
     },
     "Quantity" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10279,6 +10304,7 @@
       }
     },
     "Receipt Date" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10397,7 +10423,7 @@
       }
     },
     "Recently used" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10510,7 +10536,7 @@
       }
     },
     "Since last month" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10623,7 +10649,7 @@
       }
     },
     "Since last week" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10736,7 +10762,7 @@
       }
     },
     "Since last year" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10849,7 +10875,7 @@
       }
     },
     "Since yesterday" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -10962,7 +10988,7 @@
       }
     },
     "Spreadsheet" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11075,7 +11101,7 @@
       }
     },
     "subscription" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11194,7 +11220,7 @@
       }
     },
     "This month" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11307,7 +11333,7 @@
       }
     },
     "This week" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11420,7 +11446,7 @@
       }
     },
     "This year" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11533,7 +11559,7 @@
       }
     },
     "Today" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11646,7 +11672,7 @@
       }
     },
     "trial" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11765,6 +11791,7 @@
       }
     },
     "Type" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11883,7 +11910,7 @@
       }
     },
     "Video" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -11996,6 +12023,7 @@
       }
     },
     "week" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {
@@ -12114,6 +12142,7 @@
       }
     },
     "year" : {
+      "extractionState" : "manual",
       "localizations" : {
         "ca" : {
           "stringUnit" : {

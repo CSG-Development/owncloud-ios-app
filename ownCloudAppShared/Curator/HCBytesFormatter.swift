@@ -11,4 +11,18 @@ public final class HCBytesFormatter {
 		if i == 0 { return "\(sign)\(Int(value)) \(units[i])" }
 		return "\(sign)\(String(format: "%.\(decimals)f", value)) \(units[i])"
 	}
+
+	/// Formats bytes using SI (decimal) units: B, KB, MB, GB, TB, PB, EB.
+	public static func formatBytesSI(_ bytes: Int64, decimals: Int = 1) -> String {
+		let units = ["B", "KB", "MB", "GB", "TB", "PB", "EB"]
+		let sign = bytes < 0 ? "-" : ""
+		var value = Double(abs(bytes))
+		var i = 0
+		while value >= 1000, i < units.count - 1 {
+			value /= 1000
+			i += 1
+		}
+		if i == 0 { return "\(sign)\(Int(value)) \(units[i])" }
+		return "\(sign)\(String(format: "%.\(decimals)f", value)) \(units[i])"
+	}
 }

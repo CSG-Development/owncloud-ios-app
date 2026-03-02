@@ -20,7 +20,7 @@ import UIKit
 import ownCloudApp
 import ownCloudSDK
 
-open class CollectionViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDragDelegate, UICollectionViewDropDelegate, Themeable, ThemeCSSAutoSelector {
+open class CollectionViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDragDelegate, UICollectionViewDropDelegate, Themeable, ThemeCSSAutoSelector, ScrollViewProviding {
 	public var clientContext: ClientContext?
 
 	public var supportsHierarchicContent: Bool
@@ -1341,4 +1341,8 @@ extension CollectionViewController: UIScrollViewDelegate {
 		guard type(of: self) != ClientSidebarViewController.self else { return }
 		scrollDirectionProcessor.scrollViewDidScroll(scrollView)
 	}
+}
+
+extension CollectionViewController {
+	public var providedScrollView: UIScrollView? { collectionView }
 }

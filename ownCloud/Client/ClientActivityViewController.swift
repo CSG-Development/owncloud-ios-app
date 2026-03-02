@@ -20,7 +20,7 @@ import UIKit
 import ownCloudSDK
 import ownCloudAppShared
 
-class ClientActivityViewController: UITableViewController, Themeable, MessageGroupCellDelegate, ClientActivityCellDelegate, AccountConnectionMessageUpdates, AccountConnectionStatusObserver {
+class ClientActivityViewController: UITableViewController, Themeable, MessageGroupCellDelegate, ClientActivityCellDelegate, AccountConnectionMessageUpdates, AccountConnectionStatusObserver, ScrollViewProviding {
 	enum ActivitySection : Int, CaseIterable {
 		case messageGroups
 		case activities
@@ -368,4 +368,8 @@ class ClientActivityViewController: UITableViewController, Themeable, MessageGro
 	override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
 		return nil
 	}
+}
+
+extension ClientActivityViewController {
+	var providedScrollView: UIScrollView? { tableView }
 }
