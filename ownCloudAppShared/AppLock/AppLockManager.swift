@@ -270,7 +270,7 @@ public class AppLockManager: NSObject {
 		if lockscreenOpen {
 			if let passwordViewHostViewController = passwordViewHostViewController {
 				if let passcodeViewController = passwordViewHostViewController.children.last as? PasscodeViewController {
-					passcodeViewController.screenBlurringEnabled = lockscreenOpenForced
+					//
 				} else {
 					let passcodeViewController = passwordViewController()
 					let navigationController = ThemeNavigationController(rootViewController: passcodeViewController)
@@ -289,7 +289,7 @@ public class AppLockManager: NSObject {
 			} else {
 				for themeWindow in ThemeWindow.themeWindows {
 					if let passcodeViewController = passcodeControllerByWindow.object(forKey: themeWindow) {
-						passcodeViewController.screenBlurringEnabled = lockscreenOpenForced
+						//
 					} else {
 						var appLockWindow : AppLockWindow
 						let passcodeViewController = passwordViewController()
@@ -347,10 +347,8 @@ public class AppLockManager: NSObject {
 			self.attemptUnlock(with: passcode, passcodeViewController: viewController)
 		}, requiredLength: AppLockManager.shared.passcode?.count ?? AppLockSettings.shared.requiredPasscodeDigits)
 
-		passcodeViewController.message = OCLocalizedString("Enter code", nil)
+		passcodeViewController.message = OCLocalizedString("Passcode.enter.title", nil)
 		passcodeViewController.cancelButtonAvailable = false
-
-		passcodeViewController.screenBlurringEnabled = lockscreenOpenForced && !shouldDisplayLockscreen
 
 		return passcodeViewController
 	}
@@ -390,7 +388,7 @@ public class AppLockManager: NSObject {
 		} else {
 			unlocked = false
 			lastApplicationBackgroundedDate = nil
-			passcodeViewController?.errorMessage = (customErrorMessage != nil) ? customErrorMessage! : OCLocalizedString("Incorrect code", nil)
+			passcodeViewController?.errorMessage = (customErrorMessage != nil) ? customErrorMessage! : OCLocalizedString("Passcode.incorrectCode", nil)
 
 			failedPasscodeAttempts += 1
 

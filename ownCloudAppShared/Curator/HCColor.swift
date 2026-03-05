@@ -41,6 +41,11 @@ public enum HCColor {
 		public static let darkModePrimary = UIColor(hexString: "#FFFFFFFF")
 		// text/Light mode/Primary
 		public static let lightModePrimary = HCColor.Transparencies.black_87
+
+		// Content/Text secondary
+		public static func secondary(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#FFFFFFB2") : UIColor(hexString: "#00000099")
+		}
 	}
 
 	public enum Content {

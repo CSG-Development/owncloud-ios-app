@@ -95,6 +95,7 @@ public struct ThemeCSSSelector: RawRepresentable, Equatable {
 
 	public static let primary = ThemeCSSSelector(rawValue: "primary")
 	public static let secondary = ThemeCSSSelector(rawValue: "secondary")
+	public static let primary_auth = ThemeCSSSelector(rawValue: "primary_auth")
 	public static let tertiary = ThemeCSSSelector(rawValue: "tertiary")
 
 	public static let info = ThemeCSSSelector(rawValue: "info")
@@ -126,6 +127,11 @@ public struct ThemeCSSSelector: RawRepresentable, Equatable {
 	// Configurations
 	public static let grouped = ThemeCSSSelector(rawValue: "grouped")
 	public static let insetGrouped = ThemeCSSSelector(rawValue: "insetGrouped")
+
+	// Color
+	public static let hcColorMenuBackground = ThemeCSSSelector(rawValue: "hcColorMenuBackground")
+	public static let hcColorCardBackground = ThemeCSSSelector(rawValue: "hcColorCardBackground")
+
 }
 
 // MARK: - Properties
@@ -144,6 +150,7 @@ public struct ThemeCSSProperty: RawRepresentable, Equatable {
 	// Integers
 	public static let cornerRadius = ThemeCSSProperty(rawValue: "cornerRadius")
 	public static let borderWidth = ThemeCSSProperty(rawValue: "borderWidth")
+	public static let fontSize = ThemeCSSProperty(rawValue: "fontSize")
 
 	// Others
 	public static let style = ThemeCSSProperty(rawValue: "style") // UIUserInterfaceStyle
