@@ -75,7 +75,8 @@ open class ThemeButton : UIButton, Themeable, ThemeCSSChangeObserver {
 
 		let foregroundColor = css.getColor(.stroke, selectors: cssSelectors, for: self)
 		let backgroundColor = css.getColor(.fill, selectors: cssSelectors, for: self)
-
+		let size = css.getCGFloat(.fontSize, selectors: cssSelectors, for: self)
+		
 		if let borderWidth = css.getCGFloat(.cornerRadius, selectors: cssSelectors, for: self),
 		   let borderColor = css.getColor(.borderColor, selectors: cssSelectors, for: self) {
 			updatedConfiguration.background.strokeWidth = borderWidth
@@ -98,7 +99,7 @@ open class ThemeButton : UIButton, Themeable, ThemeCSSChangeObserver {
 
 		var attributedTitle: AttributedString = AttributedString(text)
 		attributedTitle.foregroundColor = foregroundColor
-		attributedTitle.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+		attributedTitle.font = UIFont.systemFont(ofSize: size ?? 14, weight: .medium)
 		updatedConfiguration.attributedTitle = attributedTitle
 
 		switch buttonCornerRadius {

@@ -2181,119 +2181,6 @@
         }
       }
     },
-    "%ld digit code" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld Zifferncode"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Código de %ld dígitos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld자리 코드"
-          }
-        },
-        "mk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "nn-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld código de dígito "
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "sq" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kod me %ld shifra"
-          }
-        },
-        "th-TH" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld ตัวอักษร"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%ld digit code"
-          }
-        }
-      }
-    },
     "%ld Item was copied to the clipboard" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -20676,125 +20563,6 @@
         }
       }
     },
-    "Delete code" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete code"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Smazat kód"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Code löschen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete code"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete code"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminar código"
-          }
-        },
-        "eu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ezabatu kodea"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer le code"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "코드 삭제"
-          }
-        },
-        "mk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete code"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Slett kode"
-          }
-        },
-        "nn-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete code"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excluir o código"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminar código"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удалить код"
-          }
-        },
-        "sq" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fshije kodin"
-          }
-        },
-        "th-TH" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ลบรหัส"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete code"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "删除代码"
-          }
-        }
-      }
-    },
     "Delete space \"{{driveName}}\"?" : {
       "extractionState" : "manual"
     },
@@ -25452,125 +25220,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Enter a search term"
-          }
-        }
-      }
-    },
-    "Enter code" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter code"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zadejte kód"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Code eingeben"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter code"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter code"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Introducir código"
-          }
-        },
-        "eu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sartu kodea"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entrez le code"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "코드 등록"
-          }
-        },
-        "mk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter code"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oppgi kode"
-          }
-        },
-        "nn-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter code"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coloque o código"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inserir código"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Введите код"
-          }
-        },
-        "sq" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jepni kod"
-          }
-        },
-        "th-TH" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "กรอกรหัส"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter code"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "输入代码"
           }
         }
       }
@@ -36418,125 +36067,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "包含可用的离线文件"
-          }
-        }
-      }
-    },
-    "Incorrect code" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Incorrect code"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Neplatný kód"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Falscher Code"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Incorrect code"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Incorrect code"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Código incorrecto"
-          }
-        },
-        "eu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kode okerra"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "code incorrect"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "잘못된 코드"
-          }
-        },
-        "mk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Incorrect code"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Incorrect code"
-          }
-        },
-        "nn-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Incorrect code"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Código incorreto"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Código incorreto"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Неверный код"
-          }
-        },
-        "sq" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kod i pasaktë"
-          }
-        },
-        "th-TH" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "รหัสไม่ถูกต้อง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Incorrect code"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "错误的代码"
           }
         }
       }
@@ -52153,119 +51683,6 @@
         }
       }
     },
-    "Passcode option" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PIN-Option"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opción código"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Option de code de sécurité"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "암호 옵션"
-          }
-        },
-        "mk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        },
-        "nn-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opção de senha "
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        },
-        "sq" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mundësi kodkalimi"
-          }
-        },
-        "th-TH" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ตัวเลือกรหัสปลดล็อค"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passcode option"
-          }
-        }
-      }
-    },
     "Passcode protection is not supported on this device.\nPlease disable passcode lock in the app settings." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -54683,119 +54100,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Play/Pause"
-          }
-        }
-      }
-    },
-    "Please choose how many digits you want to use for the passcode lock?" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wie viele Ziffern wollen Sie für die PIN-Sperre verwenden?"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elija cuántos dígitos desea usar para el bloqueo por código."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "암호 잠금에 사용할 숫자를 선택하십시오."
-          }
-        },
-        "mk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "nn-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Por favor, escolha quantos dígitos você deseja usar para o bloqueio por senha? "
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "sq" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ju lutemi, zgjidhni sa shifra doni të përdoren për kyçje me kodkalim?"
-          }
-        },
-        "th-TH" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "โปรดเลือกจำนวนตัวอักษรที่คุณต้องการใช้สำหรับรหัสปลดล็อค"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Please choose how many digits you want to use for the passcode lock?"
           }
         }
       }
@@ -60147,125 +59451,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重命名"
-          }
-        }
-      }
-    },
-    "Repeat code" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repeat code"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zopakujte kód"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Code wiederholen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repeat code"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repeat code"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repita el código"
-          }
-        },
-        "eu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Errepikatu kodea"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Répéter le code"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "코드 재입력"
-          }
-        },
-        "mk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repeat code"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gjenta kode"
-          }
-        },
-        "nn-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repeat code"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repetir o código"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repetir código"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повторите код"
-          }
-        },
-        "sq" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Përsëriteni kodin"
-          }
-        },
-        "th-TH" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "กรอกรหัสอีกครั้ง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repeat code"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重复代码"
           }
         }
       }
@@ -76230,125 +75415,6 @@
         }
       }
     },
-    "The entered codes are different" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The entered codes are different"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zadané kódy jsou rozdílné"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die eingegebenen Codes sind verschieden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The entered codes are different"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The entered codes are different"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los códigos introducidos son diferentes"
-          }
-        },
-        "eu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sartutako kodeak ezberdinak dira"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les codes saisis sont différents"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "입력한 코드가 다릅니다"
-          }
-        },
-        "mk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The entered codes are different"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The entered codes are different"
-          }
-        },
-        "nn-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The entered codes are different"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os códigos inseridos são diferentes"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "As códigos inseridos são diferentes"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Введённые коды отличаются"
-          }
-        },
-        "sq" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kodet e dhënë janë të ndryshëm"
-          }
-        },
-        "th-TH" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "กรุณาป้อนรหัสให้ตรงกัน"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The entered codes are different"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "输入的代码不相同。"
-          }
-        }
-      }
-    },
     "The entered page number doesn't exist" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -80521,119 +79587,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unlock all Pro Features."
-          }
-        }
-      }
-    },
-    "Unlock using %@?" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entsperren mit %@?"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Desbloquear usando %@?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@을(를) 사용하여 잠금을 해제하시겠습니까?"
-          }
-        },
-        "mk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "nn-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desbloquear usando %@?"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "sq" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shkyçe duke përdorur %@?"
-          }
-        },
-        "th-TH" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unlock using %@?"
           }
         }
       }
@@ -97177,6 +96130,1291 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trust"
+          }
+        }
+      }
+    },
+    "Passcode.enter.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter your passcode"
+          }
+        }
+      }
+    },
+    "Passcode.delete.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete code"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smazat kód"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code löschen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete code"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar código"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ezabatu kodea"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le code"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "코드 삭제"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete code"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slett kode"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete code"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir o código"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar código"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить код"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fshije kodin"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ลบรหัส"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete code"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除代码"
+          }
+        }
+      }
+    },
+    "Passcode.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The passcode will be requested every time the app is started"
+          }
+        }
+      }
+    },
+    "Passcode.incorrectCode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect passcode"
+          }
+        }
+      }
+    },
+    "Passcode.repeatCode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repeat code"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zopakujte kód"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code wiederholen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repeat code"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repeat code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repita el código"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errepikatu kodea"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Répéter le code"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "코드 재입력"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repeat code"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gjenta kode"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repeat code"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repetir o código"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repetir código"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторите код"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Përsëriteni kodin"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กรอกรหัสอีกครั้ง"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repeat code"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重复代码"
+          }
+        }
+      }
+    },
+    "Passcode.different" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The entered codes are different"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zadané kódy jsou rozdílné"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die eingegebenen Codes sind verschieden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The entered codes are different"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The entered codes are different"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los códigos introducidos son diferentes"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sartutako kodeak ezberdinak dira"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les codes saisis sont différents"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "입력한 코드가 다릅니다"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The entered codes are different"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The entered codes are different"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The entered codes are different"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os códigos inseridos são diferentes"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As códigos inseridos são diferentes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введённые коды отличаются"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kodet e dhënë janë të ndryshëm"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กรุณาป้อนรหัสให้ตรงกัน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The entered codes are different"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输入的代码不相同。"
+          }
+        }
+      }
+    },
+    "Passcode.useBiometry.popup.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entsperren mit %@?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Desbloquear usando %@?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@을(를) 사용하여 잠금을 해제하시겠습니까?"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloquear usando %@?"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shkyçe duke përdorur %@?"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlock using %@?"
+          }
+        }
+      }
+    },
+    "Passcode.digitCountDialog.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PIN-Option"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opción código"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Option de code de sécurité"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "암호 옵션"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opção de senha "
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mundësi kodkalimi"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ตัวเลือกรหัสปลดล็อค"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passcode option"
+          }
+        }
+      }
+    },
+    "Passcode.digitCountDialog.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie viele Ziffern wollen Sie für die PIN-Sperre verwenden?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elija cuántos dígitos desea usar para el bloqueo por código."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "암호 잠금에 사용할 숫자를 선택하십시오."
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por favor, escolha quantos dígitos você deseja usar para o bloqueio por senha? "
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ju lutemi, zgjidhni sa shifra doni të përdoren për kyçje me kodkalim?"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "โปรดเลือกจำนวนตัวอักษรที่คุณต้องการใช้สำหรับรหัสปลดล็อค"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please choose how many digits you want to use for the passcode lock?"
+          }
+        }
+      }
+    },
+    "Passcode.digitCountDialog.format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld Zifferncode"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Código de %ld dígitos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld자리 코드"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld código de dígito "
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kod me %ld shifra"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld ตัวอักษร"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%ld digit code"
+          }
+        }
+      }
+    },
+    "Passcode.navigationTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter passcode"
           }
         }
       }

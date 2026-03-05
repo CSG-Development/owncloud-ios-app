@@ -254,6 +254,7 @@
 		99E7B97C2F2399CB00B0EC27 /* ContainerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E7B97B2F2399CB00B0EC27 /* ContainerController.swift */; };
 		99E7B9832F23D6E700B0EC27 /* CodeVerificationLoaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E7B97F2F23D6D900B0EC27 /* CodeVerificationLoaderViewController.swift */; };
 		99E83DAF2F0BDB3F00B58F59 /* ownCloudAppShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 394A0AF922EEFC2C00603813 /* ownCloudAppShared.framework */; };
+		99EF0CCA2F5190F900AA4521 /* HCCodePadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EF0CC62F5190E200AA4521 /* HCCodePadView.swift */; };
 		99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F175312E8C001500FE7DEC /* ImageCropAction.swift */; };
 		99F175342E8C063E00FE7DEC /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = 99F175332E8C063E00FE7DEC /* Mantis */; };
 		99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+Extensions.swift */; };
@@ -311,7 +312,8 @@
 		DC0A356B24C0E42200FB58FC /* AppLockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593BAB96209F8A0500023634 /* AppLockManager.swift */; };
 		DC0A356C24C0E42200FB58FC /* AppLockWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597A404820AD59EF00B028B2 /* AppLockWindow.swift */; };
 		DC0A356D24C0E42200FB58FC /* PasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 593BAB44209AE1BC00023634 /* PasscodeViewController.swift */; };
-		DC0A356E24C0E42200FB58FC /* PasscodeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 593BAB45209AE1BC00023634 /* PasscodeViewController.xib */; };
+		D73EB72B2A8B4F35A3683123 /* PasscodePortraitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4051E2044B1B4DADB553885E /* PasscodePortraitView.swift */; };
+		FF8CD3EC2E544C598EF6EE1D /* PasscodeLandscapeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7345EA8E214DB7A139C631 /* PasscodeLandscapeView.swift */; };
 		DC0A356F24C0E42700FB58FC /* StaticTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF4F17820519F8C00189B9A /* StaticTableViewController.swift */; };
 		DC0A357024C0E42700FB58FC /* StaticTableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF4F17A20519F9D00189B9A /* StaticTableViewSection.swift */; };
 		DC0A357124C0E42700FB58FC /* StaticTableViewRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF4F17E2051A0D000189B9A /* StaticTableViewRow.swift */; };
@@ -1301,7 +1303,8 @@
 		4CC4A21822FB4F4C00AE7E2C /* MediaUploadQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaUploadQueue.swift; sourceTree = "<group>"; };
 		54199937F74A129BC74DEB0A /* Pods_ownCloudScreenshotsTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ownCloudScreenshotsTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		593BAB44209AE1BC00023634 /* PasscodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasscodeViewController.swift; sourceTree = "<group>"; };
-		593BAB45209AE1BC00023634 /* PasscodeViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PasscodeViewController.xib; sourceTree = "<group>"; };
+		4051E2044B1B4DADB553885E /* PasscodePortraitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasscodePortraitView.swift; sourceTree = "<group>"; };
+		2F7345EA8E214DB7A139C631 /* PasscodeLandscapeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasscodeLandscapeView.swift; sourceTree = "<group>"; };
 		593BAB96209F8A0500023634 /* AppLockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockManager.swift; sourceTree = "<group>"; };
 		597A404820AD59EF00B028B2 /* AppLockWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockWindow.swift; sourceTree = "<group>"; };
 		6E37F48A2188B27D00CF16CA /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
@@ -1424,6 +1427,7 @@
 		99E7B9792F23986E00B0EC27 /* CodeVerificationContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationContainerViewController.swift; sourceTree = "<group>"; };
 		99E7B97B2F2399CB00B0EC27 /* ContainerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerController.swift; sourceTree = "<group>"; };
 		99E7B97F2F23D6D900B0EC27 /* CodeVerificationLoaderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationLoaderViewController.swift; sourceTree = "<group>"; };
+		99EF0CC62F5190E200AA4521 /* HCCodePadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCCodePadView.swift; sourceTree = "<group>"; };
 		99F175312E8C001500FE7DEC /* ImageCropAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropAction.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
@@ -2860,6 +2864,7 @@
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				99EF0CC62F5190E200AA4521 /* HCCodePadView.swift */,
 				9978828F2F2A1DEB00BCBB67 /* HCHStack.swift */,
 				99E7B97B2F2399CB00B0EC27 /* ContainerController.swift */,
 				99C42E172EB3890C00E36414 /* HCCodeView.swift */,
@@ -3003,7 +3008,8 @@
 				593BAB96209F8A0500023634 /* AppLockManager.swift */,
 				597A404820AD59EF00B028B2 /* AppLockWindow.swift */,
 				593BAB44209AE1BC00023634 /* PasscodeViewController.swift */,
-				593BAB45209AE1BC00023634 /* PasscodeViewController.xib */,
+				4051E2044B1B4DADB553885E /* PasscodePortraitView.swift */,
+				2F7345EA8E214DB7A139C631 /* PasscodeLandscapeView.swift */,
 			);
 			path = AppLock;
 			sourceTree = "<group>";
@@ -5005,7 +5011,6 @@
 				DCE4E48C24C1FB750051722F /* file.tvg in Resources */,
 				DCE4E49F24C1FB750051722F /* video.tvg in Resources */,
 				DCE4E49424C1FB750051722F /* icon-available-offline.tvg in Resources */,
-				DC0A356E24C0E42200FB58FC /* PasscodeViewController.xib in Resources */,
 				DCE4E4A324C1FB750051722F /* icon-search.tvg in Resources */,
 				DCE4E48E24C1FB750051722F /* folder-external.tvg in Resources */,
 				DCE4E48924C1FB750051722F /* application-pdf.tvg in Resources */,
@@ -5484,6 +5489,8 @@
 				DC2A8E6A2B57EA8F001F0522 /* AccountControllerSearchViewController.swift in Sources */,
 				99CE74122F1FA370001804EA /* Data+Extensions.swift in Sources */,
 				DC0A356D24C0E42200FB58FC /* PasscodeViewController.swift in Sources */,
+				D73EB72B2A8B4F35A3683123 /* PasscodePortraitView.swift in Sources */,
+				FF8CD3EC2E544C598EF6EE1D /* PasscodeLandscapeView.swift in Sources */,
 				DC24B2AB25BA316D005783E2 /* Branding+App.swift in Sources */,
 				991B36902E22CCB000369B7D /* HCFieldView.swift in Sources */,
 				995611872E6B6DFD00FA252D /* LocationTreeCell.swift in Sources */,
@@ -5649,6 +5656,7 @@
 				99139B792E438B960044889B /* HCScrollDirectionProcessor.swift in Sources */,
 				DC0A358724C0E44600FB58FC /* ThemeImage.swift in Sources */,
 				9908FE2E2EC370BA004A4137 /* HCPreferences.swift in Sources */,
+				99EF0CCA2F5190F900AA4521 /* HCCodePadView.swift in Sources */,
 				DC0A355824C0E35B00FB58FC /* Synchronized.swift in Sources */,
 				DCB1B99729D1813D00BFF393 /* ThemeCSSTextField.swift in Sources */,
 				DCA2EDE4279B1789001F04E6 /* ResourceItemIcon.swift in Sources */,

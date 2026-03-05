@@ -17,6 +17,7 @@
  */
 
 import UIKit
+import SnapKit
 import ownCloudApp
 import LocalAuthentication
 
@@ -25,87 +26,85 @@ public typealias PasscodeViewControllerBiometricalHandler = ((_ passcodeViewCont
 public typealias PasscodeViewControllerCompletionHandler = ((_ passcodeViewController: PasscodeViewController, _ passcode: String) -> Void)
 
 public class PasscodeViewController: UIViewController, Themeable {
-
 	// MARK: - Constants
 	fileprivate var passCodeCompletionDelay: TimeInterval = 0.1
 
-	// MARK: - Views
-	@IBOutlet private var messageLabel: UILabel?
-	@IBOutlet private var errorMessageLabel: UILabel?
-	@IBOutlet private var passcodeLabel: UILabel?
-	@IBOutlet private var timeoutMessageLabel: UILabel?
+	// MARK: - Navigation bar
+	private let navigationBarContainer = UIView()
 
-	@IBOutlet private var lockscreenContainerView : UIView?
-	@IBOutlet private var backgroundBlurView : UIVisualEffectView?
+	private lazy var navigationBar: UINavigationBar = {
+		let bar = UINavigationBar()
+		bar.isTranslucent = false
 
-	@IBOutlet private var keypadContainerView : UIView?
-	@IBOutlet private var keypadButtons: [ThemeRoundedButton]?
-	@IBOutlet private var deleteButton: ThemeRoundedButton?
-	@IBOutlet public var cancelButton: ThemeRoundedButton?
-	@IBOutlet public var biometricalButton: ThemeRoundedButton?
-	@IBOutlet public var compactHeightPasscodeTextField: UITextField?
+		let item = UINavigationItem(title: OCLocalizedString("Passcode.navigationTitle", nil))
+		if cancelButtonAvailable {
+			let cancelButton = ThemeRoundedButton(withSelectors: [.primary, .plain])
+			cancelButton.setTitle(OCLocalizedString("Cancel", nil), for: .normal)
+			cancelButton.setTitleColor(.white, for: .normal)
+			cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 20)
+			cancelButton.addTarget(self, action: #selector(didTapNavigationCancel), for: .touchUpInside)
+			item.rightBarButtonItem = UIBarButtonItem(customView: cancelButton)
+		}
+		bar.setItems([item], animated: false)
+		return bar
+	}()
+
+	// MARK: - Layout views
+	private let portraitLayout = PasscodePortraitView(frame: .zero)
+	private let landscapeLayout = PasscodeLandscapeView(frame: .zero)
 
 	// MARK: - Properties
 	private var passcodeLength: Int
 
 	public var passcode: String? {
 		didSet {
-			self.updatePasscodeDots()
+			updatePasscodeDots()
 		}
 	}
 
 	public var message: String? {
 		didSet {
-			self.messageLabel?.text = message ?? " "
+			let text = message ?? " "
+			portraitLayout.titleLabel.text = text
+			landscapeLayout.titleLabel.text = text
+		}
+	}
+
+	public var subtitle: String? {
+		didSet {
+			let text = subtitle ?? " "
+			portraitLayout.subtitleLabel.text = text
+			landscapeLayout.subtitleLabel.text = text
 		}
 	}
 
 	public var errorMessage: String? {
 		didSet {
-			self.errorMessageLabel?.text = errorMessage ?? " "
+			let text = errorMessage ?? " "
+			portraitLayout.errorLabel.text = text
+			landscapeLayout.errorLabel.text = text
 
 			if errorMessage != nil {
-				self.passcodeLabel?.shakeHorizontally()
+				portraitLayout.passcodeLabel.shakeHorizontally()
+				landscapeLayout.passcodeLabel.shakeHorizontally()
 			}
 		}
 	}
 
 	var timeoutMessage: String? {
 		didSet {
-			self.timeoutMessageLabel?.text = timeoutMessage ?? ""
+			let text = timeoutMessage ?? ""
+			portraitLayout.timeoutLabel.text = text
+			landscapeLayout.timeoutLabel.text = text
+
+			let active = (timeoutMessage != nil && !timeoutMessage!.isEmpty)
+			portraitLayout.setTimeoutActive(active)
+			landscapeLayout.setTimeoutActive(active)
 		}
 	}
 
-	var screenBlurringEnabled : Bool {
+	var keypadButtonsHidden: Bool {
 		didSet {
-			self.backgroundBlurView?.isHidden = !screenBlurringEnabled
-			self.lockscreenContainerView?.isHidden = screenBlurringEnabled
-		}
-	}
-
-	var keypadButtonsEnabled: Bool {
-		didSet {
-			if let buttons = self.keypadButtons {
-				for button in buttons {
-					button.isEnabled = keypadButtonsEnabled
-					button.alpha = keypadButtonsEnabled ? 1.0 : (keypadButtonsHidden ? 1.0 : 0.5)
-				}
-			}
-
-			if keypadButtonsEnabled {
-				self.cssSelectors = [ .modal, .passcode ]
-			} else {
-				self.cssSelectors = [ .modal, .passcode, .disabled ]
-			}
-
-			self.applyThemeCollection(theme: Theme.shared, collection: Theme.shared.activeCollection, event: .update)
-		}
-	}
-
-	var keypadButtonsHidden : Bool {
-		didSet {
-			keypadContainerView?.isUserInteractionEnabled = !keypadButtonsHidden
-
 			if oldValue != keypadButtonsHidden {
 				updateKeypadButtons()
 			}
@@ -119,23 +118,28 @@ public class PasscodeViewController: UIViewController, Themeable {
 		}
 	}
 
+	public var cancelButton: ThemeRoundedButton?
+
 	var biometricalButtonHidden: Bool = false {
 		didSet {
-			biometricalButton?.isEnabled = !biometricalButtonHidden
-			biometricalButton?.isHidden = biometricalButtonHidden
+			let image: UIImage? = biometricalButtonHidden ? nil : biometryIcon
+			portraitLayout.codePad.biometryImage = image
+			landscapeLayout.codePad.biometryImage = image
+		}
+	}
 
-			if let biometricalImage = LAContext().biometricsAuthenticationImage() {
-				biometricalButton?.setImage(biometricalImage, for: .normal)
-			}
+	private var biometryIcon: UIImage? {
+		let context = LAContext()
+		guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil) else { return nil }
+		switch context.biometryType {
+		case .touchID: return HCIcon.touchId
+		case .faceID: return HCIcon.faceId
+		default: return nil
 		}
 	}
 
 	var hasCompactHeight: Bool {
-		if self.traitCollection.verticalSizeClass == .compact {
-			return true
-		}
-
-		return false
+		return traitCollection.verticalSizeClass == .compact
 	}
 
 	// MARK: - Handlers
@@ -144,20 +148,23 @@ public class PasscodeViewController: UIViewController, Themeable {
 	public var completionHandler: PasscodeViewControllerCompletionHandler?
 
 	// MARK: - Init
-	public init(cancelHandler: PasscodeViewControllerCancelHandler? = nil, biometricalHandler: PasscodeViewControllerBiometricalHandler? = nil, completionHandler: @escaping PasscodeViewControllerCompletionHandler, hasCancelButton: Bool = true, keypadButtonsEnabled: Bool = true, requiredLength: Int) {
+	public init(
+		cancelHandler: PasscodeViewControllerCancelHandler? = nil,
+		biometricalHandler: PasscodeViewControllerBiometricalHandler? = nil,
+		completionHandler: @escaping PasscodeViewControllerCompletionHandler,
+		hasCancelButton: Bool = true,
+		keypadButtonsEnabled: Bool = true,
+		requiredLength: Int
+	) {
 		self.cancelHandler = cancelHandler
 		self.biometricalHandler = biometricalHandler
 		self.completionHandler = completionHandler
-		self.keypadButtonsEnabled = keypadButtonsEnabled
 		self.cancelButtonAvailable = hasCancelButton
 		self.keypadButtonsHidden = false
-		self.screenBlurringEnabled = false
 		self.passcodeLength = requiredLength
 
-		super.init(nibName: "PasscodeViewController", bundle: Bundle(for: PasscodeViewController.self))
-
+		super.init(nibName: nil, bundle: nil)
 		self.cssSelector = .passcode
-
 		self.modalPresentationStyle = .fullScreen
 	}
 
@@ -170,100 +177,145 @@ public class PasscodeViewController: UIViewController, Themeable {
 		super.viewDidLoad()
 
 		self.title = VendorServices.shared.appName
-		self.cancelButton?.setTitle(OCLocalizedString("Cancel", nil), for: .normal)
-		self.cancelButton?.cssSelector =  .cancel
 
-		self.messageLabel?.cssSelector = .title
-		self.passcodeLabel?.cssSelector = .code
-		self.errorMessageLabel?.cssSelector = .subtitle
-		self.timeoutMessageLabel?.cssSelectors = [.title, .timeout]
-
-		self.message = { self.message }()
 		self.errorMessage = { self.errorMessage }()
 		self.timeoutMessage = { self.timeoutMessage }()
-
 		self.cancelButtonAvailable = { self.cancelButtonAvailable }()
-		self.keypadButtonsEnabled = { self.keypadButtonsEnabled }()
 		self.keypadButtonsHidden = { self.keypadButtonsHidden }()
-		self.screenBlurringEnabled = { self.screenBlurringEnabled }()
-		self.errorMessageLabel?.minimumScaleFactor = 0.5
-		self.errorMessageLabel?.adjustsFontSizeToFitWidth = true
-		self.biometricalButtonHidden = (!AppLockSettings.shared.biometricalSecurityEnabled || !AppLockSettings.shared.lockEnabled || cancelButtonAvailable) // cancelButtonAvailable is true for setup tasks/settings changes only
+		self.biometricalButtonHidden = (!AppLockSettings.shared.biometricalSecurityEnabled || !AppLockSettings.shared.lockEnabled || cancelButtonAvailable)
+
 		updateKeypadButtons()
-		if let biometricalSecurityName = LAContext().supportedBiometricsAuthenticationName() {
-			self.biometricalButton?.accessibilityLabel = biometricalSecurityName
-		}
 
-		if let keypadButtons {
-			let keypadFont = UIFont.systemFont(ofSize: 34)
-
-			for button in keypadButtons {
-				if button != deleteButton, button != biometricalButton {
-					button.cssSelector = .digit
-				}
-
-				button.buttonFont = keypadFont
-
-				PointerEffect.install(on: button, effectStyle: .highlight)
-			}
-
-			deleteButton?.cssSelector = .backspace
-			biometricalButton?.cssSelector = .biometrical
-		}
-		PointerEffect.install(on: cancelButton!, effectStyle: .highlight)
-		PointerEffect.install(on: deleteButton!, effectStyle: .highlight)
-		PointerEffect.install(on: biometricalButton!, effectStyle: .highlight)
+		setupNavigationBar()
+		setupLayoutViews()
+		activateLayoutForCurrentTraits()
 	}
 
 	public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-		self.keypadContainerView?.isHidden = true
-		self.compactHeightPasscodeTextField?.resignFirstResponder()
-
 		super.viewWillTransition(to: size, with: coordinator)
-		coordinator.animate(alongsideTransition: nil) { _ in
-			self.updateKeypadButtons()
-		}
+		coordinator.animate(alongsideTransition: { _ in
+			self.activateLayoutForCurrentTraits()
+			self.view.layoutIfNeeded()
+			self.portraitLayout.codePad.forceButtonRelayout()
+			self.landscapeLayout.codePad.forceButtonRelayout()
+		}, completion: nil)
 	}
 
 	public override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-
 		Theme.shared.register(client: self)
-
-		self.updatePasscodeDots()
+		updatePasscodeDots()
 	}
 
 	public override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
-
 		Theme.shared.unregister(client: self)
+	}
+
+	// MARK: - Setup
+
+	private func setupNavigationBar() {
+		guard cancelButtonAvailable else {
+			navigationBarContainer.isHidden = true
+			return
+		}
+
+		navigationBarContainer.backgroundColor = .black
+		navigationBarContainer.layer.shadowColor = UIColor.black.cgColor
+		navigationBarContainer.layer.shadowOpacity = 0.3
+		navigationBarContainer.layer.shadowOffset = CGSize(width: 0, height: 2)
+		navigationBarContainer.layer.shadowRadius = 4
+
+		view.addSubview(navigationBarContainer)
+		navigationBarContainer.translatesAutoresizingMaskIntoConstraints = false
+
+		navigationBarContainer.addSubview(navigationBar)
+		navigationBar.translatesAutoresizingMaskIntoConstraints = false
+
+		NSLayoutConstraint.activate([
+			navigationBarContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			navigationBarContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			navigationBarContainer.topAnchor.constraint(equalTo: view.topAnchor),
+
+			navigationBar.leadingAnchor.constraint(equalTo: navigationBarContainer.leadingAnchor),
+			navigationBar.trailingAnchor.constraint(equalTo: navigationBarContainer.trailingAnchor),
+			navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+			navigationBar.bottomAnchor.constraint(equalTo: navigationBarContainer.bottomAnchor),
+			navigationBar.heightAnchor.constraint(equalToConstant: 44)
+		])
+	}
+
+	private func setupLayoutViews() {
+		let topAnchor = navigationBarContainer.isHidden
+			? view.safeAreaLayoutGuide.snp.top
+			: navigationBarContainer.snp.bottom
+
+		// Portrait layout
+		view.addSubview(portraitLayout)
+		portraitLayout.snp.makeConstraints {
+			$0.top.equalTo(topAnchor)
+			$0.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+			$0.bottom.equalTo(view.safeAreaLayoutGuide)
+		}
+
+		wireCodePad(portraitLayout.codePad)
+
+		// Landscape layout
+		view.addSubview(landscapeLayout)
+		landscapeLayout.snp.makeConstraints {
+			$0.top.equalTo(topAnchor)
+			$0.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+			$0.bottom.equalTo(view.safeAreaLayoutGuide)
+		}
+
+		wireCodePad(landscapeLayout.codePad)
+
+		if !navigationBarContainer.isHidden {
+			view.bringSubviewToFront(navigationBarContainer)
+		}
+	}
+
+	// MARK: - Layout switching
+
+	private func activateLayoutForCurrentTraits() {
+		if hasCompactHeight {
+			portraitLayout.isHidden = true
+			portraitLayout.isUserInteractionEnabled = false
+			landscapeLayout.isHidden = false
+			landscapeLayout.isUserInteractionEnabled = true
+		} else {
+			portraitLayout.isHidden = false
+			portraitLayout.isUserInteractionEnabled = true
+			landscapeLayout.isHidden = true
+			landscapeLayout.isUserInteractionEnabled = false
+		}
+	}
+
+	private func wireCodePad(_ codePad: HCCodePadView) {
+		codePad.onDigit = { [weak self] digit in
+			self?.appendDigit(digit: "\(digit)")
+		}
+		codePad.onDelete = { [weak self] in
+			self?.deleteLastDigit()
+		}
+		codePad.onBiometry = { [weak self] in
+			guard let self else { return }
+			self.biometricalHandler?(self)
+		}
+
+		let showBiometry = AppLockSettings.shared.biometricalSecurityEnabled
+			&& AppLockSettings.shared.lockEnabled
+			&& !cancelButtonAvailable
+		if showBiometry {
+			codePad.biometryImage = biometryIcon
+		}
 	}
 
 	// MARK: - UI updates
 
 	private func updateKeypadButtons() {
-		if keypadButtonsHidden {
-			self.compactHeightPasscodeTextField?.resignFirstResponder()
-			UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
-				self.keypadContainerView?.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-				self.keypadContainerView?.alpha = 0
-			}, completion: { (_) in
-				self.keypadContainerView?.isHidden = self.keypadButtonsHidden
-			})
-		} else {
-			if !self.hasCompactHeight {
-				self.keypadContainerView?.isHidden = self.keypadButtonsHidden
-				self.compactHeightPasscodeTextField?.resignFirstResponder()
-
-				UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
-					self.keypadContainerView?.transform = .identity
-					self.keypadContainerView?.alpha = 1
-				}, completion: nil)
-			} else {
-				self.keypadContainerView?.isHidden = true
-				self.compactHeightPasscodeTextField?.becomeFirstResponder()
-			}
-		}
+		portraitLayout.codePad.isUserInteractionEnabled = !keypadButtonsHidden
+		landscapeLayout.codePad.isUserInteractionEnabled = !keypadButtonsHidden
 	}
 
 	private func updatePasscodeDots() {
@@ -280,23 +332,14 @@ public class PasscodeViewController: UIViewController, Themeable {
 				placeholders += "○"
 			}
 		}
-
-		self.compactHeightPasscodeTextField?.text = passcode
-		self.passcodeLabel?.text = placeholders
+		portraitLayout.passcodeLabel.text = placeholders
+		landscapeLayout.passcodeLabel.text = placeholders
 	}
 
 	// MARK: - Actions
-	@IBAction func appendDigit(_ sender: UIButton) {
-		appendDigit(digit: String(sender.tag))
-	}
 
 	public func appendDigit(digit: String) {
-		if !keypadButtonsEnabled || keypadButtonsHidden {
-			return
-		}
-
 		if let currentPasscode = passcode {
-			// Enforce length limit
 			if currentPasscode.count < passcodeLength {
 				self.passcode = currentPasscode + digit
 			}
@@ -304,19 +347,13 @@ public class PasscodeViewController: UIViewController, Themeable {
 			self.passcode = digit
 		}
 
-		// Check if passcode is complete
 		if let enteredPasscode = passcode {
 			if enteredPasscode.count == passcodeLength {
-				// Delay to give feedback to user after the last digit was added
 				OnMainThread(after: passCodeCompletionDelay) {
 					self.completionHandler?(self, enteredPasscode)
 				}
 			}
 		}
-	}
-
-	@IBAction func deleteLastDigit(_ sender: UIButton) {
-		deleteLastDigit()
 	}
 
 	public func deleteLastDigit() {
@@ -330,40 +367,54 @@ public class PasscodeViewController: UIViewController, Themeable {
 		cancelHandler?(self)
 	}
 
+	@objc private func didTapNavigationCancel() {
+		cancelHandler?(self)
+	}
+
 	@IBAction func biometricalAction(_ sender: UIButton) {
 		biometricalHandler?(self)
 	}
 
-	// MARK: - Themeing
-	public override var preferredStatusBarStyle : UIStatusBarStyle {
+	// MARK: - Theming
+
+	public override var preferredStatusBarStyle: UIStatusBarStyle {
 		if VendorServices.shared.isBranded {
 			return .darkContent
 		}
-
 		return Theme.shared.activeCollection.css.getStatusBarStyle(for: self) ?? .default
 	}
 
 	open func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		lockscreenContainerView?.apply(css: collection.css, properties: [.fill])
+		view.backgroundColor = collection.css.getColor(.fill, selectors: [.hcColorCardBackground], for: nil)
 
-		messageLabel?.applyThemeCollection(collection, itemStyle: .title, itemState: keypadButtonsEnabled ? .normal : .disabled)
+		let barColor = collection.css.getColor(.fill, selectors: [.hcColorMenuBackground], for: nil) ?? .white
 
-		messageLabel?.apply(css: collection.css, properties: [.stroke])
-		errorMessageLabel?.apply(css: collection.css, properties: [.stroke])
-		passcodeLabel?.apply(css: collection.css, properties: [.stroke])
-		timeoutMessageLabel?.apply(css: collection.css, properties: [.stroke])
+		let textColor = collection.css.getColor(.fill, selectors: [.text], for: nil) ?? .white
+		let appearance = UINavigationBarAppearance()
+		appearance.configureWithOpaqueBackground()
+		appearance.backgroundColor = barColor
+		appearance.shadowColor = UIColor.black.withAlphaComponent(0.1)
+		appearance.titleTextAttributes = [
+			.foregroundColor: textColor
+		]
+		navigationBar.standardAppearance = appearance
+		navigationBar.scrollEdgeAppearance = appearance
+		navigationBar.tintColor = textColor
+		navigationBarContainer.backgroundColor = barColor
 	}
 }
 
 extension PasscodeViewController: UITextFieldDelegate {
-	open func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-
+	open func textField(
+		_ textField: UITextField,
+		shouldChangeCharactersIn range: NSRange,
+		replacementString string: String
+	) -> Bool {
 		if range.length > 0 {
 			deleteLastDigit()
 		} else {
 			appendDigit(digit: string)
 		}
-
 		return false
 	}
 }
