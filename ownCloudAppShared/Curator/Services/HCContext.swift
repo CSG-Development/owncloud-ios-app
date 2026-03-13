@@ -1,4 +1,10 @@
+import Foundation
 import ownCloudSDK
+
+public extension Notification.Name {
+	/// Posted on main when `HCContext.lastRemoteBaseURL` changes (reachability best path).
+	static let hcRemoteBaseURLDidChange = Notification.Name("HCRemoteBaseURLDidChange")
+}
 
 private enum Constants {
 	static let remoteAccessBaseURL = URL(
@@ -20,6 +26,8 @@ public final class HCContext {
 	// Use `RemoteAccessSharingURLResolver` directly if possible.
 	public var lastRemoteBaseURL: URL?
 
+	private var networkFailureObserver: NSObjectProtocol?
+
 	public init() {
 		self.preferences = HCPreferences()
 		self.remoteAccessTokenStore = RemoteAccessTokenStore()
@@ -40,6 +48,7 @@ public final class HCContext {
 		Task {
 			await self.deviceReachabilityService.observeRemoteBaseURL { url in
 				self.lastRemoteBaseURL = url
+				NotificationCenter.default.post(name: .hcRemoteBaseURLDidChange, object: nil)
 			}
 		}
 	}
@@ -47,6 +56,20 @@ public final class HCContext {
 	public func setup() {
 		Task { OCConnection.defaultBaseURLProvider = await deviceReachabilityService.urlProvider }
 		deviceReachabilityService.start()
+
+		// status.php polling & similar: SDK does not call OCCoreDelegate handleError for these.
+		if networkFailureObserver == nil {
+			networkFailureObserver = NotificationCenter.default.addObserver(
+				forName: NSNotification.Name.OCNetworkingFailureReachability,
+				object: nil,
+				queue: .main
+			) { note in
+				if let error = note.userInfo?["error"] as? Error {
+					HCContext.shared.deviceReachabilityService.reportOperationError(error)
+				}
+			}
+		}
+
 		OCConnection.certificateValidationHandler = { _, request, certificate, _, proceedHandler in
 			let ok = CertificateValidationService.shared.validatePinnedCertificate(
 				serverCertificate: certificate,
