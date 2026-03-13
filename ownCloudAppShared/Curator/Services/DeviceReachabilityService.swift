@@ -101,6 +101,11 @@ public final actor DeviceReachabilityService {
 	private var isReloading: Bool = false
 	private var lastNetworkState: NetworkState?
 	private var staticRemoteDevice: RemoteDevice?
+	/// Throttles automatic reprobe (timeout, cannot connect, status.php poll failures, …).
+	private var lastTimeoutSwitchAttemptAt: Date?
+	private let timeoutSwitchThrottleSeconds: TimeInterval = 60
+	private var lastReprobePromptAt: Date?
+	private let reprobePromptThrottleSeconds: TimeInterval = 60
 
 	private let reachability: ReachabilityObserving
 	private let remoteAccessService: RemoteAccessService
@@ -341,6 +346,29 @@ public final actor DeviceReachabilityService {
 	}
 
 	// MARK: - Operation error handling → reprobe prompt
+	/// Timeout, cannot connect, DNS — same as SDK @c isNetworkFailureError plus timedOut (status.php never hits core @c handleError).
+	nonisolated private func isAutoReprobeTransportError(_ error: Error) -> Bool {
+		let autoCodes: Set<Int> = [
+			URLError.timedOut.rawValue,
+			URLError.cannotConnectToHost.rawValue,
+			URLError.cannotFindHost.rawValue,
+			URLError.dnsLookupFailed.rawValue,
+			URLError.networkConnectionLost.rawValue,
+			URLError.notConnectedToInternet.rawValue
+		]
+		var current: Error? = error
+		var depth = 0
+		while let e = current, depth < 6 {
+			let ns = e as NSError
+			if ns.domain == NSURLErrorDomain, autoCodes.contains(ns.code) {
+				return true
+			}
+			current = ns.userInfo[NSUnderlyingErrorKey] as? Error
+			depth += 1
+		}
+		return false
+	}
+
 	nonisolated private func shouldOfferReprobe(for error: Error) -> Bool {
 		let ns = error as NSError
 		if ns.domain == NSURLErrorDomain {
@@ -361,6 +389,12 @@ public final actor DeviceReachabilityService {
 	}
 
 	private func requestReprobeFromUI() async {
+		let now = Date()
+		if let last = lastReprobePromptAt,
+		   now.timeIntervalSince(last) < reprobePromptThrottleSeconds {
+			return
+		}
+		lastReprobePromptAt = now
 		guard let prompt = onReprobePrompt else {
 			return
 		}
@@ -448,10 +482,33 @@ public final actor DeviceReachabilityService {
 		self.onReprobePrompt = handler
 	}
 
-	// MARK: - Forward operation errors to trigger a reprobe prompt
+	// MARK: - Forward operation errors → transport auto reprobe, else reprobe prompt
 	public nonisolated func reportOperationError(_ error: Error) {
+		if isAutoReprobeTransportError(error) {
+			Task { await self.attemptSwitchAfterTransportFailure() }
+			return
+		}
 		guard shouldOfferReprobe(for: error) else { return }
 		Task { await self.requestReprobeFromUI() }
+	}
+
+	/// Reprobe without prompting (status.php / pipeline failures never call core handleError).
+	private func attemptSwitchAfterTransportFailure() async {
+		let now = Date()
+		if let last = lastTimeoutSwitchAttemptAt,
+		   now.timeIntervalSince(last) < timeoutSwitchThrottleSeconds {
+			return
+		}
+		lastTimeoutSwitchAttemptAt = now
+		Log.debug("[STX-RA]: Transport failure → automatic path switch (reprobe)")
+
+		if let email = preferences.favoriteEmail {
+			let hasToken = await remoteAccessService.hasValidTokens()
+			if hasToken == false, let handler = onEmailValidationRequest {
+				await MainActor.run { handler(email) }
+			}
+		}
+		await forceReloadDevices()
 	}
 
 	// MARK: - Best path selection
