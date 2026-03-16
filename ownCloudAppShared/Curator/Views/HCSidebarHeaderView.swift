@@ -44,6 +44,8 @@ public final class HCSidebarHeaderView: ThemeCSSView {
 
 	public var onEditTap: (() -> Void)?
 
+	private var remoteURLObserver: NSObjectProtocol?
+
 	public override init(frame: CGRect) {
 		super.init(frame: frame)
 
@@ -81,11 +83,63 @@ public final class HCSidebarHeaderView: ThemeCSSView {
 			$0.trailing.equalToSuperview().offset(-20)
 			$0.bottom.equalToSuperview().offset(-24)
 		}
+
+		remoteURLObserver = NotificationCenter.default.addObserver(
+			forName: .hcRemoteBaseURLDidChange,
+			object: nil,
+			queue: .main
+		) { [weak self] _ in
+			self?.updateView()
+		}
+	}
+
+	deinit {
+		if let remoteURLObserver {
+			NotificationCenter.default.removeObserver(remoteURLObserver)
+		}
+	}
+
+	/// Like `bookmark.shortName` for name/prefix; host is best URL first, then bookmark URL host.
+	private func connectionSubtitleText() -> String? {
+		guard let bookmark else { return nil }
+		if let name = bookmark.name, name.isEmpty == false {
+			return name
+		}
+		var userNamePrefix = ""
+		if let userDisplayName = bookmark.userDisplayName, userDisplayName.isEmpty == false {
+			userNamePrefix = userDisplayName + "@"
+		} else if let displayName = bookmark.displayName, displayName.isEmpty == false {
+			userNamePrefix = displayName + "@"
+		} else if let userName = bookmark.userName, userName.isEmpty == false {
+			userNamePrefix = userName + "@"
+		}
+		let hostPart: String = {
+			if let best = HCContext.shared.lastRemoteBaseURL {
+				let label = Self.hostLabel(for: best)
+				if label.isEmpty == false { return label }
+			}
+			return bookmark.url?.host ?? ""
+		}()
+		if hostPart.isEmpty {
+			return userNamePrefix.isEmpty ? nil : userNamePrefix
+		}
+		return userNamePrefix + hostPart
+	}
+
+	private static func hostLabel(for url: URL) -> String {
+		guard let host = url.host, host.isEmpty == false else {
+			return url.absoluteString
+		}
+		if let port = url.port {
+			let defaultPort = (url.scheme?.lowercased() == "https") ? 443 : 80
+			if port != defaultPort { return "\(host):\(port)" }
+		}
+		return host
 	}
 
 	private func updateView() {
 		nameLabel.text = bookmark?.displayName
-		emailLabel.text = bookmark?.shortName
+		emailLabel.text = connectionSubtitleText()
 
 		if let avatarProvider = bookmark?.avatar {
 			avatarProvider.provideView(for: CGSize(width: 40, height: 40), in: nil) { view in

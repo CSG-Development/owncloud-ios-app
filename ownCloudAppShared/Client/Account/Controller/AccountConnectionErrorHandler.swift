@@ -59,6 +59,10 @@ open class AccountConnectionErrorHandler: NSObject, AccountConnectionCoreErrorHa
 		if nsError?.isAccountConnectionAuthenticationError == true {
 			return false
 		} else {
+			// Drive path switch / reprobe for transient network errors (timeouts, unreachable, etc.)
+			if let reportError = error ?? nsError {
+				HCContext.shared.deviceReachabilityService.reportOperationError(reportError)
+			}
 			context.alertQueue?.async { [weak self] (queueCompletionHandler) in
 				var presentIssue : OCIssue? = issue
 				var queueCompletionHandlerScheduled : Bool = false

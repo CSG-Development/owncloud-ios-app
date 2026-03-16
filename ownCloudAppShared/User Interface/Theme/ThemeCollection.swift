@@ -752,6 +752,16 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .highlighted], property: .stroke, value: isDark ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary),
 			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .highlighted], property: .fill, value:  isDark ? HCColor.Grey.lighten3 : HCColor.Grey.darken3),
 
+			// #### Auth
+			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled], property: .stroke, value: HCColor.Text.secondary(isDark)),
+			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled], property: .fill, value: HCColor.Interaction.primaryTransparentNormal20(isDark)),
+			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled, .disabled], property: .stroke, value: HCColor.Grey.grey),
+			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled, .disabled], property: .fill, value: HCColor.Content.disabledBackground(isDark)),
+			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled, .highlighted], property: .stroke, value: isDark ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary),
+			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled, .highlighted], property: .fill, value:  isDark ? HCColor.Grey.lighten3 : HCColor.Grey.darken3),
+			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled], property: .fontSize, value: CGFloat(34)),
+			ThemeCSSRecord(selectors: [.primary_auth, .error], property: .stroke, value: HCColor.Symbolic.error(isDark)),
+
 			// ### Outlined
 			// #### Primary
 			ThemeCSSRecord(selectors: [.button, .primary, .outlined], property: .borderColor, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
@@ -929,7 +939,11 @@ public class ThemeCollection : NSObject {
 			// - Location Bar
 			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar, .segments, .item, .plain],		property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar, .button],	property: .stroke, value: HCColor.Content.textPrimary(isDark)),
-			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar],					property: .fill,   value: UIColor.clear)
+			ThemeCSSRecord(selectors: [.content, .toolbar, .locationBar],					property: .fill,   value: UIColor.clear),
+
+			// # Standalone colors
+			ThemeCSSRecord(selectors: [.hcColorMenuBackground], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.hcColorCardBackground], property: .fill, value: HCColor.Structure.cardBackground(isDark))
 		])
 
 		// System colors

@@ -258,6 +258,17 @@ extension OCItem: UniversalItemListCellContentProvider {
 		if syncActivity.rawValue & (OCItemSyncActivity.downloading.rawValue | OCItemSyncActivity.uploading.rawValue) != 0, !hasMessageForItem {
 			progress = context?.core?.progressForItem(withLocalID: self.localID, matching: .none)?.first
 
+			// Fallback: progressForItem can return nil on subsequent uploads (registration timing).
+			// Use activity progress so cancel works; avoid dummy Progress.indeterminate() which cannot cancel.
+			if progress == nil, let core = context?.core, let activities = core.activityManager.activities as? [OCActivity] {
+				let uploadActivities = activities.compactMap { $0 as? OCSyncRecordActivity }.filter { $0.type == .upload }
+				if uploadActivities.count == 1 {
+					progress = uploadActivities.first?.progress as Progress?
+				} else if uploadActivities.count > 1, let itemName = name {
+					progress = uploadActivities.first { $0.localizedDescription.contains(itemName) }?.progress as Progress?
+				}
+			}
+
 			if progress == nil {
 				progress = Progress.indeterminate()
 			}

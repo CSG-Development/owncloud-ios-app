@@ -92,13 +92,35 @@ class CameraViewPresenter: NSObject, UIImagePickerControllerDelegate, UINavigati
 				return
 		}
 
-		// Setup UIImagePickerController
-		imagePickerController.sourceType = .camera
-		imagePickerController.mediaTypes = cameraMediaTypes
-		imagePickerController.delegate = self
-		imagePickerController.videoQuality = .typeHigh
+		let presentCamera = { [weak self, weak viewController] in
+			guard let self, let viewController else { return }
+			self.imagePickerController.sourceType = .camera
+			self.imagePickerController.mediaTypes = cameraMediaTypes
+			self.imagePickerController.delegate = self
+			self.imagePickerController.videoQuality = .typeHigh
+			viewController.present(self.imagePickerController, animated: true)
+		}
 
-		viewController.present(imagePickerController, animated: true)
+		switch AVCaptureDevice.authorizationStatus(for: .video) {
+		case .authorized:
+			presentCamera()
+		case .denied, .restricted:
+			let alert = ThemedAlertController.alertControllerForCameraAuthorizationInSettings()
+			viewController.present(alert, animated: true)
+		case .notDetermined:
+			AVCaptureDevice.requestAccess(for: .video) { granted in
+				OnMainThread {
+					if granted {
+						presentCamera()
+					} else {
+						let alert = ThemedAlertController.alertControllerForCameraAuthorizationInSettings()
+						viewController.present(alert, animated: true)
+					}
+				}
+			}
+		@unknown default:
+			presentCamera()
+		}
 	}
 
 	func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
