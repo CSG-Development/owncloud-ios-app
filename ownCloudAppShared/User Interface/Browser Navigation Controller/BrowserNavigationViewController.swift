@@ -104,6 +104,9 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	open var clientContextProvider: (() -> ClientContext?)?
 	open var accountControllerProvider: ((UUID) -> AccountController?)?
 
+	// MARK: - "Finding network…" toast
+	private var networkAvailabilityToastView: NetworkAvailabilityToastView?
+
 	open override func viewWillLayoutSubviews() {
 		super.viewWillLayoutSubviews()
 
@@ -181,8 +184,65 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		topAccessoryContainerView.addArrangedSubview(topAccessoryView)
 
 		setupHistoryButtons()
+		setupNetworkAvailabilityToast()
 		updateDynamicLayout()
 		view.layoutIfNeeded()
+	}
+
+	private func setupNetworkAvailabilityToast() {
+		let toast = NetworkAvailabilityToastView(message: HCL10n.Network.findingNetwork)
+		toast.alpha = 0
+		toast.isHidden = true
+		toast.onDismiss = { [weak self] in
+			guard let self else { return }
+			Task { await HCContext.shared.networkAvailabilityMonitor.dismiss() }
+			self.setNetworkAvailabilityToastVisible(nil, animated: true)
+		}
+		networkAvailabilityToastView = toast
+
+		contentContainerView.addSubview(toast)
+		toast.snp.makeConstraints { make in
+			make.centerX.equalTo(contentContainerView.safeAreaLayoutGuide)
+			make.leading.greaterThanOrEqualTo(contentContainerView.safeAreaLayoutGuide).offset(16)
+			make.trailing.lessThanOrEqualTo(contentContainerView.safeAreaLayoutGuide).offset(-16)
+			make.bottom.equalTo(contentContainerView.safeAreaLayoutGuide).offset(-16)
+		}
+
+		Task { @MainActor [weak self] in
+			await HCContext.shared.networkAvailabilityMonitor.observeToastVisibility { [weak self] kind in
+				self?.setNetworkAvailabilityToastVisible(kind, animated: true)
+			}
+		}
+	}
+
+	private func setNetworkAvailabilityToastVisible(_ kind: NetworkAvailabilityToastKind?, animated: Bool) {
+		guard let toast = networkAvailabilityToastView else { return }
+
+		// Keep the toast above any content that gets inserted into contentContainerView later.
+		contentContainerView.bringSubviewToFront(toast)
+
+		if let kind {
+			let message: String
+			switch kind {
+				case .findingNetwork: message = HCL10n.Network.findingNetwork
+				case .noInternet:     message = HCL10n.Network.noInternet
+			}
+			toast.setMessage(message)
+		}
+
+		let visible = kind != nil
+		let apply = { toast.alpha = visible ? 1.0 : 0.0 }
+
+		if visible { toast.isHidden = false }
+
+		if animated {
+			UIView.animate(withDuration: 0.25, delay: 0, options: [.beginFromCurrentState, .curveEaseInOut], animations: apply, completion: { _ in
+				if !visible { toast.isHidden = true }
+			})
+		} else {
+			apply()
+			if !visible { toast.isHidden = true }
+		}
 	}
 
 	private func updateDynamicLayout() {
@@ -442,6 +502,11 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	// MARK: - View Controller presentation
 	open override func addContentViewControllerSubview(_ contentViewControllerView: UIView) {
 		contentContainerView.insertSubview(contentViewControllerView, at: 0)
+		// Newly inserted content goes to the back, but make sure the network toast (if installed)
+		// stays on top of any content view.
+		if let toast = networkAvailabilityToastView, toast.superview === contentContainerView {
+			contentContainerView.bringSubviewToFront(toast)
+		}
 	}
 
 	open override func constraintsForEmbedding(contentViewController: UIViewController)
@@ -499,6 +564,30 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		navArrowsStackView.isHidden = false
 	}
 
+	private func previousHistoryItemTitle() -> String? {
+		let previousPosition = history.position - 1
+		guard previousPosition >= 0, previousPosition < history.items.count else { return nil }
+		let previousVC = history.items[previousPosition].viewControllerIfLoaded
+		return previousVC?.navigationItem.title ?? previousVC?.title
+	}
+
+	private func buildBackBarButtonItem(title: String?) -> UIBarButtonItem {
+		var configuration = UIButton.Configuration.plain()
+		configuration.image = OCSymbol.icon(forSymbolName: "chevron.backward")
+		configuration.title = title
+		configuration.imagePadding = 4
+		configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 8)
+
+		let button = UIButton(configuration: configuration, primaryAction: UIAction { [weak self] _ in
+			self?.navBack()
+		})
+		button.contentHorizontalAlignment = .leading
+
+		let backButtonItem = UIBarButtonItem(customView: button)
+		backButtonItem.tag = BarButtonTags.backButton.rawValue
+		return backButtonItem
+	}
+
 	func buildSideBarToggleBarButtonItem() -> UIBarButtonItem {
 		let buttonItem = UIBarButtonItem(
 			image: OCItem.hanurgerMenu, style: .plain, target: self,
@@ -546,16 +635,19 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		}
 
 		if withBackButton {
+			let previousTitle = previousHistoryItemTitle()
+
 			let item = reuseOrBuild(
 				.backButton,
 				{
-					let backButtonItem = UIBarButtonItem(
-						image: OCSymbol.icon(forSymbolName: "chevron.backward"), style: .plain,
-						target: self, action: #selector(navBack))
-					backButtonItem.tag = BarButtonTags.backButton.rawValue
-
-					return backButtonItem
+					return buildBackBarButtonItem(title: previousTitle)
 				})
+
+			if let button = item.customView as? UIButton {
+				var configuration = button.configuration ?? UIButton.Configuration.plain()
+				configuration.title = previousTitle
+				button.configuration = configuration
+			}
 
 			item.isEnabled = history.canMoveBack
 
@@ -594,10 +686,16 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 	func updateContentNavigationItems() {
 		if let contentNavigationItem = contentViewController?.navigationItem {
+			let hasHistoryBack = history.canMoveBack
+				&& !(history.lastPushAttempt?.isSpecialTabBarItem ?? true)
+			let shouldShowSidebarToggle = hasHistoryBack
+				? false
+				: ((effectiveSideBarDisplayMode == .sideBySide) ? isSideBarHidden : true)
+
 			updateLeftBarButtonItems(
 				for: contentNavigationItem,
-				withToggleSideBar: (effectiveSideBarDisplayMode == .sideBySide)
-				? isSideBarHidden : true)
+				withToggleSideBar: shouldShowSidebarToggle,
+				withBackButton: hasHistoryBack)
 		}
 
 		updateHistoryButtons()

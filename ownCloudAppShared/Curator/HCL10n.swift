@@ -186,4 +186,51 @@ public enum HCL10n {
 		public static var messageFormat: String { OCLocalizedString("TrustPrompt.messageFormat", nil) }
 		public static var trust: String { OCLocalizedString("TrustPrompt.trust", nil) }
 	}
+
+	public enum Network {
+		public static var findingNetwork: String { OCLocalizedString("Network.findingNetwork", nil) }
+		public static var noInternet: String { OCLocalizedString("Network.noInternet", nil) }
+	}
+
+	public enum TagsList {
+		public static var title: String { OCLocalizedString("TagsList.title", nil) }
+		public static var empty: String { OCLocalizedString("TagsList.empty", nil) }
+		public static var loadingError: String { OCLocalizedString("TagsList.loadingError", nil) }
+		public static var errorOk: String { OCLocalizedString("TagsList.errorOk", nil) }
+		public static var alreadyExists: String { OCLocalizedString("TagsList.alreadyExists", nil) }
+		public enum Delete {
+			public static var error: String { OCLocalizedString("TagsList.Delete.error", nil) }
+			public static var title: String { OCLocalizedString("TagsList.Delete.title", nil) }
+			public static var description: String { OCLocalizedString("TagsList.Delete.description", nil) }
+			public static var cancel: String { OCLocalizedString("TagsList.Delete.cancel", nil) }
+			public static var confirm: String { OCLocalizedString("TagsList.Delete.confirm", nil) }
+		}
+		public enum Create {
+			public static var error: String { OCLocalizedString("TagsList.Create.error", nil) }
+		}
+		public enum Update {
+			public static var error: String { OCLocalizedString("TagsList.Update.error", nil) }
+		}
+	}
+
+	public enum TagEdit {
+		public static var done: String { OCLocalizedString("TagEdit.done", nil) }
+		public static var cancel: String { OCLocalizedString("TagEdit.cancel", nil) }
+		public static var add: String { OCLocalizedString("TagEdit.add", nil) }
+		public static var edit: String { OCLocalizedString("TagEdit.edit", nil) }
+		public static var addPlaceholder: String { OCLocalizedString("TagEdit.addPlaceholder", nil) }
+		public static var editPlaceholder: String { OCLocalizedString("TagEdit.editPlaceholder", nil) }
+		public static var nameTooLongError: String {
+			String(format: OCLocalizedString("TagEdit.nameTooLong", nil), TagEdit.maxNameLength)
+		}
+		public static var invalidCharactersError: String {
+			OCLocalizedString("TagEdit.invalidCharacters", nil)
+		}
+		public static let maxNameLength: Int = 30
+		// Disallowed characters in tag names: control chars, path separators and other
+		// punctuation/special symbols that have no place in a human-readable tag.
+		public static let forbiddenCharacters = CharacterSet(charactersIn: "/\\:*?\"<>|`~!@#$%^&()+={}[];,")
+			.union(.controlCharacters)
+			.union(.newlines)
+	}
 }

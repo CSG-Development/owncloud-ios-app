@@ -216,6 +216,19 @@
 		99C42E132EB10E1D00E36414 /* Network+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E122EB10E0800E36414 /* Network+Extensions.swift */; };
 		99C42E1B2EB3891200E36414 /* HCCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E172EB3890C00E36414 /* HCCodeView.swift */; };
 		99C42E222EB4FE7E00E36414 /* DeviceReachabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */; };
+		99AB1A1A2EFA000000000002 /* NetworkAvailabilityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFA000000000001 /* NetworkAvailabilityMonitor.swift */; };
+		99AB1A1A2EFA000000000004 /* NetworkAvailabilityToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFA000000000003 /* NetworkAvailabilityToastView.swift */; };
+		99AB1A1A2EFB000000000002 /* PathProber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFB000000000001 /* PathProber.swift */; };
+		99AB1A1A2EFC000000000002 /* MergedDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFC000000000001 /* MergedDevice.swift */; };
+		99AB1A1A2EFC000000000004 /* PathProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFC000000000003 /* PathProbe.swift */; };
+		99AB1A1A2EFC000000000006 /* SelectedPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFC000000000005 /* SelectedPath.swift */; };
+		99AB1A1A2EFC000000000008 /* DeviceReachabilityEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFC000000000007 /* DeviceReachabilityEvent.swift */; };
+		99AB1A1A2EFD000000000002 /* PathCacheStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFD000000000001 /* PathCacheStore.swift */; };
+		99AB1A1A2EFE000000000002 /* DeviceCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFE000000000001 /* DeviceCatalog.swift */; };
+		99AB1A1A2EFF000000000002 /* DirectPathResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFF000000000001 /* DirectPathResolver.swift */; };
+		99AB1A1A2F00000000000002 /* DetectionPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2F00000000000001 /* DetectionPipeline.swift */; };
+		99AB1A1A2F01000000000002 /* NetworkChangeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2F01000000000001 /* NetworkChangeCoordinator.swift */; };
+		99AB1A1A2F02000000000002 /* DeviceReachabilityURLProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2F02000000000001 /* DeviceReachabilityURLProvider.swift */; };
 		99CE0A5E2E49F31200380EB8 /* HCKeyboardTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */; };
 		99CE0A602E4A232200380EB8 /* HCSpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */; };
 		99CE73F52F1E7644001804EA /* CertificateValidationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CE73F42F1E7644001804EA /* CertificateValidationService.swift */; };
@@ -630,6 +643,8 @@
 		DCB6B206292E1D8400D27573 /* RoundedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 396BE4C92289500E00B254A9 /* RoundedLabel.swift */; };
 		DCB6B20A292E296800D27573 /* CollectionSidebarAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB6B209292E296800D27573 /* CollectionSidebarAction.swift */; };
 		DCB6B20C292E428000D27573 /* AccountController+ExtraItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB6B20B292E428000D27573 /* AccountController+ExtraItems.swift */; };
+		DCA0000103ABCDEF00000001 /* TagsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000102ABCDEF00000001 /* TagsViewController.swift */; };
+		DCA0000105ABCDEF00000001 /* TagEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000104ABCDEF00000001 /* TagEditViewController.swift */; };
 		DCB6B20F292F843800D27573 /* CollectionViewAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB6B20E292F843800D27573 /* CollectionViewAction.swift */; };
 		DCB750522D2F0B3600CCF68C /* DetailsSpaceAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC9CE3D12D1080EE00979C44 /* DetailsSpaceAction.swift */; };
 		DCB796472BC4847200D6D759 /* ShortcutFileDisplayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB796462BC4847200D6D759 /* ShortcutFileDisplayViewController.swift */; };
@@ -1391,6 +1406,19 @@
 		99C42E122EB10E0800E36414 /* Network+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Network+Extensions.swift"; sourceTree = "<group>"; };
 		99C42E172EB3890C00E36414 /* HCCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCCodeView.swift; sourceTree = "<group>"; };
 		99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceReachabilityService.swift; sourceTree = "<group>"; };
+		99AB1A1A2EFA000000000001 /* NetworkAvailabilityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkAvailabilityMonitor.swift; sourceTree = "<group>"; };
+		99AB1A1A2EFA000000000003 /* NetworkAvailabilityToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkAvailabilityToastView.swift; sourceTree = "<group>"; };
+		99AB1A1A2EFB000000000001 /* PathProber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathProber.swift; sourceTree = "<group>"; };
+		99AB1A1A2EFC000000000001 /* MergedDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MergedDevice.swift; sourceTree = "<group>"; };
+		99AB1A1A2EFC000000000003 /* PathProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathProbe.swift; sourceTree = "<group>"; };
+		99AB1A1A2EFC000000000005 /* SelectedPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPath.swift; sourceTree = "<group>"; };
+		99AB1A1A2EFC000000000007 /* DeviceReachabilityEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceReachabilityEvent.swift; sourceTree = "<group>"; };
+		99AB1A1A2EFD000000000001 /* PathCacheStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathCacheStore.swift; sourceTree = "<group>"; };
+		99AB1A1A2EFE000000000001 /* DeviceCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCatalog.swift; sourceTree = "<group>"; };
+		99AB1A1A2EFF000000000001 /* DirectPathResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectPathResolver.swift; sourceTree = "<group>"; };
+		99AB1A1A2F00000000000001 /* DetectionPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectionPipeline.swift; sourceTree = "<group>"; };
+		99AB1A1A2F01000000000001 /* NetworkChangeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkChangeCoordinator.swift; sourceTree = "<group>"; };
+		99AB1A1A2F02000000000001 /* DeviceReachabilityURLProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceReachabilityURLProvider.swift; sourceTree = "<group>"; };
 		99CE0A5A2E49F30C00380EB8 /* HCKeyboardTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCKeyboardTracker.swift; sourceTree = "<group>"; };
 		99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSpinnerView.swift; sourceTree = "<group>"; };
 		99CE73F42F1E7644001804EA /* CertificateValidationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateValidationService.swift; sourceTree = "<group>"; };
@@ -1759,6 +1787,8 @@
 		DCB6B204292D859B00D27573 /* UIViewController+NavigationRevocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+NavigationRevocation.swift"; sourceTree = "<group>"; };
 		DCB6B209292E296800D27573 /* CollectionSidebarAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionSidebarAction.swift; sourceTree = "<group>"; };
 		DCB6B20B292E428000D27573 /* AccountController+ExtraItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountController+ExtraItems.swift"; sourceTree = "<group>"; };
+		DCA0000102ABCDEF00000001 /* TagsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsViewController.swift; sourceTree = "<group>"; };
+		DCA0000104ABCDEF00000001 /* TagEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagEditViewController.swift; sourceTree = "<group>"; };
 		DCB6B20E292F843800D27573 /* CollectionViewAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewAction.swift; sourceTree = "<group>"; };
 		DCB6C4DD24559B1600C1EAE1 /* AccountAuthenticationUpdaterPasswordPromptViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountAuthenticationUpdaterPasswordPromptViewController.swift; sourceTree = "<group>"; };
 		DCB796462BC4847200D6D759 /* ShortcutFileDisplayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutFileDisplayViewController.swift; sourceTree = "<group>"; };
@@ -2690,6 +2720,18 @@
 				9908FE2D2EC370BA004A4137 /* HCPreferences.swift */,
 				993A26052EBCCD7E00A28D8F /* DeviceReachability */,
 				99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */,
+				99AB1A1A2EFA000000000001 /* NetworkAvailabilityMonitor.swift */,
+				99AB1A1A2EFB000000000001 /* PathProber.swift */,
+				99AB1A1A2EFC000000000001 /* MergedDevice.swift */,
+				99AB1A1A2EFC000000000003 /* PathProbe.swift */,
+				99AB1A1A2EFC000000000005 /* SelectedPath.swift */,
+				99AB1A1A2EFC000000000007 /* DeviceReachabilityEvent.swift */,
+				99AB1A1A2EFD000000000001 /* PathCacheStore.swift */,
+				99AB1A1A2EFE000000000001 /* DeviceCatalog.swift */,
+				99AB1A1A2EFF000000000001 /* DirectPathResolver.swift */,
+				99AB1A1A2F00000000000001 /* DetectionPipeline.swift */,
+				99AB1A1A2F01000000000001 /* NetworkChangeCoordinator.swift */,
+				99AB1A1A2F02000000000001 /* DeviceReachabilityURLProvider.swift */,
 				99FFF1032F2B000100ABCDEF /* AppExtensionBootstrap.swift */,
 				99E53F982E96852D00454E4F /* MDNSService.swift */,
 			);
@@ -2976,8 +3018,17 @@
 				DC99154A28E6364700DA0AB8 /* SegmentView */,
 				DC3AB2492810A67F00789435 /* View Providers */,
 				DC8E99E6297F3B8400594697 /* Gesture Recognizer */,
+				99AB1A1A2EFA000000000005 /* Network Availability */,
 			);
 			path = "User Interface";
+			sourceTree = "<group>";
+		};
+		99AB1A1A2EFA000000000005 /* Network Availability */ = {
+			isa = PBXGroup;
+			children = (
+				99AB1A1A2EFA000000000003 /* NetworkAvailabilityToastView.swift */,
+			);
+			path = "Network Availability";
 			sourceTree = "<group>";
 		};
 		DC0A354D24C0E15100FB58FC /* Progress */ = {
@@ -3252,6 +3303,7 @@
 			children = (
 				23EC774D2137F3CD0032D4E6 /* Viewer */,
 				236735A421217C2300E5834A /* Actions */,
+				DCA0000101ABCDEF00000001 /* Tags */,
 				DC63208421FCEBE9007EC0A8 /* ClientActivityCell.swift */,
 				DC63208221FCAC1E007EC0A8 /* ClientActivityViewController.swift */,
 				DCE28F5F2433683700879DEC /* ClientSessionManager.swift */,
@@ -3259,6 +3311,15 @@
 				DC1BEEF52C2DFE940016C94F /* HelpAndSupportViewController.swift */,
 			);
 			path = Client;
+			sourceTree = "<group>";
+		};
+		DCA0000101ABCDEF00000001 /* Tags */ = {
+			isa = PBXGroup;
+			children = (
+				DCA0000102ABCDEF00000001 /* TagsViewController.swift */,
+				DCA0000104ABCDEF00000001 /* TagEditViewController.swift */,
+			);
+			path = Tags;
 			sourceTree = "<group>";
 		};
 		DC3DDEFE287E1AA500E5586D /* UIKit Extensions */ = {
@@ -5279,6 +5340,8 @@
 				DCB7969D2BCE71C300D6D759 /* OpenShortcutFileAction.swift in Sources */,
 				DCB6B1EB292B7C2400D27573 /* AppRootViewController+ItemActions.swift in Sources */,
 				DCB6B20C292E428000D27573 /* AccountController+ExtraItems.swift in Sources */,
+				DCA0000103ABCDEF00000001 /* TagsViewController.swift in Sources */,
+				DCA0000105ABCDEF00000001 /* TagEditViewController.swift in Sources */,
 				233E0FD82099F11D00C3D8D5 /* SecuritySettingsSection.swift in Sources */,
 				396D7C6523224A53002380C1 /* DiscardSceneAction.swift in Sources */,
 				4C82D07022C9387300835F0B /* MediaDisplayViewController.swift in Sources */,
@@ -5694,6 +5757,19 @@
 				DCB330D029F051B300BFF393 /* RecipientSearchScope.swift in Sources */,
 				DC298C982934D381009FA87F /* OCIssue+DisplayIssues.swift in Sources */,
 				99C42E222EB4FE7E00E36414 /* DeviceReachabilityService.swift in Sources */,
+				99AB1A1A2EFA000000000002 /* NetworkAvailabilityMonitor.swift in Sources */,
+				99AB1A1A2EFA000000000004 /* NetworkAvailabilityToastView.swift in Sources */,
+				99AB1A1A2EFB000000000002 /* PathProber.swift in Sources */,
+				99AB1A1A2EFC000000000002 /* MergedDevice.swift in Sources */,
+				99AB1A1A2EFC000000000004 /* PathProbe.swift in Sources */,
+				99AB1A1A2EFC000000000006 /* SelectedPath.swift in Sources */,
+				99AB1A1A2EFC000000000008 /* DeviceReachabilityEvent.swift in Sources */,
+				99AB1A1A2EFD000000000002 /* PathCacheStore.swift in Sources */,
+				99AB1A1A2EFE000000000002 /* DeviceCatalog.swift in Sources */,
+				99AB1A1A2EFF000000000002 /* DirectPathResolver.swift in Sources */,
+				99AB1A1A2F00000000000002 /* DetectionPipeline.swift in Sources */,
+				99AB1A1A2F01000000000002 /* NetworkChangeCoordinator.swift in Sources */,
+				99AB1A1A2F02000000000002 /* DeviceReachabilityURLProvider.swift in Sources */,
 				9917278A2E5DC3F500AD9C54 /* RunGate.swift in Sources */,
 				DCB6B20F292F843800D27573 /* CollectionViewAction.swift in Sources */,
 				DC0A357524C0E43200FB58FC /* ProgressView.swift in Sources */,
@@ -6108,7 +6184,7 @@
 				APP_BUILD_FLAGS = "$(inherited)";
 				APP_BUILD_FLAGS_SWIFT = "$(APP_BUILD_FLAGS)";
 				APP_PRODUCT_NAME = ownCloud;
-				APP_SHORT_VERSION = 1.23.0;
+				APP_SHORT_VERSION = 1.24.0;
 				APP_VERSION = 1;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -6182,7 +6258,7 @@
 				APP_BUILD_FLAGS = "$(inherited)";
 				APP_BUILD_FLAGS_SWIFT = "$(APP_BUILD_FLAGS)";
 				APP_PRODUCT_NAME = ownCloud;
-				APP_SHORT_VERSION = 1.23.0;
+				APP_SHORT_VERSION = 1.24.0;
 				APP_VERSION = 1;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = NO;
 				CLANG_ANALYZER_NONNULL = YES;
