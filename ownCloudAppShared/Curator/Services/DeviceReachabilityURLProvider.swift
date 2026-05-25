@@ -2,8 +2,11 @@ import Foundation
 import ownCloudSDK
 
 // MARK: - URL Provider Bridge (OCBaseURLProvider)
+// Thread-safe: all mutable state is guarded by `cacheQueue`; `preferences` has its own
+// internal queue. Marked `@unchecked Sendable` so it can be exposed `nonisolated` from
+// `DeviceReachabilityService` and queried synchronously from UI code.
 @objcMembers
-public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
+public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider, @unchecked Sendable {
 	private let cacheQueue = DispatchQueue(label: "com.personalCloudFiles.best-url-cache", attributes: .concurrent)
 	private var bestURLByCN: [String: URL] = [:]
 
@@ -29,6 +32,7 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 
 		cacheQueue.async(flags: .barrier) { self.bestURLByCN[cn] = url }
 
+		let isFavoriteDevice = (cn == preferences.favoriteDeviceCN)
 		DispatchQueue.main.async {
 			let bookmarks = OCBookmarkManager.shared.bookmarks
 			for bookmark in bookmarks {
@@ -62,6 +66,14 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 					core.connection.validateConnection(withReason: "Best URL switched", dueToResponseTo: nil)
 				}
 			}
+
+			if isFavoriteDevice {
+				NotificationCenter.default.post(
+					name: .hcBestBaseURLDidChange,
+					object: nil,
+					userInfo: [HCBestBaseURLNotification.urlUserInfoKey: url]
+				)
+			}
 		}
 	}
 
@@ -77,6 +89,9 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider {
 
 	public func clearAll() {
 		cacheQueue.async(flags: .barrier) { self.bestURLByCN.removeAll() }
+		DispatchQueue.main.async {
+			NotificationCenter.default.post(name: .hcBestBaseURLDidChange, object: nil)
+		}
 	}
 
 	private func cachedBestURL(for cn: String) -> URL? {

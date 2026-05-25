@@ -90,10 +90,17 @@ public final class HCPreferences: NSObject {
 		}
 		set {
 			queue.async {
+				let previous = self.userDefaults.string(forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
 				if let newValue {
 					self.userDefaults.set(newValue, forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
 				} else {
 					self.userDefaults.removeObject(forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
+				}
+				guard previous != newValue else { return }
+				// Wake up subscribers (sidebar etc.) so they re-query the URL provider
+				// for the new favorite's best URL.
+				DispatchQueue.main.async {
+					NotificationCenter.default.post(name: .hcBestBaseURLDidChange, object: nil)
 				}
 			}
 		}
@@ -154,14 +161,43 @@ public final class HCPreferences: NSObject {
 		public let friendlyName: String?
 		public let hostname: String?
 		public let paths: [SavedPath]
+		/// Path key (`RemoteDevice.Path.key` or `mdns|host|port`) last used successfully; preferred on cold launch.
+		public let lastSuccessfulPathKey: String?
 
-		public init(seagateDeviceID: String? = nil, certificateCommonName: String, friendlyName: String?, hostname: String?, paths: [SavedPath]) {
+		public init(
+			seagateDeviceID: String? = nil,
+			certificateCommonName: String,
+			friendlyName: String?,
+			hostname: String?,
+			paths: [SavedPath],
+			lastSuccessfulPathKey: String? = nil
+		) {
 			self.seagateDeviceID = seagateDeviceID
 			self.certificateCommonName = certificateCommonName
 			self.friendlyName = friendlyName
 			self.hostname = hostname
 			self.paths = paths
+			self.lastSuccessfulPathKey = lastSuccessfulPathKey
 		}
+	}
+
+	/// Last path key used for the given CN (from `currentConnectedDevice`).
+	public func lastSuccessfulPathKey(forCN cn: String) -> String? {
+		guard let saved = currentConnectedDevice, saved.certificateCommonName == cn else { return nil }
+		return saved.lastSuccessfulPathKey
+	}
+
+	/// Updates only `lastSuccessfulPathKey` on the saved connected device.
+	public func updateLastSuccessfulPathKey(_ key: String, forCN cn: String) {
+		guard let saved = currentConnectedDevice, saved.certificateCommonName == cn else { return }
+		currentConnectedDevice = SavedConnectedDevice(
+			seagateDeviceID: saved.seagateDeviceID,
+			certificateCommonName: saved.certificateCommonName,
+			friendlyName: saved.friendlyName,
+			hostname: saved.hostname,
+			paths: saved.paths,
+			lastSuccessfulPathKey: key
+		)
 	}
 
 	public var currentConnectedDevice: SavedConnectedDevice? {

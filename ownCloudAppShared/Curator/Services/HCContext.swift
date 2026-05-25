@@ -5,6 +5,12 @@ import ownCloudSDK
 public extension Notification.Name {
 	/// Posted on main when `HCContext.lastRemoteBaseURL` changes (reachability best path).
 	static let hcRemoteBaseURLDidChange = Notification.Name("HCRemoteBaseURLDidChange")
+	/// Posted on main when the favorite device's best connection URL changes.
+	static let hcBestBaseURLDidChange = Notification.Name("HCBestBaseURLDidChange")
+}
+
+public enum HCBestBaseURLNotification {
+	public static let urlUserInfoKey = "url"
 }
 
 private enum Constants {
@@ -27,6 +33,13 @@ public final class HCContext {
 	// Hack to provide this info for related data sources.
 	// Use `RemoteAccessSharingURLResolver` directly if possible.
 	public var lastRemoteBaseURL: URL?
+
+	/// Best URL for the favorite device (local or remote). Always queries the URL provider
+	/// directly so callers see the live value, not a cached copy that depends on
+	/// notification-observer ordering.
+	public var currentBestBaseURL: URL? {
+		deviceReachabilityService.urlProvider.currentBaseURL()
+	}
 
 	private var networkFailureObserver: NSObjectProtocol?
 	private var cancellables = Set<AnyCancellable>()
@@ -61,7 +74,7 @@ public final class HCContext {
 	}
 
 	public func setup() {
-		Task { OCConnection.defaultBaseURLProvider = await deviceReachabilityService.urlProvider }
+		OCConnection.defaultBaseURLProvider = deviceReachabilityService.urlProvider
 		deviceReachabilityService.start()
 
 		// status.php polling & similar: SDK does not call OCCoreDelegate handleError for these.

@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import ownCloudSDK
 
 private enum Constants {
 	static var clientId: String {
@@ -8,6 +9,61 @@ private enum Constants {
 
 	static var clientFriendlyName: String {
 		UIDevice.current.name
+	}
+}
+
+
+/// Inter-process exclusion around the "read refresh token → POST /auth/refresh →
+/// save new tokens" critical section. The actor's `isUpdatingTokens` only dedupes
+/// callers inside one process; this lock also dedupes across the main app and its
+/// extensions (Share, File Provider UI, Intents) which all share the same keychain
+/// via `OCKeychainAccessGroupIdentifier`.
+///
+/// Implementation: advisory `flock(LOCK_EX)` on a sentinel file in the app group
+/// container. The OS releases all flocks held by a process on exit, so a crashed
+/// process can't deadlock the survivors.
+private enum CrossProcessRefreshLock {
+	struct Handle {
+		let fd: Int32
+		let acquired: Bool
+	}
+
+	private static let lockFilename = "ra-refresh.lock"
+
+	private static var lockURL: URL? {
+		guard let container = OCAppIdentity.shared.appGroupContainerURL else { return nil }
+		return container.appendingPathComponent(lockFilename)
+	}
+
+	static func acquire() async -> Handle {
+		guard let url = lockURL else {
+			return Handle(fd: -1, acquired: false)
+		}
+
+		return await withCheckedContinuation { (cont: CheckedContinuation<Handle, Never>) in
+			// `flock(LOCK_EX)` blocks the calling thread until the lock is free.
+			// Park the wait on a utility queue so we never block the actor's executor
+			// (or, worse, the main thread).
+			DispatchQueue.global(qos: .utility).async {
+				let fd = open(url.path, O_RDWR | O_CREAT, 0o644)
+				guard fd >= 0 else {
+					cont.resume(returning: Handle(fd: -1, acquired: false))
+					return
+				}
+				if flock(fd, LOCK_EX) != 0 {
+					close(fd)
+					cont.resume(returning: Handle(fd: -1, acquired: false))
+					return
+				}
+				cont.resume(returning: Handle(fd: fd, acquired: true))
+			}
+		}
+	}
+
+	static func release(_ handle: Handle) {
+		guard handle.acquired, handle.fd >= 0 else { return }
+		_ = flock(handle.fd, LOCK_UN)
+		close(handle.fd)
 	}
 }
 
@@ -21,7 +77,9 @@ public actor RemoteAccessService {
 	private let api: RemoteAccessAPI
 	private let tokenStore: RemoteAccessTokenStore
 
-	private var inFlightTokenUpdate: Task<String, Error>?
+	/// Only one token refresh / exchange at a time; other callers wait for its result.
+	private var isUpdatingTokens = false
+	private var tokenUpdateWaiters: [CheckedContinuation<String, Error>] = []
 
 	public init(api: RemoteAccessAPI, tokenStore: RemoteAccessTokenStore) {
 		self.api = api
@@ -101,11 +159,8 @@ public actor RemoteAccessService {
 	}
 
 	public func clearTokens() {
-		if let t = inFlightTokenUpdate {
-			t.cancel()
-			inFlightTokenUpdate = nil
-		}
-
+		failTokenUpdateWaiters(CancellationError())
+		isUpdatingTokens = false
 		_ = tokenStore.clear()
 		api.accessToken = nil
 	}
@@ -150,40 +205,50 @@ public actor RemoteAccessService {
 		clientId: String,
 		_ body: @Sendable () async throws -> T
 	) async throws -> T {
-		if let t = inFlightTokenUpdate {
-			let token = try await t.value
+		if isUpdatingTokens {
+			let token = try await waitForInFlightTokenUpdate()
 			api.accessToken = token
-			return try await mapErrors {
-				try await body()
-			}
+			return try await executeAuthedBodyWithUnauthorizedRetry(clientId: clientId, body: body)
 		}
 
 		let token = try await ensureValidAccessToken(clientId: clientId)
 		api.accessToken = token
 
+		return try await executeAuthedBodyWithUnauthorizedRetry(clientId: clientId, body: body)
+	}
+
+	private func executeAuthedBodyWithUnauthorizedRetry<T>(
+		clientId: String,
+		body: @Sendable () async throws -> T
+	) async throws -> T {
 		do {
 			return try await mapErrors {
 				try await body()
 			}
-		} catch let error as RemoteAccessAPIError {
-			// Spec: both 401 (unauthorized) and 403 (forbidden) trigger a single
-			// token-refresh-and-replay attempt before the session is treated as invalid.
-			switch error {
-			case .unauthorized, .forbidden:
-				let newToken = try await forceRefresh(clientId: clientId)
-				api.accessToken = newToken
-			default:
-				break
-			}
+		} catch let error as RemoteAccessServiceError {
+			guard shouldRefreshAndReplay(after: error) else { throw error }
+
+			let newToken = try await forceRefresh(clientId: clientId)
+			api.accessToken = newToken
 			return try await mapErrors {
 				try await body()
 			}
 		}
 	}
 
+	private func shouldRefreshAndReplay(after error: RemoteAccessServiceError) -> Bool {
+		guard case let .apiError(apiError) = error else { return false }
+		switch apiError {
+		case .unauthorized, .forbidden:
+			return true
+		default:
+			return false
+		}
+	}
+
 	private func ensureValidAccessToken(clientId: String) async throws -> String {
-		if let t = inFlightTokenUpdate {
-			return try await t.value
+		if isUpdatingTokens {
+			return try await waitForInFlightTokenUpdate()
 		}
 
 		guard let tokens = tokenStore.loadTokens(),
@@ -201,7 +266,9 @@ public actor RemoteAccessService {
 	}
 
 	private func forceRefresh(clientId: String) async throws -> String {
-		if let t = inFlightTokenUpdate { return try await t.value }
+		if isUpdatingTokens {
+			return try await waitForInFlightTokenUpdate()
+		}
 
 		guard let tokens = tokenStore.loadTokens(),
 			  !tokens.refreshToken.isEmpty
@@ -213,15 +280,50 @@ public actor RemoteAccessService {
 		return try await refreshAccessToken(clientId: clientId)
 	}
 
-	/// Serializes refresh and always uses the latest stored refresh token.
-	/// If backend reports the token as invalid, retries once when storage changed.
 	private func refreshAccessToken(clientId: String) async throws -> String {
-		try await performTokenUpdate { [weak self] in
-			guard let self else { throw CancellationError() }
-			return try await self.refreshTokenResponseWithStaleRetry(clientId: clientId)
+		// In-process single-flight first: any concurrent refresh callers in this process
+		// wait on the same continuation. Only the winning task contends for the
+		// cross-process lock — we never queue multiple lock waiters from one process.
+		if isUpdatingTokens {
+			return try await waitForInFlightTokenUpdate()
+		}
+
+		isUpdatingTokens = true
+		do {
+			let accessToken = try await mapErrors {
+				try await self.crossProcessLockedRefresh(clientId: clientId)
+			}
+			resumeTokenUpdateWaiters(with: .success(accessToken))
+			return accessToken
+		} catch {
+			resumeTokenUpdateWaiters(with: .failure(error))
+			throw error
 		}
 	}
 
+	/// Acquires the inter-process refresh lock, re-checks the keychain (another process
+	/// may have refreshed while we were parked), and only sends `/auth/refresh` if no
+	/// fresh tokens are visible.
+	private func crossProcessLockedRefresh(clientId: String) async throws -> String {
+		let handle = await CrossProcessRefreshLock.acquire()
+		defer { CrossProcessRefreshLock.release(handle) }
+
+		// Adopt another process's fresh tokens if any. The 5-second skew protects us
+		// from a token that's about to expire by the time we use it.
+		if let tokens = tokenStore.loadTokens(),
+		   !tokens.refreshToken.isEmpty,
+		   let exp = tokens.accessTokenExpiry,
+		   Date() < exp.addingTimeInterval(-5) {
+			api.accessToken = tokens.accessToken
+			return tokens.accessToken
+		}
+
+		return try await runTokenUpdate {
+			try await self.refreshTokenResponseWithStaleRetry(clientId: clientId)
+		}
+	}
+
+	/// If the refresh token was rotated by a concurrent caller, retry once with the latest from storage.
 	private func refreshTokenResponseWithStaleRetry(clientId: String) async throws -> RATokenResponse {
 		let firstRefreshToken = try currentRefreshToken()
 		do {
@@ -265,24 +367,48 @@ public actor RemoteAccessService {
 		}
 	}
 
+	private func waitForInFlightTokenUpdate() async throws -> String {
+		try await withCheckedThrowingContinuation { continuation in
+			tokenUpdateWaiters.append(continuation)
+		}
+	}
+
 	private func performTokenUpdate(
-		_ op: @escaping @Sendable () async throws -> RATokenResponse
+		_ op: @Sendable () async throws -> RATokenResponse
 	) async throws -> String {
-		if let t = inFlightTokenUpdate {
-			return try await t.value
+		if isUpdatingTokens {
+			return try await waitForInFlightTokenUpdate()
 		}
 
-		let task = Task<String, Error> { [weak self] in
-			guard let self else { throw CancellationError() }
-			return try await mapErrors {
+		isUpdatingTokens = true
+		do {
+			let accessToken = try await mapErrors {
 				try await self.runTokenUpdate(op)
 			}
+			resumeTokenUpdateWaiters(with: .success(accessToken))
+			return accessToken
+		} catch {
+			resumeTokenUpdateWaiters(with: .failure(error))
+			throw error
 		}
+	}
 
-		inFlightTokenUpdate = task
-		defer { inFlightTokenUpdate = nil }
+	private func resumeTokenUpdateWaiters(with result: Result<String, Error>) {
+		isUpdatingTokens = false
+		let waiters = tokenUpdateWaiters
+		tokenUpdateWaiters = []
+		for waiter in waiters {
+			switch result {
+			case let .success(token):
+				waiter.resume(returning: token)
+			case let .failure(error):
+				waiter.resume(throwing: error)
+			}
+		}
+	}
 
-		return try await task.value
+	private func failTokenUpdateWaiters(_ error: Error) {
+		resumeTokenUpdateWaiters(with: .failure(error))
 	}
 
 	private func runTokenUpdate(
