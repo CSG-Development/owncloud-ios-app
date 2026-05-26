@@ -20,10 +20,14 @@ final public class LoginViewController: UIViewController, Themeable {
 		HCContext.shared.preferences
 	}
 
-	private lazy var logoView: HCAppLogoView = {
-		let logoView = HCAppLogoView(frame: .zero)
-		logoView.isUserInteractionEnabled = false
-		return logoView
+	private lazy var seagateOverlay: UIImageView = {
+		let imageView = UIImageView()
+		imageView.image = HCIcon.seagateIconOverlay
+		return imageView
+	}()
+
+	private lazy var logoView: UILabel = {
+		UILabel()
 	}()
 
 	private var loadingView: UIView!
@@ -94,7 +98,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		let imageView = UIImageView()
 		imageView.contentMode = .scaleAspectFit
 		view.addSubview(imageView)
-		imageView.image = HCIcon.logo
+		imageView.image = HCIcon.appIconGradient
 
 		imageView.snp.makeConstraints {
 			$0.width.height.equalTo(140)
@@ -144,6 +148,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	private var stackView: UIStackView!
 	private var formStackView: UIStackView!
 	private var topAreaView: UIView!
+	private var seagateOverlayContainer: UIView!
 	private var loginButtonBottomSpacer: UIView!
 	private var refreshButton: UIButton!
 	private var smallSpinner: HCSpinnerView!
@@ -220,7 +225,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	public override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 
-		update(for: viewModel.step)
+		update(for: viewModel.step, isLoading: false)
 	}
 
 	private func setupUI() {
@@ -281,6 +286,19 @@ final public class LoginViewController: UIViewController, Themeable {
 		let loginButtonBottomSpacer = HCSpacerView(24)
 		self.loginButtonBottomSpacer = loginButtonBottomSpacer
 
+		let seagateOverlayContainer = UIView()
+		seagateOverlayContainer.backgroundColor = .clear
+		seagateOverlayContainer.setContentHuggingPriority(.required, for: .vertical)
+		seagateOverlayContainer.setContentCompressionResistancePriority(.required, for: .vertical)
+		seagateOverlayContainer.addSubview(seagateOverlay)
+		seagateOverlay.snp.makeConstraints {
+			$0.top.equalToSuperview().offset(Constants.navbarHeight)
+			$0.centerX.equalToSuperview()
+			$0.bottom.equalToSuperview()
+		}
+		self.seagateOverlayContainer = seagateOverlayContainer
+
+		stackView.addArrangedSubview(seagateOverlayContainer)
 		stackView.addArrangedSubview(topAreaView)
 		stackView.addArrangedSubview(loginButton)
 		stackView.addArrangedSubview(loginButtonBottomSpacer)
@@ -370,7 +388,7 @@ final public class LoginViewController: UIViewController, Themeable {
 
 		formStackView.addArrangedSubviews(arrangedSubviews(for: viewModel.step, isLoading: viewModel.isLoading))
 
-		update(for: viewModel.step)
+		update(for: viewModel.step, isLoading: false)
 	}
 
 	private func arrangedSubviews(for step: LoginViewModel.Step, isLoading: Bool) -> [UIView] {
@@ -407,12 +425,11 @@ final public class LoginViewController: UIViewController, Themeable {
 		}
 	}
 
-	private func update(for step: LoginViewModel.Step) {
+	private func update(for step: LoginViewModel.Step, isLoading: Bool) {
 		guard let formStackView else { return }
 		formStackView.arrangedSubviews.forEach { formStackView.removeArrangedSubview($0); $0.removeFromSuperview() }
 		formStackView.addArrangedSubviews(arrangedSubviews(for: step, isLoading: viewModel.isLoading))
 
-		let isLoading = viewModel.isLoading
 		loginButton.isHidden = isLoading
 		loginButtonBottomSpacer.isHidden = isLoading
 
@@ -421,12 +438,18 @@ final public class LoginViewController: UIViewController, Themeable {
 				emailTextField.textField.isEnabled = true
 				loginButton.setTitle(HCL10n.Auth.Login.nextButtonTitle, for: .normal)
 				backButton.isHidden = true
+				seagateOverlayContainer.isHidden = false
 			case .deviceSelection:
 				emailTextField.textField.isEnabled = false
 				emailLabel.text = viewModel.email
 				loginButton.setTitle(HCL10n.Auth.Login.loginButtonTitle, for: .normal)
 				backButton.isHidden = false
+				seagateOverlayContainer.isHidden = true
 		}
+		if isLoading {
+			seagateOverlayContainer.isHidden = false
+		}
+
 		view.layoutIfNeeded()
 	}
 
@@ -507,20 +530,15 @@ final public class LoginViewController: UIViewController, Themeable {
 			.assign(to: \.isEnabled, on: loginButton)
 			.store(in: &cancellables)
 
-		viewModel.$step
-			.receive(on: DispatchQueue.main)
-			.sink { [weak self] step in self?.update(for: step) }
-			.store(in: &cancellables)
-
-		viewModel.$isLoading
-			.removeDuplicates()
-			.receive(on: DispatchQueue.main)
-			.sink { [weak self] _ in
-				guard let self else { return }
-
-				self.update(for: self.viewModel.step)
-			}
-			.store(in: &cancellables)
+		Publishers.CombineLatest(
+			viewModel.$step,
+			viewModel.$isLoading.removeDuplicates()
+		)
+		.receive(on: DispatchQueue.main)
+		.sink { [weak self] step, isLoading in
+			self?.update(for: step, isLoading: isLoading)
+		}
+		.store(in: &cancellables)
 
 		viewModel.$errors
 			.receive(on: DispatchQueue.main)
@@ -600,6 +618,13 @@ final public class LoginViewController: UIViewController, Themeable {
 		settingsButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
 		refreshButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
 		backButton.tintColor = collection.css.getColor(.stroke, selectors: [.loginNavbar], for: nil)
+
+		var text = AttributedString(HCL10n.Auth.Login.logoTitle)
+		text.foregroundColor = HCColor.Content.textPrimary(collection.isDark)
+		text.font = UIFont.systemFont(ofSize: 34, weight: .regular)
+		logoView.attributedText = NSAttributedString(text)
+
+		seagateOverlay.tintColor = HCColor.Content.textPrimary(collection.isDark)
 	}
 
 	private func updateSettingsButtonVisibility(isEnabled: Bool) {
