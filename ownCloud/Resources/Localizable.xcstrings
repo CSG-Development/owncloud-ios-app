@@ -101114,115 +101114,115 @@
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "eu" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "mk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "nb-NO" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "nn-NO" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "sq" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "th-TH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This file doesnt have any tags yet."
+            "value" : "This file doesn't have any tags yet"
           }
         }
       }
@@ -102175,6 +102175,363 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "This tag already exists"
+          }
+        }
+      }
+    },
+    "Onboarding.Step_Welcome.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Personal Cloud Files"
+          }
+        }
+      }
+    },
+    "Onboarding.Step_Welcome.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Securely upload, manage, and share your files with Personal Cloud Files, your private gateway to personal storage. \nWhether you're organizing files or sharing documents with family and friends, Personal Cloud Files keeps your data safe with simple access."
+          }
+        }
+      }
+    },
+    "Auth.Login.logoTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
           }
         }
       }
