@@ -37,31 +37,62 @@ open class QueryModifyingSearchScope : ItemSearchScope {
 
 	open override var queryCondition: OCQueryCondition? {
 		didSet {
-			let queryCondition = queryCondition
+			applyQueryFilters()
+		}
+	}
 
-			if let query = clientContext.query {
-				if queryCondition != nil {
-					let filterHandler: OCQueryFilterHandler = { (_, _, item) -> Bool in
-						if let item = item, let queryCondition = queryCondition {
-							return queryCondition.fulfilled(by: item)
-						}
-						return false
-					}
+	open override func updateFor(_ searchElements: [SearchElement]) {
+		super.updateFor(searchElements)
+		if isSelected {
+			applyQueryFilters()
+		}
+	}
 
-					if let filter = query.filter(withIdentifier: "text-search") {
-						query.updateFilter(filter, applyChanges: { filterToChange in
-							(filterToChange as? OCQueryFilter)?.filterHandler = filterHandler
-						})
-					} else {
-						query.addFilter(OCQueryFilter(handler: filterHandler), withIdentifier: "text-search")
-					}
-				} else {
-					if let filter = query.filter(withIdentifier: "text-search") {
-						query.removeFilter(filter)
-					}
-				}
+	private var hasActiveTagFilter: Bool {
+		!selectedTagIDs.isEmpty || !selectedTagNames.isEmpty
+	}
+
+	private func applyQueryFilters() {
+		let queryCondition = queryCondition
+		let hasNonTagUserQuery = queryCondition != nil
+		let configuration = LocalSearchFilterConfiguration(
+			nonTagCondition: queryCondition,
+			selectedTagIDs: selectedTagIDs,
+			selectedTagNames: selectedTagNames,
+			maxResultCount: nil,
+			allowUnknownTagPassThrough: false,
+			bookmark: clientContext.accountConnection?.bookmark ?? clientContext.core?.bookmark,
+			hasNonTagUserQuery: hasNonTagUserQuery
+		)
+
+		guard let query = clientContext.query else { return }
+
+		if queryCondition != nil || hasActiveTagFilter {
+			let filterHandler: OCQueryFilterHandler = { (_, _, item) -> Bool in
+				guard let item else { return false }
+				return !LocalSearchFilterAdapter.filter([item], configuration: configuration).isEmpty
+			}
+
+			if let filter = query.filter(withIdentifier: "text-search") {
+				query.updateFilter(filter, applyChanges: { filterToChange in
+					(filterToChange as? OCQueryFilter)?.filterHandler = filterHandler
+				})
+			} else {
+				query.addFilter(OCQueryFilter(handler: filterHandler), withIdentifier: "text-search")
+			}
+
+			if let filter = query.filter(withIdentifier: "tag-search") {
+				query.removeFilter(filter)
+			}
+		} else {
+			if let filter = query.filter(withIdentifier: "text-search") {
+				query.removeFilter(filter)
+			}
+			if let filter = query.filter(withIdentifier: "tag-search") {
+				query.removeFilter(filter)
 			}
 		}
+
 	}
 }
 

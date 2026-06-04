@@ -194,7 +194,6 @@ extension OCSavedSearch {
 				item?.insets = .zero
 			} else {
 				item = SegmentViewItem(with: OCSymbol.icon(forSymbolName: condition.symbolName), title: condition.localizedDescription, style: .token, titleTextStyle: .caption1)
-				item?.cornerStyle = .round(points: 3)
 			}
 
 			if let item = item {

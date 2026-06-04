@@ -278,9 +278,11 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 		}
 
 		collectionViewDataSource = UICollectionViewDiffableDataSource<CollectionViewSection.SectionIdentifier, CollectionViewController.ItemRef>(collectionView: collectionView) { [weak self] (collectionView: UICollectionView, indexPath: IndexPath, collectionItemRef: CollectionViewController.ItemRef) -> UICollectionViewCell? in
-			if let sectionIdentifier = self?.collectionViewDataSource.sectionIdentifier(for: indexPath.section),
+			let resolvedIndexPath = self?.collectionViewDataSource.indexPath(for: collectionItemRef) ?? indexPath
+
+			if let sectionIdentifier = self?.collectionViewDataSource.sectionIdentifier(for: resolvedIndexPath.section),
 			   let section = self?.sectionsByID[sectionIdentifier] {
-				var cell = section.provideReusableCell(for: collectionView, collectionItemRef: collectionItemRef, indexPath: indexPath)
+				var cell = section.provideReusableCell(for: collectionView, collectionItemRef: collectionItemRef, indexPath: resolvedIndexPath)
 
 				if let cell {
 					return cell
@@ -292,7 +294,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 
 					for otherSection in self.sections {
 						if !otherSection.hidden, otherSection != section {
-							cell = otherSection.provideReusableCell(for: collectionView, collectionItemRef: collectionItemRef, indexPath: indexPath)
+							cell = otherSection.provideReusableCell(for: collectionView, collectionItemRef: collectionItemRef, indexPath: resolvedIndexPath)
 
 							if let cell {
 								return cell
@@ -302,7 +304,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 				}
 			}
 
-			return self?.provideUnknownCell(for: indexPath, item: collectionItemRef)
+			return self?.provideUnknownCell(for: resolvedIndexPath, item: collectionItemRef)
 		}
 
 		if supportsHierarchicContent {

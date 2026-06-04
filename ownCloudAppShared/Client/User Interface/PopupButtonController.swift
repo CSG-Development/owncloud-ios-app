@@ -188,7 +188,12 @@ open class PopupButtonController : NSObject, Themeable {
 				attributedTitle.insert(chevronString, at: 0)
 			}
 
-			button.setAttributedTitle(attributedTitle, for: .normal)
+			if var buttonConfiguration = button.configuration {
+				buttonConfiguration.attributedTitle = AttributedString(attributedTitle)
+				button.configuration = buttonConfiguration
+			} else {
+				button.setAttributedTitle(attributedTitle, for: .normal)
+			}
 			button.sizeToFit()
 			button.accessibilityLabel = title
 		}

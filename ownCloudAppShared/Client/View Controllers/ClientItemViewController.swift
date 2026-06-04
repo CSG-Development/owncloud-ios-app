@@ -631,6 +631,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 					emptySectionHiddenNew = true
 					showEmptyOverlay(false)
+					showNoResultsOverlay(false)
 
 				case .searchNonItemContent:
 					emptyItemListDataSource.setItems(nil, updated: nil)
@@ -1351,6 +1352,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 	public func searchBegan(for viewController: SearchViewController) {
 		preSearchCellStyle = itemSection?.cellStyle
 		searchActive = true
+		sortBar?.usesSearchScreenAppearance = true
 
 		updateSections(with: { sections in
 			self.driveSection?.hidden = true
@@ -1369,6 +1371,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 	public func searchEnded(for viewController: SearchViewController) {
 		searchActive = false
+		sortBar?.usesSearchScreenAppearance = false
 
 		updateSections(with: { sections in
 			self.driveSection?.hidden = false

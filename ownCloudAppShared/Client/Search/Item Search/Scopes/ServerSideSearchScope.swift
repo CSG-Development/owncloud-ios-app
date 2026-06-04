@@ -118,6 +118,13 @@ class ServerSideSearchScope: ItemSearchScope {
 		}
 	}
 
+	open override func updateFor(_ searchElements: [SearchElement]) {
+		super.updateFor(searchElements)
+		if isSelected {
+			updateSearch()
+		}
+	}
+
 	func updateSearch() {
 		// OCQueryCondition.typeAliasToKeywordMap is currently matching KQL types defined in
 		// https://github.com/owncloud/ocis/blob/cff364c998355b1295793e9244e5efdfea064536/services/search/pkg/query/bleve/compiler.go#L287

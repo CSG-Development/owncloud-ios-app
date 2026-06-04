@@ -34,7 +34,187 @@ class SearchedContent: NSObject {
 	}
 }
 
-class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdating {
+private final class TagFilterMenuTableViewCell: UITableViewCell {
+	static let reuseIdentifier = "TagFilterMenuTableViewCell"
+
+	private let selectionIconView: UIImageView = {
+		let imageView = UIImageView()
+		imageView.contentMode = .scaleAspectFit
+		imageView.setContentHuggingPriority(.required, for: .horizontal)
+		imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+		return imageView
+	}()
+
+	private let titleLabel: UILabel = {
+		let label = UILabel()
+		label.font = .systemFont(ofSize: 16)
+		label.lineBreakMode = .byTruncatingTail
+		label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+		return label
+	}()
+
+	private let tagIconView: UIImageView = {
+		let imageView = UIImageView()
+		imageView.contentMode = .scaleAspectFit
+		imageView.setContentHuggingPriority(.required, for: .horizontal)
+		imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+		return imageView
+	}()
+
+	private let separatorView = UIView()
+
+	private let contentStack: UIStackView = {
+		let stack = UIStackView()
+		stack.axis = .horizontal
+		stack.alignment = .center
+		stack.spacing = 8
+		stack.translatesAutoresizingMaskIntoConstraints = false
+		return stack
+	}()
+
+	override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+		super.init(style: style, reuseIdentifier: reuseIdentifier)
+
+		selectionStyle = .none
+		backgroundColor = .clear
+		contentView.backgroundColor = .clear
+		backgroundConfiguration = UIBackgroundConfiguration.clear()
+
+		contentStack.addArrangedSubview(selectionIconView)
+		contentStack.addArrangedSubview(titleLabel)
+		contentStack.addArrangedSubview(tagIconView)
+
+		separatorView.translatesAutoresizingMaskIntoConstraints = false
+		contentView.addSubview(contentStack)
+		contentView.addSubview(separatorView)
+
+		NSLayoutConstraint.activate([
+			selectionIconView.widthAnchor.constraint(equalToConstant: 24),
+			selectionIconView.heightAnchor.constraint(equalToConstant: 24),
+			tagIconView.widthAnchor.constraint(equalToConstant: 24),
+			tagIconView.heightAnchor.constraint(equalToConstant: 24),
+
+			contentStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+			contentStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+			contentStack.topAnchor.constraint(equalTo: contentView.topAnchor),
+			contentStack.bottomAnchor.constraint(equalTo: separatorView.topAnchor),
+
+			separatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+			separatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+			separatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+			separatorView.heightAnchor.constraint(equalToConstant: 1)
+		])
+	}
+
+	@available(*, unavailable)
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+
+	func configure(tag: OCSystemTag, isSelected: Bool, showsSeparator: Bool, isDark: Bool) {
+		let primaryColor = HCColor.Content.textPrimary(isDark)
+
+		titleLabel.text = tag.displayName
+		titleLabel.textColor = primaryColor
+
+		tagIconView.image = HCIcon.tagIcon?.withRenderingMode(.alwaysTemplate)
+		tagIconView.tintColor = primaryColor
+
+		selectionIconView.image = HCIcon.tick?.withRenderingMode(.alwaysTemplate)
+		selectionIconView.tintColor = primaryColor
+		selectionIconView.alpha = isSelected ? 1 : 0
+		selectionIconView.isAccessibilityElement = false
+
+		separatorView.backgroundColor = HCColor.Content.border2(isDark)
+		separatorView.isHidden = !showsSeparator
+	}
+}
+
+private final class TagFilterMenuViewController: UITableViewController {
+	static let rowHeight: CGFloat = 44
+	static let maxHeight: CGFloat = 300
+	static let width: CGFloat = 280
+
+	private let tags: [OCSystemTag]
+	private var selectedTagIDs: Set<String>
+	private let onToggle: (OCSystemTag, Bool) -> Void
+
+	init(tags: [OCSystemTag], selectedTagIDs: Set<String>, onToggle: @escaping (OCSystemTag, Bool) -> Void) {
+		self.tags = tags
+		self.selectedTagIDs = selectedTagIDs
+		self.onToggle = onToggle
+		super.init(style: .plain)
+	}
+
+	@available(*, unavailable)
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+
+	private var isDarkMode: Bool {
+		traitCollection.userInterfaceStyle == .dark
+	}
+
+	override func viewDidLoad() {
+		super.viewDidLoad()
+
+		tableView.register(TagFilterMenuTableViewCell.self, forCellReuseIdentifier: TagFilterMenuTableViewCell.reuseIdentifier)
+		tableView.separatorStyle = .none
+		tableView.rowHeight = Self.rowHeight
+		tableView.backgroundColor = .clear
+		tableView.alwaysBounceVertical = tags.count * Int(Self.rowHeight) > Int(Self.maxHeight)
+		updatePreferredContentSize()
+	}
+
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		super.traitCollectionDidChange(previousTraitCollection)
+
+		if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+			tableView.reloadData()
+		}
+	}
+
+	private func updatePreferredContentSize() {
+		let rowCount = max(tags.count, 1)
+		let contentHeight = min(Self.maxHeight, CGFloat(rowCount) * Self.rowHeight)
+		preferredContentSize = CGSize(width: Self.width, height: contentHeight)
+	}
+
+	override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+		tags.count
+	}
+
+	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+		let cell = tableView.dequeueReusableCell(
+			withIdentifier: TagFilterMenuTableViewCell.reuseIdentifier,
+			for: indexPath
+		) as! TagFilterMenuTableViewCell
+
+		let tag = tags[indexPath.row]
+		cell.configure(
+			tag: tag,
+			isSelected: selectedTagIDs.contains(tag.identifier),
+			showsSeparator: indexPath.row < tags.count - 1,
+			isDark: isDarkMode
+		)
+		return cell
+	}
+
+	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+		let tag = tags[indexPath.row]
+		let wasSelected = selectedTagIDs.contains(tag.identifier)
+		if wasSelected {
+			selectedTagIDs.remove(tag.identifier)
+		} else {
+			selectedTagIDs.insert(tag.identifier)
+		}
+		onToggle(tag, wasSelected)
+		tableView.reloadRows(at: [indexPath], with: .none)
+	}
+}
+
+class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdating, UIPopoverPresentationControllerDelegate, Themeable {
+	static let filterBarHeight: CGFloat = 56
 	class Category {
 		enum Identifier: String {
 			case type
@@ -108,17 +288,21 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.axis = .horizontal
 		stackView.distribution = .fill
+		stackView.alignment = .center
 		stackView.spacing = 0
 		return stackView
 	}()
 
 	var savedSearchPopup: PopupButtonController?
 	var searchedContentPopup: PopupButtonController?
+	private var tagsPopupController: PopupButtonController?
+	private var tagSyncObserver: NSObjectProtocol?
+	private var availableTags: [OCSystemTag] = []
+	private var selectedTagIDs: Set<String> = []
+	private var selectedTagNames: Set<String> = []
+	private static let tagPropertyName = OCItemPropertyName(rawValue: "tag")
 
 	weak var scope: SearchScope?
-
-	var categoryActiveButtonConfig : UIButton.Configuration?
-	var categoryUnusedButtonConfig : UIButton.Configuration?
 
 	init(with scope: SearchScope, excludeCategories: [Category.Identifier]? = nil) {
 		super.init(nibName: nil, bundle: nil)
@@ -133,6 +317,35 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+
+	deinit {
+		if let tagSyncObserver {
+			NotificationCenter.default.removeObserver(tagSyncObserver)
+		}
+		Theme.shared.unregister(client: self)
+	}
+
+	private var didRegisterWithTheme = false
+
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+
+		if !didRegisterWithTheme {
+			didRegisterWithTheme = true
+			Theme.shared.register(client: self, applyImmediately: true)
+		}
+
+		ensureTagsFilterPopupIfNeeded()
+
+		if scopeSupportsTagFiltering, let bookmark = scope?.clientContext.accountConnection?.bookmark ?? scope?.clientContext.core?.bookmark {
+			AccountTagSyncService.shared.syncIfNeeded(for: bookmark, force: false)
+			fetchAvailableTags()
+		}
+	}
+
+	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
+		applyFilterChipStyleToPopupButtons()
 	}
 
 	func requestName(title: String, message: String? = nil, placeholder: String? = nil, cancelButtonText: String? = OCLocalizedString("Cancel", nil), saveButtonText: String? = OCLocalizedString("Save", nil), completionHandler: @escaping (_ save: Bool, _ name: String?) -> Void) {
@@ -154,6 +367,131 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 
 	private var scopeSupportsContentSearch: Bool {
 		scope?.searchableContent.contains(.contents) ?? false
+	}
+
+	private var scopeSupportsTagFiltering: Bool {
+		(scope != nil) && ((scope is ItemSearchScope) || (scope?.tokenizer is CustomQuerySearchTokenizer))
+	}
+
+	private func ensureTagsFilterPopupIfNeeded() {
+		guard scopeSupportsTagFiltering, tagsPopupController == nil else {
+			return
+		}
+
+		createTagsPopup()
+
+		let spacerIndex = stackView.arrangedSubviews.firstIndex(where: { $0 is HCSpacerView }) ?? stackView.arrangedSubviews.count
+		if let button = tagsPopupController?.button {
+			stackView.insertArrangedSubview(button, at: spacerIndex)
+		}
+
+		observeTagSyncIfNeeded()
+		fetchAvailableTags()
+	}
+
+	private func createTagsPopup() {
+		tagsPopupController = PopupButtonController(with: [], dropDown: true, staticTitle: OCLocalizedString("Tags", nil))
+
+		if let button = tagsPopupController?.button {
+			button.showsMenuAsPrimaryAction = false
+			button.menu = nil
+			button.addAction(UIAction { [weak self] _ in
+				self?.presentTagsFilterMenu(from: button)
+			}, for: .primaryActionTriggered)
+
+			button.setContentCompressionResistancePriority(.required, for: .horizontal)
+			button.setContentHuggingPriority(.required, for: .horizontal)
+			style(popupButton: button, isSelected: tagsFilterIsActive())
+		}
+	}
+
+	private func presentTagsFilterMenu(from sourceButton: UIButton) {
+		loadCachedSystemTagsIfAvailable()
+		fetchAvailableTags { [weak self] in
+			guard let self else {
+				return
+			}
+
+			var selectedIDs = self.selectedTagIDs
+			for tag in self.availableTags where self.selectedTagNames.contains(tag.displayName) {
+				selectedIDs.insert(tag.identifier)
+			}
+
+			let menuController = TagFilterMenuViewController(
+				tags: self.availableTags,
+				selectedTagIDs: selectedIDs,
+				onToggle: { [weak self] tag, wasSelected in
+					self?.handleTagSelection(tag, wasSelected: wasSelected)
+				}
+			)
+			menuController.modalPresentationStyle = .popover
+			if let popover = menuController.popoverPresentationController {
+				sourceButton.layoutIfNeeded()
+				popover.sourceView = sourceButton
+				popover.sourceRect = sourceButton.bounds
+				popover.permittedArrowDirections = [.up]
+				popover.delegate = self
+			}
+
+			self.present(menuController, animated: true)
+		}
+	}
+
+	func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+		.none
+	}
+
+	private func observeTagSyncIfNeeded() {
+		guard tagSyncObserver == nil else {
+			return
+		}
+
+		tagSyncObserver = NotificationCenter.default.addObserver(forName: .accountTagSyncDidFinish, object: nil, queue: .main) { [weak self] notification in
+			self?.handleTagSyncDidFinish(notification)
+		}
+	}
+
+	private func handleTagSyncDidFinish(_ notification: Notification) {
+		guard scopeSupportsTagFiltering,
+		      let bookmark = scope?.clientContext.accountConnection?.bookmark ?? scope?.clientContext.core?.bookmark,
+		      let syncedBookmark = notification.userInfo?[AccountTagSyncService.bookmarkUserInfoKey] as? OCBookmark,
+		      syncedBookmark.uuid == bookmark.uuid else {
+			return
+		}
+
+		loadCachedSystemTagsIfAvailable()
+		updateTagsPopupStyle()
+		refreshActiveSearchForTagChangesIfNeeded()
+	}
+
+	private func refreshActiveSearchForTagChangesIfNeeded() {
+		guard !selectedTagIDs.isEmpty || !selectedTagNames.isEmpty else {
+			return
+		}
+
+		if let customScope = scope as? CustomQuerySearchScope {
+			customScope.updateCustomSearchQuery()
+		} else {
+			scope?.updateFor(searchElements)
+		}
+	}
+
+	private func handleTagSelection(_ tag: OCSystemTag, wasSelected: Bool) {
+		var selectedTags = currentlySelectedTags()
+
+		if wasSelected {
+			selectedTags.removeAll { $0.identifier == tag.identifier }
+		} else if !selectedTags.contains(where: { $0.identifier == tag.identifier }) {
+			selectedTags.append(tag)
+		}
+
+		applyTagSelection(selectedTags)
+	}
+
+	private func currentlySelectedTags() -> [OCSystemTag] {
+		availableTags.filter { tag in
+			selectedTagIDs.contains(tag.identifier) || selectedTagNames.contains(tag.displayName)
+		}
 	}
 
 	override func viewDidLoad() {
@@ -258,24 +596,20 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 			}
 		}
 
+		preferredContentSize = CGSize(width: UIView.noIntrinsicMetric, height: Self.filterBarHeight)
+
 		view.addSubview(stackView)
 
 		NSLayoutConstraint.activate([
+			view.heightAnchor.constraint(equalToConstant: Self.filterBarHeight),
 			stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 			stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 			stackView.topAnchor.constraint(equalTo: view.topAnchor),
 			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 		])
 
-		categoryActiveButtonConfig = UIButton.Configuration.borderedTinted()
-		categoryActiveButtonConfig?.contentInsets.leading = 0
-		categoryActiveButtonConfig?.contentInsets.trailing = 3
-
-		categoryUnusedButtonConfig = UIButton.Configuration.borderless()
-		categoryUnusedButtonConfig?.contentInsets.leading = 0
-		categoryUnusedButtonConfig?.contentInsets.trailing = 3
-
 		createPopups()
+		applyFilterChipStyleToPopupButtons()
 
 		stackView.isLayoutMarginsRelativeArrangement = true
 
@@ -285,6 +619,7 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 				stackView.addArrangedSubview(button)
 			}
 		}
+		ensureTagsFilterPopupIfNeeded()
 		let spacerView = HCSpacerView(nil, .horizontal)
 		spacerView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 		stackView.addArrangedSubview(spacerView)
@@ -301,7 +636,7 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 			searchInLabel.text = OCLocalizedString("Search in", nil)
 			searchInLabel.translatesAutoresizingMaskIntoConstraints = false
 
-			style(popupButton: popupButton, hasMatch: false)
+			style(popupButton: popupButton, isSelected: false)
 
 			containerView.addSubview(searchInLabel)
 			containerView.addSubview(popupButton)
@@ -324,6 +659,12 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 	}
 
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		super.traitCollectionDidChange(previousTraitCollection)
+
+		if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+			applyFilterChipStyleToPopupButtons()
+		}
+
 		// Fix for the wrong stack view layout after rotation from landscape with opened sidebar.
 		DispatchQueue.main.async {
 			self.stackView.arrangedSubviews.forEach {
@@ -356,7 +697,6 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 			})
 
 			let button = popupController.button
-			button.addConstraint(button.heightAnchor.constraint(equalToConstant: 25))
 			button.setContentCompressionResistancePriority(.required, for: .horizontal)
 			button.setContentHuggingPriority(.required, for: .horizontal)
 
@@ -365,6 +705,198 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 	}
 
 	var searchElements: [SearchElement] = []
+
+	private func loadCachedSystemTagsIfAvailable() {
+		guard let bookmark = scope?.clientContext.accountConnection?.bookmark else {
+			return
+		}
+		if let cachedTags = AccountTagSyncService.shared.cachedSystemTags(for: bookmark) {
+			mergeAvailableTags(with: cachedTags)
+			syncSelectedTagNamesFromSearchElements()
+		}
+	}
+
+	private func fetchAvailableTags(completion: (() -> Void)? = nil) {
+		guard scopeSupportsTagFiltering, let connection = scope?.clientContext.core?.connection else {
+			completion?()
+			return
+		}
+
+		loadCachedSystemTagsIfAvailable()
+
+		let bookmark = scope?.clientContext.accountConnection?.bookmark
+		let shouldFetchFromServer = availableTags.isEmpty || bookmark.map { AccountTagSyncService.shared.shouldSync(bookmark: $0) } ?? true
+		guard shouldFetchFromServer else {
+			completion?()
+			return
+		}
+
+		connection.retrieveSystemTags { [weak self] error, tags in
+			OnMainThread {
+				guard let self = self else {
+					completion?()
+					return
+				}
+				if error == nil {
+					let visibleTags = (tags ?? []).filter(\.userVisible)
+					self.mergeAvailableTags(with: visibleTags)
+					self.syncSelectedTagNamesFromSearchElements()
+					if let bookmark {
+						AccountTagSyncService.shared.updateCachedSystemTags(visibleTags, for: bookmark)
+						AccountTagSyncService.shared.syncIfNeeded(for: bookmark, force: false)
+					}
+				}
+				completion?()
+			}
+		}
+	}
+
+	private func mergeAvailableTags(with incomingTags: [OCSystemTag]) {
+		guard !incomingTags.isEmpty else {
+			return
+		}
+
+		var mergedByDisplayName: [String: OCSystemTag] = [:]
+
+		for tag in availableTags {
+			let key = tag.displayName.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+			mergedByDisplayName[key] = tag
+		}
+
+		for tag in incomingTags {
+			let key = tag.displayName.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+			if let existingTag = mergedByDisplayName[key] {
+				if existingTag.identifier.hasPrefix("local:") && !tag.identifier.hasPrefix("local:") {
+					mergedByDisplayName[key] = tag
+				}
+			} else {
+				mergedByDisplayName[key] = tag
+			}
+		}
+
+		availableTags = Array(mergedByDisplayName.values).sorted {
+			$0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
+		}
+		updateTagsPopupStyle()
+	}
+
+	private func applyTagSelection(_ selectedTags: [OCSystemTag]) {
+		let serverTags = selectedTags.filter { !$0.identifier.hasPrefix("local:") }
+		selectedTagIDs = Set(serverTags.map(\.identifier))
+		selectedTagNames = Set(serverTags.map(\.displayName))
+
+		guard let tokenizer = scope?.tokenizer, let searchField = tokenizer.searchField else {
+			updateTagsPopupStyle()
+			return
+		}
+
+		for tokenIndex in stride(from: searchField.tokens.count - 1, through: 0, by: -1) {
+			let token = searchField.tokens[tokenIndex]
+			if let searchToken = token.representedObject as? SearchToken,
+			   (searchToken.representedObject is SearchTagFilter ||
+				((searchToken.representedObject as? OCQueryCondition).map(Self.isTagCondition) ?? false)) {
+					searchField.removeToken(at: tokenIndex)
+			}
+		}
+
+		for selectedTag in serverTags {
+			if scope is ServerSideSearchScope {
+				let condition = Self.makeTagCondition(from: selectedTag.displayName)
+				if let token = condition.generateSearchToken(fallbackText: selectedTag.displayName, inputComplete: true) {
+					searchField.insertToken(token.uiSearchToken, at: searchField.tokens.count)
+				}
+			} else {
+				let tagToken = SearchToken(
+					text: selectedTag.displayName,
+					icon: HCIcon.tagIcon,
+					representedObject: SearchTagFilter(tagID: selectedTag.identifier, tagName: selectedTag.displayName),
+					inputComplete: true
+				)
+				searchField.insertToken(tagToken.uiSearchToken, at: searchField.tokens.count)
+			}
+		}
+
+		tokenizer.updateFor(searchField: searchField)
+		updateTagsPopupStyle()
+
+		guard let bookmark = scope?.clientContext.accountConnection?.bookmark ?? scope?.clientContext.core?.bookmark else {
+			return
+		}
+
+		if selectedTagIDs.isEmpty && selectedTagNames.isEmpty {
+			return
+		}
+
+		let knownTags = serverTags
+		AccountTagSyncService.shared.refreshTags(
+			selection: selectedTagIDs,
+			tagNames: selectedTagNames,
+			knownTags: knownTags,
+			bookmark: bookmark
+		) { [weak self] in
+			guard let self, self.scope?.isSelected == true else { return }
+			if let customScope = self.scope as? CustomQuerySearchScope {
+				customScope.updateCustomSearchQuery()
+			} else {
+				self.scope?.updateFor(self.searchElements)
+			}
+		}
+	}
+
+	private static func makeTagCondition(from tagName: String) -> OCQueryCondition {
+		let condition = OCQueryCondition.where(Self.tagPropertyName, isEqualTo: tagName)
+		condition.symbolName = "tag"
+		condition.localizedDescription = tagName
+		return condition
+	}
+
+	private static func isTagCondition(_ condition: OCQueryCondition) -> Bool {
+		condition.isTagSearchCondition
+	}
+
+	private func syncSelectedTagNamesFromSearchElements() {
+		selectedTagIDs = Set(searchElements.compactMap({ searchElement in
+			if let tagFilter = searchElement.representedObject as? SearchTagFilter,
+			   let tagID = tagFilter.tagID,
+			   !tagID.hasPrefix("local:") {
+				return tagID
+			}
+			return nil
+		}))
+
+		selectedTagNames = Set(searchElements.compactMap({ searchElement in
+			if let tagFilter = searchElement.representedObject as? SearchTagFilter {
+				return tagFilter.tagName
+			}
+
+			guard let condition = searchElement.representedObject as? OCQueryCondition,
+			      Self.isTagCondition(condition),
+			      let tagName = condition.value as? String else {
+				return nil
+			}
+			return tagName
+		}))
+
+		for tagName in selectedTagNames {
+			if let matchingTag = availableTags.first(where: {
+				$0.displayName.compare(tagName, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+				&& !$0.identifier.hasPrefix("local:")
+			}) {
+				selectedTagIDs.insert(matchingTag.identifier)
+			}
+		}
+
+		updateTagsPopupStyle()
+	}
+
+	private func updateTagsPopupStyle() {
+		guard let tagsPopupButton = tagsPopupController?.button else {
+			return
+		}
+
+		style(popupButton: tagsPopupButton, isSelected: tagsFilterIsActive())
+		tagsPopupButton.sizeToFit()
+	}
 
 	func handleSelection(of selectedOptionCondition: OCQueryCondition, in category: Category, wasSelected: Bool) {
 		var removeOptionConditions : [OCQueryCondition] = []
@@ -400,23 +932,79 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 		scope?.searchViewController?.restore(savedTemplate: savedSearch)
 	}
 
-	private func style(popupButton: UIButton, hasMatch: Bool) {
-		var buttonConfig : UIButton.Configuration?
+	private var isFilterChipDarkMode: Bool {
+		traitCollection.userInterfaceStyle == .dark
+	}
 
-		if hasMatch {
-			buttonConfig = categoryActiveButtonConfig?.updated(for: popupButton)
-		} else {
-			buttonConfig = categoryUnusedButtonConfig?.updated(for: popupButton)
+	private func tagsFilterIsActive() -> Bool {
+		!selectedTagIDs.isEmpty || !selectedTagNames.isEmpty
+	}
+
+	private func categoryHasActiveFilter(_ category: Category) -> Bool {
+		category.options.contains { $0.matchesWith(anyOf: searchElements) }
+	}
+
+	private func applyFilterChipStyleToPopupButtons() {
+		for category in categories {
+			if let button = category.popupController?.button {
+				style(popupButton: button, isSelected: categoryHasActiveFilter(category))
+			}
 		}
 
-		if let attributedTitle = popupButton.currentAttributedTitle {
-			buttonConfig?.attributedTitle = AttributedString(attributedTitle)
+		if let tagsButton = tagsPopupController?.button {
+			style(popupButton: tagsButton, isSelected: tagsFilterIsActive())
 		}
+	}
+
+	private func style(popupButton: UIButton, isSelected: Bool) {
+		let isDark = isFilterChipDarkMode
+		let primaryColor = HCColor.Interaction.primarySolidNormal(isDark)
+		let legacyTitle = popupButton.currentAttributedTitle
+			?? popupButton.configuration?.attributedTitle.map(NSAttributedString.init)
+
+		// Legacy titles prevent UIButton.Configuration backgrounds from rendering.
+		popupButton.setAttributedTitle(nil, for: .normal)
+
+		var buttonConfig = SearchFilterChipStyle.filterBarButtonConfiguration(isDark: isDark, isSelected: isSelected)
+
+		if let legacyTitle {
+			let title = NSMutableAttributedString(attributedString: legacyTitle)
+			title.addAttribute(
+				.foregroundColor,
+				value: primaryColor,
+				range: NSRange(location: 0, length: title.length)
+			)
+			buttonConfig.attributedTitle = AttributedString(title)
+		}
+
 		popupButton.configuration = buttonConfig
+		popupButton.tintColor = primaryColor
+		SearchFilterChipStyle.applyFilterBarButtonHeight(to: popupButton)
+
+		popupButton.configurationUpdateHandler = { [isDark] button in
+			guard var config = button.configuration else { return }
+
+			let selectedBackground = HCColor.Interaction.primaryTransparentNormal12(isDark)
+			if isSelected {
+				config.baseBackgroundColor = selectedBackground
+				config.background.backgroundColor = selectedBackground
+				config.background.cornerRadius = 1000
+				config.cornerStyle = .capsule
+			} else {
+				config.baseBackgroundColor = .clear
+				config.background.backgroundColor = .clear
+			}
+
+			button.configuration = config
+		}
 	}
 
 	func updateFor(_ searchElements: [SearchElement]) {
 		self.searchElements = searchElements
+		ensureTagsFilterPopupIfNeeded()
+		if scopeSupportsTagFiltering {
+			syncSelectedTagNamesFromSearchElements()
+		}
 
 		// Hide saved search popup button
 		var showSavedSearchButton : Bool = false
@@ -426,20 +1014,14 @@ class ItemSearchSuggestionsViewController: UIViewController, SearchElementUpdati
 		savedSearchPopup?.button.isHidden = !showSavedSearchButton
 
 		for category in categories {
-			var categoryHasMatch: Bool = false
-
-			for optionCondition in category.options {
-				if optionCondition.matchesWith(anyOf: searchElements) {
-					categoryHasMatch = true
-					break
-				}
-			}
-
 			if let categoryPopupButton = category.popupController?.button {
-				style(popupButton: categoryPopupButton, hasMatch: categoryHasMatch)
+				style(popupButton: categoryPopupButton, isSelected: categoryHasActiveFilter(category))
+				categoryPopupButton.sizeToFit()
 			}
+		}
 
-			category.popupController?.button.sizeToFit()
+		if scopeSupportsTagFiltering {
+			updateTagsPopupStyle()
 		}
 	}
 }

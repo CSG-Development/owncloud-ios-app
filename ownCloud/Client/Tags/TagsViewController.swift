@@ -174,7 +174,7 @@ class TagsViewController: UITableViewController, Themeable {
 					self.showError(error, title: HCL10n.TagsList.loadingError)
 					return
 				}
-				self.tags = (fetchedTags ?? []).sorted { $0.displayName < $1.displayName }
+				self.tags = (fetchedTags ?? []).filter(\.userVisible).sorted { $0.displayName < $1.displayName }
 				self.tableView.reloadData()
 				self.updateEmptyStateVisibility()
 			}
