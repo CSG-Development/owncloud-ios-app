@@ -88,6 +88,11 @@ public class SegmentViewItem: NSObject {
 
 		super.init()
 
+		if style == .token {
+			iconTitleSpacing = SearchFilterChipStyle.iconLabelSpacing
+			insets = SearchFilterChipStyle.segmentTokenInsets
+		}
+
 		self.icon = icon
 		self.iconRenderingMode = iconRenderingMode
 		self.title = title

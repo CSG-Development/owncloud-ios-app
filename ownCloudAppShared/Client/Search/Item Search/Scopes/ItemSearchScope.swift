@@ -44,6 +44,8 @@ open class ItemSearchScope : SearchScope {
 	}
 
 	open var queryCondition: OCQueryCondition?
+	open var selectedTagIDs: Set<String> = []
+	open var selectedTagNames: Set<String> = []
 
 	open override var isSelected: Bool {
 		didSet {
@@ -58,16 +60,32 @@ open class ItemSearchScope : SearchScope {
 	open override func updateFor(_ searchElements: [SearchElement]) {
 		if isSelected {
 			var queryConditions : [OCQueryCondition] = []
+			var tagIDs: Set<String> = []
+			var tagNames: Set<String> = []
 
 			for searchElement in searchElements {
 				if let queryCondition = searchElement.representedObject as? OCQueryCondition {
-					queryConditions.append(queryCondition)
+					// Local scopes match tags via snapshots; server scope keeps tag: conditions in KQL.
+					if queryCondition.isTagSearchCondition, !(self is ServerSideSearchScope) {
+						if let tagName = queryCondition.value as? String, !tagName.isEmpty {
+							tagNames.insert(tagName)
+						}
+					} else {
+						queryConditions.append(queryCondition)
+					}
+				} else if let tagFilter = searchElement.representedObject as? SearchTagFilter {
+					if let tagID = tagFilter.tagID, !tagID.hasPrefix("local:") {
+						tagIDs.insert(tagID)
+					}
+					tagNames.insert(tagFilter.tagName)
 				}
 			}
 
+			selectedTagIDs = tagIDs
+			selectedTagNames = tagNames
+
 			if queryConditions.count > 0 {
 				queryCondition = OCQueryCondition.require(queryConditions)
-				// Log.debug("Assembled search: \(queryCondition!.composedSearchTerm)")
 			} else {
 				queryCondition = nil
 			}

@@ -578,9 +578,9 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.segments, .icon], 			property: .stroke, value: cellSet.iconColor),
 			ThemeCSSRecord(selectors: [.segments, .title],			property: .stroke, value: cellSet.secondaryLabelColor),
 
-			ThemeCSSRecord(selectors: [.segments, .token],			property: .fill,   value: tokenBackgroundColor),
-			ThemeCSSRecord(selectors: [.segments, .token, .icon],		property: .stroke, value: tokenForegroundColor),
-			ThemeCSSRecord(selectors: [.segments, .token, .title],		property: .stroke, value: tokenForegroundColor),
+			ThemeCSSRecord(selectors: [.segments, .token],			property: .fill,   value: HCColor.Content.border(isDark)),
+			ThemeCSSRecord(selectors: [.segments, .token, .icon],		property: .stroke, value: HCColor.Constant.white(isDark)),
+			ThemeCSSRecord(selectors: [.segments, .token, .title],		property: .stroke, value: HCColor.Constant.white(isDark)),
 
 			ThemeCSSRecord(selectors: [.segments, .item, .separator],	property: .fill,   value: nil),
 			ThemeCSSRecord(selectors: [.segments, .item, .separator],	property: .stroke, value: cellSet.secondaryLabelColor),

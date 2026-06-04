@@ -104,6 +104,13 @@ public class SortBar: ThemeCSSView {
 		}
 	}
 
+	/// When true (search screen only), the bar uses a transparent background and no drop shadow.
+	public var usesSearchScreenAppearance: Bool = false {
+		didSet {
+			updateSearchScreenAppearance()
+		}
+	}
+
 	// MARK: - Init & Deinit
 	public init(frame: CGRect = .zero, sortDescriptor: SortDescriptor) {
 		selectButton = UIButton()
@@ -255,6 +262,16 @@ public class SortBar: ThemeCSSView {
 		fatalError("init(coder:) has not been implemented")
 	}
 
+	private func updateSearchScreenAppearance() {
+		if usesSearchScreenAppearance {
+			layer.shadowOpacity = 0
+			backgroundColor = .clear
+		} else {
+			layer.shadowOpacity = 0.15
+			apply(css: Theme.shared.activeCollection.css, properties: [.fill])
+		}
+	}
+
 	// MARK: - Theme support
 	public override func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		self.sortButton?.apply(css: collection.css, properties: [.stroke])
@@ -262,6 +279,11 @@ public class SortBar: ThemeCSSView {
 		self.changeItemLayoutButton?.apply(css: collection.css, properties: [.stroke])
 
 		super.applyThemeCollection(theme: theme, collection: collection, event: event)
+
+		if usesSearchScreenAppearance {
+			layer.shadowOpacity = 0
+			backgroundColor = .clear
+		}
 	}
 
 	// MARK: - Sort Direction Title

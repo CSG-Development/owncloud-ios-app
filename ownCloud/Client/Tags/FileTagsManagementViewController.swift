@@ -657,6 +657,7 @@ final class FileTagsManagementViewController: UIViewController, Themeable {
 					self.assignedTags.append(tag)
 					self.assignedTags.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
 				}
+				self.persistAssignedTagsSnapshot()
 				self.tagSelectField.textFieldView.textField.text = ""
 				self.tagSelectField.collapseDropdown()
 				self.updateChipsUI()
@@ -698,6 +699,7 @@ final class FileTagsManagementViewController: UIViewController, Themeable {
 						self.assignedTags.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
 					}
 				}
+				self.persistAssignedTagsSnapshot()
 				self.tagSelectField.textFieldView.textField.text = ""
 				self.tagSelectField.collapseDropdown()
 				self.updateChipsUI()
@@ -739,10 +741,17 @@ final class FileTagsManagementViewController: UIViewController, Themeable {
 					return
 				}
 				self?.assignedTags.removeAll { $0.identifier == tag.identifier }
+				self?.persistAssignedTagsSnapshot()
 				self?.updateChipsUI()
 				self?.refreshTagDropdown()
 			}
 		}
+	}
+
+	private func persistAssignedTagsSnapshot() {
+		item.setLocalTagSnapshots(from: assignedTags)
+		core.update(item, properties: [OCItemPropertyName.localAttributes])
+		AccountTagSyncService.shared.syncIfNeeded(for: core.bookmark, force: true)
 	}
 }
 

@@ -122,7 +122,19 @@ public class SegmentViewItemView: ThemeView, ThemeCSSAutoSelector {
 				layer.cornerRadius = points
 		}
 
+		if item.style == .token {
+			clipsToBounds = true
+		}
+
 		alpha = item.alpha
+	}
+
+	open override func layoutSubviews() {
+		super.layoutSubviews()
+
+		if item?.style == .token {
+			layer.cornerRadius = bounds.height / 2
+		}
 	}
 
 	public override func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {

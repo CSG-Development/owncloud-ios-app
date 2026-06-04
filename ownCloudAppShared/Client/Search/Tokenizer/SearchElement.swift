@@ -17,6 +17,15 @@
  */
 
 import UIKit
+import ownCloudSDK
+
+extension OCQueryCondition {
+	/// Tag tokens from the search bar (`tag:name`) — handled via local tag snapshots, not OCQuery properties.
+	var isTagSearchCondition: Bool {
+		let propertyName = property?.rawValue
+		return propertyName == "tag" || propertyName == "tags"
+	}
+}
 
 open class SearchElement: NSObject {
 	open var text: String
@@ -37,6 +46,16 @@ open class SearchElement: NSObject {
 open class SearchToken: SearchElement {
 	open var icon: UIImage?
 
+	var isTagFilterToken: Bool {
+		if representedObject is SearchTagFilter {
+			return true
+		}
+		if let condition = representedObject as? OCQueryCondition {
+			return condition.isTagSearchCondition
+		}
+		return false
+	}
+
 	required public init(text: String, icon: UIImage?, representedObject: AnyObject?, inputComplete: Bool) {
 		super.init(text: text, representedObject: representedObject, inputComplete: inputComplete)
 
@@ -48,9 +67,27 @@ open class SearchToken: SearchElement {
 	}
 }
 
+open class SearchTagFilter: NSObject {
+	public let tagID: String?
+	public let tagName: String
+
+	public init(tagID: String?, tagName: String) {
+		self.tagID = tagID
+		self.tagName = tagName
+		super.init()
+	}
+}
+
 extension SearchToken {
 	var uiSearchToken: UISearchToken {
-		let token = UISearchToken(icon: icon, text: text)
+		let tokenIcon: UIImage?
+		if isTagFilterToken {
+			tokenIcon = HCIcon.tagIcon?.withRenderingMode(.alwaysTemplate)
+		} else {
+			tokenIcon = icon
+		}
+
+		let token = UISearchToken(icon: tokenIcon, text: text)
 		token.representedObject = self
 
 		return token
