@@ -483,16 +483,30 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 	}
 
 	// Determine current content
-	func updateCurrentContent() {
-		var searchFieldText = searchField.text ?? ""
+	func refreshCurrentContent() {
+		updateCurrentContent()
+	}
 
+	private var hasActiveSearchCriteria: Bool {
+		var searchFieldText = searchField.text ?? ""
 		if searchFieldText.count > 0 {
-			// Strip white space and new lines (if pasted) to determine effective length of search term
 			let charSet = CharacterSet.whitespacesAndNewlines
 			searchFieldText = searchFieldText.trimmingCharacters(in: charSet)
 		}
 
-   		if searchField.tokens.count == 0, searchFieldText.count == 0 {
+		if searchField.tokens.count > 0 || searchFieldText.count > 0 {
+			return true
+		}
+
+		if let itemScope = activeScope as? ItemSearchScope {
+			return !itemScope.selectedTagIDs.isEmpty || !itemScope.selectedTagNames.isEmpty
+		}
+
+		return false
+	}
+
+	func updateCurrentContent() {
+   		if !hasActiveSearchCriteria {
 			currentContent = suggestionContent
 		} else if scopeResultsItemCount > 0 {
 			currentContent = resultContent

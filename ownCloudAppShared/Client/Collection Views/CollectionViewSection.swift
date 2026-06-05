@@ -385,7 +385,7 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 		if collectionViewController?.supportsHierarchicContent == true {
 			handleUpdate(for: subscription, parentItemRef: nil)
 		} else {
-			collectionViewController?.updateSource(animatingDifferences: animateDifferences ?? (collectionViewController?.animateDifferences ?? true))
+			collectionViewController?.updateSource(animatingDifferences: false)
 		}
 	}
 
@@ -409,7 +409,7 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 
 			if let updatedItems = datasourceSnapshot.updatedItems, updatedItems.count > 0,
 			   let wrappedUpdatedItems = collectionViewController?.wrap(references: Array(updatedItems), forSection: identifier) {
-				snapshot.reconfigureItems(wrappedUpdatedItems)
+				snapshot.reloadItems(wrappedUpdatedItems)
 			}
 		}
 	}
@@ -638,7 +638,7 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 						})
 					}
 
-					snapshot.reconfigureItems(wrappedUpdatedItems)
+					snapshot.reloadItems(wrappedUpdatedItems)
 				}
 
 				// Tell snapshot that removedItems were removed
@@ -671,7 +671,7 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 				}
 
 				// Apply changes and animate them
-				collectionViewDataSource.apply(snapshot, animatingDifferences: true)
+				collectionViewDataSource.apply(snapshot, animatingDifferences: false)
 			}
 
 			// Notify view controller of content updates

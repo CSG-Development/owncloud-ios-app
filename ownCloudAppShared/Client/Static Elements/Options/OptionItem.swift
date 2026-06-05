@@ -159,7 +159,7 @@ open class OptionItem: NSObject, OCDataItem, OCDataItemVersioning, UniversalItem
 
 extension OptionItem {
 	static func registerUniversalCellProvider() {
-		let cellRegistration = UICollectionView.CellRegistration<UniversalItemListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let cellRegistration = ReconfigureSafeCellRegistration<UniversalItemListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
 				if let optionItem = OCDataRenderer.default.renderItem(item, asType: .optionItem, error: nil, withOptions: nil) as? OptionItem {
 					cell.fill(from: optionItem, context: cellConfiguration.clientContext, configuration: cellConfiguration)
@@ -168,7 +168,7 @@ extension OptionItem {
 		}
 
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .optionItem, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
-			return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemRef)
+			return cellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 		}))
 	}
 }

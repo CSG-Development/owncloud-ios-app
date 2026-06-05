@@ -367,7 +367,7 @@ class AccountControllerCell: ThemeableCollectionViewListCell {
 
 extension AccountControllerCell {
 	static func registerCellProvider() {
-		let accountControllerListCellRegistration = UICollectionView.CellRegistration<AccountControllerCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let accountControllerListCellRegistration = ReconfigureSafeCellRegistration<AccountControllerCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var title : String?
 			var detail : String?
 			var avatarViewProvider : OCViewProvider?
@@ -393,7 +393,7 @@ extension AccountControllerCell {
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .accountController, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
 			switch cellConfiguration?.style.type {
 				default:
-					return collectionView.dequeueConfiguredReusableCell(using: accountControllerListCellRegistration, for: indexPath, item: itemRef)
+					return accountControllerListCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 			}
 		}))
 	}

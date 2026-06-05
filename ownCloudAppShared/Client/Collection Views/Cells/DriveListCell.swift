@@ -115,7 +115,7 @@ class DriveListCell: ThemeableCollectionViewListCell {
 
 extension DriveListCell {
 	static func registerCellProvider() {
-		let driveListCellRegistration = UICollectionView.CellRegistration<DriveListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let driveListCellRegistration = ReconfigureSafeCellRegistration<DriveListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var coverImageRequest : OCResourceRequest?
 			var resourceManager : OCResourceManager?
 			var title : String?
@@ -146,7 +146,7 @@ extension DriveListCell {
 			cell.accessories = [ .disclosureIndicator() ]
 		}
 
-		let driveHeaderCellRegistration = UICollectionView.CellRegistration<DriveHeaderCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let driveHeaderCellRegistration = ReconfigureSafeCellRegistration<DriveHeaderCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var coverImageRequest : OCResourceRequest?
 			var resourceManager : OCResourceManager?
 			var title : String?
@@ -179,7 +179,7 @@ extension DriveListCell {
 			}
 		}
 
-		let driveGridCellRegistration = UICollectionView.CellRegistration<DriveGridCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let driveGridCellRegistration = ReconfigureSafeCellRegistration<DriveGridCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var coverImageRequest : OCResourceRequest?
 			var resourceManager : OCResourceManager?
 			var title : String?
@@ -245,7 +245,7 @@ extension DriveListCell {
 			}
 		}
 
-		let driveSideBarCellRegistration = UICollectionView.CellRegistration<ThemeableCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let driveSideBarCellRegistration = ReconfigureSafeCellRegistration<ThemeableCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var title : String?
 			var icon: UIImage?
 
@@ -285,16 +285,16 @@ extension DriveListCell {
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .drive, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
 			switch cellConfiguration?.style.type {
 				case .header:
-					return collectionView.dequeueConfiguredReusableCell(using: driveHeaderCellRegistration, for: indexPath, item: itemRef)
+					return driveHeaderCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 
 				case .sideBar:
-					return collectionView.dequeueConfiguredReusableCell(using: driveSideBarCellRegistration, for: indexPath, item: itemRef)
+					return driveSideBarCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 
 				case .gridCell, .gridCellLowDetail, .gridCellNoDetail:
-					return collectionView.dequeueConfiguredReusableCell(using: driveGridCellRegistration, for: indexPath, item: itemRef)
+					return driveGridCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 
 				default:
-					return collectionView.dequeueConfiguredReusableCell(using: driveListCellRegistration, for: indexPath, item: itemRef)
+					return driveListCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 			}
 		}))
 	}

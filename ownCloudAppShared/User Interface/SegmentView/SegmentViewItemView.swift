@@ -34,8 +34,6 @@ public class SegmentViewItemView: ThemeView, ThemeCSSAutoSelector {
 	var iconView: UIImageView?
 	var titleView: UILabel?
 
-	var titleViewHugging: UILayoutPriority = .required
-
 	public init(with item: SegmentViewItem) {
 		self.item = item
 
@@ -93,10 +91,12 @@ public class SegmentViewItemView: ThemeView, ThemeCSSAutoSelector {
 					titleView?.font = .preferredFont(forTextStyle: titleTextStyle)
 				}
 			}
-			titleView?.setContentHuggingPriority(titleViewHugging, for: .horizontal)
+			titleView?.setContentHuggingPriority(.required, for: .horizontal)
 			titleView?.setContentHuggingPriority(.required, for: .vertical)
 			titleView?.setContentCompressionResistancePriority(.required, for: .vertical)
 			titleView?.setContentCompressionResistancePriority(.required, for: .horizontal)
+			titleView?.numberOfLines = 1
+			titleView?.textAlignment = .left
 
 			views.append(titleView!)
 		}
@@ -134,6 +134,46 @@ public class SegmentViewItemView: ThemeView, ThemeCSSAutoSelector {
 
 		if item?.style == .token {
 			layer.cornerRadius = bounds.height / 2
+		}
+	}
+
+	func applyLayoutPolicy(index: Int, count: Int, truncationMode: SegmentView.TruncationMode, isScrollable: Bool, isTruncationTarget: Bool) {
+		setContentHuggingPriority(.required, for: .horizontal)
+		setContentCompressionResistancePriority(.required, for: .horizontal)
+
+		guard let titleView else { return }
+
+		titleView.setContentHuggingPriority(.required, for: .horizontal)
+		titleView.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+		guard !isScrollable else { return }
+
+		let isFirst = index == 0
+
+		switch truncationMode {
+			case .none, .clipTail:
+				break
+
+			case .truncateTail where isTruncationTarget:
+				setContentHuggingPriority(.defaultLow, for: .horizontal)
+				setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+				titleView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+				titleView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+				if item?.titleLinebreakMode == nil {
+					titleView.lineBreakMode = .byTruncatingTail
+				}
+
+			case .truncateHead where isFirst:
+				setContentHuggingPriority(.defaultLow, for: .horizontal)
+				setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+				titleView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+				titleView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+				if item?.titleLinebreakMode == nil {
+					titleView.lineBreakMode = .byTruncatingHead
+				}
+
+			default:
+				break
 		}
 	}
 

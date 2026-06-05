@@ -46,7 +46,7 @@ public extension CollectionViewCellProvider {
 	}
 
 	static func registerPresentableCellProvider() {
-		let presentableCellRegistration = UICollectionView.CellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let presentableCellRegistration = ReconfigureSafeCellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var content = cell.defaultContentConfiguration()
 			var hasDisclosureIndicator : Bool = false
 
@@ -101,11 +101,11 @@ public extension CollectionViewCellProvider {
 							}
 						}
 					} else {
-						// Request reconfiguration of cell
+						// Reload (not reconfigure) so UIKit can replace fallback/placeholder cells with the real cell type.
 						itemRecord.retrieveItem(completionHandler: { error, itemRecord in
 							if let collectionViewController = cellConfiguration.hostViewController {
 								collectionViewController.performDataSourceUpdate(with: { updateDone in
-									collectionViewController.collectionViewDataSource.requestReconfigurationOfItems([collectionItemRef])
+									collectionViewController.collectionViewDataSource.requestReloadOfItems([collectionItemRef])
 									updateDone()
 								})
 							}
@@ -119,7 +119,7 @@ public extension CollectionViewCellProvider {
 			cell.accessories = hasDisclosureIndicator ? [ .disclosureIndicator() ] : [ ]
 		}
 
-		let presentableSidebarCellRegistration = UICollectionView.CellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let presentableSidebarCellRegistration = ReconfigureSafeCellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var title: String?
 			var image: UIImage?
 			var hasChildren: Bool = false
@@ -160,10 +160,10 @@ public extension CollectionViewCellProvider {
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .presentable, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
 			switch cellConfiguration?.style.type {
 				case .sideBar:
-					return collectionView.dequeueConfiguredReusableCell(using: presentableSidebarCellRegistration, for: indexPath, item: itemRef)
+					return presentableSidebarCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 
 				default:
-					return collectionView.dequeueConfiguredReusableCell(using: presentableCellRegistration, for: indexPath, item: itemRef)
+					return presentableCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 			}
 		}))
 

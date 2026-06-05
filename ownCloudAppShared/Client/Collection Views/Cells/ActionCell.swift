@@ -179,144 +179,100 @@ class ActionCell: ThemeableCollectionViewCell {
 }
 
 extension ActionCell {
-	private static let actionCellReuseIdentifier = "com.owncloud.action-cell.reuse-id"
-	private static let sideBarActionCellReuseIdentifier = "com.owncloud.action-sidebar-cell.reuse-id"
-
-	private static func configureActionCell(_ cell: ActionCell, itemRef: CollectionViewController.ItemRef) {
-		itemRef.ocCellConfiguration?.configureCell(for: itemRef, with: { itemRecord, item, cellConfiguration in
-			if let action = OCDataRenderer.default.renderItem(item, asType: .action, error: nil, withOptions: nil) as? OCAction {
-				switch cellConfiguration.style.type {
-					case .gridCell, .gridCellLowDetail, .gridCellNoDetail:
-						cell.style = .vertical
-					default:
-						cell.style = .horizontal
-				}
-				cell.title = action.title
-				cell.icon = action.icon
-				cell.type = action.type
-			}
-		})
-	}
-
-	private static func dequeueActionCell(from collectionView: UICollectionView, for indexPath: IndexPath, itemRef: CollectionViewController.ItemRef) -> UICollectionViewCell {
-		// During diffable reconfigure updates, UICollectionView may expect the existing visible cell to be updated in place.
-		if let existingCell = collectionView.cellForItem(at: indexPath) {
-			if let actionCell = existingCell as? ActionCell {
-				configureActionCell(actionCell, itemRef: itemRef)
-			}
-			return existingCell
-		}
-
-		collectionView.register(ActionCell.self, forCellWithReuseIdentifier: actionCellReuseIdentifier)
-
-		guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: actionCellReuseIdentifier, for: indexPath) as? ActionCell else {
-			return UICollectionViewCell.emptyFallbackCell
-		}
-
-		configureActionCell(cell, itemRef: itemRef)
-
-		return cell
-	}
-
-	private static func configureSidebarActionCell(_ cell: SidebarCollectionViewListCell, itemRef: CollectionViewController.ItemRef) {
-		itemRef.ocCellConfiguration?.configureCell(for: itemRef, with: { itemRecord, item, cellConfiguration in
-			var accessories: [UICellAccessory] = []
-			var content = cell.defaultContentConfiguration()
-			var backgroundConfiguration: UIBackgroundConfiguration?
-			var hasButton = false
-
-			if let action = item as? OCAction {
-				content.text = action.title
-				content.image = action.icon
-
-				switch action.type {
-					case .warning: cell.cssSelectors = [.warning]
-					case .destructive: cell.cssSelectors = [.destructive]
-					case .regular: cell.cssSelectors = action.cssSelectors ?? []
-				}
-
-				backgroundConfiguration = UIBackgroundConfiguration.listSidebarCell()
-
-				if let buttonLabel = action.buttonLabel {
-					let context = cellConfiguration.clientContext
-
-					var buttonConfig = UIButton.Configuration.filled()
-					buttonConfig.title = buttonLabel
-					buttonConfig.buttonSize = .mini
-					buttonConfig.cornerStyle = .capsule
-
-					let button: UIButton = UIButton()
-					button.configuration = buttonConfig
-					button.titleLabel?.baselineAdjustment = .none
-					button.addAction(UIAction(handler: { [weak action, weak context] _ in
-						var options: [OCActionRunOptionKey:Any] = [:]
-
-						if let context {
-							options[.clientContext] = context
-						}
-
-						action?.run(options: options)
-					}), for: .primaryActionTriggered)
-
-					button.focusGroupIdentifier = "com.owncloud.accessory-action-button.\(UUID().uuidString)"
-					hasButton = true
-
-					accessories.append(.customView(configuration: UICellAccessory.CustomViewConfiguration(customView: button, placement: .trailing())))
-				} else {
-					cell.accessibilityTraits = .button
-				}
-			}
-
-			if let sidebarAction = item as? CollectionSidebarAction {
-				if let badgeCount = sidebarAction.badgeCount {
-					accessories.append(.customView(configuration: UICellAccessory.CustomViewConfiguration(customView: RoundedLabel(text: "\(badgeCount)", style: .token), placement: .trailing())))
-				}
-				if sidebarAction.childrenDataSource != nil {
-					let headerDisclosureOption = UICellAccessory.OutlineDisclosureOptions(style: .cell)
-					accessories.append(.outlineDisclosure(options: headerDisclosureOption))
-				} else {
-					cell.accessibilityTraits = .button
-				}
-			}
-
-			cell.accessibilityRespondsToUserInteraction = !hasButton
-			cell.accessories = accessories
-			cell.contentConfiguration = content
-			cell.backgroundConfiguration = backgroundConfiguration
-			cell.applyThemeCollection(theme: Theme.shared, collection: Theme.shared.activeCollection, event: .initial)
-		})
-	}
-
-	private static func dequeueSidebarActionCell(from collectionView: UICollectionView, for indexPath: IndexPath, itemRef: CollectionViewController.ItemRef) -> UICollectionViewCell {
-		if let existingCell = collectionView.cellForItem(at: indexPath) {
-			if let sidebarCell = existingCell as? SidebarCollectionViewListCell {
-				configureSidebarActionCell(sidebarCell, itemRef: itemRef)
-			}
-			return existingCell
-		}
-
-		collectionView.register(SidebarCollectionViewListCell.self, forCellWithReuseIdentifier: sideBarActionCellReuseIdentifier)
-
-		guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: sideBarActionCellReuseIdentifier, for: indexPath) as? SidebarCollectionViewListCell else {
-			return UICollectionViewCell.emptyFallbackCell
-		}
-
-		configureSidebarActionCell(cell, itemRef: itemRef)
-
-		return cell
-	}
-
 	static func registerCellProvider() {
+		let actionCellRegistration = ReconfigureSafeCellRegistration<ActionCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
+				if let action = OCDataRenderer.default.renderItem(item, asType: .action, error: nil, withOptions: nil) as? OCAction {
+					switch cellConfiguration.style.type {
+						case .gridCell, .gridCellLowDetail, .gridCellNoDetail:
+							cell.style = .vertical
+						default:
+							cell.style = .horizontal
+					}
+					cell.title = action.title
+					cell.icon = action.icon
+					cell.type = action.type
+				}
+			})
+		}
+
+		let actionSideBarCellRegistration = ReconfigureSafeCellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
+				var accessories: [UICellAccessory] = []
+				var content = cell.defaultContentConfiguration()
+				var backgroundConfiguration: UIBackgroundConfiguration?
+				var hasButton = false
+
+				if let action = item as? OCAction {
+					content.text = action.title
+					content.image = action.icon
+
+					switch action.type {
+						case .warning: cell.cssSelectors = [.warning]
+						case .destructive: cell.cssSelectors = [.destructive]
+						case .regular: cell.cssSelectors = action.cssSelectors ?? []
+					}
+
+					backgroundConfiguration = UIBackgroundConfiguration.listSidebarCell()
+
+					if let buttonLabel = action.buttonLabel {
+						let context = cellConfiguration.clientContext
+
+						var buttonConfig = UIButton.Configuration.filled()
+						buttonConfig.title = buttonLabel
+						buttonConfig.buttonSize = .mini
+						buttonConfig.cornerStyle = .capsule
+
+						let button: UIButton = UIButton()
+						button.configuration = buttonConfig
+						button.titleLabel?.baselineAdjustment = .none
+						button.addAction(UIAction(handler: { [weak action, weak context] _ in
+							var options: [OCActionRunOptionKey:Any] = [:]
+
+							if let context {
+								options[.clientContext] = context
+							}
+
+							action?.run(options: options)
+						}), for: .primaryActionTriggered)
+
+						button.focusGroupIdentifier = "com.owncloud.accessory-action-button.\(UUID().uuidString)"
+						hasButton = true
+
+						accessories.append(.customView(configuration: UICellAccessory.CustomViewConfiguration(customView: button, placement: .trailing())))
+					} else {
+						cell.accessibilityTraits = .button
+					}
+				}
+
+				if let sidebarAction = item as? CollectionSidebarAction {
+					if let badgeCount = sidebarAction.badgeCount {
+						accessories.append(.customView(configuration: UICellAccessory.CustomViewConfiguration(customView: RoundedLabel(text: "\(badgeCount)", style: .token), placement: .trailing())))
+					}
+					if sidebarAction.childrenDataSource != nil {
+						let headerDisclosureOption = UICellAccessory.OutlineDisclosureOptions(style: .cell)
+						accessories.append(.outlineDisclosure(options: headerDisclosureOption))
+					} else {
+						cell.accessibilityTraits = .button
+					}
+				}
+
+				cell.accessibilityRespondsToUserInteraction = !hasButton
+				cell.accessories = accessories
+				cell.contentConfiguration = content
+				cell.backgroundConfiguration = backgroundConfiguration
+				cell.applyThemeCollection(theme: Theme.shared, collection: Theme.shared.activeCollection, event: .initial)
+			})
+		}
 
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .action, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
 			switch cellConfiguration?.style.type {
 				case .sideBar:
-					return dequeueSidebarActionCell(from: collectionView, for: indexPath, itemRef: itemRef)
+					return actionSideBarCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 
 				default:
-					return dequeueActionCell(from: collectionView, for: indexPath, itemRef: itemRef)
+					return actionCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 			}
-
 		}))
 	}
 }

@@ -19,13 +19,13 @@
 import UIKit
 
 public extension UICollectionViewDiffableDataSource {
-	func requestReconfigurationOfItems(_ items: [ItemIdentifierType], animated: Bool = true) {
-		var snapshot = snapshot()
-		snapshot.reconfigureItems(items)
-		apply(snapshot, animatingDifferences: animated)
+	func requestReconfigurationOfItems(_ items: [ItemIdentifierType], animated: Bool = false) {
+		// Use reload instead of reconfigure: reconfigure requires returning the exact same
+		// cell instance/registration, which breaks when cell providers or reuse identifiers differ.
+		requestReloadOfItems(items, animated: animated)
 	}
 
-	func requestReloadOfItems(_ items: [ItemIdentifierType], animated: Bool = true) {
+	func requestReloadOfItems(_ items: [ItemIdentifierType], animated: Bool = false) {
 		var snapshot = snapshot()
 		snapshot.reloadItems(items)
 		apply(snapshot, animatingDifferences: animated)

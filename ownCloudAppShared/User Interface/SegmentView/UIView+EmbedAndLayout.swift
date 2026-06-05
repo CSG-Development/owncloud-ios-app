@@ -59,7 +59,7 @@ public extension UIView {
 		return AnchorSet(leadingAnchor: safeAreaLayoutGuide.leadingAnchor, trailingAnchor: safeAreaLayoutGuide.trailingAnchor, topAnchor: safeAreaLayoutGuide.topAnchor, bottomAnchor: keyboardLayoutGuide.topAnchor, centerXAnchor: safeAreaLayoutGuide.centerXAnchor, centerYAnchor: safeAreaLayoutGuide.centerYAnchor)
 	}
 
-	@discardableResult func embedHorizontally(views: [UIView], insets: NSDirectionalEdgeInsets, enclosingAnchors: AnchorSet? = nil, limitHeight: Bool = false, spacingProvider: SpacingProvider? = nil, constraintsModifier: ConstraintsModifier? = nil) -> ConstraintSet {
+	@discardableResult func embedHorizontally(views: [UIView], insets: NSDirectionalEdgeInsets, enclosingAnchors: AnchorSet? = nil, limitHeight: Bool = false, lastTrailingRelation: NSLayoutConstraint.Relation = .equal, spacingProvider: SpacingProvider? = nil, constraintsModifier: ConstraintsModifier? = nil) -> ConstraintSet {
 		var viewIdx : Int = 0
 		var previousView: UIView?
 		var embedConstraints: [NSLayoutConstraint] = []
@@ -102,7 +102,15 @@ public extension UIView {
 
 			// - trailing
 			if viewIdx == (views.count-1) {
-				let trailingConstraint = view.trailingAnchor.constraint(equalTo: anchorSet.trailingAnchor, constant: -insets.trailing)
+				let trailingConstraint: NSLayoutConstraint
+				switch lastTrailingRelation {
+					case .lessThanOrEqual:
+						trailingConstraint = view.trailingAnchor.constraint(lessThanOrEqualTo: anchorSet.trailingAnchor, constant: -insets.trailing)
+					case .greaterThanOrEqual:
+						trailingConstraint = view.trailingAnchor.constraint(greaterThanOrEqualTo: anchorSet.trailingAnchor, constant: -insets.trailing)
+					default:
+						trailingConstraint = view.trailingAnchor.constraint(equalTo: anchorSet.trailingAnchor, constant: -insets.trailing)
+				}
 				constraintSet.lastTrailingOrBottomConstraint = trailingConstraint
 				embedConstraints.append(trailingConstraint)
 			}

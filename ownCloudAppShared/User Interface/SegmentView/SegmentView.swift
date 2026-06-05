@@ -104,11 +104,21 @@ public class SegmentView: ThemeView, ThemeCSSAutoSelector, ThemeCSSChangeObserve
 			}
 		}
 
-		if let lastSegmentView = (itemViews.last as? SegmentViewItemView) {
-			// If the last view is a label, allow it to stretch and fill the space
-			lastSegmentView.titleViewHugging = .defaultHigh
-			lastSegmentView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+		let lastTruncatableIndex = itemViews.lastIndex(where: { itemView in
+			(itemView as? SegmentViewItemView)?.titleView != nil
+		})
+
+		for (index, itemView) in itemViews.enumerated() {
+			(itemView as? SegmentViewItemView)?.applyLayoutPolicy(
+				index: index,
+				count: itemViews.count,
+				truncationMode: truncationMode,
+				isScrollable: isScrollable,
+				isTruncationTarget: index == lastTruncatableIndex
+			)
 		}
+
+		clipsToBounds = !isScrollable && truncationMode == .clipTail
 
 		// Scroll View
 		var hostView: UIView = self
@@ -143,27 +153,36 @@ public class SegmentView: ThemeView, ThemeCSSAutoSelector, ThemeCSSChangeObserve
 			)
 		}
 
-		hostView.embedHorizontally(views: itemViews, insets: insets, enclosingAnchors: enclosingAnchors, limitHeight: limitVerticalSpaceUsage, spacingProvider: { _, _ in
-			return self.itemSpacing
-		}, constraintsModifier: { constraintSet in
-			switch self.truncationMode {
-				case .none: break
+		let lastTrailingRelation: NSLayoutConstraint.Relation = isScrollable ? .equal : .lessThanOrEqual
 
-				case .clipTail:
-					constraintSet.lastTrailingOrBottomConstraint?.priority = .required
+		hostView.embedHorizontally(
+			views: itemViews,
+			insets: insets,
+			enclosingAnchors: enclosingAnchors,
+			limitHeight: limitVerticalSpaceUsage,
+			lastTrailingRelation: lastTrailingRelation,
+			spacingProvider: { _, _ in
+				return self.itemSpacing
+			},
+			constraintsModifier: { constraintSet in
+				guard !self.isScrollable else { return constraintSet }
 
-				case .truncateHead:
-					if !self.isScrollable {
-						constraintSet.firstLeadingOrTopConstraint?.priority = .required
-					}
+				constraintSet.firstLeadingOrTopConstraint?.priority = .required
 
-				case .truncateTail:
-					if !self.isScrollable {
+				switch self.truncationMode {
+					case .none, .truncateTail:
 						constraintSet.lastTrailingOrBottomConstraint?.priority = .required
-					}
+
+					case .clipTail:
+						constraintSet.lastTrailingOrBottomConstraint?.priority = .defaultLow
+
+					case .truncateHead:
+						break
+				}
+
+				return constraintSet
 			}
-			return constraintSet
-		})
+		)
 
 		// Layout without animation
 		UIView.performWithoutAnimation {
