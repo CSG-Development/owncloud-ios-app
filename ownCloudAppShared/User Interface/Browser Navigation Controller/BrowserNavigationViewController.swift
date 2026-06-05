@@ -352,10 +352,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 			switch tab {
 				case .files:
-					if let currentItem = history.currentItem {
-						history.lastPushAttempt = currentItem
-						present(item: currentItem, with: .none, completion: nil)
-					}
+					history.presentLastFilesNavigationItem()
 
 				case .search:
 					let item = CollectionSidebarAction(
@@ -556,8 +553,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		updateHistoryButtons()
 	}
 
+	private var isCurrentContentSpecialTabBarItem: Bool {
+		history.currentItem?.isSpecialTabBarItem ?? false
+	}
+
 	private func updateHistoryButtons() {
-		let hasNavigation = !(history.lastPushAttempt?.isSpecialTabBarItem ?? false)
+		let hasNavigation = !isCurrentContentSpecialTabBarItem
 		backButton.isEnabled = hasNavigation && history.canMoveBack
 		forwardButton.isEnabled = hasNavigation && history.canMoveForward
 		// Show or hide the arrows stack depending on need
@@ -568,7 +569,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		let previousPosition = history.position - 1
 		guard previousPosition >= 0, previousPosition < history.items.count else { return nil }
 		let previousVC = history.items[previousPosition].viewControllerIfLoaded
-		return previousVC?.navigationItem.title ?? previousVC?.title
+		let title = previousVC?.navigationItem.title ?? previousVC?.title
+		return OCLocation.navigationTitleReplacingAccountName(title, in: clientContextProvider?())
 	}
 
 	private func buildBackBarButtonItem(title: String?) -> UIBarButtonItem {
@@ -684,18 +686,48 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		])
 	}
 
+	private func isBreadcrumbNavigationAvailable(for contentViewController: UIViewController?) -> Bool {
+		guard let contentViewController else { return false }
+
+		if let itemVC = contentViewController as? ClientItemViewController, let clientContext = itemVC.clientContext {
+			guard
+				!isCurrentContentSpecialTabBarItem,
+				itemVC.query?.queryLocation != nil
+			else { return false }
+
+			var effectiveLocation: OCLocation?
+			if let loc = itemVC.location {
+				effectiveLocation = loc
+			} else if let queryLoc = itemVC.query?.queryLocation {
+				effectiveLocation = queryLoc
+			} else if let rootItem = clientContext.rootItem as? OCItem {
+				effectiveLocation = rootItem.location
+			}
+
+			return effectiveLocation != nil && !effectiveLocation!.isRoot
+		}
+
+		return contentViewController is DisplayHostType
+	}
+
 	func updateContentNavigationItems() {
 		if let contentNavigationItem = contentViewController?.navigationItem {
-			let hasHistoryBack = history.canMoveBack
-				&& !(history.lastPushAttempt?.isSpecialTabBarItem ?? true)
-			let shouldShowSidebarToggle = hasHistoryBack
-				? false
-				: ((effectiveSideBarDisplayMode == .sideBySide) ? isSideBarHidden : true)
+			let hasHistoryBack = history.canMoveBack && !isCurrentContentSpecialTabBarItem
+			let hasBreadcrumbNavigation = isBreadcrumbNavigationAvailable(for: contentViewController)
+			let shouldShowSidebarToggleByDisplayMode = (effectiveSideBarDisplayMode == .sideBySide)
+				? isSideBarHidden
+				: true
+			// Prefer the sidebar toggle when breadcrumbs provide navigation; otherwise fall back
+			// to the nav-bar back button (e.g. tag file lists without a location bar).
+			let shouldShowSidebarToggle = hasBreadcrumbNavigation || !hasHistoryBack
+				? shouldShowSidebarToggleByDisplayMode
+				: false
+			let shouldShowBackButton = hasHistoryBack && !hasBreadcrumbNavigation
 
 			updateLeftBarButtonItems(
 				for: contentNavigationItem,
 				withToggleSideBar: shouldShowSidebarToggle,
-				withBackButton: hasHistoryBack)
+				withBackButton: shouldShowBackButton)
 		}
 
 		updateHistoryButtons()
@@ -740,12 +772,14 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		topAccessoryViewController?.clientContext = nil
 		topAccessoryViewController?.location = nil
 
+		guard isBreadcrumbNavigationAvailable(for: contentViewController) else {
+			view.setNeedsLayout()
+			view.layoutIfNeeded()
+			return
+		}
+
 		// Install a location bar when the content is a ClientItemViewController with a non-root location
 		if let itemVC = contentViewController as? ClientItemViewController, let clientContext = itemVC.clientContext {
-			guard
-				!(history.lastPushAttempt?.isSpecialTabBarItem ?? true),
-				itemVC.query?.queryLocation != nil
-			else { return }
 			var effectiveLocation: OCLocation?
 			if let loc = itemVC.location {
 				effectiveLocation = loc
@@ -755,7 +789,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 				effectiveLocation = rootItem.location
 			}
 
-			if let location = effectiveLocation, history.items.count > 1 {
+			if let location = effectiveLocation {
 				topAccessoryViewController?.clientContext = clientContext
 				topAccessoryViewController?.location = location
 				topAccessoryView.isHidden = false

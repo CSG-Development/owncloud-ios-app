@@ -73,12 +73,15 @@ open class CustomQuerySearchScope : ItemSearchScope {
 
 	public var customQuery: OCQuery? {
 		willSet {
+			customQuery?.delegate = nil
 			if let core = clientContext.core, let oldQuery = customQuery {
 				core.stop(oldQuery)
 			}
 		}
 
 		didSet {
+			customQuery?.delegate = self
+
 			if let core = clientContext.core, let newQuery = customQuery {
 				core.start(newQuery)
 
@@ -103,7 +106,8 @@ open class CustomQuerySearchScope : ItemSearchScope {
 			if let baseCondition = condition {
 				condition = .require([additionalRequirementCondition, baseCondition])
 			} else if includeScopeConstraintsForTagOnly {
-				condition = additionalRequirementCondition
+				// Wrap scope constraints so sort/limit metadata never sticks on the shared instance.
+				condition = .require([additionalRequirementCondition])
 			}
 		}
 
@@ -114,7 +118,14 @@ open class CustomQuerySearchScope : ItemSearchScope {
 		return condition
 	}
 
+	private func clearQueryExecutionMetadata(from condition: OCQueryCondition?) {
+		condition?.sortBy = nil
+		condition?.sortAscending = true
+		condition?.maxResultCount = nil
+	}
+
  	public func updateCustomSearchQuery() {
+		clearQueryExecutionMetadata(from: additionalRequirementCondition)
 		if lastSearchTerm != searchTerm {
 			// Reset max result count when search text changes
 			maxResultCount = maxResultCountDefault
@@ -186,6 +197,20 @@ open class CustomQuerySearchScope : ItemSearchScope {
 		super.updateFor(searchElements)
 		if isSelected {
 			updateCustomSearchQuery()
+		}
+	}
+}
+
+extension CustomQuerySearchScope: OCQueryDelegate {
+	public func query(_ query: OCQuery, failedWithError error: Error) {
+	}
+
+	public func queryHasChangesAvailable(_ query: OCQuery) {
+	}
+
+	public func queryHasChangedState(_ query: OCQuery) {
+		OnMainThread {
+			self.searchViewController?.refreshCurrentContent()
 		}
 	}
 }
@@ -346,26 +371,63 @@ struct LocalSearchFilterConfiguration {
 	}
 }
 
+/// Tracks identities of items currently shown by a tag-filtered custom query so incremental
+/// core updates can refresh existing rows without admitting unrelated items from sync.
+private final class TagSearchResultIdentitySet {
+	private var fileIDs: Set<String> = []
+	private var localIDs: Set<String> = []
+	private let lock = NSLock()
+
+	func replace(with items: [OCItem]) {
+		lock.lock()
+		defer { lock.unlock() }
+
+		fileIDs = Set(items.compactMap { item in
+			guard let fileID = item.fileID, !fileID.isEmpty else { return nil }
+			return fileID
+		})
+		localIDs = Set(items.compactMap { $0.localID as String? })
+	}
+
+	func contains(_ item: OCItem) -> Bool {
+		lock.lock()
+		defer { lock.unlock() }
+
+		if let localID = item.localID as String?, localIDs.contains(localID) {
+			return true
+		}
+		if let fileID = item.fileID, !fileID.isEmpty, fileIDs.contains(fileID) {
+			return true
+		}
+		return false
+	}
+}
+
 /// Centralizes local filtering: when tags are selected, start from tagged files, then apply other filters.
 enum LocalSearchFilterAdapter {
 	static func makeQuery(core: OCCore, configuration: LocalSearchFilterConfiguration) -> OCQuery {
+		let resultIdentities = TagSearchResultIdentitySet()
+
 		let customSource: OCQueryCustomSource = { core, query, resultHandler in
 			DispatchQueue.global(qos: .userInitiated).async {
 				let items = makeResults(core: core, configuration: configuration)
 				if query.state == .stopped {
 					return
 				}
+				resultIdentities.replace(with: items)
 				resultHandler(nil, items)
 			}
 		}
 
-		// Keep custom results stable until we explicitly reload the custom source.
-		// During tag sync, broad incremental core updates can otherwise inject unrelated
-		// items and duplicates into this query.
-		guard let staticResultFilter = OCQueryFilter(handler: { _, _, _ in false }) else {
+		// Allow in-place updates for items already in this query, but reject unrelated items
+		// that arrive from broad core sync while tag filtering is active.
+		guard let stableResultFilter = OCQueryFilter(handler: { _, _, item in
+			guard let item else { return false }
+			return resultIdentities.contains(item)
+		}) else {
 			fatalError("Failed to create local search adapter query filter")
 		}
-		let query = OCQuery(customSource: customSource, inputFilter: staticResultFilter)
+		let query = OCQuery(customSource: customSource, inputFilter: stableResultFilter)
 		if let comparator = configuration.nonTagCondition?.itemComparator() {
 			query.sortComparator = comparator
 		}

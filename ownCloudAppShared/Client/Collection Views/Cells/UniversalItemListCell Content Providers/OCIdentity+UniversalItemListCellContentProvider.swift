@@ -64,7 +64,7 @@ extension OCIdentity: UniversalItemListCellContentProvider {
 
 extension OCIdentity {
 	static func registerUniversalCellProvider() {
-		let identityCellRegistration = UICollectionView.CellRegistration<UniversalItemListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let identityCellRegistration = ReconfigureSafeCellRegistration<UniversalItemListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
 				if let identity = OCDataRenderer.default.renderItem(item, asType: .identity, error: nil, withOptions: nil) as? OCIdentity {
 					cell.fill(from: identity, context: cellConfiguration.clientContext, configuration: cellConfiguration)
@@ -73,7 +73,7 @@ extension OCIdentity {
 		}
 
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .identity, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
-			return collectionView.dequeueConfiguredReusableCell(using: identityCellRegistration, for: indexPath, item: itemRef)
+			return identityCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 		}))
 	}
 }

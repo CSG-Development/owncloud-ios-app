@@ -104,11 +104,11 @@ public class CollectionViewCellConfiguration: NSObject {
 			if let item = itemRecord.item {
 				configurer(itemRecord, item, self)
 			} else {
-				// Request reconfiguration of cell
+				// Reload (not reconfigure) so UIKit can replace fallback/placeholder cells with the real cell type.
 				itemRecord.retrieveItem(completionHandler: { error, itemRecord in
 					if let collectionViewController = self.hostViewController {
 						collectionViewController.performDataSourceUpdate { updateDone in
-							collectionViewController.collectionViewDataSource.requestReconfigurationOfItems([collectionItemRef])
+							collectionViewController.collectionViewDataSource.requestReloadOfItems([collectionItemRef])
 							updateDone()
 						}
 					}

@@ -53,6 +53,12 @@ public class CollectionViewCellProvider: NSObject {
 		// Ask provider to provide cell
 		let cell = provider(collectionView, cellConfiguration, itemRecord, collectionItemRef, indexPath)
 
+		// Apply layout style immediately so reused cells match the section layout (grid vs list)
+		// even before async item configuration completes.
+		if let cellConfiguration, let listCell = cell as? UniversalItemListCell {
+			listCell.cellStyle = cellConfiguration.style.type
+		}
+
 		// Restore previously existing cell configuration
 		collectionItemRef.ocCellConfiguration = previousCellConfiguration
 

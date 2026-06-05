@@ -868,9 +868,11 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 		if navigationLocation == nil || !useNavigationLocationBreadcrumbDropdown || navigationLocation?.isRoot == true {
 			if let navigationTitle {
-				self.navigationTitle = navigationTitle.redacted()
+				let title = OCLocation.navigationTitleReplacingAccountName(navigationTitle, in: clientContext) ?? navigationTitle
+				self.navigationTitle = title.redacted()
 			} else {
-				self.navigationTitle = navigationItem.title?.redacted()
+				let title = OCLocation.navigationTitleReplacingAccountName(navigationItem.title, in: clientContext) ?? navigationItem.title
+				self.navigationTitle = title?.redacted()
 			}
 		}
 	}
@@ -911,12 +913,36 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 			itemSection?.clientContext?.itemLayout = itemLayout
 			itemSection?.adopt(itemLayout: itemLayout)
 
+			if searchActive == true {
+				applySearchCellStyleMatchingCurrentLayout()
+			}
+
 			if wasAtTop {
 				// Enforce staying at top after layout switch
 				collectionView.setContentOffset(CGPoint(x: 0, y: -adjustedTopInset), animated: false)
 			}
 
 			collectionView.collectionViewLayout.invalidateLayout()
+		}
+	}
+
+	private func cellStyleMatchingCurrentLayout(from searchStyle: CollectionViewCellStyle) -> CollectionViewCellStyle {
+		let layout = clientContext?.itemLayout ?? ItemLayoutPreference.preferred
+		return CollectionViewCellStyle(from: searchStyle, changing: { cellStyle in
+			cellStyle.type = layout.cellStyleType
+		})
+	}
+
+	private func applySearchCellStyleMatchingCurrentLayout() {
+		guard let searchStyle = searchViewController?.activeScope?.resultsCellStyle ?? preSearchCellStyle else {
+			return
+		}
+
+		let mergedStyle = cellStyleMatchingCurrentLayout(from: searchStyle)
+		searchViewController?.activeScope?.resultsCellStyle = mergedStyle
+
+		if searchResultsContent?.type == .results {
+			itemSection?.cellStyle = mergedStyle
 		}
 	}
 
@@ -1294,8 +1320,11 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 							searchResultsDataSource = contentSource
 						}
 
-						if let style = contentStyle ?? preSearchCellStyle, style != itemSection?.cellStyle {
-							itemSection?.cellStyle = style
+						if let style = contentStyle ?? preSearchCellStyle {
+							let mergedStyle = cellStyleMatchingCurrentLayout(from: style)
+							if mergedStyle != itemSection?.cellStyle {
+								itemSection?.cellStyle = mergedStyle
+							}
 						}
 
 						searchNonItemDataSource = nil
@@ -1352,6 +1381,8 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 	public func searchBegan(for viewController: SearchViewController) {
 		preSearchCellStyle = itemSection?.cellStyle
 		searchActive = true
+		itemSection?.animateDifferences = false
+		emptySection?.animateDifferences = false
 		sortBar?.usesSearchScreenAppearance = true
 
 		updateSections(with: { sections in
@@ -1371,6 +1402,8 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 	public func searchEnded(for viewController: SearchViewController) {
 		searchActive = false
+		itemSection?.animateDifferences = nil
+		emptySection?.animateDifferences = nil
 		sortBar?.usesSearchScreenAppearance = false
 
 		updateSections(with: { sections in

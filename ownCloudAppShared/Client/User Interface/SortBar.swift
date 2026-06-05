@@ -265,7 +265,7 @@ public class SortBar: ThemeCSSView {
 	private func updateSearchScreenAppearance() {
 		if usesSearchScreenAppearance {
 			layer.shadowOpacity = 0
-			backgroundColor = .clear
+			backgroundColor = HCColor.Structure.appBackground(Theme.shared.activeCollection.isDark)
 		} else {
 			layer.shadowOpacity = 0.15
 			apply(css: Theme.shared.activeCollection.css, properties: [.fill])
@@ -280,10 +280,7 @@ public class SortBar: ThemeCSSView {
 
 		super.applyThemeCollection(theme: theme, collection: collection, event: event)
 
-		if usesSearchScreenAppearance {
-			layer.shadowOpacity = 0
-			backgroundColor = .clear
-		}
+		updateSearchScreenAppearance()
 	}
 
 	// MARK: - Sort Direction Title

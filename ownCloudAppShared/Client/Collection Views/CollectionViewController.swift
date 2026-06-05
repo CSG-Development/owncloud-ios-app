@@ -33,7 +33,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 
 	var compressForKeyboard: Bool
 
-	var emptyCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, CollectionViewController.ItemRef>?
+	var emptyCellRegistration: ReconfigureSafeCellRegistration<UICollectionViewCell, CollectionViewController.ItemRef>?
 	private var scrollDirectionProcessor = HCScrollDirectionProcessor()
 
 	public init(context inContext: ClientContext?, sections inSections: [CollectionViewSection]?, useStackViewRoot: Bool = false, hierarchic: Bool = false, compressForKeyboard: Bool = false, useWrappedIdentifiers: Bool = false, highlightItemReference: OCDataItemReference? = nil) {
@@ -45,8 +45,8 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 
 		super.init(nibName: nil, bundle: nil)
 
-		emptyCellRegistration = UICollectionView.CellRegistration(handler: { cell, indexPath, itemIdentifier in
-		})
+		emptyCellRegistration = ReconfigureSafeCellRegistration { _, _, _ in
+		}
 
 		inContext?.postInitialize(owner: self)
 
@@ -535,17 +535,13 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 		var snapshot = NSDiffableDataSourceSnapshot<CollectionViewSection.SectionIdentifier, CollectionViewController.ItemRef>()
 		var snapshotsBySection = [CollectionViewSection.SectionIdentifier : NSDiffableDataSourceSectionSnapshot<CollectionViewController.ItemRef>]()
 		var updatedItems : [CollectionViewController.ItemRef] = []
-		var selectedItemRefs: [ItemRef]?
 
-		let updateWithAnimation = animatingDifferences && !useWrappedIdentifiers
-
-		if !updateWithAnimation {
-			// Selection is lost when updating without animation (via https://forums.developer.apple.com/forums/thread/656529?answerId=627227022#627227022)
-			let selectedIndexPaths = collectionView.indexPathsForSelectedItems
-			selectedItemRefs = selectedIndexPaths?.compactMap({ indexPath in
-				return collectionViewDataSource.itemIdentifier(for: indexPath)
-			})
-		}
+		// Always reload without animation. Animated diffable updates are fragile with our cell providers
+		// (reconfigure/reuse assertions during fast search typing and mixed cell types).
+		let selectedIndexPaths = collectionView.indexPathsForSelectedItems
+		let selectedItemRefs: [ItemRef]? = selectedIndexPaths?.compactMap({ indexPath in
+			return collectionViewDataSource.itemIdentifier(for: indexPath)
+		})
 
 		// Log.debug("<=========================>")
 
@@ -560,7 +556,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 			}
 		}
 
-		collectionViewDataSource.apply(snapshot, animatingDifferences: updateWithAnimation)
+		collectionViewDataSource.apply(snapshot, animatingDifferences: false)
 
 		if useWrappedIdentifiers {
 			for section in sections {
@@ -577,7 +573,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 
 			if updatedItems.count > 0 {
 				var snapshot = collectionViewDataSource.snapshot()
-				snapshot.reconfigureItems(updatedItems)
+				snapshot.reloadItems(updatedItems)
 				collectionViewDataSource.apply(snapshot, animatingDifferences: false)
 			}
 		}
@@ -1307,7 +1303,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 public extension CollectionViewController {
 	func relayout(cell: UICollectionViewCell) {
 		performDataSourceUpdate { updateDone in
-			self.collectionViewDataSource.apply(self.collectionViewDataSource.snapshot(), animatingDifferences: true)
+			self.collectionViewDataSource.apply(self.collectionViewDataSource.snapshot(), animatingDifferences: false)
 
 			// Notify view controller of content updates
 			self.setContentDidUpdate()
@@ -1319,7 +1315,7 @@ public extension CollectionViewController {
 	func provideUnknownCell(for indexPath: IndexPath, item itemRef: CollectionViewController.ItemRef) -> UICollectionViewCell {
  		if let unknownCellRegistration = emptyCellRegistration {
 			let reUseIdentifier : CollectionViewController.ItemRef = NSString(string: "_empty_\(String(describing: itemRef))")
-			return collectionView.dequeueConfiguredReusableCell(using: unknownCellRegistration, for: indexPath, item: reUseIdentifier)
+			return unknownCellRegistration.dequeue(from: collectionView, for: indexPath, item: reUseIdentifier)
 		}
 
 		return UICollectionViewCell.emptyFallbackCell

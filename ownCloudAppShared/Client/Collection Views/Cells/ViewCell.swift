@@ -78,14 +78,14 @@ class ViewCell: ThemeableCollectionViewListCell {
 	}
 
 	static func registerCellProvider() {
-		let itemListCellRegistration = UICollectionView.CellRegistration<ViewCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let itemListCellRegistration = ReconfigureSafeCellRegistration<ViewCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
 				cell.hostedView = item as? UIView
 			})
 		}
 
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .view, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
-			return collectionView.dequeueConfiguredReusableCell(using: itemListCellRegistration, for: indexPath, item: itemRef)
+			return itemListCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 		}))
 	}
 }

@@ -732,6 +732,7 @@
 		DCE0275E21F1DF7E00F2544E /* ownCloudUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2393697C2076110900BCE21A /* ownCloudUI.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		DCE28F602433683700879DEC /* ClientSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE28F5F2433683700879DEC /* ClientSessionManager.swift */; };
 		DCE2F03E27FADF2600E9E136 /* UICollectionViewDiffableDataSource+Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE2F03D27FADF2600E9E136 /* UICollectionViewDiffableDataSource+Tools.swift */; };
+		DCF0A00227FADF2600E9E137 /* ReconfigureSafeCellRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF0A00127FADF2600E9E137 /* ReconfigureSafeCellRegistration.swift */; };
 		DCE442CE2387452000940A6D /* LicensingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DCC0856B2293F1FD008CC05C /* LicensingTests.m */; };
 		DCE4E43524C1999A0051722F /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E37F48A2188B27D00CF16CA /* Action.swift */; };
 		DCE4E43724C19A910051722F /* LicenseRequirements.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDC209B2399A4CF003CFF5B /* LicenseRequirements.swift */; };
@@ -1887,6 +1888,7 @@
 		DCE20271249AB50E0015A22A /* OCMessage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OCMessage+Extension.swift"; sourceTree = "<group>"; };
 		DCE28F5F2433683700879DEC /* ClientSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientSessionManager.swift; sourceTree = "<group>"; };
 		DCE2F03D27FADF2600E9E136 /* UICollectionViewDiffableDataSource+Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionViewDiffableDataSource+Tools.swift"; sourceTree = "<group>"; };
+		DCF0A00127FADF2600E9E137 /* ReconfigureSafeCellRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconfigureSafeCellRegistration.swift; sourceTree = "<group>"; };
 		DCE4E43D24C19C3E0051722F /* Action+UserInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Action+UserInterface.swift"; sourceTree = "<group>"; };
 		DCE4E46824C1F5610051722F /* ownCloud Share Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ownCloud Share Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCE4E46F24C1F5610051722F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2378,6 +2380,7 @@
 				DC434D1220D7A8F100740056 /* UIAlertController+OCIssue.swift */,
 				39104E0A223991C8002FC02F /* UIButton+Extension.swift */,
 				DCE2F03D27FADF2600E9E136 /* UICollectionViewDiffableDataSource+Tools.swift */,
+				DCF0A00127FADF2600E9E137 /* ReconfigureSafeCellRegistration.swift */,
 				239F1318205A693A0029F186 /* UIColor+Extension.swift */,
 				23E22BB220C6A5C40024D11E /* UIDevice+UIUserInterfaceIdiom.swift */,
 				DC3AB24328104AA500789435 /* UIFont+Weight.swift */,
@@ -5553,6 +5556,7 @@
 				DC081C8B299B9B9000BFF393 /* AppStateActionGoToPersonalFolder.swift in Sources */,
 				DCE4E43B24C19B4F0051722F /* NSLayoutConstraint+Extension.swift in Sources */,
 				DCE2F03E27FADF2600E9E136 /* UICollectionViewDiffableDataSource+Tools.swift in Sources */,
+				DCF0A00227FADF2600E9E137 /* ReconfigureSafeCellRegistration.swift in Sources */,
 				DC0A355724C0E35B00FB58FC /* UIDevice+UIUserInterfaceIdiom.swift in Sources */,
 				DC0A359224C0E55800FB58FC /* UIColor+Extension.swift in Sources */,
 				DCE4E45024C1E0400051722F /* UIButton+Extension.swift in Sources */,

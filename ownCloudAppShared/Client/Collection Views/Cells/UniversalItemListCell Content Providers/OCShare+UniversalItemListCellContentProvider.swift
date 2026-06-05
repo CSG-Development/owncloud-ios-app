@@ -302,7 +302,7 @@ extension OCShare: UniversalItemListCellContentProvider {
 
 extension OCShare {
 	static func registerUniversalCellProvider() {
-		let shareCellRegistration = UICollectionView.CellRegistration<UniversalItemListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let shareCellRegistration = ReconfigureSafeCellRegistration<UniversalItemListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
 				if let share = OCDataRenderer.default.renderItem(item, asType: .share, error: nil, withOptions: nil) as? OCShare {
 					cell.fill(from: share, context: cellConfiguration.clientContext, configuration: cellConfiguration)
@@ -311,7 +311,7 @@ extension OCShare {
 		}
 
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .share, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
-			return collectionView.dequeueConfiguredReusableCell(using: shareCellRegistration, for: indexPath, item: itemRef)
+			return shareCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 		}))
 	}
 }

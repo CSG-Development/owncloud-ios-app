@@ -50,6 +50,22 @@ open class BrowserNavigationItem: NSObject {
 		}
 	}
 
+	/// True for regular files/folder navigation (not sidebar special items or tag file lists).
+	open var isFilesLocationNavigation: Bool {
+		guard !isSpecialTabBarItem, !isSavedSearchItem else { return false }
+
+		if navigationBookmark?.location != nil {
+			return true
+		}
+
+		if let itemViewController = viewControllerIfLoaded as? ClientItemViewController,
+		   itemViewController.query?.queryLocation != nil {
+			return true
+		}
+
+		return false
+	}
+
 	open var isSpecialTabBarItem: Bool {
 		guard let specialItem = navigationBookmark?.specialItem else { return false }
 		return [

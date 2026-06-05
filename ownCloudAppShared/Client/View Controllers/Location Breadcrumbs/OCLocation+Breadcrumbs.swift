@@ -30,6 +30,21 @@ public extension OCLocation {
 		case auto
 	}
 
+	static func filesNavigationTitle() -> String {
+		OCLocalizedString("Files", nil)
+	}
+
+	static func navigationTitleReplacingAccountName(_ title: String?, in context: ClientContext?) -> String? {
+		guard let title, !title.isEmpty else { return title }
+
+		if let bookmark = context?.core?.bookmark,
+		   title == bookmark.displayName || title == bookmark.shortName || title == bookmark.name {
+			return filesNavigationTitle()
+		}
+
+		return title
+	}
+
 	func displayName(in context: ClientContext?) -> String {
 		switch type {
 			case .drive:
@@ -49,9 +64,7 @@ public extension OCLocation {
 				}
 
 			case .account:
-				if let bookmarkUUID, let bookmark = OCBookmarkManager.shared.bookmark(for: bookmarkUUID) {
-					return bookmark.displayName ?? bookmark.shortName
-				}
+				return Self.filesNavigationTitle()
 
 			default: break
 		}
@@ -199,9 +212,9 @@ public extension OCLocation {
 			}
 		}
 
-		// Server name
-		if let bookmark = clientContext.core?.bookmark, effectiveIncludeServername {
-			addCrumb(title: bookmark.displayName ?? bookmark.shortName, icon: OCSymbol.icon(forSymbolName: "server.rack"), location: (self.driveID == nil) ? OCLocation.legacyRoot : nil)
+		// Server / account name
+		if clientContext.core?.bookmark != nil, effectiveIncludeServername {
+			addCrumb(title: Self.filesNavigationTitle(), icon: OCSymbol.icon(forSymbolName: "server.rack"), location: (self.driveID == nil) ? OCLocation.legacyRoot : nil)
 		}
 
 		return breadcrumbs
