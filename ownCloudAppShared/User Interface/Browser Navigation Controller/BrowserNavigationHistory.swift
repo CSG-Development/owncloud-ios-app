@@ -69,6 +69,10 @@ open class BrowserNavigationHistory {
 					items.removeSubrange((position+1)...items.count-1)
 				}
 
+				if item.isFilesLocationNavigation {
+					pruneSpecialItemBranch()
+				}
+
 				items.append(item)
 				position += 1
 			}
@@ -99,6 +103,35 @@ open class BrowserNavigationHistory {
 				self.delegate?.updateNavigation()
 			}
 		}
+	}
+
+	@discardableResult open func presentLastFilesNavigationItem(
+		completion: CompletionHandler? = nil
+	) -> BrowserNavigationItem? {
+		var presentItem: BrowserNavigationItem?
+
+		OCSynchronized(self) {
+			if let index = items.lastIndex(where: { !$0.isSpecialTabBarItem }) {
+				position = index
+				presentItem = items[index]
+				lastPushAttempt = presentItem
+			}
+		}
+
+		if let presentItem {
+			present(item: presentItem, with: .none, completion: completion)
+		} else {
+			completion?(false)
+		}
+
+		return presentItem
+	}
+
+	private func pruneSpecialItemBranch() {
+		guard let lastSpecialIndex = items.lastIndex(where: { $0.isSpecialTabBarItem }) else { return }
+
+		items.removeSubrange(lastSpecialIndex...)
+		position = items.count - 1
 	}
 
 	@discardableResult open func moveBack(completion: CompletionHandler? = nil) -> BrowserNavigationItem? {

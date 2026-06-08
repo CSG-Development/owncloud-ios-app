@@ -116,6 +116,12 @@ public enum HCColor {
 		public static func primaryTransparentNormal20(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#64B5F63D") : UIColor(hexString: "#1976D233")
 		}
+
+		//Interaction/Primary Transparent Normal 12
+		public static func primaryTransparentNormal12(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#64B5F61F") : UIColor(hexString: "#1976D21F")
+		}
+
 		// Interaction/Secondary Label
 		public static func secondaryLabel(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#212121FF") : UIColor(hexString: "#FFFFFFFF")
@@ -155,6 +161,11 @@ public enum HCColor {
 		// Constant/Primary
 		public static func primary(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#6EBD49FF") : UIColor(hexString: "#6EBD49FF")
+		}
+
+		// Constant/white
+		public static func white(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#FFFFFFFF") : UIColor(hexString: "#FFFFFFFF")
 		}
 	}
 }

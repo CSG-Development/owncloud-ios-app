@@ -43,7 +43,7 @@ extension OCShareRole: UniversalItemListCellContentProvider {
 
 extension OCShareRole {
 	static func registerUniversalCellProvider() {
-		let cellRegistration = UICollectionView.CellRegistration<UniversalItemListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let cellRegistration = ReconfigureSafeCellRegistration<UniversalItemListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
 				if let shareRole = OCDataRenderer.default.renderItem(item, asType: .shareRole, error: nil, withOptions: nil) as? OCShareRole {
 					cell.fill(from: shareRole, context: cellConfiguration.clientContext, configuration: cellConfiguration)
@@ -52,7 +52,7 @@ extension OCShareRole {
 		}
 
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .shareRole, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
-			return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemRef)
+			return cellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 		}))
 	}
 }

@@ -194,7 +194,6 @@ extension OCSavedSearch {
 				item?.insets = .zero
 			} else {
 				item = SegmentViewItem(with: OCSymbol.icon(forSymbolName: condition.symbolName), title: condition.localizedDescription, style: .token, titleTextStyle: .caption1)
-				item?.cornerStyle = .round(points: 3)
 			}
 
 			if let item = item {
@@ -221,7 +220,7 @@ extension SavedSearchCell {
 	static let savedSearchIcon = OCSymbol.icon(forSymbolName: "folder.badge.gearshape")
 
 	static func registerCellProvider() {
-		let savedSearchCellRegistration = UICollectionView.CellRegistration<SavedSearchCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let savedSearchCellRegistration = ReconfigureSafeCellRegistration<SavedSearchCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
 				if let savedSearch = OCDataRenderer.default.renderItem(item, asType: .savedSearch, error: nil, withOptions: nil) as? OCSavedSearch {
 					var icon: UIImage?
@@ -261,7 +260,7 @@ extension SavedSearchCell {
 			})
 		}
 
-		let savedSearchSidebarCellRegistration = UICollectionView.CellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let savedSearchSidebarCellRegistration = ReconfigureSafeCellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var content = cell.defaultContentConfiguration()
 
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
@@ -284,10 +283,10 @@ extension SavedSearchCell {
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .savedSearch, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
 			switch cellConfiguration?.style.type {
 				case .sideBar:
-					return collectionView.dequeueConfiguredReusableCell(using: savedSearchSidebarCellRegistration, for: indexPath, item: itemRef)
+					return savedSearchSidebarCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 
 				default:
-					return collectionView.dequeueConfiguredReusableCell(using: savedSearchCellRegistration, for: indexPath, item: itemRef)
+					return savedSearchCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 			}
 		}))
 	}

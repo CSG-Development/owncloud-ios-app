@@ -94,7 +94,7 @@ extension OCItemPolicy: UniversalItemListCellContentProvider {
 
 extension OCItemPolicy {
 	static func registerUniversalCellProvider() {
-		let cellRegistration = UICollectionView.CellRegistration<UniversalItemListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let cellRegistration = ReconfigureSafeCellRegistration<UniversalItemListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
 				if let itemPolicy = OCDataRenderer.default.renderItem(item, asType: .itemPolicy, error: nil, withOptions: nil) as? OCItemPolicy {
 					cell.fill(from: itemPolicy, context: cellConfiguration.clientContext, configuration: cellConfiguration)
@@ -105,10 +105,10 @@ extension OCItemPolicy {
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .itemPolicy, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
 			switch cellConfiguration?.style.type {
 				default:
-					let cell = collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemRef)
+					let cell = cellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 
-					if cellConfiguration?.highlight == true {
-						cell.revealHighlight = true
+					if let listCell = cell as? UniversalItemListCell, cellConfiguration?.highlight == true {
+						listCell.revealHighlight = true
 					}
 
 					return cell

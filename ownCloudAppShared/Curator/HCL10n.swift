@@ -14,11 +14,17 @@ public enum HCL10n {
 	public enum Onboarding {
 		public static var doneButtonTitle: String { OCLocalizedString("Onboarding.doneButtonTitle" , nil) }
 		public static var skipButtonTitle: String { OCLocalizedString("Onboarding.skipButtonTitle" , nil) }
+// TO DELETE:
+//		public enum Step_ManageFiles {
+//			public static var title: String { OCLocalizedString("Onboarding.Step_ManageFiles.title" , nil) }
+//			public static var subtitle: String { OCLocalizedString("Onboarding.Step_ManageFiles.subtitle" , nil) }
+//		}
 
-		public enum Step_ManageFiles {
-			public static var title: String { OCLocalizedString("Onboarding.Step_ManageFiles.title" , nil) }
-			public static var subtitle: String { OCLocalizedString("Onboarding.Step_ManageFiles.subtitle" , nil) }
+		public enum Step_Welcome {
+			public static var title: String { OCLocalizedString("Onboarding.Step_Welcome.title" , nil) }
+			public static var subtitle: String { OCLocalizedString("Onboarding.Step_Welcome.subtitle" , nil) }
 		}
+
 		public enum Step_SyncFiles {
 			public static var title: String { OCLocalizedString("Onboarding.Step_SyncFiles.title" , nil) }
 			public static var subtitle: String { OCLocalizedString("Onboarding.Step_SyncFiles.subtitle" , nil) }
@@ -78,6 +84,7 @@ public enum HCL10n {
 
 	public enum Auth {
 		public enum Login {
+			public static var logoTitle: String { OCLocalizedString("Auth.Login.logoTitle", nil) }
 			public static var loadingViewTitle: String { OCLocalizedString("Auth.Login.loadingViewTitle", nil) }
 			public static var incorrectEmailPassword: String { OCLocalizedString("Auth.Login.incorrectEmailPassword", nil) }
 			public static var invalidEmail: String { OCLocalizedString("Auth.Login.invalidEmail", nil) }

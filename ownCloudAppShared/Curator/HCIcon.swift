@@ -15,6 +15,9 @@ public enum HCIcon {
 	public static var clearLight: UIImage? { sharedIcon("clear_light") }
 	public static var errorIcon: UIImage? { sharedIcon("error_icon") }
 	public static var tagIcon: UIImage? { sharedIcon("tag_icon") }
+	public static var appIconGradient: UIImage? { sharedIcon("app-icon-gradient") }
+	public static var seagateIconOverlay: UIImage? { sharedIcon("seagate-icon-overlay") }
+	public static var tick: UIImage? { sharedIcon("tick") }
 
 	private static func sharedIcon(_ name: String) -> UIImage? {
 		UIImage(named: name, in: Bundle.sharedAppBundle, with: nil)

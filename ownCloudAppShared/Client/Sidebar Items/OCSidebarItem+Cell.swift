@@ -21,7 +21,7 @@ import ownCloudApp
 
 extension OCSidebarItem {
 	static func registerCellProvider() {
-		let sidebarItemSidebarCellRegistration = UICollectionView.CellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let sidebarItemSidebarCellRegistration = ReconfigureSafeCellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			var content = cell.defaultContentConfiguration()
 
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
@@ -37,7 +37,7 @@ extension OCSidebarItem {
 		}
 
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .sidebarItem, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
-			return collectionView.dequeueConfiguredReusableCell(using: sidebarItemSidebarCellRegistration, for: indexPath, item: itemRef)
+			return sidebarItemSidebarCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 		}))
 	}
 }

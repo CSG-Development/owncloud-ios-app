@@ -52,6 +52,7 @@ private final class FileTagChipCell: UICollectionViewCell {
 
 	let titleLabel = UILabel()
 	let removeButton = UIButton(type: .system)
+	private let activityIndicator = UIActivityIndicatorView(style: .medium)
 
 	var onRemove: (() -> Void)?
 
@@ -67,7 +68,10 @@ private final class FileTagChipCell: UICollectionViewCell {
 		removeButton.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
 		removeButton.addTarget(self, action: #selector(removeTapped), for: .touchUpInside)
 
-		let stack = UIStackView(arrangedSubviews: [titleLabel, removeButton])
+		activityIndicator.hidesWhenStopped = true
+		activityIndicator.isHidden = true
+
+		let stack = UIStackView(arrangedSubviews: [titleLabel, removeButton, activityIndicator])
 		stack.axis = .horizontal
 		stack.spacing = 6
 		stack.alignment = .center
@@ -81,6 +85,9 @@ private final class FileTagChipCell: UICollectionViewCell {
 		removeButton.snp.makeConstraints { make in
 			make.width.height.equalTo(28)
 		}
+		activityIndicator.snp.makeConstraints { make in
+			make.width.height.equalTo(28)
+		}
 	}
 
 	required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -88,6 +95,7 @@ private final class FileTagChipCell: UICollectionViewCell {
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		onRemove = nil
+		setLoading(false)
 		setShowsRemoveButton(true)
 	}
 
@@ -100,12 +108,27 @@ private final class FileTagChipCell: UICollectionViewCell {
 		removeButton.isUserInteractionEnabled = shows
 	}
 
+	func setLoading(_ loading: Bool) {
+		if loading {
+			removeButton.isHidden = true
+			removeButton.isUserInteractionEnabled = false
+			activityIndicator.isHidden = false
+			activityIndicator.startAnimating()
+		} else {
+			activityIndicator.stopAnimating()
+			activityIndicator.isHidden = true
+			removeButton.isHidden = false
+			removeButton.isUserInteractionEnabled = true
+		}
+	}
+
 	func apply(themeCollection: ThemeCollection, isDark: Bool) {
 		let secondaryText = HCColor.Content.textSecondary(isDark)
 		contentView.backgroundColor = HCColor.Interaction.primaryTransparentNormal20(isDark)
 		titleLabel.textColor = secondaryText
 		removeButton.tintColor = secondaryText
 		removeButton.setTitleColor(secondaryText, for: .normal)
+		activityIndicator.color = secondaryText
 	}
 }
 
@@ -236,6 +259,7 @@ final class FileTagsManagementViewController: UIViewController, Themeable {
 	private var allSystemTags: [OCSystemTag] = []
 	private var assignedTags: [OCSystemTag] = []
 	private var dropdownRows: [DropdownRow] = []
+	private var pendingTagOperationIDs = Set<String>()
 
 	private var chipsExpanded = false
 	private var chipsHeightConstraint: Constraint?
@@ -464,6 +488,28 @@ final class FileTagsManagementViewController: UIViewController, Themeable {
 		}
 	}
 
+	private static func pendingTagID(forName name: String) -> String {
+		"__pending__\(name)"
+	}
+
+	private func tagID(_ tag: OCSystemTag) -> String {
+		tag.identifier as String? ?? ""
+	}
+
+	private func setTagOperationPending(_ tag: OCSystemTag, pending: Bool) {
+		let id = tagID(tag)
+		guard !id.isEmpty else { return }
+		if pending {
+			pendingTagOperationIDs.insert(id)
+		} else {
+			pendingTagOperationIDs.remove(id)
+		}
+	}
+
+	private func isTagOperationPending(_ tag: OCSystemTag) -> Bool {
+		pendingTagOperationIDs.contains(tagID(tag))
+	}
+
 	private func assignedIdSet() -> Set<String> {
 		Set(assignedTags.map(\.identifier))
 	}
@@ -609,30 +655,40 @@ final class FileTagsManagementViewController: UIViewController, Themeable {
 		displayedChipItems = items
 	}
 
-	private func updateChipsUI() {
-		let has = !assignedTags.isEmpty
-		emptyTagsMessageView.isHidden = has
-		chipsContainer.isHidden = !has
-		guard has else {
-			chipsHeightConstraint?.update(offset: 0)
-			displayedChipItems = []
-			return
+	private func updateChipsUI(animated: Bool = true) {
+		let applyUpdates = { [self] in
+			let has = !assignedTags.isEmpty
+			emptyTagsMessageView.isHidden = has
+			chipsContainer.isHidden = !has
+			guard has else {
+				chipsHeightConstraint?.update(offset: 0)
+				displayedChipItems = []
+				return
+			}
+			recomputeChipDisplay()
+			chipsCollectionView.reloadData()
+			chipsCollectionView.layoutIfNeeded()
+			let contentHeight = chipsCollectionView.collectionViewLayout.collectionViewContentSize.height
+			let height: CGFloat
+			if canCollapseChips && !chipsExpanded {
+				height = min(maxCollapsedChipsHeight, contentHeight)
+			} else {
+				height = contentHeight
+			}
+			let maxHeight = tagsBodyContainer.bounds.height
+			if maxHeight > 0 {
+				chipsHeightConstraint?.update(offset: min(height, maxHeight))
+			} else {
+				chipsHeightConstraint?.update(offset: height)
+			}
 		}
-		recomputeChipDisplay()
-		chipsCollectionView.reloadData()
-		chipsCollectionView.layoutIfNeeded()
-		let contentHeight = chipsCollectionView.collectionViewLayout.collectionViewContentSize.height
-		let height: CGFloat
-		if canCollapseChips && !chipsExpanded {
-			height = min(maxCollapsedChipsHeight, contentHeight)
+
+		if animated {
+			applyUpdates()
 		} else {
-			height = contentHeight
-		}
-		let maxHeight = tagsBodyContainer.bounds.height
-		if maxHeight > 0 {
-			chipsHeightConstraint?.update(offset: min(height, maxHeight))
-		} else {
-			chipsHeightConstraint?.update(offset: height)
+			UIView.performWithoutAnimation {
+				applyUpdates()
+			}
 		}
 	}
 
@@ -642,32 +698,51 @@ final class FileTagsManagementViewController: UIViewController, Themeable {
 		present(alert, animated: true)
 	}
 
+	private func beginAssigningTag(_ tag: OCSystemTag) {
+		if !assignedTags.contains(where: { $0.identifier == tag.identifier }) {
+			assignedTags.append(tag)
+			assignedTags.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+		}
+		setTagOperationPending(tag, pending: true)
+		tagSelectField.textFieldView.textField.text = ""
+		tagSelectField.collapseDropdown()
+		updateChipsUI()
+		refreshTagDropdown()
+	}
+
+	private func finishAssigningTag(_ tag: OCSystemTag, error: Error?) {
+		setTagOperationPending(tag, pending: false)
+		if let error {
+			assignedTags.removeAll { $0.identifier == tag.identifier }
+			updateChipsUI()
+			refreshTagDropdown()
+			presentAlert(title: HCL10n.TagManage.assignFailed, message: error.localizedDescription)
+			return
+		}
+		persistAssignedTagsSnapshot()
+		updateChipsUI()
+		refreshTagDropdown()
+	}
+
 	private func assignOnServer(_ tag: OCSystemTag) {
 		guard let fileID = item.fileID else { return }
-		showLoading(true)
+		beginAssigningTag(tag)
 		core.connection.assign(tag, toFileWithID: fileID) { [weak self] error in
 			OnMainThread {
-				self?.showLoading(false)
-				if let error {
-					self?.presentAlert(title: HCL10n.TagManage.assignFailed, message: error.localizedDescription)
-					return
-				}
-				guard let self else { return }
-				if !self.assignedTags.contains(where: { $0.identifier == tag.identifier }) {
-					self.assignedTags.append(tag)
-					self.assignedTags.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
-				}
-				self.tagSelectField.textFieldView.textField.text = ""
-				self.tagSelectField.collapseDropdown()
-				self.updateChipsUI()
-				self.refreshTagDropdown()
+				self?.finishAssigningTag(tag, error: error)
 			}
 		}
 	}
 
 	private func createAndAssignOnServer(name: String) {
 		guard let fileID = item.fileID else { return }
-		showLoading(true)
+		let pendingTag = OCSystemTag(
+			identifier: Self.pendingTagID(forName: name),
+			displayName: name,
+			userVisible: true,
+			userAssignable: true
+		)
+		beginAssigningTag(pendingTag)
 		core.connection.createAndAssignTag(
 			withName: name,
 			userVisible: true,
@@ -677,29 +752,35 @@ final class FileTagsManagementViewController: UIViewController, Themeable {
 			toFileWithID: fileID
 		) { [weak self] error, newTag in
 			OnMainThread {
-				self?.showLoading(false)
+				guard let self else { return }
+				self.setTagOperationPending(pendingTag, pending: false)
 				if let error {
 					let ns = error as NSError
+					self.assignedTags.removeAll { $0.identifier == pendingTag.identifier }
+					self.updateChipsUI()
+					self.refreshTagDropdown()
 					if ns.isOCError(withCode: .itemAlreadyExists) {
-						self?.reloadAllTagDataAfterConflict(wantedName: name)
+						self.reloadAllTagDataAfterConflict(wantedName: name)
 						return
 					}
-					self?.presentAlert(title: HCL10n.TagManage.createError, message: error.localizedDescription)
+					self.presentAlert(title: HCL10n.TagManage.createError, message: error.localizedDescription)
 					return
 				}
-				guard let self else { return }
 				if let newTag {
+					if let idx = self.assignedTags.firstIndex(where: { $0.identifier == pendingTag.identifier }) {
+						self.assignedTags[idx] = newTag
+					} else if !self.assignedTags.contains(where: { $0.identifier == newTag.identifier }) {
+						self.assignedTags.append(newTag)
+					}
+					self.assignedTags.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
 					if !self.allSystemTags.contains(where: { $0.identifier == newTag.identifier }) {
 						self.allSystemTags.append(newTag)
 						self.allSystemTags.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
 					}
-					if !self.assignedTags.contains(where: { $0.identifier == newTag.identifier }) {
-						self.assignedTags.append(newTag)
-						self.assignedTags.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
-					}
+				} else {
+					self.assignedTags.removeAll { $0.identifier == pendingTag.identifier }
 				}
-				self.tagSelectField.textFieldView.textField.text = ""
-				self.tagSelectField.collapseDropdown()
+				self.persistAssignedTagsSnapshot()
 				self.updateChipsUI()
 				self.refreshTagDropdown()
 			}
@@ -730,19 +811,29 @@ final class FileTagsManagementViewController: UIViewController, Themeable {
 
 	private func unassignOnServer(_ tag: OCSystemTag) {
 		guard let fileID = item.fileID else { return }
-		showLoading(true)
+		setTagOperationPending(tag, pending: true)
+		updateChipsUI(animated: false)
 		core.connection.unassignTag(tag, fromFileWithID: fileID) { [weak self] error in
 			OnMainThread {
-				self?.showLoading(false)
+				guard let self else { return }
+				self.setTagOperationPending(tag, pending: false)
 				if let error {
-					self?.presentAlert(title: HCL10n.TagManage.removeFailed, message: error.localizedDescription)
+					self.updateChipsUI(animated: false)
+					self.presentAlert(title: HCL10n.TagManage.removeFailed, message: error.localizedDescription)
 					return
 				}
-				self?.assignedTags.removeAll { $0.identifier == tag.identifier }
-				self?.updateChipsUI()
-				self?.refreshTagDropdown()
+				self.assignedTags.removeAll { $0.identifier == tag.identifier }
+				self.persistAssignedTagsSnapshot()
+				self.updateChipsUI(animated: false)
+				self.refreshTagDropdown()
 			}
 		}
+	}
+
+	private func persistAssignedTagsSnapshot() {
+		item.setLocalTagSnapshots(from: assignedTags)
+		core.update(item, properties: [OCItemPropertyName.localAttributes])
+		AccountTagSyncService.shared.syncIfNeeded(for: core.bookmark, force: true)
 	}
 }
 
@@ -787,9 +878,15 @@ extension FileTagsManagementViewController: UICollectionViewDataSource, UICollec
 		switch displayedChipItems[indexPath.item] {
 			case .tag(let tag):
 				cell.titleLabel.text = tag.displayName
-				cell.setShowsRemoveButton(true)
-				cell.onRemove = { [weak self] in
-					self?.unassignOnServer(tag)
+				let isPending = isTagOperationPending(tag)
+				cell.setLoading(isPending)
+				if isPending {
+					cell.onRemove = nil
+				} else {
+					cell.setShowsRemoveButton(true)
+					cell.onRemove = { [weak self] in
+						self?.unassignOnServer(tag)
+					}
 				}
 			case .showMore(let hiddenCount):
 				cell.titleLabel.text = String(format: HCL10n.TagManage.showMoreFormat, hiddenCount)

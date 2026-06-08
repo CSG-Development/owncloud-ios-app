@@ -126,13 +126,30 @@ open class HCTextFieldView: HCFieldView {
 
 		let tap = UITapGestureRecognizer(target: self, action: #selector(borderedAreaTapped))
 		tap.cancelsTouchesInView = false
+		tap.delegate = self
 		borderView.addGestureRecognizer(tap)
 
 		for case let scrollView as UIScrollView in borderView.subviews {
 			let scrollTap = UITapGestureRecognizer(target: self, action: #selector(borderedAreaTapped))
 			scrollTap.cancelsTouchesInView = false
+			scrollTap.delegate = self
 			scrollView.addGestureRecognizer(scrollTap)
 		}
+	}
+
+	/// Returns false when the touch is on an interactive subview (e.g. chevron, clear button, text field).
+	private func shouldBorderTapReceive(_ touch: UITouch) -> Bool {
+		var view = touch.view
+		while let current = view {
+			if current is UIControl || current === textField {
+				return false
+			}
+			if current === borderView {
+				break
+			}
+			view = current.superview
+		}
+		return true
 	}
 
 	@objc private func borderedAreaTapped() {
@@ -240,5 +257,11 @@ open class HCTextFieldView: HCFieldView {
 	@objc private func editingDidEnd() {
 		updateAppearance()
 		updateTextField()
+	}
+}
+
+extension HCTextFieldView: UIGestureRecognizerDelegate {
+	public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+		shouldBorderTapReceive(touch)
 	}
 }

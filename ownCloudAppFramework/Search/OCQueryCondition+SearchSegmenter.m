@@ -218,6 +218,8 @@
 			TranslateKeyword(@"smaller"),
 			TranslateKeyword(@"greater"),
 			TranslateKeyword(@"owner"),
+			TranslateKeyword(@"tag"),
+			TranslateKeyword(@"tags"),
 
 			// Suffix keywords
 			TranslateKeyword(@"d"),
@@ -458,6 +460,11 @@
 							condition = [OCQueryCondition where:OCItemPropertyNameOwnerUserName isEqualTo:parameter];
 							AddDescription(condition, @"person.crop.circle", nil, negateCondition ? [OCLocalizedViaLocalizationBundle(@"Not") stringByAppendingFormat:@" %@", parameter] : parameter);
 						}
+						else if ([modifierKeyword isEqual:@"tag"] || [modifierKeyword isEqual:@"tags"])
+						{
+							condition = [OCQueryCondition where:@"tag" isEqualTo:parameter];
+							AddDescription(condition, @"tag", nil, parameter);
+						}
 						else if ([modifier isEqual:@""])
 						{
 							// Parse time formats, f.ex.: 7d, 2w, 1m, 2y
@@ -564,7 +571,9 @@
 					    [modifierKeyword isEqual:@"on"]      ||
 					    [modifierKeyword isEqual:@"greater"] ||
 					    [modifierKeyword isEqual:@"smaller"] ||
-					    [modifierKeyword isEqual:@"owner"]
+					    [modifierKeyword isEqual:@"owner"]   ||
+					    [modifierKeyword isEqual:@"tag"]     ||
+					    [modifierKeyword isEqual:@"tags"]
 					   )
 					{
 						// Modifiers without parameters

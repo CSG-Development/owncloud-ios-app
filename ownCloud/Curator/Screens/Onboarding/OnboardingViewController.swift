@@ -5,10 +5,10 @@ import ownCloudAppShared
 class OnboardingViewController: UIViewController, Themeable, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
 	private let pages: [OnboardingPage] = [
 		.init(
-			imageNameLight: "onboarding/step_1_light",
-			imageNameDark: "onboarding/step_1_dark",
-			title: HCL10n.Onboarding.Step_ManageFiles.title,
-			subtitle: HCL10n.Onboarding.Step_ManageFiles.subtitle
+			imageNameLight: "onboarding/app-icon-gradient",
+			imageNameDark: "onboarding/app-icon-gradient",
+			title: HCL10n.Onboarding.Step_Welcome.title,
+			subtitle: HCL10n.Onboarding.Step_Welcome.subtitle
 		),
 		.init(
 			imageNameLight: "onboarding/step_2_light",

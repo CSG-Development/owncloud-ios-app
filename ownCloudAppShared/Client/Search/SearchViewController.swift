@@ -152,6 +152,8 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 	}
 
 	// MARK: - Views
+	private static let searchFieldContainerHeight: CGFloat = 36
+
 	var searchField: UISearchTextField = UISearchTextField()
 	var searchContainerView: UIView = UIView()
 	var scopePopup: PopupButtonController?
@@ -167,7 +169,31 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 			if let scopeViewController = scopeViewController, let scopeViewControllerView = scopeViewController.view {
 				addChild(scopeViewController)
 				view.addSubview(scopeViewControllerView)
-				scopeViewControllerConstraints = view.embed(toFillWith: scopeViewControllerView, insets: NSDirectionalEdgeInsets(top: 10, leading: 15, bottom: 10, trailing: 10), enclosingAnchors: view.safeAreaAnchorSet)
+				scopeViewControllerView.translatesAutoresizingMaskIntoConstraints = false
+
+				let horizontalInset: CGFloat = 15
+				let topInset: CGFloat = 0
+				let bottomInset: CGFloat = 0
+				let anchors = view.safeAreaAnchorSet
+
+				if scopeViewController is ItemSearchSuggestionsViewController {
+					let filterBarHeight = ItemSearchSuggestionsViewController.filterBarHeight
+					scopeViewControllerConstraints = [
+						scopeViewControllerView.leadingAnchor.constraint(equalTo: anchors.leadingAnchor, constant: horizontalInset),
+						scopeViewControllerView.trailingAnchor.constraint(equalTo: anchors.trailingAnchor, constant: -horizontalInset),
+						scopeViewControllerView.topAnchor.constraint(equalTo: anchors.topAnchor, constant: topInset),
+						scopeViewControllerView.heightAnchor.constraint(equalToConstant: filterBarHeight),
+						view.bottomAnchor.constraint(equalTo: scopeViewControllerView.bottomAnchor, constant: bottomInset)
+					]
+				} else {
+					scopeViewControllerConstraints = view.embed(
+						toFillWith: scopeViewControllerView,
+						insets: NSDirectionalEdgeInsets(top: topInset, leading: horizontalInset, bottom: bottomInset, trailing: horizontalInset),
+						enclosingAnchors: anchors
+					)
+				}
+
+				NSLayoutConstraint.activate(scopeViewControllerConstraints ?? [])
 				scopeViewController.didMove(toParent: self)
 			}
 		}
@@ -212,8 +238,11 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 			searchField.trailingAnchor.constraint(equalTo: searchContainerView.trailingAnchor),
 			searchField.topAnchor.constraint(equalTo: searchContainerView.topAnchor),
 			searchField.bottomAnchor.constraint(equalTo: searchContainerView.bottomAnchor),
-			searchContainerView.heightAnchor.constraint(equalToConstant: 36)
+			searchContainerView.heightAnchor.constraint(equalToConstant: Self.searchFieldContainerHeight)
 		])
+
+		searchContainerView.layer.cornerRadius = Self.searchFieldContainerHeight / 2
+		searchContainerView.layer.masksToBounds = true
 
 		if let scopesCount = scopes?.count, scopesCount > 1 {
 			searchField.leftView = scopePopup?.button
@@ -352,6 +381,10 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 		return true
 	}
 
+	private func applyFilterChipStyleToSearchTokens() {
+		searchField.applyFilterChipAppearance(isDark: traitCollection.userInterfaceStyle == .dark)
+	}
+
 	@objc func searchFieldContentsChanged() {
 		sendSearchFieldContentsToActiveScope()
 		updateCurrentContent()
@@ -359,6 +392,7 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 
 	func sendSearchFieldContentsToActiveScope() {
 		self.activeScope?.tokenizer?.updateFor(searchField: searchField)
+		applyFilterChipStyleToSearchTokens()
 	}
 
 	// MARK: - Search results
@@ -403,7 +437,18 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 		didSet {
 			if oldValue != scopeResults {
 				scopeResultsSubscription = scopeResults?.subscribe(updateHandler: { [weak self] (subscription) in
-					self?.scopeResultsItemCount = subscription.snapshotResettingChangeTracking(true).numberOfItems
+					let snapshot = subscription.snapshotResettingChangeTracking(true)
+					var itemCount: UInt = 0
+
+					for itemRef in snapshot.items {
+						if let record = try? subscription.source?.record(forItemRef: itemRef),
+						   record.type == .item,
+						   record.item is OCItem {
+							itemCount += 1
+						}
+					}
+
+					self?.scopeResultsItemCount = itemCount
 				}, on: .main, trackDifferences: false, performInitialUpdate: true)
 			}
 		}
@@ -412,6 +457,20 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 	var scopeResultsItemCount: UInt = 0 {
 		didSet {
 			updateCurrentContent()
+		}
+	}
+
+	private var scopeResultsAreLoading: Bool {
+		guard let customScope = activeScope as? CustomQuerySearchScope,
+		      let queryState = customScope.customQuery?.state else {
+			return false
+		}
+
+		switch queryState {
+			case .started, .waitingForServerReply:
+				return true
+			default:
+				return false
 		}
 	}
 	open var scopeResultsCellStyle: CollectionViewCellStyle?
@@ -424,23 +483,37 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 	}
 
 	// Determine current content
-	func updateCurrentContent() {
-		var searchFieldText = searchField.text ?? ""
+	func refreshCurrentContent() {
+		updateCurrentContent()
+	}
 
+	private var hasActiveSearchCriteria: Bool {
+		var searchFieldText = searchField.text ?? ""
 		if searchFieldText.count > 0 {
-			// Strip white space and new lines (if pasted) to determine effective length of search term
 			let charSet = CharacterSet.whitespacesAndNewlines
 			searchFieldText = searchFieldText.trimmingCharacters(in: charSet)
 		}
 
-   		if searchField.tokens.count == 0, searchFieldText.count == 0 {
+		if searchField.tokens.count > 0 || searchFieldText.count > 0 {
+			return true
+		}
+
+		if let itemScope = activeScope as? ItemSearchScope {
+			return !itemScope.selectedTagIDs.isEmpty || !itemScope.selectedTagNames.isEmpty
+		}
+
+		return false
+	}
+
+	func updateCurrentContent() {
+   		if !hasActiveSearchCriteria {
 			currentContent = suggestionContent
+		} else if scopeResultsItemCount > 0 {
+			currentContent = resultContent
+		} else if scopeResultsAreLoading {
+			currentContent = resultContent
 		} else {
-			if scopeResultsItemCount == 0 {
-				currentContent = noResultContent
-			} else {
-				currentContent = resultContent
-			}
+			currentContent = noResultContent
 		}
 	}
 
@@ -517,48 +590,55 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 
 		searchField.tokens = tokens
 		searchField.text = searchTerm
+		applyFilterChipStyleToSearchTokens()
 	}
 
 	// MARK: - Theme support
-	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		// Keep the search field transparent so only the container provides background
-		searchField.backgroundColor = .clear
-
-		// Left icon tint (magnifier) to gray2
-		if let glassIconView = searchField.leftView as? UIImageView {
-			glassIconView.image = glassIconView.image?.withRenderingMode(.alwaysTemplate)
-			glassIconView.tintColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
-		} else if let leftView = searchField.leftView {
-			if let imageView = leftView.subviews.compactMap({ $0 as? UIImageView }).first {
+	private func applySearchFieldAccessoryTint(_ color: UIColor) {
+		if let leftView = searchField.leftView {
+			if let button = leftView as? UIButton {
+				button.tintColor = color
+			}
+			for case let imageView as UIImageView in leftView.subviewsRecursive {
 				imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-				imageView.tintColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
+				imageView.tintColor = color
 			}
 		}
 
-//		if let clearButton = searchField.value(forKey: "_clearButton") as? UIButton {
-//		   // Create a template copy of the original button image
-//			let templateImage =  clearButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
-//		   // Set the template image copy as the button image
-//			clearButton.setImage(templateImage, for: .normal)
-//		   // Finally, set the image color
-//		   clearButton.tintColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
-//		}
-		clearButton?.tintColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
-		searchField.textColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
-
-		// Placeholder color to gray3
-		if let placeholderString = searchField.placeholder {
-			searchField.attributedPlaceholder = NSAttributedString(string: placeholderString, attributes: [.foregroundColor : HCColor.Content.gray3])
+		if let clearButton {
+			clearButton.tintColor = color
+			if var configuration = clearButton.configuration {
+				configuration.baseForegroundColor = color
+				clearButton.configuration = configuration
+			}
 		}
 
-		// Container background color
-		searchContainerView.backgroundColor = collection.css.getColor(.fill, selectors: [.insetGrouped, .collection], for: nil)
-		searchContainerView.layer.cornerRadius = 10
+		scopePopup?.button.tintColor = color
+	}
+
+	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
+		let isDark = collection.isDark
+		let iconColor = HCColor.Interaction.primarySolidNormal(isDark)
+
+		// Keep the search field transparent so only the container provides background
+		searchField.backgroundColor = .clear
+		applySearchFieldAccessoryTint(iconColor)
+		searchField.textColor = collection.css.getColor(.fill, selectors: [.primaryText], for: nil)
+
+		if let placeholderString = searchField.placeholder {
+			searchField.attributedPlaceholder = NSAttributedString(
+				string: placeholderString,
+				attributes: [.foregroundColor: HCColor.Content.gray2(isDark)]
+			)
+		}
+
+		searchContainerView.backgroundColor = HCColor.Structure.appBackground(isDark)
+		searchContainerView.layer.cornerRadius = Self.searchFieldContainerHeight / 2
 		searchContainerView.layer.masksToBounds = true
-		searchContainerView.backgroundColor = collection.css.getColor(.fill, selectors: [.insetGrouped, .collection], for: nil)
 
 		view.backgroundColor = collection.css.getColor(.fill, selectors: [.insetGrouped, .collection], for: nil)
 		cancelToolbarButton?.tintColor = collection.css.getColor(.fill, selectors: [.navigationBar, .button], for: nil)
+		applyFilterChipStyleToSearchTokens()
 	}
 }
 

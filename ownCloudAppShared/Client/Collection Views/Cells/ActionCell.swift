@@ -180,10 +180,15 @@ class ActionCell: ThemeableCollectionViewCell {
 
 extension ActionCell {
 	static func registerCellProvider() {
-		let wideActionCellRegistration = UICollectionView.CellRegistration<ActionCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let actionCellRegistration = ReconfigureSafeCellRegistration<ActionCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
 				if let action = OCDataRenderer.default.renderItem(item, asType: .action, error: nil, withOptions: nil) as? OCAction {
-					cell.style = .horizontal
+					switch cellConfiguration.style.type {
+						case .gridCell, .gridCellLowDetail, .gridCellNoDetail:
+							cell.style = .vertical
+						default:
+							cell.style = .horizontal
+					}
 					cell.title = action.title
 					cell.icon = action.icon
 					cell.type = action.type
@@ -191,18 +196,7 @@ extension ActionCell {
 			})
 		}
 
-		let gridActionCellRegistration = UICollectionView.CellRegistration<ActionCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
-			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
-				if let action = OCDataRenderer.default.renderItem(item, asType: .action, error: nil, withOptions: nil) as? OCAction {
-					cell.style = .vertical
-					cell.title = action.title
-					cell.icon = action.icon
-					cell.type = action.type
-				}
-			})
-		}
-
-		let actionSideBarCellRegistration = UICollectionView.CellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
+		let actionSideBarCellRegistration = ReconfigureSafeCellRegistration<SidebarCollectionViewListCell, CollectionViewController.ItemRef> { (cell, indexPath, collectionItemRef) in
 			collectionItemRef.ocCellConfiguration?.configureCell(for: collectionItemRef, with: { itemRecord, item, cellConfiguration in
 				var accessories: [UICellAccessory] = []
 				var content = cell.defaultContentConfiguration()
@@ -264,7 +258,6 @@ extension ActionCell {
 				}
 
 				cell.accessibilityRespondsToUserInteraction = !hasButton
-
 				cell.accessories = accessories
 				cell.contentConfiguration = content
 				cell.backgroundConfiguration = backgroundConfiguration
@@ -274,16 +267,12 @@ extension ActionCell {
 
 		CollectionViewCellProvider.register(CollectionViewCellProvider(for: .action, with: { collectionView, cellConfiguration, itemRecord, itemRef, indexPath in
 			switch cellConfiguration?.style.type {
-				case .gridCell, .gridCellLowDetail, .gridCellNoDetail:
-					return collectionView.dequeueConfiguredReusableCell(using: gridActionCellRegistration, for: indexPath, item: itemRef)
-
 				case .sideBar:
-					return collectionView.dequeueConfiguredReusableCell(using: actionSideBarCellRegistration, for: indexPath, item: itemRef)
+					return actionSideBarCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 
 				default:
-					return collectionView.dequeueConfiguredReusableCell(using: wideActionCellRegistration, for: indexPath, item: itemRef)
+					return actionCellRegistration.dequeue(from: collectionView, for: indexPath, item: itemRef)
 			}
-
 		}))
 	}
 }
