@@ -72,7 +72,7 @@ platform :ios do
       ENTERPRISE_ACTION_EXTENSION_PROFILE: "Curator - Files - Action Extension - AppStore",
       ENTERPRISE_APP_FW_ID: "com.seagate.curator.stxfiles-app",
       ENTERPRISE_TEAM: "57HJ3KH2XC",
-      ENTERPRISE_IDENTITY: "Apple Distribution: Seagate Technologies LLC (57HJ3KH2XC)",
+      ENTERPRISE_IDENTITY: "iPhone Distribution: Seagate Technologies LLC (57HJ3KH2XC)",
       APP_GROUP_IDENTIFIERS: "group.com.seagate.curator.stxfiles",
       EXPORT_METHOD: "app-store",
       CONFIGURATION: "Release",
