@@ -38,6 +38,7 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 	private var resultsCellStyleObservation: NSKeyValueObservation?
 	private weak var cancelToolbarButton: UIBarButtonItem?
 	private weak var clearButton: UIButton?
+	private var recipientSearchWaitingObservation: NSKeyValueObservation?
 
 	open var clientContext: ClientContext
 
@@ -61,6 +62,9 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 
 				resultsCellStyleObservation?.invalidate()
 				resultsCellStyleObservation = nil
+
+				recipientSearchWaitingObservation?.invalidate()
+				recipientSearchWaitingObservation = nil
 			}
 		}
 
@@ -93,6 +97,12 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 				searchField.placeholder = activeScope?.localizedPlaceholder
 
 				scopeViewController = activeScope?.scopeViewController
+
+				if let recipientScope = activeScope as? RecipientSearchScope {
+					recipientSearchWaitingObservation = recipientScope.recipientSearchController?.observe(\.isWaitingForResults, options: [.initial, .new]) { [weak self] _, _ in
+						self?.updateCurrentContent()
+					}
+				}
 
 				sendSearchFieldContentsToActiveScope()
 			}
@@ -442,8 +452,7 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 
 					for itemRef in snapshot.items {
 						if let record = try? subscription.source?.record(forItemRef: itemRef),
-						   record.type == .item,
-						   record.item is OCItem {
+						   record.item is OCItem || record.item is OCIdentity {
 							itemCount += 1
 						}
 					}
@@ -461,6 +470,10 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 	}
 
 	private var scopeResultsAreLoading: Bool {
+		if let recipientScope = activeScope as? RecipientSearchScope {
+			return recipientScope.recipientSearchController?.isWaitingForResults ?? false
+		}
+
 		guard let customScope = activeScope as? CustomQuerySearchScope,
 		      let queryState = customScope.customQuery?.state else {
 			return false
