@@ -11,7 +11,6 @@ final class LoginCoordinator {
 	private weak var eventHandler: LoginCoordinatorEventHandler?
 	enum Event {
 		case loginTap
-		case resetPasswordTap
 		case settingsTap
 	}
 
@@ -32,9 +31,6 @@ extension LoginCoordinator: LoginViewModelEventHandler {
 		switch event {
 			case .loginTap:
 				eventHandler?.handle(.loginTap)
-
-			case .resetPasswordTap:
-				eventHandler?.handle(.resetPasswordTap)
 
 			case .settingsTap:
 				eventHandler?.handle(.settingsTap)
@@ -91,6 +87,52 @@ extension LoginCoordinator: LoginViewModelEventHandler {
 				vc.modalPresentationStyle = .overFullScreen
 				vc.modalTransitionStyle = .crossDissolve
 				mainVC?.present(vc, animated: true)
+
+			case let .resetPasswordSuccess(email):
+				mainVC?.showResetPasswordSuccessToast(email: email)
+
+			case let .resetPasswordError(errorType):
+				presentResetPasswordError(errorType)
 		}
+	}
+
+	private func presentResetPasswordError(_ errorType: ResetPasswordErrorType) {
+		switch errorType {
+			case .badRequest:
+				let card = CodeVerificationUnknownEmailCardViewController { [weak self] in
+					self?.mainVC?.dismiss(animated: true)
+				}
+				presentAuthCardOverlay(card)
+
+			case .serverError:
+				let card = CodeVerification500CardViewController(
+					onRetry: { [weak self] in
+						self?.mainVC?.dismiss(animated: true) {
+							self?.mainVC?.viewModel.didTapResetPassword()
+						}
+					},
+					onCancel: { [weak self] in
+						self?.mainVC?.dismiss(animated: true)
+					}
+				)
+				presentAuthCardOverlay(card)
+
+			case .generic:
+				let alert = UIAlertController(
+					title: HCL10n.Auth.ResetPassword.genericErrorTitle,
+					message: HCL10n.Auth.ResetPassword.genericErrorMessage,
+					preferredStyle: .alert
+				)
+				alert.addAction(UIAlertAction(title: HCL10n.Common.ok, style: .default))
+				mainVC?.present(alert, animated: true)
+		}
+	}
+
+	private func presentAuthCardOverlay(_ content: UIViewController) {
+		let overlayVC = AuthCardOverlayViewController(content: content)
+		let animator = CrossDissolveTransitioningDelegate()
+		overlayVC.transitioningDelegate = animator
+		overlayVC.modalPresentationStyle = .custom
+		mainVC?.present(overlayVC, animated: true)
 	}
 }

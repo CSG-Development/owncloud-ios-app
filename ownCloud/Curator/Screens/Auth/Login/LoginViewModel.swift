@@ -15,7 +15,6 @@ final public class LoginViewModel {
 
     enum Event {
         case loginTap
-        case resetPasswordTap
         case settingsTap
         case backToEmail
 		case unableToConnect
@@ -24,6 +23,8 @@ final public class LoginViewModel {
 		case setupRequired
 		case deviceStarting
 		case developerOptionsTap
+		case resetPasswordSuccess(email: String)
+		case resetPasswordError(ResetPasswordErrorType)
     }
 
 	enum LoginError {
@@ -40,6 +41,8 @@ final public class LoginViewModel {
 	// Outputs
 	@Published private(set) var isLoginEnabled: Bool = true
 	@Published private(set) var isLoading: Bool = false
+	@Published private(set) var isResetPasswordLoading: Bool = false
+	@Published private(set) var isResetPasswordEnabled: Bool = false
 	@Published private(set) var errors: [LoginError] = []
 	@Published private(set) var emailEntryError: String?
     @Published private(set) var deviceItems: [String] = []
@@ -51,6 +54,7 @@ final public class LoginViewModel {
 	private var cancellables = Set<AnyCancellable>()
 	private var isCantFindFlowInProgress = false
 	private var didPerformInitialLoad = false
+	private let resetPasswordService = ResetPasswordService()
 
 	var bookmark: OCBookmark
 
@@ -147,6 +151,17 @@ final public class LoginViewModel {
                 if case .deviceSelection = step { self?.loadDevices() }
             }
             .store(in: &cancellables)
+
+		Publishers.CombineLatest4($step, $selectedDeviceIndex, $isResetPasswordLoading, $isLoading)
+			.receive(on: RunLoop.main)
+			.sink { [weak self] step, selectedDeviceIndex, isResetPasswordLoading, isLoading in
+				guard let self else { return }
+				self.isResetPasswordEnabled = step == .deviceSelection
+					&& selectedDeviceIndex != nil
+					&& !isResetPasswordLoading
+					&& !isLoading
+			}
+			.store(in: &cancellables)
 	}
 
 	private func isValidEmail(_ email: String) -> Bool {
@@ -498,7 +513,47 @@ final public class LoginViewModel {
 
 	func didTapResetPassword() {
 		Log.debug("[STX]: Reset password tap.")
-		eventHandler.handle(.resetPasswordTap)
+		guard step == .deviceSelection else { return }
+		guard let idx = selectedDeviceIndex, idx < mergedDevices.count else { return }
+		guard !email.isEmpty else { return }
+		guard !isResetPasswordLoading else { return }
+		guard !isLoading else { return }
+
+		isResetPasswordLoading = true
+		let selectedDevice = mergedDevices[idx]
+		Task { [weak self] in
+			guard let self else { return }
+			defer {
+				Task { @MainActor in
+					self.isResetPasswordLoading = false
+				}
+			}
+
+			guard
+				let loginPath = await self.deviceReachabilityService.selectLoginPath(for: selectedDevice),
+				let deviceURL = loginPath.path.url
+			else {
+				await MainActor.run {
+					self.eventHandler.handle(.resetPasswordError(.generic))
+				}
+				return
+			}
+
+			do {
+				try await self.resetPasswordService.resetPassword(serverBaseURL: deviceURL, email: self.email)
+				await MainActor.run {
+					self.eventHandler.handle(.resetPasswordSuccess(email: self.email))
+				}
+			} catch let error as ResetPasswordError {
+				await MainActor.run {
+					self.eventHandler.handle(.resetPasswordError(error.asErrorType))
+				}
+			} catch {
+				await MainActor.run {
+					self.eventHandler.handle(.resetPasswordError(.generic))
+				}
+			}
+		}
 	}
 
 	func didTapSettings() {

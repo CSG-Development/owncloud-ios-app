@@ -149,6 +149,11 @@ public enum HCColor {
 		public static func whiteBackground(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#000000FF") : UIColor(hexString: "#FFFFFFFF")
 		}
+
+		// Structure/Snackbar Background
+		public static func snackbarBackground(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#B8B8B8FF") : UIColor(hexString: "#212121FF")
+		}
 	}
 	public enum Mockups {
 		// Mockups/Overlay default

@@ -6,7 +6,14 @@ import ownCloudSDK
 /// connectivity has been observed for the configured timeout. Provides a close (×)
 /// button so the user can dismiss it manually.
 public final class NetworkAvailabilityToastView: UIView {
+	public enum Style {
+		case card
+		case snackbar
+	}
+
 	public var onDismiss: (() -> Void)?
+
+	private let style: Style
 
 	private let stackView: UIStackView = {
 		let stack = UIStackView()
@@ -41,9 +48,11 @@ public final class NetworkAvailabilityToastView: UIView {
 		messageLabel.text = message
 	}
 
-	public init(message: String) {
+	public init(message: String, style: Style = .card) {
+		self.style = style
 		super.init(frame: .zero)
 		messageLabel.text = message
+		configureMessageLabel(for: style)
 
 		layer.cornerRadius = 18
 		layer.cornerCurve = .continuous
@@ -85,14 +94,40 @@ public final class NetworkAvailabilityToastView: UIView {
 		}
 	}
 
+	private func configureMessageLabel(for style: Style) {
+		switch style {
+			case .card:
+				messageLabel.numberOfLines = 1
+				messageLabel.lineBreakMode = .byTruncatingTail
+				messageLabel.adjustsFontSizeToFitWidth = true
+				messageLabel.minimumScaleFactor = 0.8
+				stackView.alignment = .center
+			case .snackbar:
+				messageLabel.numberOfLines = 0
+				messageLabel.lineBreakMode = .byWordWrapping
+				messageLabel.adjustsFontSizeToFitWidth = false
+				stackView.alignment = .top
+				messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+				messageLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+		}
+	}
+
 	private func applyTheme() {
 		let isDark = traitCollection.userInterfaceStyle == .dark
-		backgroundColor = HCColor.Structure.cardBackground(isDark)
-		messageLabel.textColor = HCColor.Content.textPrimary(isDark)
-		closeButton.tintColor = HCColor.Content.textSecondary(isDark)
-		layer.borderColor = HCColor.Content.border(isDark).cgColor
-		let scale = traitCollection.displayScale
-		layer.borderWidth = scale > 0 ? 1.0 / scale : 0.5
+		switch style {
+			case .card:
+				backgroundColor = HCColor.Structure.cardBackground(isDark)
+				messageLabel.textColor = HCColor.Content.textPrimary(isDark)
+				closeButton.tintColor = HCColor.Content.textSecondary(isDark)
+				layer.borderColor = HCColor.Content.border(isDark).cgColor
+				let scale = traitCollection.displayScale
+				layer.borderWidth = scale > 0 ? 1.0 / scale : 0.5
+			case .snackbar:
+				backgroundColor = HCColor.Structure.snackbarBackground(isDark)
+				messageLabel.textColor = isDark ? HCColor.Text.lightModePrimary : HCColor.white
+				closeButton.tintColor = isDark ? HCColor.Content.textSecondary(false) : HCColor.white.withAlphaComponent(0.7)
+				layer.borderWidth = 0
+		}
 	}
 
 	@objc private func handleDismissTap() {

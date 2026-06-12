@@ -129,7 +129,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	private lazy var resetPasswordButton: UIButton = {
 		let button = ThemeRoundedButton(withSelectors: [.primary, .plain])
 		button.setTitle(HCL10n.Auth.Login.resetPasswordButtonTitle, for: .normal)
-		button.snp.makeConstraints { $0.height.equalTo(40) }
+		button.snp.makeConstraints { $0.height.equalTo(36) }
 		button.addTarget(self, action: #selector(didTapResetPassword), for: .touchUpInside)
 		return button
 	}()
@@ -154,6 +154,8 @@ final public class LoginViewController: UIViewController, Themeable {
 	private var smallSpinner: HCSpinnerView!
 	private var addressRowView: UIStackView!
 	private var resetPasswordButtonContainerRef: UIStackView!
+	private var resetPasswordSpinner: HCSpinnerView!
+	private var resetPasswordSuccessToast: NetworkAvailabilityToastView?
 	private var cantFindButtonContainerRef: UIStackView!
 
 	init(viewModel: LoginViewModel) {
@@ -311,8 +313,23 @@ final public class LoginViewController: UIViewController, Themeable {
 			$0.leading.trailing.equalToSuperview()
 		}
 
+		let resetPasswordSpinner = HCSpinnerView(frame: .zero)
+		resetPasswordSpinner.isHidden = true
+		self.resetPasswordSpinner = resetPasswordSpinner
+
+		let resetPasswordControl = UIView()
+		resetPasswordControl.addSubview(resetPasswordButton)
+		resetPasswordControl.addSubview(resetPasswordSpinner)
+		resetPasswordButton.snp.makeConstraints {
+			$0.leading.top.bottom.trailing.equalToSuperview()
+		}
+		resetPasswordSpinner.snp.makeConstraints {
+			$0.center.equalTo(resetPasswordButton)
+			$0.width.height.equalTo(24)
+		}
+
 		let resetPasswordButtonContainer = UIStackView(arrangedSubviews: [
-			resetPasswordButton, HCSpacerView(nil, .horizontal)
+			resetPasswordControl, HCSpacerView(nil, .horizontal)
 		])
 		resetPasswordButtonContainer.axis = .horizontal
 		resetPasswordButtonContainer.spacing = 0
@@ -450,7 +467,78 @@ final public class LoginViewController: UIViewController, Themeable {
 			seagateOverlayContainer.isHidden = false
 		}
 
+		updateResetPasswordControls(
+			step: step,
+			isLoading: isLoading,
+			isResetPasswordLoading: viewModel.isResetPasswordLoading,
+			isResetPasswordEnabled: viewModel.isResetPasswordEnabled
+		)
+
 		view.layoutIfNeeded()
+	}
+
+	private func updateResetPasswordControls(
+		step: LoginViewModel.Step,
+		isLoading: Bool,
+		isResetPasswordLoading: Bool,
+		isResetPasswordEnabled: Bool
+	) {
+		let isVisible = step == .deviceSelection && !isLoading
+		resetPasswordButtonContainerRef?.isHidden = !isVisible
+
+		guard isVisible else {
+			resetPasswordButton.alpha = 1
+			resetPasswordButton.isUserInteractionEnabled = true
+			resetPasswordSpinner?.isHidden = true
+			resetPasswordSpinner?.stop()
+			return
+		}
+
+		if isResetPasswordLoading {
+			resetPasswordButton.alpha = 0
+			resetPasswordButton.isUserInteractionEnabled = false
+			resetPasswordSpinner?.isHidden = false
+			resetPasswordSpinner?.start()
+		} else {
+			resetPasswordSpinner?.stop()
+			resetPasswordSpinner?.isHidden = true
+			resetPasswordButton.alpha = 1
+			resetPasswordButton.isUserInteractionEnabled = true
+			resetPasswordButton.isEnabled = isResetPasswordEnabled
+		}
+	}
+
+	func showResetPasswordSuccessToast(email: String) {
+		resetPasswordSuccessToast?.removeFromSuperview()
+
+		let message = String(format: HCL10n.Auth.ResetPassword.successMessage, email)
+		let toast = NetworkAvailabilityToastView(message: message, style: .snackbar)
+		toast.alpha = 0
+		toast.onDismiss = { [weak self] in
+			UIView.animate(withDuration: 0.2) {
+				toast.alpha = 0
+			} completion: { _ in
+				toast.removeFromSuperview()
+				if self?.resetPasswordSuccessToast === toast {
+					self?.resetPasswordSuccessToast = nil
+				}
+			}
+		}
+		resetPasswordSuccessToast = toast
+		view.addSubview(toast)
+		toast.snp.makeConstraints { make in
+			make.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(24)
+			make.bottom.equalTo(loginButton.snp.top).offset(-16)
+		}
+
+		UIView.animate(withDuration: 0.25) {
+			toast.alpha = 1
+		}
+
+		DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak toast] in
+			guard let toast, toast.superview != nil else { return }
+			toast.onDismiss?()
+		}
 	}
 
 	@objc private func didTriggerDeveloperOptions() {
@@ -537,6 +625,23 @@ final public class LoginViewController: UIViewController, Themeable {
 		.receive(on: DispatchQueue.main)
 		.sink { [weak self] step, isLoading in
 			self?.update(for: step, isLoading: isLoading)
+		}
+		.store(in: &cancellables)
+
+		Publishers.CombineLatest3(
+			viewModel.$isResetPasswordLoading.removeDuplicates(),
+			viewModel.$isResetPasswordEnabled.removeDuplicates(),
+			viewModel.$step
+		)
+		.receive(on: DispatchQueue.main)
+		.sink { [weak self] isResetPasswordLoading, isResetPasswordEnabled, step in
+			guard let self else { return }
+			self.updateResetPasswordControls(
+				step: step,
+				isLoading: self.viewModel.isLoading,
+				isResetPasswordLoading: isResetPasswordLoading,
+				isResetPasswordEnabled: isResetPasswordEnabled
+			)
 		}
 		.store(in: &cancellables)
 

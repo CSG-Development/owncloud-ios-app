@@ -7,7 +7,7 @@ public final class DeviceAPI: NSObject, URLSessionDelegate, URLSessionTaskDelega
     private var session: URLSession!
     private let rootCertificate: SecCertificate?
 
-	public init(deviceBaseURL: URL, rootCertDerData: Data? = nil) {
+	public init(deviceBaseURL: URL, rootCertDerData: Data? = nil, requestTimeout: TimeInterval = 10) {
 		self.apiBaseURL = deviceBaseURL.appendingPathComponent("api/v1")
         if let der = rootCertDerData, let cert = SecCertificateCreateWithData(nil, der as CFData) {
             self.rootCertificate = cert
@@ -18,8 +18,8 @@ public final class DeviceAPI: NSObject, URLSessionDelegate, URLSessionTaskDelega
 
         let cfg = URLSessionConfiguration.default
         cfg.waitsForConnectivity = false
-        cfg.timeoutIntervalForRequest = 10
-        cfg.timeoutIntervalForResource = 30
+        cfg.timeoutIntervalForRequest = requestTimeout
+        cfg.timeoutIntervalForResource = max(requestTimeout, 30)
         self.session = URLSession(configuration: cfg, delegate: self, delegateQueue: nil)
     }
 
@@ -37,6 +37,34 @@ public final class DeviceAPI: NSObject, URLSessionDelegate, URLSessionTaskDelega
         let (data, response) = try await session.data(for: req, delegate: self)
 		try Self.ensureOK(response)
 		return try JSONDecoder().decode(About.self, from: data)
+	}
+
+	public func resetPassword(email: String) async throws {
+		let requestURL = apiBaseURL
+			.appendingPathComponent("users")
+			.appendingPathComponent("reset_password")
+			.appendingPathComponent(email)
+
+		var req = URLRequest(url: requestURL)
+		req.httpMethod = "POST"
+		req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		req.httpBody = Data("".utf8)
+
+		let (_, response) = try await session.data(for: req, delegate: self)
+		guard let http = response as? HTTPURLResponse else {
+			throw ResetPasswordError.generic
+		}
+
+		switch http.statusCode {
+			case 204:
+				return
+			case 400:
+				throw ResetPasswordError.badRequest
+			case 500:
+				throw ResetPasswordError.serverError
+			default:
+				throw ResetPasswordError.generic
+		}
 	}
 
 	private static func ensureOK(_ response: URLResponse) throws {
