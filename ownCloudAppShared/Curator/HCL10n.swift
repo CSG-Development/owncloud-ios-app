@@ -113,6 +113,12 @@ public enum HCL10n {
 			public static var noDeviceDetected: String { OCLocalizedString("Auth.Login.noDeviceDetected", nil) }
 		}
 
+		public enum ResetPassword {
+			public static var successMessage: String { OCLocalizedString("Auth.ResetPassword.successMessage", nil) }
+			public static var genericErrorTitle: String { OCLocalizedString("Auth.ResetPassword.genericErrorTitle", nil) }
+			public static var genericErrorMessage: String { OCLocalizedString("Auth.ResetPassword.genericErrorMessage", nil) }
+		}
+
 		public enum UnableToConnect {
 			public static var navbarTitle: String { OCLocalizedString("Auth.UnableToConnect.navbarTitle", nil) }
 

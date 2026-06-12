@@ -200,6 +200,10 @@
 		998CC8422DFAC2BA00BDA4CB /* ownCloudApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCC0855C2293F1FD008CC05C /* ownCloudApp.framework */; };
 		998CC8462DFAC2BB00BDA4CB /* ownCloudSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239369782076110900BCE21A /* ownCloudSDK.framework */; };
 		99AAAAAA2EA53B9E00FF70B7 /* DeviceAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */; };
+		99F1A1B12EFC000100000002 /* ResetPasswordError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F1A1B12EFC000100000001 /* ResetPasswordError.swift */; };
+		99F1A1B12EFC000100000004 /* ResetPasswordService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F1A1B12EFC000100000003 /* ResetPasswordService.swift */; };
+		99F1A1B12EFC000100000006 /* AuthCardOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F1A1B12EFC000100000005 /* AuthCardOverlayViewController.swift */; };
+		99F1A1B12EFC000100000008 /* ResetPasswordServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F1A1B12EFC000100000007 /* ResetPasswordServiceTests.swift */; };
 		99AD431F2DF310CA00914C19 /* SidebarCollectionViewListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */; };
 		99B8B1DE2E7330F000535240 /* UIViewController+NavSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */; };
 		99BC9F2E2E4C72DE0004F6B2 /* HCErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */; };
@@ -1397,6 +1401,10 @@
 		9978828F2F2A1DEB00BCBB67 /* HCHStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCHStack.swift; sourceTree = "<group>"; };
 		997882962F2A3BF900BCBB67 /* CodeVerificationTooManyRequestsCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeVerificationTooManyRequestsCardViewController.swift; sourceTree = "<group>"; };
 		99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAPIClient.swift; sourceTree = "<group>"; };
+		99F1A1B12EFC000100000001 /* ResetPasswordError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordError.swift; sourceTree = "<group>"; };
+		99F1A1B12EFC000100000003 /* ResetPasswordService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordService.swift; sourceTree = "<group>"; };
+		99F1A1B12EFC000100000005 /* AuthCardOverlayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCardOverlayViewController.swift; sourceTree = "<group>"; };
+		99F1A1B12EFC000100000007 /* ResetPasswordServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordServiceTests.swift; sourceTree = "<group>"; };
 		99AD431E2DF310B600914C19 /* SidebarCollectionViewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCollectionViewListCell.swift; sourceTree = "<group>"; };
 		99B8B1DD2E7330F000535240 /* UIViewController+NavSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+NavSeparator.swift"; sourceTree = "<group>"; };
 		99BBBBB12EA5400000FF70B7 /* TokenSecureStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenSecureStorage.swift; sourceTree = "<group>"; };
@@ -2194,10 +2202,19 @@
 		233BDEB3204FEFE500C06732 /* ownCloudTests */ = {
 			isa = PBXGroup;
 			children = (
+				99F1A1B12EFC000100000009 /* Auth */,
 				DC26ADBD2550C02F0059680D /* Metadata */,
 				233BDEB6204FEFE500C06732 /* Info.plist */,
 			);
 			path = ownCloudTests;
+			sourceTree = "<group>";
+		};
+		99F1A1B12EFC000100000009 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				99F1A1B12EFC000100000007 /* ResetPasswordServiceTests.swift */,
+			);
+			path = Auth;
 			sourceTree = "<group>";
 		};
 		2366821521144DCD0045EF72 /* Card Presentation Controller */ = {
@@ -2599,6 +2616,8 @@
 			children = (
 				9905DFBC2EA53E9500FF70B7 /* Models */,
 				99AAAAA92EA53B9E00FF70B7 /* DeviceAPIClient.swift */,
+				99F1A1B12EFC000100000001 /* ResetPasswordError.swift */,
+				99F1A1B12EFC000100000003 /* ResetPasswordService.swift */,
 			);
 			path = DeviceAPI;
 			sourceTree = "<group>";
@@ -2851,6 +2870,7 @@
 		99E73E8A2F11233100477600 /* Errors */ = {
 			isa = PBXGroup;
 			children = (
+				99F1A1B12EFC000100000005 /* AuthCardOverlayViewController.swift */,
 				99E73E7C2F11232600477600 /* DeviceStarting */,
 				99E73E7E2F11232600477600 /* SetupRequired */,
 				99E73E802F11232600477600 /* UnableToDetect */,
@@ -5344,6 +5364,7 @@
 				399698ED260A3CEE00E5AEBA /* ImportPasteboardAction.swift in Sources */,
 				DC59087F2AA8D25400BFF393 /* CertificateSummaryView.swift in Sources */,
 				99C42DFF2EAFA5BA00E36414 /* UnableToConnectViewController.swift in Sources */,
+				99F1A1B12EFC000100000006 /* AuthCardOverlayViewController.swift in Sources */,
 				DCB796582BC535AD00D6D759 /* RemoveFromSidebarAction.swift in Sources */,
 				DCB7969F2BCE745500D6D759 /* INIFile+ShortcutResolution.swift in Sources */,
 				4C3E17DB234DBF9A000D7BA8 /* PendingMediaUploadTaskExtension.swift in Sources */,
@@ -5488,6 +5509,7 @@
 			files = (
 				39057AA4233BA7A60008E6C0 /* Intents.intentdefinition in Sources */,
 				DC26ADDE2550C0B20059680D /* MetadataDocumentationTests.swift in Sources */,
+				99F1A1B12EFC000100000008 /* ResetPasswordServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5522,6 +5544,8 @@
 				99E53F9C2E96853500454E4F /* MDNSService.swift in Sources */,
 				DC3AB2422810404000789435 /* DriveHeaderCell.swift in Sources */,
 				99AAAAAA2EA53B9E00FF70B7 /* DeviceAPIClient.swift in Sources */,
+				99F1A1B12EFC000100000002 /* ResetPasswordError.swift in Sources */,
+				99F1A1B12EFC000100000004 /* ResetPasswordService.swift in Sources */,
 				DC65590F28A2633C0003D130 /* UITextField+Extension.swift in Sources */,
 				DCBAEAE429A5603600BFF393 /* CollectionViewSupplementaryCellProvider+StandardImplementations.swift in Sources */,
 				DC298C9A2934D3F8009FA87F /* AlertView.swift in Sources */,

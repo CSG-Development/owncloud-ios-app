@@ -33,9 +33,6 @@ extension FirstRunCoordinator: LoginCoordinatorEventHandler {
 				rootVC?.contentViewController = UIViewController()
 				selfHandle = nil
 
-			case .resetPasswordTap:
-				UIApplication.shared.open(HCConfig.resetPasswordLink)
-
 			case .settingsTap:
 				openSettings()
 		}
