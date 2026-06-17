@@ -98133,6 +98133,23 @@
         }
       }
     },
+    "Network.connectionLost" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        }
+      }
+    },
     "TagsList.title" : {
       "extractionState" : "manual",
       "localizations" : {

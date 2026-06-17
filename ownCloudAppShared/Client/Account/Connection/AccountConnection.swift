@@ -205,6 +205,10 @@ open class AccountConnection: NSObject {
 					Log.log("[CONN_DEBUG]: Got core")
 					connection.core = core
 
+					if let core {
+						SDKDeviceAvailabilityGate.shared.register(core: core)
+					}
+
 					// Install hooks
 					core?.delegate = connection
 					core?.busyStatusHandler = { [weak connection] (progress) in

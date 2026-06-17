@@ -59,6 +59,7 @@ public final class DeviceReachabilityURLProvider: NSObject, OCBaseURLProvider, @
 
 				OCCoreManager.shared.requestCore(for: bookmark, setup: nil) { core, _ in
 					guard let core else { return }
+					SDKDeviceAvailabilityGate.shared.register(core: core)
 					// Only cancel existing traffic if we are switching away from a known base
 					if previous != nil {
 						core.connection.cancelAllRequestsForCurrentPartition()

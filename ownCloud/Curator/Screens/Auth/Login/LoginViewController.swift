@@ -527,7 +527,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		resetPasswordSuccessToast = toast
 		view.addSubview(toast)
 		toast.snp.makeConstraints { make in
-			make.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(24)
+			make.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(8)
 			make.bottom.equalTo(loginButton.snp.top).offset(-16)
 		}
 

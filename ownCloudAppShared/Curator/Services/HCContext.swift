@@ -28,6 +28,8 @@ public final class HCContext {
 	public let mdnsService: MDNSService
 	public let remoteAccessTokenStore: RemoteAccessTokenStore
 	public let networkAvailabilityMonitor: NetworkAvailabilityMonitor
+	public let connectionPingMonitor: ConnectionPingMonitor
+	public let connectivityStateCoordinator: ConnectivityStateCoordinator
 	public var emailVerificationHandler: (@MainActor (_ email: String, _ completion: @escaping (Bool) -> Void) -> Void)?
 
 	// Hack to provide this info for related data sources.
@@ -43,10 +45,12 @@ public final class HCContext {
 
 	private var networkFailureObserver: NSObjectProtocol?
 	private var cancellables = Set<AnyCancellable>()
+	private let reachabilityObserver: DefaultReachabilityObserver
 
 	public init() {
 		self.preferences = HCPreferences()
 		self.remoteAccessTokenStore = RemoteAccessTokenStore()
+		self.reachabilityObserver = DefaultReachabilityObserver()
 
 		self.remoteAccessService = RemoteAccessService(
 			api: RemoteAccessAPI(baseURL: Constants.remoteAccessBaseURL),
@@ -54,14 +58,42 @@ public final class HCContext {
 		)
 		self.mdnsService = MDNSService()
 		self.networkAvailabilityMonitor = NetworkAvailabilityMonitor.shared
+		self.connectionPingMonitor = ConnectionPingMonitor.shared
+		self.connectivityStateCoordinator = ConnectivityStateCoordinator.shared
 
 		self.deviceReachabilityService = DeviceReachabilityService(
-			reachability: DefaultReachabilityObserver(),
+			reachability: reachabilityObserver,
 			remoteAccessService: remoteAccessService,
 			mdnsService: mdnsService,
 			preferences: preferences,
-			availabilityMonitor: networkAvailabilityMonitor
+			connectivityCoordinator: connectivityStateCoordinator
 		)
+
+		Task {
+		await connectivityStateCoordinator.configure(
+			preferences: preferences,
+			reachability: reachabilityObserver,
+			toastMonitor: networkAvailabilityMonitor,
+			remoteAccessService: remoteAccessService,
+			pathRecoveryHandler: { [deviceReachabilityService] suppressConnectingUI in
+				await deviceReachabilityService.forceReloadDevices(suppressConnectingUI: suppressConnectingUI)
+			},
+			onBootstrapComplete: { [connectionPingMonitor] in
+				await connectionPingMonitor.resumeAfterBootstrap()
+			},
+			supplementalProbePaths: { [deviceReachabilityService] in
+				await deviceReachabilityService.supplementalProbePaths()
+			},
+			isPreferredDeviceReachable: { [deviceReachabilityService] in
+				await deviceReachabilityService.isPreferredDeviceReachable()
+			}
+		)
+			await connectionPingMonitor.configure(
+				preferences: preferences,
+				reachability: reachabilityObserver,
+				connectivityCoordinator: connectivityStateCoordinator
+			)
+		}
 
 		deviceReachabilityService.events
 			.receive(on: DispatchQueue.main)
@@ -69,13 +101,36 @@ public final class HCContext {
 				guard case let .remoteBaseURLChanged(url) = event else { return }
 				self?.lastRemoteBaseURL = url
 				NotificationCenter.default.post(name: .hcRemoteBaseURLDidChange, object: nil)
+				if url != nil {
+					Task { await self?.connectivityStateCoordinator.noteActivePathAvailable() }
+				}
 			}
 			.store(in: &cancellables)
+	}
+
+	/// Resets connectivity state on logout so the next login starts from a clean session.
+	public func resetConnectivityOnLogout() async {
+		preferences.clearConnectedDeviceSession()
+		await connectionPingMonitor.reset()
+		await connectivityStateCoordinator.reset()
+		await deviceReachabilityService.resetState()
+		await networkAvailabilityMonitor.reset()
 	}
 
 	public func setup() {
 		OCConnection.defaultBaseURLProvider = deviceReachabilityService.urlProvider
 		deviceReachabilityService.start()
+		Task {
+			await connectionPingMonitor.installLifecycleObserversIfNeeded()
+			await connectivityStateCoordinator.refreshSessionActive()
+		}
+
+		reachabilityObserver.updatesPublisher
+			.removeDuplicates(by: { $0.interface == $1.interface && $0.isReachable == $1.isReachable })
+			.sink { [connectionPingMonitor] state in
+				Task { await connectionPingMonitor.setNetworkState(state) }
+			}
+			.store(in: &cancellables)
 
 		// status.php polling & similar: SDK does not call OCCoreDelegate handleError for these.
 		if networkFailureObserver == nil {

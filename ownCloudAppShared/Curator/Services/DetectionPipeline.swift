@@ -25,7 +25,6 @@ public actor DetectionPipeline {
 	private let mdnsService: MDNSService
 	private let remoteAccessService: RemoteAccessService
 	private let preferences: HCPreferences
-	private let availabilityMonitor: NetworkAvailabilityMonitor
 	private nonisolated let reachability: ReachabilityObserving
 	private let emit: EmitEvent
 
@@ -43,7 +42,6 @@ public actor DetectionPipeline {
 		mdnsService: MDNSService,
 		remoteAccessService: RemoteAccessService,
 		preferences: HCPreferences,
-		availabilityMonitor: NetworkAvailabilityMonitor,
 		reachability: ReachabilityObserving,
 		emit: @escaping EmitEvent
 	) {
@@ -54,7 +52,6 @@ public actor DetectionPipeline {
 		self.mdnsService = mdnsService
 		self.remoteAccessService = remoteAccessService
 		self.preferences = preferences
-		self.availabilityMonitor = availabilityMonitor
 		self.reachability = reachability
 		self.emit = emit
 
@@ -64,7 +61,6 @@ public actor DetectionPipeline {
 			catalog: catalog,
 			preferences: preferences,
 			remoteAccessService: remoteAccessService,
-			availabilityMonitor: availabilityMonitor,
 			emit: emit,
 			recalculateBestURLs: { @Sendable [weak self] in
 				await self?.recalculateBestURLs()
@@ -174,13 +170,16 @@ public actor DetectionPipeline {
 
 	public func reprobeExistingPaths() async {
 		if isReloading { return }
+
+		let remote = await catalog.remoteDevices()
+		let targets = Self.probeTargets(from: remote, preferences: preferences)
+		guard targets.isEmpty == false else { return }
+
 		isReloading = true
 		defer { isReloading = false }
 
-		let remote = await catalog.remoteDevices()
-		let probeTargets = probeTargets(from: remote)
 		do {
-			let probes = try await pathProber.probeAll(probeTargets)
+			let probes = try await pathProber.probeAll(targets)
 			await catalog.setProbes(probes)
 		} catch {
 			Log.debug("[STX-RA]: Failed to probe device with error: \(error)")
@@ -188,36 +187,6 @@ public actor DetectionPipeline {
 		let merged = await catalog.mergedDevices()
 		emit(.devicesUpdated(merged))
 		await recalculateBestURLs()
-		await reportAvailabilityFromCurrentState()
-	}
-
-	// MARK: - Availability reporting
-
-	/// Signals success / failure to the `NetworkAvailabilityMonitor` based on the most
-	/// recent probe round. mDNS validations are reported separately via
-	/// `handleMDNSUpdate`, so they are intentionally not considered here.
-	///
-	/// We look at `PathProbe.hasResponded` (not `isOperational` and not
-	/// `nextURLToAttempt(...)`): the toast is about *connectivity*, so a box that
-	/// answered our requests counts as "we have network" even if it happens to be
-	/// in maintenance / pre-OOBE.
-	public func reportAvailabilityFromCurrentState() async {
-		let remote = await catalog.remoteDevices()
-		guard !remote.isEmpty else { return }
-
-		let probes = await catalog.probes()
-		let anyReachable = probes.values.contains(where: { dict in
-			dict.values.contains(where: { $0.hasResponded })
-		})
-
-		let toastKind = availabilityToastKind()
-		Task { [availabilityMonitor] in
-			if anyReachable {
-				await availabilityMonitor.recordSuccess()
-			} else {
-				await availabilityMonitor.recordFailure(kind: toastKind)
-			}
-		}
 	}
 
 	// MARK: - mDNS
@@ -227,8 +196,8 @@ public actor DetectionPipeline {
 		// Skip mDNS results when WiFi is confirmed absent.
 		// When the interface is .none (unknown), proceed rather than block (spec rule).
 		let iface = reachability.currentState.interface
-		guard iface == .wifi || iface == .none else {
-			Log.debug("[STX-MDNS]: Skipping mDNS update — WiFi not available (interface: \(iface.rawValue)).")
+		guard reachability.currentState.allowsLocalPaths else {
+			Log.debug("[STX-MDNS]: Skipping mDNS update — local paths unavailable (interface: \(iface.rawValue)).")
 			return
 		}
 		let previous = await catalog.localDevices()
@@ -254,13 +223,8 @@ public actor DetectionPipeline {
 
 		emit(.devicesUpdated(merged))
 
-		if locals.contains(where: { $0.certificateCommonName != nil }) {
-			Task { [availabilityMonitor] in await availabilityMonitor.recordSuccess() }
-		}
-
-		// Spec: local takes precedence over .public/.remote. A fresh mDNS validation
-		// (or a previously-validated local disappearing) must reach the SDK promptly
-		// rather than waiting for the next reload/reprobe trigger.
+		// A fresh mDNS validation (or a previously-validated local disappearing) must reach
+		// the SDK promptly rather than waiting for the next reload/reprobe trigger.
 		let previousCNs = Set(previous.compactMap(\.certificateCommonName))
 		let currentCNs = Set(locals.compactMap(\.certificateCommonName))
 		if previousCNs != currentCNs {
@@ -288,6 +252,7 @@ public actor DetectionPipeline {
 			email,
 			includeRemote,
 			probeRemotePaths,
+			preferences = self.preferences,
 			catalog = self.catalog,
 			remoteAccessService = self.remoteAccessService,
 			pathProber = self.pathProber,
@@ -309,7 +274,8 @@ public actor DetectionPipeline {
 
 			let probes: [String: [String: PathProbe]]
 			if includeRemote, probeRemotePaths, remote.isEmpty == false {
-				probes = (try? await pathProber.probeAll(remote)) ?? [:]
+				let targets = Self.probeTargets(from: remote, preferences: preferences)
+				probes = (try? await pathProber.probeAll(targets)) ?? [:]
 			} else {
 				probes = [:]
 			}
@@ -385,24 +351,27 @@ public actor DetectionPipeline {
 			await catalog.setRemoteDevices([seeded])
 			remoteList = [seeded]
 		}
-		// Spec Algorithm B is separate from Algorithm A: probe all paths after discovery completes.
-		let probeTargets = probeTargets(from: remoteList)
-		let probes = (try? await pathProber.probeAll(probeTargets)) ?? [:]
+		// Spec Algorithm B is separate from Algorithm A: probe the active device only.
+		let activeDevices = Self.probeTargets(from: remoteList, preferences: preferences)
+		let probes: [String: [String: PathProbe]]
+		if activeDevices.isEmpty {
+			probes = [:]
+		} else {
+			probes = (try? await pathProber.probeAll(activeDevices)) ?? [:]
+		}
 		guard detectionGeneration == myGen else { return }
 		await catalog.setProbes(probes)
 		emit(.devicesUpdated(await catalog.mergedDevices()))
 		let localCount = await catalog.localDevices().count
 		Log.debug("[STX-RA]: Remote count: \(remoteList.count). Local count: \(localCount).")
 		await recalculateBestURLs()
-		await reportAvailabilityFromCurrentState()
 
 		// Spec Algorithm A: emit detectionComplete after all phases (local + remote) have finished.
 		let finalMerged = await catalog.mergedDevices()
 		emit(.detectionComplete(finalMerged))
 
 		// Post-condition: if the preferred device has no reachable path after a full detection,
-		// surface the auth-loss case (so the user can re-validate their email). General
-		// unreachability is handled by `NetworkAvailabilityMonitor` via the toast.
+		// connectivity state is updated via `forceReloadDevices` / coordinator path recovery.
 		if let cn = preferences.favoriteDeviceCN {
 			let wifi = wifiAvailableForLocalPaths
 			let preferredReachable = finalMerged
@@ -410,10 +379,6 @@ public actor DetectionPipeline {
 				.flatMap { catalog.reachableSelection(for: $0, wifiAvailable: wifi) } != nil
 			if !preferredReachable {
 				Log.debug("[STX-RA]: Device \(cn) not reachable after full detection.")
-				let tokensValid = await remoteAccessService.hasValidTokens()
-				if !tokensValid, let email = preferences.favoriteEmail {
-					emit(.emailValidationNeeded(email: email))
-				}
 			}
 		}
 	}
@@ -479,17 +444,15 @@ public actor DetectionPipeline {
 	/// Public so the coordinator can derive `wifiAvailable` for direct-resolution calls
 	/// without holding its own reachability reference.
 	public nonisolated var wifiAvailableForLocalPaths: Bool {
-		let iface = reachability.currentState.interface
-		return iface == .wifi || iface == .none
-	}
-
-	private nonisolated func availabilityToastKind() -> NetworkAvailabilityToastKind {
-		reachability.currentState.isReachable ? .noInternet : .findingNetwork
+		reachability.currentState.allowsLocalPaths
 	}
 
 	/// Restrict probing to the currently connected/preferred device.
 	/// This avoids probing every known device on each periodic/event-driven reload.
-	private func probeTargets(from remoteDevices: [RemoteDevice]) -> [RemoteDevice] {
+	private nonisolated static func probeTargets(
+		from remoteDevices: [RemoteDevice],
+		preferences: HCPreferences
+	) -> [RemoteDevice] {
 		guard remoteDevices.isEmpty == false else { return [] }
 
 		if let saved = preferences.currentConnectedDevice {

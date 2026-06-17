@@ -23,7 +23,6 @@ public struct DirectPathResolver: Sendable {
 	private let catalog: DeviceCatalog
 	private let preferences: HCPreferences
 	private let remoteAccessService: RemoteAccessService
-	private let availabilityMonitor: NetworkAvailabilityMonitor
 	private let emit: EmitEvent
 	private let recalculateBestURLs: RecalculateBestURLs
 
@@ -33,7 +32,6 @@ public struct DirectPathResolver: Sendable {
 		catalog: DeviceCatalog,
 		preferences: HCPreferences,
 		remoteAccessService: RemoteAccessService,
-		availabilityMonitor: NetworkAvailabilityMonitor,
 		emit: @escaping EmitEvent,
 		recalculateBestURLs: @escaping RecalculateBestURLs
 	) {
@@ -42,7 +40,6 @@ public struct DirectPathResolver: Sendable {
 		self.catalog = catalog
 		self.preferences = preferences
 		self.remoteAccessService = remoteAccessService
-		self.availabilityMonitor = availabilityMonitor
 		self.emit = emit
 		self.recalculateBestURLs = recalculateBestURLs
 	}
@@ -201,7 +198,6 @@ public struct DirectPathResolver: Sendable {
 			SelectedPath.remote(winningPath).persistenceKey,
 			forCN: certificateCommonName
 		)
-		Task { [availabilityMonitor] in await availabilityMonitor.recordSuccess() }
 		Log.debug("[STX-RA]: Direct path resolution succeeded (\(winningPath.kind)) for \(certificateCommonName).")
 		return true
 	}

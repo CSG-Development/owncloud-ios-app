@@ -203,6 +203,8 @@ public enum HCL10n {
 	public enum Network {
 		public static var findingNetwork: String { OCLocalizedString("Network.findingNetwork", nil) }
 		public static var noInternet: String { OCLocalizedString("Network.noInternet", nil) }
+		public static var connectionLost: String { OCLocalizedString("Network.connectionLost", nil) }
+		public static var retry: String { OCLocalizedString("Auth.UnableToConnect.retryButtonTitle", nil) }
 	}
 
 	public enum TagsList {

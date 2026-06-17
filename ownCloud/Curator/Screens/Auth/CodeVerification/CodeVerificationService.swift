@@ -47,10 +47,13 @@ public final class CodeVerificationService {
 			.receive(on: DispatchQueue.main)
 			.sink { [weak self] event in
 				guard case let .emailValidationNeeded(email) = event else { return }
-				self?.requestEmailVerification(email: email, completion: { [weak self] isAuthenticated in
-					guard isAuthenticated else { return }
+				self?.requestEmailVerification(email: email, completion: { isAuthenticated in
 					Task {
-						await self?.deviceReachabilityService.forceReloadDevices()
+						if isAuthenticated {
+							await HCContext.shared.deviceReachabilityService.forceReloadDevices()
+						} else {
+							await HCContext.shared.connectivityStateCoordinator.setDeviceAccess(.disconnected)
+						}
 					}
 				})
 			}
@@ -66,6 +69,11 @@ public final class CodeVerificationService {
 	) {
 		if let completion { pendingCompletions.append(completion) }
 		guard isPresenting == false else { return }
+		guard rootViewController != nil else {
+			Log.debug("[STX-RA]: Cannot present RA verification — root view controller not set.")
+			dismissPendingCompletions(isAuthenticated: false)
+			return
+		}
 		isPresenting = true
 		self.onUnknownEmailCancel = onUnknownEmailCancel
 
@@ -266,18 +274,29 @@ public final class CodeVerificationService {
 	}
 
 	private func dismiss(isAuthenticated: Bool, completion: (() -> Void)? = nil) {
-		container?.dismiss(animated: true) {
+		let finish = {
 			self.isPresenting = false
 			self.reference = nil
 			self.currentEmail = nil
 			self.onUnknownEmailCancel = nil
 			self.resetError()
 			self.buildVCs()
-			let completions = self.pendingCompletions
-			self.pendingCompletions = []
-			completions.forEach { $0(isAuthenticated) }
+			self.dismissPendingCompletions(isAuthenticated: isAuthenticated)
 			completion?()
 		}
+
+		guard let container else {
+			finish()
+			return
+		}
+
+		container.dismiss(animated: true, completion: finish)
+	}
+
+	private func dismissPendingCompletions(isAuthenticated: Bool) {
+		let completions = pendingCompletions
+		pendingCompletions = []
+		completions.forEach { $0(isAuthenticated) }
 	}
 
 	private func topMostController(from controller: UIViewController?) -> UIViewController? {

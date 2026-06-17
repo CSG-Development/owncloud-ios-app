@@ -224,6 +224,10 @@
 		99C42E1B2EB3891200E36414 /* HCCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E172EB3890C00E36414 /* HCCodeView.swift */; };
 		99C42E222EB4FE7E00E36414 /* DeviceReachabilityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */; };
 		99AB1A1A2EFA000000000002 /* NetworkAvailabilityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFA000000000001 /* NetworkAvailabilityMonitor.swift */; };
+		99AB1A1A2F03000000000002 /* ConnectionPingMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2F03000000000001 /* ConnectionPingMonitor.swift */; };
+		99AB1A1A2F07000000000002 /* ConnectivityStateCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2F07000000000001 /* ConnectivityStateCoordinator.swift */; };
+		99AB1A1A2F04000000000004 /* ConnectionLostBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2F04000000000003 /* ConnectionLostBannerView.swift */; };
+		99AB1A1A2F05000000000002 /* SDKDeviceAvailabilityGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2F05000000000001 /* SDKDeviceAvailabilityGate.swift */; };
 		99AB1A1A2EFA000000000004 /* NetworkAvailabilityToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFA000000000003 /* NetworkAvailabilityToastView.swift */; };
 		99AB1A1A2EFB000000000002 /* PathProber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFB000000000001 /* PathProber.swift */; };
 		99AB1A1A2EFC000000000002 /* MergedDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AB1A1A2EFC000000000001 /* MergedDevice.swift */; };
@@ -1426,6 +1430,10 @@
 		99C42E172EB3890C00E36414 /* HCCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCCodeView.swift; sourceTree = "<group>"; };
 		99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceReachabilityService.swift; sourceTree = "<group>"; };
 		99AB1A1A2EFA000000000001 /* NetworkAvailabilityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkAvailabilityMonitor.swift; sourceTree = "<group>"; };
+		99AB1A1A2F03000000000001 /* ConnectionPingMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionPingMonitor.swift; sourceTree = "<group>"; };
+		99AB1A1A2F07000000000001 /* ConnectivityStateCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityStateCoordinator.swift; sourceTree = "<group>"; };
+		99AB1A1A2F04000000000003 /* ConnectionLostBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionLostBannerView.swift; sourceTree = "<group>"; };
+		99AB1A1A2F05000000000001 /* SDKDeviceAvailabilityGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKDeviceAvailabilityGate.swift; sourceTree = "<group>"; };
 		99AB1A1A2EFA000000000003 /* NetworkAvailabilityToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkAvailabilityToastView.swift; sourceTree = "<group>"; };
 		99AB1A1A2EFB000000000001 /* PathProber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathProber.swift; sourceTree = "<group>"; };
 		99AB1A1A2EFC000000000001 /* MergedDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MergedDevice.swift; sourceTree = "<group>"; };
@@ -2760,6 +2768,9 @@
 				993A26052EBCCD7E00A28D8F /* DeviceReachability */,
 				99C42E212EB4FE7400E36414 /* DeviceReachabilityService.swift */,
 				99AB1A1A2EFA000000000001 /* NetworkAvailabilityMonitor.swift */,
+				99AB1A1A2F03000000000001 /* ConnectionPingMonitor.swift */,
+				99AB1A1A2F07000000000001 /* ConnectivityStateCoordinator.swift */,
+				99AB1A1A2F05000000000001 /* SDKDeviceAvailabilityGate.swift */,
 				99AB1A1A2EFB000000000001 /* PathProber.swift */,
 				99AB1A1A2EFC000000000001 /* MergedDevice.swift */,
 				99AB1A1A2EFC000000000003 /* PathProbe.swift */,
@@ -3068,6 +3079,7 @@
 			isa = PBXGroup;
 			children = (
 				99AB1A1A2EFA000000000003 /* NetworkAvailabilityToastView.swift */,
+				99AB1A1A2F04000000000003 /* ConnectionLostBannerView.swift */,
 			);
 			path = "Network Availability";
 			sourceTree = "<group>";
@@ -5822,7 +5834,11 @@
 				DC298C982934D381009FA87F /* OCIssue+DisplayIssues.swift in Sources */,
 				99C42E222EB4FE7E00E36414 /* DeviceReachabilityService.swift in Sources */,
 				99AB1A1A2EFA000000000002 /* NetworkAvailabilityMonitor.swift in Sources */,
+				99AB1A1A2F03000000000002 /* ConnectionPingMonitor.swift in Sources */,
+				99AB1A1A2F07000000000002 /* ConnectivityStateCoordinator.swift in Sources */,
 				99AB1A1A2EFA000000000004 /* NetworkAvailabilityToastView.swift in Sources */,
+				99AB1A1A2F04000000000004 /* ConnectionLostBannerView.swift in Sources */,
+				99AB1A1A2F05000000000002 /* SDKDeviceAvailabilityGate.swift in Sources */,
 				99AB1A1A2EFB000000000002 /* PathProber.swift in Sources */,
 				99AB1A1A2EFC000000000002 /* MergedDevice.swift in Sources */,
 				99AB1A1A2EFC000000000004 /* PathProbe.swift in Sources */,
