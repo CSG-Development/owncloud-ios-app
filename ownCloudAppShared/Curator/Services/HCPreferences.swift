@@ -72,7 +72,7 @@ public final class HCPreferences: NSObject {
 			}
 		}
 		set {
-			queue.async {
+			queue.sync {
 				if let newValue {
 					self.userDefaults.set(newValue, forKey: UserDefaultsKeys.keyFavoriteEmail)
 				} else {
@@ -89,7 +89,7 @@ public final class HCPreferences: NSObject {
 			}
 		}
 		set {
-			queue.async {
+			queue.sync {
 				let previous = self.userDefaults.string(forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
 				if let newValue {
 					self.userDefaults.set(newValue, forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
@@ -97,8 +97,6 @@ public final class HCPreferences: NSObject {
 					self.userDefaults.removeObject(forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
 				}
 				guard previous != newValue else { return }
-				// Wake up subscribers (sidebar etc.) so they re-query the URL provider
-				// for the new favorite's best URL.
 				DispatchQueue.main.async {
 					NotificationCenter.default.post(name: .hcBestBaseURLDidChange, object: nil)
 				}
@@ -213,6 +211,20 @@ public final class HCPreferences: NSObject {
 					self.userDefaults.set(data, forKey: UserDefaultsKeys.keyCurrentDevice)
 				} else {
 					self.userDefaults.removeObject(forKey: UserDefaultsKeys.keyCurrentDevice)
+				}
+			}
+		}
+	}
+
+	/// Clears logged-in device session on logout. Keeps `favoriteEmail` for login prefill.
+	public func clearConnectedDeviceSession() {
+		queue.sync {
+			userDefaults.removeObject(forKey: UserDefaultsKeys.keyCurrentDevice)
+			let previousCN = userDefaults.string(forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
+			userDefaults.removeObject(forKey: UserDefaultsKeys.keyFavoriteDeviceCN)
+			if previousCN != nil {
+				DispatchQueue.main.async {
+					NotificationCenter.default.post(name: .hcBestBaseURLDidChange, object: nil)
 				}
 			}
 		}

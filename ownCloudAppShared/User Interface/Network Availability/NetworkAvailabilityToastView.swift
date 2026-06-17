@@ -2,9 +2,7 @@ import UIKit
 import SnapKit
 import ownCloudSDK
 
-/// Compact pill-shaped toast shown at the bottom of the content container when no
-/// connectivity has been observed for the configured timeout. Provides a close (×)
-/// button so the user can dismiss it manually.
+/// Bottom snackbar for network/device connectivity states.
 public final class NetworkAvailabilityToastView: UIView {
 	public enum Style {
 		case card
@@ -12,6 +10,7 @@ public final class NetworkAvailabilityToastView: UIView {
 	}
 
 	public var onDismiss: (() -> Void)?
+	public var onRetry: (() -> Void)?
 
 	private let style: Style
 
@@ -42,29 +41,40 @@ public final class NetworkAvailabilityToastView: UIView {
 		return button
 	}()
 
-	/// Updates the message shown in the toast. Safe to call while the toast is visible —
-	/// callers should animate the layout change themselves if desired.
-	public func setMessage(_ message: String) {
-		messageLabel.text = message
-	}
+	private let retryButton: UIButton = {
+		let button = UIButton(type: .system)
+		button.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
+		button.setContentHuggingPriority(.required, for: .horizontal)
+		button.setContentCompressionResistancePriority(.required, for: .horizontal)
+		return button
+	}()
 
 	public init(message: String, style: Style = .card) {
 		self.style = style
 		super.init(frame: .zero)
 		messageLabel.text = message
+		retryButton.setTitle(HCL10n.Network.retry, for: .normal)
 		configureMessageLabel(for: style)
 
-		layer.cornerRadius = 18
-		layer.cornerCurve = .continuous
-		layer.shadowColor = UIColor.black.cgColor
-		layer.shadowOpacity = 0.18
-		layer.shadowRadius = 8
-		layer.shadowOffset = CGSize(width: 0, height: 2)
+		switch style {
+			case .card:
+				layer.cornerRadius = 18
+				layer.cornerCurve = .continuous
+				layer.shadowColor = UIColor.black.cgColor
+				layer.shadowOpacity = 0.18
+				layer.shadowRadius = 8
+				layer.shadowOffset = CGSize(width: 0, height: 2)
+			case .snackbar:
+				layer.cornerRadius = 4
+				layer.cornerCurve = .continuous
+				layer.shadowOpacity = 0
+		}
 
 		applyTheme()
 
 		stackView.addArrangedSubview(messageLabel)
 		stackView.addArrangedSubview(closeButton)
+		stackView.addArrangedSubview(retryButton)
 
 		addSubview(stackView)
 
@@ -77,14 +87,34 @@ public final class NetworkAvailabilityToastView: UIView {
 		}
 
 		closeButton.addTarget(self, action: #selector(handleDismissTap), for: .touchUpInside)
+		retryButton.addTarget(self, action: #selector(handleRetryTap), for: .touchUpInside)
 
 		isAccessibilityElement = false
 		messageLabel.isAccessibilityElement = true
 		messageLabel.accessibilityTraits = .staticText
+		retryButton.isAccessibilityElement = true
+		retryButton.accessibilityTraits = .button
+
+		configure(for: nil)
 	}
 
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+
+	public func setMessage(_ message: String) {
+		messageLabel.text = message
+	}
+
+	public func configure(for kind: NetworkAvailabilityToastKind?) {
+		switch kind {
+			case .connectionLost:
+				closeButton.isHidden = true
+				retryButton.isHidden = false
+			case .findingNetwork, .noInternet, .none:
+				closeButton.isHidden = false
+				retryButton.isHidden = true
+		}
 	}
 
 	public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -106,7 +136,7 @@ public final class NetworkAvailabilityToastView: UIView {
 				messageLabel.numberOfLines = 0
 				messageLabel.lineBreakMode = .byWordWrapping
 				messageLabel.adjustsFontSizeToFitWidth = false
-				stackView.alignment = .top
+				stackView.alignment = .center
 				messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
 				messageLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 		}
@@ -119,18 +149,24 @@ public final class NetworkAvailabilityToastView: UIView {
 				backgroundColor = HCColor.Structure.cardBackground(isDark)
 				messageLabel.textColor = HCColor.Content.textPrimary(isDark)
 				closeButton.tintColor = HCColor.Content.textSecondary(isDark)
+				retryButton.tintColor = HCColor.Content.textSecondary(isDark)
 				layer.borderColor = HCColor.Content.border(isDark).cgColor
 				let scale = traitCollection.displayScale
 				layer.borderWidth = scale > 0 ? 1.0 / scale : 0.5
 			case .snackbar:
 				backgroundColor = HCColor.Structure.snackbarBackground(isDark)
-				messageLabel.textColor = isDark ? HCColor.Text.lightModePrimary : HCColor.white
-				closeButton.tintColor = isDark ? HCColor.Content.textSecondary(false) : HCColor.white.withAlphaComponent(0.7)
+				messageLabel.textColor = HCColor.Content.textPrimaryInverted(isDark)
+				closeButton.tintColor = HCColor.Content.textPrimaryInverted(isDark)
+				retryButton.tintColor = HCColor.Content.textPrimaryInverted(isDark)
 				layer.borderWidth = 0
 		}
 	}
 
 	@objc private func handleDismissTap() {
 		onDismiss?()
+	}
+
+	@objc private func handleRetryTap() {
+		onRetry?()
 	}
 }

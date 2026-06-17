@@ -104,7 +104,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	open var clientContextProvider: (() -> ClientContext?)?
 	open var accountControllerProvider: ((UUID) -> AccountController?)?
 
-	// MARK: - "Finding network…" toast
+	// MARK: - Connectivity snackbar
 	private var networkAvailabilityToastView: NetworkAvailabilityToastView?
 
 	open override func viewWillLayoutSubviews() {
@@ -190,7 +190,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	private func setupNetworkAvailabilityToast() {
-		let toast = NetworkAvailabilityToastView(message: HCL10n.Network.findingNetwork)
+		let toast = NetworkAvailabilityToastView(message: HCL10n.Network.noInternet, style: .snackbar)
 		toast.alpha = 0
 		toast.isHidden = true
 		toast.onDismiss = { [weak self] in
@@ -198,14 +198,15 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			Task { await HCContext.shared.networkAvailabilityMonitor.dismiss() }
 			self.setNetworkAvailabilityToastVisible(nil, animated: true)
 		}
+		toast.onRetry = {
+			Task { await HCContext.shared.connectivityStateCoordinator.retry() }
+		}
 		networkAvailabilityToastView = toast
 
 		contentContainerView.addSubview(toast)
 		toast.snp.makeConstraints { make in
-			make.centerX.equalTo(contentContainerView.safeAreaLayoutGuide)
-			make.leading.greaterThanOrEqualTo(contentContainerView.safeAreaLayoutGuide).offset(16)
-			make.trailing.lessThanOrEqualTo(contentContainerView.safeAreaLayoutGuide).offset(-16)
-			make.bottom.equalTo(contentContainerView.safeAreaLayoutGuide).offset(-16)
+			make.leading.trailing.equalTo(contentContainerView.safeAreaLayoutGuide).inset(8)
+			make.bottom.equalTo(contentContainerView.safeAreaLayoutGuide).offset(-8)
 		}
 
 		Task { @MainActor [weak self] in
@@ -218,16 +219,19 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	private func setNetworkAvailabilityToastVisible(_ kind: NetworkAvailabilityToastKind?, animated: Bool) {
 		guard let toast = networkAvailabilityToastView else { return }
 
-		// Keep the toast above any content that gets inserted into contentContainerView later.
 		contentContainerView.bringSubviewToFront(toast)
 
 		if let kind {
 			let message: String
 			switch kind {
-				case .findingNetwork: message = HCL10n.Network.findingNetwork
-				case .noInternet:     message = HCL10n.Network.noInternet
+				case .findingNetwork:  message = HCL10n.Network.findingNetwork
+				case .noInternet:      message = HCL10n.Network.noInternet
+				case .connectionLost:  message = HCL10n.Network.connectionLost
 			}
 			toast.setMessage(message)
+			toast.configure(for: kind)
+		} else {
+			toast.configure(for: nil)
 		}
 
 		let visible = kind != nil
@@ -402,12 +406,18 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	private var _themeRegistered = false
+	open override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
+		Task { await HCContext.shared.connectionPingMonitor.setHostScreenActive(false) }
+	}
+
 	open override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		if !_themeRegistered {
 			_themeRegistered = true
 			Theme.shared.register(client: self, applyImmediately: true)
 		}
+		Task { await HCContext.shared.connectionPingMonitor.setHostScreenActive(true) }
 	}
 
 	open override func viewDidAppear(_ animated: Bool) {
@@ -499,8 +509,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	// MARK: - View Controller presentation
 	open override func addContentViewControllerSubview(_ contentViewControllerView: UIView) {
 		contentContainerView.insertSubview(contentViewControllerView, at: 0)
-		// Newly inserted content goes to the back, but make sure the network toast (if installed)
-		// stays on top of any content view.
+		// Newly inserted content goes to the back, but make sure overlay banners (if installed)
+		// stay on top of any content view.
 		if let toast = networkAvailabilityToastView, toast.superview === contentContainerView {
 			contentContainerView.bringSubviewToFront(toast)
 		}

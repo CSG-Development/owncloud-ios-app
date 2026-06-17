@@ -108,6 +108,72 @@ public struct PathProber: Sendable {
 		return await Self.probe(path: path, url: url)
 	}
 
+	/// Network monitor ping: probes the current path first, then remaining paths.
+	/// Invokes `onStartedAlternateProbe` when the current path failed and alternates are tried.
+	public func probeConnectivityCurrentFirst(
+		paths: [RemoteDevice.Path],
+		currentPathKey: String?,
+		localPathsAllowed: Bool,
+		onStartedAlternateProbe: (@Sendable () async -> Void)? = nil
+	) async -> PathConnectivityProbeResult {
+		var candidates = paths.ordered().filter { path in
+			path.kind == .local ? localPathsAllowed : true
+		}
+		if let currentPathKey, currentPathKey.hasPrefix("mdns|"), localPathsAllowed,
+		   let localPath = Self.localPath(fromMDNSPersistenceKey: currentPathKey),
+		   !candidates.contains(where: { $0.key == localPath.key }) {
+			candidates.insert(localPath, at: 0)
+		}
+		guard !candidates.isEmpty else { return .allUnreachable }
+
+		var currentPath: RemoteDevice.Path?
+		var alternatePaths: [RemoteDevice.Path] = []
+		for path in candidates {
+			if let currentPathKey, Self.path(path, matchesPersistenceKey: currentPathKey) {
+				currentPath = path
+			} else {
+				alternatePaths.append(path)
+			}
+		}
+
+		if let currentPath, let url = currentPath.apiBaseURL() {
+			if await pingStatusReady(url: url, path: currentPath) {
+				return .currentPathReachable
+			}
+			await onStartedAlternateProbe?()
+			for path in alternatePaths {
+				guard let url = path.apiBaseURL() else { continue }
+				if await pingStatusReady(url: url, path: path) {
+					return .alternatePathReachable
+				}
+			}
+			return .allUnreachable
+		}
+
+		await onStartedAlternateProbe?()
+		for path in candidates {
+			guard let url = path.apiBaseURL() else { continue }
+			if await pingStatusReady(url: url, path: path) {
+				return .alternatePathReachable
+			}
+		}
+		return .allUnreachable
+	}
+
+	/// Sequential `/api/v1/status` ping used by legacy callers.
+	public func pingSequential(paths: [RemoteDevice.Path], localPathsAllowed: Bool) async -> Bool {
+		let candidates = paths.ordered().filter { path in
+			path.kind == .local ? localPathsAllowed : true
+		}
+		for path in candidates {
+			guard let url = path.apiBaseURL() else { continue }
+			if await pingStatusReady(url: url, path: path) {
+				return true
+			}
+		}
+		return false
+	}
+
 	/// Single-call helper for the local-baseUrl shortcut: only fetches `about`, with the
 	/// caller-supplied timeout. Used by Algorithm B step 1 where a fast yes/no is enough.
 	public func fetchAbout(url: URL, timeout: TimeInterval = PathProber.localTimeout) async throws -> About {
@@ -117,6 +183,33 @@ public struct PathProber: Sendable {
 	}
 
 	// MARK: - Internals
+
+	private func pingStatusReady(url: URL, path: RemoteDevice.Path) async -> Bool {
+		let timeout: TimeInterval = path.kind == .local ? Self.localTimeout : Self.publicTimeout
+		do {
+			let status = try await Self.withTimeout(timeout) {
+				try await DeviceAPI(deviceBaseURL: url).getStatus()
+			}
+			return status.isDeviceMonitorReady
+		} catch {
+			return false
+		}
+	}
+
+	/// Maps a persisted `mdns|host|port` key to a probeable local path.
+	static func localPath(fromMDNSPersistenceKey key: String) -> RemoteDevice.Path? {
+		guard key.hasPrefix("mdns|") else { return nil }
+		let parts = key.split(separator: "|", omittingEmptySubsequences: false)
+		guard parts.count == 3, let port = Int(parts[2]) else { return nil }
+		return RemoteDevice.Path(kind: .local, address: String(parts[1]), port: port)
+	}
+
+	static func path(_ path: RemoteDevice.Path, matchesPersistenceKey key: String) -> Bool {
+		if path.key == key { return true }
+		guard key.hasPrefix("mdns|"), path.kind == .local,
+		      let localPath = localPath(fromMDNSPersistenceKey: key) else { return false }
+		return path.key == localPath.key
+	}
 
 	/// Performs one full status+about probe and returns a `PathProbe` only if both
 	/// endpoints responded. Failures are intentionally swallowed: not-responded ⇒ no probe.
@@ -162,4 +255,10 @@ public struct PathProber: Sendable {
 /// surfaced from `DeviceAPI` and not wrapped.
 public enum PathProberError: Error {
 	case timedOut
+}
+
+public enum PathConnectivityProbeResult: Sendable {
+	case currentPathReachable
+	case alternatePathReachable
+	case allUnreachable
 }

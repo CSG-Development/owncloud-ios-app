@@ -508,6 +508,7 @@ final public class LoginViewModel {
 			}
 		}
 		if !email.isEmpty { HCContext.shared.preferences.favoriteEmail = email }
+		Task { await HCContext.shared.connectivityStateCoordinator.beginSession() }
 		login(url: owncloudServerURL)
 	}
 

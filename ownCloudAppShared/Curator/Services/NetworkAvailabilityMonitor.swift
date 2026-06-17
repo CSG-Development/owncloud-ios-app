@@ -1,155 +1,102 @@
 import Foundation
 
-/// Which message the toast should display.
-///
-/// - `findingNetwork`: the system reports no usable path (airplane mode, Wi-Fi off,
-///   cellular off). Surfaced as "Finding network…".
-/// - `noInternet`: the system reports a usable path (Wi-Fi/cellular up) but every
-///   request still fails — the classic "liar network" / bad-proxy scenario.
-///   Surfaced as "No internet".
+/// Which message the connectivity banner should display.
 public enum NetworkAvailabilityToastKind: Sendable, Equatable {
 	case findingNetwork
 	case noInternet
+	case connectionLost
 }
 
-/// Tracks whether *any* of the candidate URLs (local, public, remote) is producing successful
-/// responses, and decides when to surface the connectivity toast.
-///
-/// Behavior contract (see spec):
-/// - The toast appears only after **30 seconds** without a successful response from any URL.
-/// - Normal URL switching that completes within 30 s does not show the toast.
-/// - User dismissal latches: the toast does not reappear until *either* a network state change
-///   *or* a success → failure cycle (connection restored and lost again).
-/// - Background retries continue without re-stacking the toast.
+/// Holds banner visibility for the main host screen network monitor.
+/// Dismiss (×) is view-level only — the next probe/state emit may show the banner again.
 public final actor NetworkAvailabilityMonitor {
 	public static let shared = NetworkAvailabilityMonitor()
 
-	private let timeoutSeconds: TimeInterval = 30
-
-	/// True when at least one URL responded successfully on the most recent attempt.
-	/// Initial value is `true` so a freshly-launched app does not show the toast until at
-	/// least one failure is observed..
-	private var isReachable: Bool = true
-
-	/// When the current continuous-failure streak began. `nil` means we are not currently
-	/// in a failure streak.
-	private var failureStartTime: Date?
-
-	/// The kind of failure currently being tracked. Updated on every `recordFailure(kind:)`
-	/// call so the most recent classification (system-no-path vs liar-network) wins when
-	/// the 30 s timer eventually fires.
-	private var currentKind: NetworkAvailabilityToastKind = .findingNetwork
-
-	/// Set when the user dismisses the toast. Cleared on a network state change OR on a
-	/// successful response so the toast can show again per the spec.
-	private var isDismissed: Bool = false
-
-	/// Latched "currently visible" state, mirrored to observers via `visibilityHandler`.
 	private var visibleKind: NetworkAvailabilityToastKind?
-
-	/// Pending 30-second wait. Cancelled on success / dismissal / network change so we
-	/// never fire stale shows after the streak has ended.
-	private var pendingShowTask: Task<Void, Never>?
-
+	private var pendingKind: NetworkAvailabilityToastKind?
+	private var showTask: Task<Void, Never>?
 	private var visibilityHandler: (@MainActor (NetworkAvailabilityToastKind?) -> Void)?
+	private var visibilityGeneration: UInt = 0
+
+	/// Brief grace so URL switching / fast recovery does not flash the snackbar.
+	private let findingNetworkDelaySeconds: TimeInterval = 2
+	/// Slightly longer grace before the persistent retry banner appears.
+	private let connectionLostDelaySeconds: TimeInterval = 3
 
 	public init() {}
 
-	// MARK: - Observation
-
-	/// Receives the toast kind to display, or `nil` to hide. Replays the current visibility
-	/// synchronously after registering.
 	public func observeToastVisibility(_ handler: @escaping @MainActor (NetworkAvailabilityToastKind?) -> Void) {
 		visibilityHandler = handler
 		let snapshot = visibleKind
 		Task { @MainActor in handler(snapshot) }
 	}
 
-	// MARK: - Signals from the connectivity layer
+	/// Single entry point for coordinator-driven visibility. Pass `nil` to hide.
+	public func setVisibility(_ kind: NetworkAvailabilityToastKind?) {
+		visibilityGeneration &+= 1
+		let generation = visibilityGeneration
+		let hadPendingShow = pendingKind != nil
+		showTask?.cancel()
+		showTask = nil
+		pendingKind = nil
 
-	/// Called when at least one URL (local, public, or remote) returned a successful
-	/// response. Cancels any pending toast and resets the dismissal latch so the toast
-	/// can appear again on the next failure cycle.
-	public func recordSuccess() async {
-		isReachable = true
-		failureStartTime = nil
-		pendingShowTask?.cancel()
-		pendingShowTask = nil
-		isDismissed = false
-		if visibleKind != nil {
+		guard let kind else {
+			let shouldHide = visibleKind != nil || hadPendingShow
 			visibleKind = nil
-			emitVisibility(nil)
+			if shouldHide {
+				emitVisibility(nil)
+			}
+			return
 		}
-	}
 
-	/// Called when an attempt to reach any URL failed (no successful probe / SDK transport
-	/// error). Starts the 30-second timer if we were previously reachable.
-	///
-	/// `kind` selects which message will be shown when the timer fires. If a failure streak
-	/// is already in progress and a later signal arrives with a different classification
-	/// (e.g. interface drops mid-streak), the kind is updated so the toast reflects the
-	/// current state.
-	public func recordFailure(kind: NetworkAvailabilityToastKind) async {
-		currentKind = kind
-		// Only (re)start the timer when transitioning into an unreachable state.
-		// Continued failures during an existing streak must not extend the deadline.
-		if isReachable || failureStartTime == nil {
-			isReachable = false
-			failureStartTime = Date()
-			schedulePendingShowIfNeeded()
-		} else if visibleKind != nil, visibleKind != kind {
-			// Streak continues but the classification changed — swap the visible message.
+		if visibleKind == kind { return }
+
+		let delay = showDelay(for: kind)
+		guard delay > 0 else {
 			visibleKind = kind
 			emitVisibility(kind)
+			return
 		}
-	}
 
-	/// Called when the system reachability state changes (e.g. WiFi ↔ Cellular). Per
-	/// spec, this clears the dismissal latch so the toast can reappear after another
-	/// 30 s of failure. Restarts the timer if we are currently failing.
-	public func recordNetworkChange() async {
-		isDismissed = false
-		if !isReachable {
-			failureStartTime = Date()
-			schedulePendingShowIfNeeded()
-		}
-	}
-
-	/// User tapped the dismiss (×) button on the toast.
-	public func dismiss() async {
-		isDismissed = true
-		pendingShowTask?.cancel()
-		pendingShowTask = nil
-		if visibleKind != nil {
-			visibleKind = nil
-			emitVisibility(nil)
-		}
-	}
-
-	// MARK: - Internal
-
-	private func schedulePendingShowIfNeeded() {
-		pendingShowTask?.cancel()
-		guard !isDismissed else { return }
-		let snapshot = failureStartTime
-		let wait = timeoutSeconds
-		pendingShowTask = Task { [weak self] in
-			let nanos = UInt64(wait * 1_000_000_000)
+		pendingKind = kind
+		showTask = Task {
+			let nanos = UInt64(delay * 1_000_000_000)
 			try? await Task.sleep(nanoseconds: nanos)
 			guard !Task.isCancelled else { return }
-			await self?.fireShow(matching: snapshot)
+			await self.commitPendingShow(expected: kind, generation: generation)
 		}
 	}
 
-	private func fireShow(matching snapshot: Date?) {
-		// Bail out if anything changed while we were sleeping: a success arrived,
-		// the user dismissed the toast, or a newer failure started a fresh window.
-		guard !isDismissed,
-			  !isReachable,
-			  failureStartTime == snapshot else { return }
-		guard visibleKind == nil else { return }
-		visibleKind = currentKind
-		emitVisibility(currentKind)
+	/// Clears banner state on logout.
+	public func reset() {
+		setVisibility(nil)
+	}
+
+	/// User tapped the dismiss (×) button. Only applies to non-blocking snackbars.
+	public func dismiss() {
+		guard visibleKind == .findingNetwork || visibleKind == .noInternet else { return }
+		guard visibleKind != nil else { return }
+		visibilityGeneration &+= 1
+		showTask?.cancel()
+		showTask = nil
+		pendingKind = nil
+		visibleKind = nil
+		emitVisibility(nil)
+	}
+
+	private func showDelay(for kind: NetworkAvailabilityToastKind) -> TimeInterval {
+		switch kind {
+			case .findingNetwork:  return findingNetworkDelaySeconds
+			case .connectionLost:  return connectionLostDelaySeconds
+			case .noInternet:        return 0
+		}
+	}
+
+	private func commitPendingShow(expected kind: NetworkAvailabilityToastKind, generation: UInt) {
+		guard generation == visibilityGeneration, pendingKind == kind else { return }
+		pendingKind = nil
+		visibleKind = kind
+		emitVisibility(kind)
 	}
 
 	private func emitVisibility(_ kind: NetworkAvailabilityToastKind?) {

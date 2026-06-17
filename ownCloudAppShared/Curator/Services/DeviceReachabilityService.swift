@@ -41,32 +41,31 @@ public final actor DeviceReachabilityService {
 	private var networkChangeCancellable: AnyCancellable?
 	private var foregroundCancellable: AnyCancellable?
 	private var staticDeviceAddressCancellable: AnyCancellable?
+	private var lastObservedInterface: NetworkState.Interface?
 	/// Spec: connection paths cached with a timestamp; expire after 1 hour.
 	/// Owned by `PathCacheStore`; persistence (1h TTL → `HCPreferences`) lives there.
 	private let pathCacheStore: PathCacheStore
 	/// Throttles automatic reprobe (timeout, cannot connect, status.php poll failures, …).
-	private var lastTimeoutSwitchAttemptAt: Date?
-	private let timeoutSwitchThrottleSeconds: TimeInterval = 60
-
+	/// Throttle lives in `ConnectivityStateCoordinator.triggerPathRecoveryFromError`.
 	private let reachability: ReachabilityObserving
 	private let remoteAccessService: RemoteAccessService
 	private let mdnsService: MDNSService
 	private let preferences: HCPreferences
-	private let availabilityMonitor: NetworkAvailabilityMonitor
+	private let connectivityCoordinator: ConnectivityStateCoordinator?
 
 	public init(
 		reachability: ReachabilityObserving,
 		remoteAccessService: RemoteAccessService,
 		mdnsService: MDNSService,
 		preferences: HCPreferences,
-		availabilityMonitor: NetworkAvailabilityMonitor = .shared,
-		pathProber: PathProber = PathProber()
+		pathProber: PathProber = PathProber(),
+		connectivityCoordinator: ConnectivityStateCoordinator? = nil
 	) {
 		self.reachability = reachability
 		self.remoteAccessService = remoteAccessService
 		self.mdnsService = mdnsService
 		self.preferences = preferences
-		self.availabilityMonitor = availabilityMonitor
+		self.connectivityCoordinator = connectivityCoordinator
 		let pathCacheStore = PathCacheStore(preferences: preferences)
 		let catalog = DeviceCatalog()
 		self.pathCacheStore = pathCacheStore
@@ -84,7 +83,6 @@ public final actor DeviceReachabilityService {
 			mdnsService: mdnsService,
 			remoteAccessService: remoteAccessService,
 			preferences: preferences,
-			availabilityMonitor: availabilityMonitor,
 			reachability: reachability,
 			emit: { event in subject.send(event) }
 		)
@@ -93,8 +91,11 @@ public final actor DeviceReachabilityService {
 			pipeline: pipeline,
 			remoteAccessService: remoteAccessService,
 			preferences: preferences,
-			availabilityMonitor: availabilityMonitor,
-			emit: { event in subject.send(event) }
+			emit: { event in subject.send(event) },
+			onPathRecoveryNeeded: { [connectivityCoordinator, reachability] in
+				let localAllowed = reachability.currentState.allowsLocalPaths
+				await connectivityCoordinator?.runPathRecovery(localPathsAllowed: localAllowed)
+			}
 		)
 
 		// MARK: catalog seeding
@@ -103,12 +104,14 @@ public final actor DeviceReachabilityService {
 
 		staticDeviceAddressCancellable = preferences.staticDeviceAddressPublisher
 			.removeDuplicates()
-			.sink { [pipeline] address in
-				Task { await pipeline.handleStaticDeviceAddressChange(address) }
+			.sink { [weak self] address in
+				guard let self else { return }
+				Task { await self.handleStaticDeviceAddressChange(address) }
 			}
 
-		mdnsService.onUpdate = { [pipeline] locals in
-			Task { await pipeline.handleMDNSUpdate(locals) }
+		mdnsService.onUpdate = { [weak self] locals in
+			guard let self else { return }
+			Task { await self.handleMDNSUpdate(locals) }
 		}
 		Task {
 			await seedInitialBestURLFromSession()
@@ -164,22 +167,28 @@ public final actor DeviceReachabilityService {
 			await pipeline.reloadDevices()
 		}
 		await coordinator.endExternalDetection()
+		await syncDeviceAccessIfReachable()
+		await connectivityCoordinator?.noteLaunchDetectionComplete()
 	}
 
 	/// Algorithm B — same entry as `NetworkChangeCoordinator.performDetection`.
 	private func tryLaunchDirectPathResolution() async -> Bool {
-		guard await remoteAccessService.hasValidTokens(),
-		      let saved = preferences.currentConnectedDevice,
+		guard let saved = preferences.currentConnectedDevice,
 		      let seagateDeviceID = saved.seagateDeviceID,
 		      !seagateDeviceID.isEmpty
 		else {
 			return false
 		}
 
+		// Algorithm B step 1 (local shortcut) does not require RA tokens. Steps 2+ do.
+		if !allowsLocalPaths {
+			guard await remoteAccessService.hasValidTokens() else { return false }
+		}
+
 		return await pipeline.attemptDirectResolution(
 			seagateDeviceID: seagateDeviceID,
 			certificateCommonName: saved.certificateCommonName,
-			wifiAvailable: wifiAvailableForLocalPaths
+			wifiAvailable: allowsLocalPaths
 		)
 	}
 
@@ -245,7 +254,7 @@ public final actor DeviceReachabilityService {
 			.debounce(for: .seconds(3), scheduler: DispatchQueue.main)
 			.sink { [weak self] in
 				guard let self else { return }
-				Task { await self.reprobeExistingPaths() }
+				Task { await self.reprobeActiveDeviceIfLoggedIn() }
 			}
 	}
 
@@ -262,7 +271,13 @@ public final actor DeviceReachabilityService {
 	}
 
 	// MARK: - Fast reprobe (no device reload)
+	/// Reprobes paths for the logged-in active device only. No-op before login / device selection.
 	public func reprobeExistingPaths() async {
+		await reprobeActiveDeviceIfLoggedIn()
+	}
+
+	private func reprobeActiveDeviceIfLoggedIn() async {
+		guard preferences.currentConnectedDevice != nil else { return }
 		await pipeline.reprobeExistingPaths()
 	}
 
@@ -270,14 +285,6 @@ public final actor DeviceReachabilityService {
 	/// merged view but want to know whether mDNS has produced anything yet.
 	public func localDevices() async -> [LocalDevice] {
 		await catalog.localDevices()
-	}
-
-	/// Classifies the current connectivity state for the toast:
-	/// - `.noInternet` (Liar Network): the OS reports a usable interface but our requests
-	///   are still failing — typical for a bogus HTTP proxy or a captive Wi-Fi.
-	/// - `.findingNetwork`: the OS reports no usable path (airplane mode, Wi-Fi off, etc.).
-	private nonisolated func availabilityToastKind() -> NetworkAvailabilityToastKind {
-		reachability.currentState.isReachable ? .noInternet : .findingNetwork
 	}
 
 	public nonisolated func start() {
@@ -314,13 +321,49 @@ public final actor DeviceReachabilityService {
 	}
 
 	/// Reacts immediately to each raw reachability event — clears stale local devices when
-	/// WiFi is lost so they are not shown as reachable on cellular/wired/other connections.
+	/// WiFi is lost and kicks off path recovery when the interface type changes.
 	private func handleImmediateNetworkStateChange(_ state: NetworkState) async {
-		guard state.interface != .wifi && state.interface != .none else { return }
-		let locals = await catalog.localDevices()
-		guard !locals.isEmpty else { return }
-		await catalog.clearLocalDevices()
-		emit(.devicesUpdated(await catalog.mergedDevices()))
+		let previousInterface = lastObservedInterface
+		lastObservedInterface = state.interface
+
+		if !state.allowsLocalPaths {
+			let locals = await catalog.localDevices()
+			if !locals.isEmpty {
+				await catalog.clearLocalDevices()
+				emit(.devicesUpdated(await catalog.mergedDevices()))
+			}
+		}
+
+		guard preferences.favoriteDeviceCN != nil || preferences.currentConnectedDevice != nil,
+		      await connectivityCoordinator?.isBootstrapComplete == true,
+		      let previousInterface,
+		      previousInterface != state.interface else { return }
+
+		Log.debug("[STX-RA]: Interface changed \(previousInterface.rawValue) → \(state.interface.rawValue); starting path recovery")
+		await connectivityCoordinator?.runPathRecovery(
+			localPathsAllowed: allowsLocalPaths,
+			skipInitialProbe: true,
+			localPathsFailed: !allowsLocalPaths
+		)
+	}
+
+	private func handleMDNSUpdate(_ locals: [LocalDevice]) async {
+		await pipeline.handleMDNSUpdate(locals)
+		await connectivityCoordinator?.runPathRecovery(
+			localPathsAllowed: allowsLocalPaths,
+			skipInitialProbe: true,
+			silentWhenConnected: true
+		)
+	}
+
+	private func handleStaticDeviceAddressChange(_ address: String?) async {
+		await pipeline.handleStaticDeviceAddressChange(address)
+		await connectivityCoordinator?.runPathRecovery(
+			localPathsAllowed: allowsLocalPaths,
+			skipInitialProbe: true,
+			localPathsFailed: !allowsLocalPaths,
+			silentWhenConnected: true
+		)
 	}
 
 	// MARK: - Operation error handling → reprobe prompt
@@ -347,12 +390,14 @@ public final actor DeviceReachabilityService {
 		return false
 	}
 
-	public func forceReloadDevices() async {
-		// Spec: reloadDevices() already probes all paths (via getMergedDevices or probeAll).
-		// A second reprobeExistingPaths() call would probe every path twice; removed.
+	public func forceReloadDevices(suppressConnectingUI: Bool = false) async {
+		if !suppressConnectingUI {
+			await connectivityCoordinator?.setDeviceAccess(.connecting)
+		}
 		await coordinator.beginExternalDetection()
 		await pipeline.reloadDevices()
 		await coordinator.endExternalDetection()
+		await updateDeviceAccessFromReachability(allowDisconnect: !suppressConnectingUI)
 	}
 
 	public func recalculateBestURLs() async {
@@ -364,9 +409,6 @@ public final actor DeviceReachabilityService {
 		await catalog.clear()
 		await pathCacheStore.clear()
 		await pipeline.cancelLoadTask()
-		// Reset the coordinator so we don't retain a stale `.detecting` or queued state.
-		// Any in-flight detection will still call `.detectionFinished`, which is a safe no-op
-		// when the FSM is already `.idle` and the in-flight count returns to 0.
 		await coordinator.reset()
 		emit(.devicesUpdated(await catalog.mergedDevices()))
 		urlProvider.clearAll()
@@ -375,47 +417,85 @@ public final actor DeviceReachabilityService {
 	// MARK: - Forward operation errors → transport auto reprobe + availability signal
 	public nonisolated func reportOperationError(_ error: Error) {
 		guard isAutoReprobeTransportError(error) else { return }
-		// Transport failure → both kick off a switch and signal availability failure so
-		// the 30 s "Finding network…" timer starts ticking even if no probes are running.
-		Task { await self.recordAvailabilityFailureFromOperationError() }
-		Task { await self.attemptSwitchAfterTransportFailure() }
+		Task { await self.handleOperationError(error) }
 	}
 
-	private func recordAvailabilityFailureFromOperationError() async {
-		// Operation errors arrive while the OS still reports a usable path (otherwise the
-		// SDK wouldn't even attempt the request). Classify as "no internet" by default,
-		// but defer to the current reachability state so an in-flight failure that lands
-		// just after the interface drops still surfaces the right message.
-		await availabilityMonitor.recordFailure(kind: availabilityToastKind())
+	private func handleOperationError(_ error: Error) async {
+		await connectivityCoordinator?.triggerPathRecoveryFromError(
+			localPathsAllowed: allowsLocalPaths
+		)
 	}
 
-	/// Reprobe without prompting (status.php / pipeline failures never call core handleError).
-	private func attemptSwitchAfterTransportFailure() async {
-		let now = Date()
-		if let last = lastTimeoutSwitchAttemptAt,
-		   now.timeIntervalSince(last) < timeoutSwitchThrottleSeconds {
+	private func updateDeviceAccessFromReachability(allowDisconnect: Bool = true) async {
+		if await connectivityCoordinator?.isAwaitingRAAuthentication == true { return }
+		guard let cn = preferences.favoriteDeviceCN ?? preferences.currentConnectedDevice?.certificateCommonName else {
+			if allowDisconnect {
+				await connectivityCoordinator?.setDeviceAccess(.disconnected)
+			}
 			return
 		}
-		lastTimeoutSwitchAttemptAt = now
-		Log.debug("[STX-RA]: Transport failure → automatic path switch (reprobe)")
-
-		if let email = preferences.favoriteEmail {
-			let hasToken = await remoteAccessService.hasValidTokens()
-			if hasToken == false {
-				emit(.emailValidationNeeded(email: email))
-			}
+		if await reachableSelection(certificateCommonName: cn) != nil {
+			await connectivityCoordinator?.confirmDeviceReachable()
+		} else if allowDisconnect,
+		          await connectivityCoordinator?.currentDeviceAccess == .connecting {
+			// Only downgrade after an explicit recovery reload — avoid flashing
+			// "connection lost" on cold launch before probes populate the catalog.
+			await connectivityCoordinator?.setDeviceAccess(.disconnected)
 		}
-		await forceReloadDevices()
 	}
 
-	// MARK: - Best path selection
+	/// Promotes to connected when the catalog has positive reachability evidence.
+	private func syncDeviceAccessIfReachable() async {
+		guard await connectivityCoordinator?.isSessionActive == true else { return }
+		guard let cn = preferences.favoriteDeviceCN ?? preferences.currentConnectedDevice?.certificateCommonName else {
+			return
+		}
+		if await reachableSelection(certificateCommonName: cn) != nil {
+			await connectivityCoordinator?.confirmDeviceReachable()
+		}
+	}
 
-	/// Returns true when local-type paths should be considered.
-	/// Spec: local paths (mDNS and local-type Remote Access paths) are gated by WiFi.
-	/// When the interface is unknown (.none), allow local paths rather than blocking.
-	private var wifiAvailableForLocalPaths: Bool {
-		let iface = reachability.currentState.interface
-		return iface == .wifi || iface == .none
+	/// Supplemental local paths for connectivity probes (mDNS / persisted local keys).
+	public func supplementalProbePaths() async -> [RemoteDevice.Path] {
+		guard allowsLocalPaths else { return [] }
+		guard let cn = preferences.favoriteDeviceCN ?? preferences.currentConnectedDevice?.certificateCommonName else {
+			return []
+		}
+
+		var paths: [RemoteDevice.Path] = []
+		if let key = preferences.currentConnectedDevice?.lastSuccessfulPathKey,
+		   let localPath = PathProber.localPath(fromMDNSPersistenceKey: key) {
+			paths.append(localPath)
+		}
+
+		if let local = await catalog.localDevices().first(where: { $0.certificateCommonName == cn }) {
+			let localPath = RemoteDevice.Path(kind: .local, address: local.host, port: local.port)
+			if !paths.contains(where: { $0.key == localPath.key }) {
+				paths.append(localPath)
+			}
+		}
+
+		if let saved = preferences.currentConnectedDevice {
+			for savedPath in saved.paths where savedPath.kind == .local {
+				let localPath = savedPath.asRemotePath()
+				if !paths.contains(where: { $0.key == localPath.key }) {
+					paths.append(localPath)
+				}
+			}
+		}
+
+		return paths
+	}
+
+	public func isPreferredDeviceReachable() async -> Bool {
+		guard let cn = preferences.favoriteDeviceCN ?? preferences.currentConnectedDevice?.certificateCommonName else {
+			return false
+		}
+		return await reachableSelection(certificateCommonName: cn) != nil
+	}
+
+	private var allowsLocalPaths: Bool {
+		reachability.currentState.allowsLocalPaths
 	}
 
 	// MARK: - Path selection
@@ -436,13 +516,13 @@ public final actor DeviceReachabilityService {
 	public func nextURLToAttempt(certificateCommonName cn: String) async -> SelectedPath? {
 		await catalog.nextURLToAttempt(
 			forCN: cn,
-			wifiAvailable: wifiAvailableForLocalPaths,
+			wifiAvailable: allowsLocalPaths,
 			preferredPathKey: preferences.lastSuccessfulPathKey(forCN: cn)
 		)
 	}
 
 	public func reachableSelection(certificateCommonName cn: String) async -> SelectedPath? {
-		await catalog.reachableSelection(forCN: cn, wifiAvailable: wifiAvailableForLocalPaths)
+		await catalog.reachableSelection(forCN: cn, wifiAvailable: allowsLocalPaths)
 	}
 
 	public func currentRemoteBaseURL() async -> URL? {
@@ -455,13 +535,13 @@ public final actor DeviceReachabilityService {
 		let preferredKey = cn.flatMap { preferences.lastSuccessfulPathKey(forCN: $0) }
 		return catalog.nextURLToAttempt(
 			for: merged,
-			wifiAvailable: wifiAvailableForLocalPaths,
+			wifiAvailable: allowsLocalPaths,
 			preferredPathKey: preferredKey
 		)
 	}
 
 	public func reachableSelection(for merged: MergedDevice) -> SelectedPath? {
-		catalog.reachableSelection(for: merged, wifiAvailable: wifiAvailableForLocalPaths)
+		catalog.reachableSelection(for: merged, wifiAvailable: allowsLocalPaths)
 	}
 
 	/// Fast login path selection: probes only the selected device's links (Algorithm C).

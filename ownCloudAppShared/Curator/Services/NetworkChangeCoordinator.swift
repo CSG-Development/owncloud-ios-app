@@ -41,8 +41,8 @@ public actor NetworkChangeCoordinator {
 	private let pipeline: DetectionPipeline
 	private let remoteAccessService: RemoteAccessService
 	private let preferences: HCPreferences
-	private let availabilityMonitor: NetworkAvailabilityMonitor
 	private let emit: EmitEvent
+	private let onPathRecoveryNeeded: (@Sendable () async -> Void)?
 
 	private var coordinatorState: CoordinatorState = .idle
 	private var isForeground: Bool = true
@@ -68,14 +68,14 @@ public actor NetworkChangeCoordinator {
 		pipeline: DetectionPipeline,
 		remoteAccessService: RemoteAccessService,
 		preferences: HCPreferences,
-		availabilityMonitor: NetworkAvailabilityMonitor,
-		emit: @escaping EmitEvent
+		emit: @escaping EmitEvent,
+		onPathRecoveryNeeded: (@Sendable () async -> Void)? = nil
 	) {
 		self.pipeline = pipeline
 		self.remoteAccessService = remoteAccessService
 		self.preferences = preferences
-		self.availabilityMonitor = availabilityMonitor
 		self.emit = emit
+		self.onPathRecoveryNeeded = onPathRecoveryNeeded
 	}
 
 	// MARK: - Public entry points
@@ -158,10 +158,8 @@ public actor NetworkChangeCoordinator {
 		let interfaceTypeChanged = lastNetworkState.map { $0.interface != state.interface } ?? true
 		if interfaceTypeChanged {
 			// Topology change (WiFi → cellular, hotspot, …). Reset the cooldown so detection
-			// fires immediately after the 3 s debounce, and re-arm the toast (clears the
-			// dismissal latch so the "Finding network…" toast can reappear).
+			// fires immediately after the 3 s debounce.
 			lastDetectionAt = nil
-			Task { [availabilityMonitor] in await availabilityMonitor.recordNetworkChange() }
 		}
 		lastNetworkState = state
 
@@ -183,9 +181,7 @@ public actor NetworkChangeCoordinator {
 		// next event (token refresh, another network change) will retry.
 		let hasToken = await remoteAccessService.hasValidTokens()
 		if !hasToken {
-			if let email = preferences.favoriteEmail {
-				emit(.emailValidationNeeded(email: email))
-			}
+			await onPathRecoveryNeeded?()
 			return
 		}
 
@@ -244,9 +240,7 @@ public actor NetworkChangeCoordinator {
 		}
 		let hasToken = await remoteAccessService.hasValidTokens()
 		if !hasToken {
-			if let email = preferences.favoriteEmail {
-				emit(.emailValidationNeeded(email: email))
-			}
+			await onPathRecoveryNeeded?()
 			coordinatorState = .idle
 			return
 		}
@@ -296,9 +290,7 @@ public actor NetworkChangeCoordinator {
 		_ = state
 		let hasToken = await remoteAccessService.hasValidTokens()
 		if !hasToken {
-			if let email = preferences.favoriteEmail {
-				emit(.emailValidationNeeded(email: email))
-			}
+			await onPathRecoveryNeeded?()
 			return
 		}
 		if let saved = preferences.currentConnectedDevice,

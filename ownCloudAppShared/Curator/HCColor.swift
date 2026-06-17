@@ -64,6 +64,11 @@ public enum HCColor {
 			isDark ? UIColor(hexString: "#FFFFFFDE") : UIColor(hexString: "#000000DE")
 		}
 
+		// Content/Text primary inverted
+		public static func textPrimaryInverted(_ isDark: Bool) -> UIColor {
+			textPrimary(!isDark)
+		}
+
 		// Content/Text secondary
 		public static func textSecondary(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#FFFFFFB2") : UIColor(hexString: "#00000099")

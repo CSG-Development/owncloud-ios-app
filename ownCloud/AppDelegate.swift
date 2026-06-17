@@ -30,13 +30,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		AnalyticsTracker.shared.setup()
-		HCContext.shared.setup()
 		HCContext.shared.emailVerificationHandler = { email, completion in
 			CodeVerificationService.shared.requestEmailVerification(
 				email: email,
 				completion: completion
 			)
 		}
+		HCContext.shared.setup()
 
 		_ = HCKeyboardTracker.shared
 

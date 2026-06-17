@@ -63,58 +63,9 @@ open class AccountConnectionErrorHandler: NSObject, AccountConnectionCoreErrorHa
 			if let reportError = error ?? nsError {
 				HCContext.shared.deviceReachabilityService.reportOperationError(reportError)
 			}
-			context.alertQueue?.async { [weak self] (queueCompletionHandler) in
-				var presentIssue : OCIssue? = issue
-				var queueCompletionHandlerScheduled : Bool = false
-
-				if issue == nil, let error = error {
-					presentIssue = OCIssue(forError: error, level: .error, issueHandler: nil)
-				}
-
-				if presentIssue != nil {
-					var presentViewController : UIViewController?
-					var onViewController : UIViewController?
-
-					if let startViewController = self?.context.presentationViewController {
-						var hostViewController : UIViewController = startViewController
-
-						while hostViewController.presentedViewController != nil,
-						      hostViewController.presentedViewController?.isBeingDismissed == false {
-							hostViewController = hostViewController.presentedViewController!
-						}
-
-						onViewController = hostViewController
-					}
-
-					if let presentIssue = presentIssue, presentIssue.type == .multipleChoice {
-						presentViewController = ThemedAlertController(with: presentIssue, completion: queueCompletionHandler)
-					} else if let onViewController = onViewController, let presentIssue = presentIssue {
-						IssuesCardViewController.present(on: onViewController, issue: presentIssue, bookmark: self?.connection.bookmark, completion: { [weak presentIssue] (response) in
-							switch response {
-								case .cancel:
-									presentIssue?.reject()
-
-								case .approve:
-									presentIssue?.approve()
-
-								case .dismiss: break
-							}
-							queueCompletionHandler()
-						})
-
-						queueCompletionHandlerScheduled = true
-					}
-
-					if let presentViewController = presentViewController, let onViewController = onViewController {
-						queueCompletionHandlerScheduled = true
-						onViewController.present(presentViewController, animated: true, completion: nil)
-					}
-				}
-
-				if !queueCompletionHandlerScheduled {
-					queueCompletionHandler()
-				}
-			}
+			// Intentionally suppress native ownCloud issue UI.
+			// Connectivity/auth recovery is handled by Curator flows (banner + RA verification).
+			Log.debug("[STX-RA]: Suppressing native ownCloud error UI.")
 		}
 
 		return true

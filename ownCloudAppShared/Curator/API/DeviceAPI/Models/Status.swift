@@ -40,3 +40,10 @@ public struct Status: Codable, Sendable {
 	public var OOBE: OOBE
 	public var apps: Apps?
 }
+
+public extension Status {
+	/// Network monitor spec: device is reachable when OOBE is done and files app is ready.
+	var isDeviceMonitorReady: Bool {
+		self.OOBE.done && (apps?.files?.isReady == true)
+	}
+}
