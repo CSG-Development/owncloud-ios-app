@@ -427,20 +427,47 @@ public final actor DeviceReachabilityService {
 	}
 
 	private func updateDeviceAccessFromReachability(allowDisconnect: Bool = true) async {
-		if await connectivityCoordinator?.isAwaitingRAAuthentication == true { return }
+		if await connectivityCoordinator?.isAwaitingRAAuthentication == true {
+			Self.logReachability("sync skipped (awaiting RA auth)")
+			return
+		}
 		guard let cn = preferences.favoriteDeviceCN ?? preferences.currentConnectedDevice?.certificateCommonName else {
 			if allowDisconnect {
+				Self.logReachability("sync→disconnected (no device CN)")
 				await connectivityCoordinator?.setDeviceAccess(.disconnected)
+			} else {
+				Self.logReachability("sync unchanged (no device CN, disconnect suppressed)")
 			}
 			return
 		}
 		if await reachableSelection(certificateCommonName: cn) != nil {
+			Self.logReachability("sync→connected (catalog has reachable path for \(cn))")
 			await connectivityCoordinator?.confirmDeviceReachable()
 		} else if allowDisconnect,
 		          await connectivityCoordinator?.currentDeviceAccess == .connecting {
 			// Only downgrade after an explicit recovery reload — avoid flashing
 			// "connection lost" on cold launch before probes populate the catalog.
+			Self.logReachability("sync→disconnected (no reachable path for \(cn), was connecting)")
 			await connectivityCoordinator?.setDeviceAccess(.disconnected)
+		} else {
+			let access = await connectivityCoordinator?.currentDeviceAccess
+			Self.logReachability(
+				"sync unchanged (no reachable path for \(cn), device=\(Self.deviceAccessLabel(access)) "
+					+ "allowDisconnect=\(allowDisconnect))"
+			)
+		}
+	}
+
+	private static func logReachability(_ message: String) {
+		Log.debug("[STX-CONN]: reachability \(message)")
+	}
+
+	private static func deviceAccessLabel(_ state: DeviceAccessState?) -> String {
+		guard let state else { return "unknown" }
+		switch state {
+			case .connected:     return "connected"
+			case .connecting:    return "connecting"
+			case .disconnected:  return "disconnected"
 		}
 	}
 

@@ -36,6 +36,7 @@ public final actor NetworkAvailabilityMonitor {
 		visibilityGeneration &+= 1
 		let generation = visibilityGeneration
 		let hadPendingShow = pendingKind != nil
+		let previousVisible = visibleKind
 		showTask?.cancel()
 		showTask = nil
 		pendingKind = nil
@@ -44,6 +45,10 @@ public final actor NetworkAvailabilityMonitor {
 			let shouldHide = visibleKind != nil || hadPendingShow
 			visibleKind = nil
 			if shouldHide {
+				Self.log(
+					"banner hide (was \(Self.bannerLabel(previousVisible))"
+						+ (hadPendingShow ? ", cancelled pending" : "") + ")"
+				)
 				emitVisibility(nil)
 			}
 			return
@@ -54,11 +59,13 @@ public final actor NetworkAvailabilityMonitor {
 		let delay = showDelay(for: kind)
 		guard delay > 0 else {
 			visibleKind = kind
+			Self.log("banner show \(Self.bannerLabel(kind)) (immediate)")
 			emitVisibility(kind)
 			return
 		}
 
 		pendingKind = kind
+		Self.log("banner schedule \(Self.bannerLabel(kind)) in \(Int(delay))s")
 		showTask = Task {
 			let nanos = UInt64(delay * 1_000_000_000)
 			try? await Task.sleep(nanoseconds: nanos)
@@ -80,7 +87,9 @@ public final actor NetworkAvailabilityMonitor {
 		showTask?.cancel()
 		showTask = nil
 		pendingKind = nil
+		let dismissed = visibleKind
 		visibleKind = nil
+		Self.log("banner user dismissed \(Self.bannerLabel(dismissed))")
 		emitVisibility(nil)
 	}
 
@@ -93,14 +102,34 @@ public final actor NetworkAvailabilityMonitor {
 	}
 
 	private func commitPendingShow(expected kind: NetworkAvailabilityToastKind, generation: UInt) {
-		guard generation == visibilityGeneration, pendingKind == kind else { return }
+		guard generation == visibilityGeneration, pendingKind == kind else {
+			Self.log(
+				"banner show \(Self.bannerLabel(kind)) dropped "
+					+ "(gen=\(generation) current=\(visibilityGeneration))"
+			)
+			return
+		}
 		pendingKind = nil
 		visibleKind = kind
+		Self.log("banner show \(Self.bannerLabel(kind)) (after delay)")
 		emitVisibility(kind)
 	}
 
 	private func emitVisibility(_ kind: NetworkAvailabilityToastKind?) {
 		guard let handler = visibilityHandler else { return }
 		Task { @MainActor in handler(kind) }
+	}
+
+	private static func log(_ message: String) {
+		Log.debug("[STX-CONN]: \(message)")
+	}
+
+	private static func bannerLabel(_ kind: NetworkAvailabilityToastKind?) -> String {
+		switch kind {
+			case nil:                 return "hidden"
+			case .findingNetwork:      return "findingNetwork"
+			case .noInternet:          return "noInternet"
+			case .connectionLost:      return "connectionLost"
+		}
 	}
 }
