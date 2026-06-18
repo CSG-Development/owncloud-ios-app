@@ -548,6 +548,10 @@ open class AccountConnection: NSObject {
 		}
 
 		connectionStatusSummary = summary
+
+		Task {
+			await HCContext.shared.connectivityStateCoordinator.setSDKCoreConnectionStatus(core?.connectionStatus)
+		}
 	}
 
 	// MARK: - Actions to perform on connect
