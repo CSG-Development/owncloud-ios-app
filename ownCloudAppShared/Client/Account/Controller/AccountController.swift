@@ -244,7 +244,9 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 					self.showAccountItems = true
 					self.showDisconnectButton = true
 					self.authFailure = nil
-					Task { await HCContext.shared.connectivityStateCoordinator.beginSession() }
+					Task {
+						await HCContext.shared.connectivityStateCoordinator.noteLoginBootstrapComplete()
+					}
 					// Ensure sidebar gets recomposed after core/capabilities become available
 					self.composeItemsDataSource()
 

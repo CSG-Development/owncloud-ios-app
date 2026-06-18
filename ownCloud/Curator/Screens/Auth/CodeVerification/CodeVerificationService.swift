@@ -52,7 +52,7 @@ public final class CodeVerificationService {
 						if isAuthenticated {
 							await HCContext.shared.deviceReachabilityService.forceReloadDevices()
 						} else {
-							await HCContext.shared.connectivityStateCoordinator.setDeviceAccess(.disconnected)
+							await HCContext.shared.connectivityStateCoordinator.noteRAAuthenticationFailed()
 						}
 					}
 				})

@@ -18,4 +18,6 @@ public enum DeviceReachabilityEvent: Sendable {
 	case emailValidationNeeded(email: String)
 	/// The remote base URL for the favorite device changed.
 	case remoteBaseURLChanged(URL?)
+	/// Algorithm A reload started or finished.
+	case pipelineReloadingChanged(Bool)
 }

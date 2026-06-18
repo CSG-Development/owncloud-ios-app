@@ -45,6 +45,7 @@ public final class SDKDeviceAvailabilityGate: @unchecked Sendable {
 		let offline = !connected
 		guard offline != forcedOffline else { return }
 		forcedOffline = offline
+		Log.debug("[STX-CONN]: SDK gate→\(connected ? "online" : "offline") (\(registrations.count) core(s))")
 
 		pruneDeadRegistrationsLocked()
 

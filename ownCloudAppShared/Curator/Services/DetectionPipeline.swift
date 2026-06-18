@@ -191,16 +191,22 @@ public actor DetectionPipeline {
 
 	// MARK: - mDNS
 
-	public func handleMDNSUpdate(_ locals: [LocalDevice]) async {
+	public func handleMDNSUpdate(_ locals: [LocalDevice]) async -> Bool {
 		// Spec: local discovery is only useful on the same network as the device.
 		// Skip mDNS results when WiFi is confirmed absent.
 		// When the interface is .none (unknown), proceed rather than block (spec rule).
 		let iface = reachability.currentState.interface
 		guard reachability.currentState.allowsLocalPaths else {
 			Log.debug("[STX-MDNS]: Skipping mDNS update — local paths unavailable (interface: \(iface.rawValue)).")
-			return
+			return false
 		}
 		let previous = await catalog.localDevices()
+		let localsChanged = Self.localDeviceSetChanged(from: previous, to: locals)
+		let previousCNs = Set(previous.compactMap(\.certificateCommonName))
+		let currentCNs = Set(locals.compactMap(\.certificateCommonName))
+		let cnSetChanged = previousCNs != currentCNs
+		guard localsChanged || cnSetChanged else { return false }
+
 		await catalog.setLocalDevices(locals)
 
 		// Remember every validated local URL so Algorithm B step 1 can use it even after WiFi loss.
@@ -225,11 +231,15 @@ public actor DetectionPipeline {
 
 		// A fresh mDNS validation (or a previously-validated local disappearing) must reach
 		// the SDK promptly rather than waiting for the next reload/reprobe trigger.
-		let previousCNs = Set(previous.compactMap(\.certificateCommonName))
-		let currentCNs = Set(locals.compactMap(\.certificateCommonName))
-		if previousCNs != currentCNs {
-			await recalculateBestURLs()
+		await recalculateBestURLs()
+		return true
+	}
+
+	private static func localDeviceSetChanged(from previous: [LocalDevice], to current: [LocalDevice]) -> Bool {
+		func identity(_ device: LocalDevice) -> String {
+			"\(device.certificateCommonName ?? "")|\(device.host)|\(device.port)|\(device.name)"
 		}
+		return Set(previous.map(identity)) != Set(current.map(identity))
 	}
 
 	// MARK: - Static device
@@ -301,9 +311,11 @@ public actor DetectionPipeline {
 		loadTask?.cancel()
 		loadTask = nil
 		isReloading = true
+		emit(.pipelineReloadingChanged(true))
 		defer {
 			if detectionGeneration == myGen {
 				isReloading = false
+				emit(.pipelineReloadingChanged(false))
 			}
 		}
 

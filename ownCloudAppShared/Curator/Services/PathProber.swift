@@ -124,7 +124,10 @@ public struct PathProber: Sendable {
 		   !candidates.contains(where: { $0.key == localPath.key }) {
 			candidates.insert(localPath, at: 0)
 		}
-		guard !candidates.isEmpty else { return .allUnreachable }
+		guard !candidates.isEmpty else {
+			Log.debug("[STX-CONN]: probe connectivity paths=0 localAllowed=\(localPathsAllowed) → allUnreachable")
+			return .allUnreachable
+		}
 
 		var currentPath: RemoteDevice.Path?
 		var alternatePaths: [RemoteDevice.Path] = []
@@ -138,15 +141,27 @@ public struct PathProber: Sendable {
 
 		if let currentPath, let url = currentPath.apiBaseURL() {
 			if await pingStatusReady(url: url, path: currentPath) {
+				Log.debug(
+					"[STX-CONN]: probe connectivity paths=\(candidates.count) "
+						+ "current=\(currentPathKey ?? "none") → currentReachable"
+				)
 				return .currentPathReachable
 			}
 			await onStartedAlternateProbe?()
 			for path in alternatePaths {
 				guard let url = path.apiBaseURL() else { continue }
 				if await pingStatusReady(url: url, path: path) {
+					Log.debug(
+						"[STX-CONN]: probe connectivity paths=\(candidates.count) "
+							+ "current=\(currentPathKey ?? "none") → alternateReachable"
+					)
 					return .alternatePathReachable
 				}
 			}
+			Log.debug(
+				"[STX-CONN]: probe connectivity paths=\(candidates.count) "
+					+ "current=\(currentPathKey ?? "none") → allUnreachable"
+			)
 			return .allUnreachable
 		}
 
@@ -154,9 +169,17 @@ public struct PathProber: Sendable {
 		for path in candidates {
 			guard let url = path.apiBaseURL() else { continue }
 			if await pingStatusReady(url: url, path: path) {
+				Log.debug(
+					"[STX-CONN]: probe connectivity paths=\(candidates.count) "
+						+ "current=\(currentPathKey ?? "none") → alternateReachable"
+				)
 				return .alternatePathReachable
 			}
 		}
+		Log.debug(
+			"[STX-CONN]: probe connectivity paths=\(candidates.count) "
+				+ "current=\(currentPathKey ?? "none") → allUnreachable"
+		)
 		return .allUnreachable
 	}
 

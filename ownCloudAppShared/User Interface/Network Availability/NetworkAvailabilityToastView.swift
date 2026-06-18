@@ -157,7 +157,7 @@ public final class NetworkAvailabilityToastView: UIView {
 				backgroundColor = HCColor.Structure.snackbarBackground(isDark)
 				messageLabel.textColor = HCColor.Content.textPrimaryInverted(isDark)
 				closeButton.tintColor = HCColor.Content.textPrimaryInverted(isDark)
-				retryButton.tintColor = HCColor.Content.textPrimaryInverted(isDark)
+				retryButton.tintColor = HCColor.Interaction.primarySolidNormalInverted(isDark)
 				layer.borderWidth = 0
 		}
 	}
