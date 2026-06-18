@@ -264,6 +264,9 @@ public class PasscodeSetupCoordinator {
 		AppLockManager.shared.unlocked = false
 		PasscodeSetupCoordinator.isPasscodeSecurityEnabled = false
 		PasscodeSetupCoordinator.isBiometricalSecurityEnabled = false
+		if AppLockManager.supportedOnDevice {
+			AppLockManager.shared.dismissLockscreen(animated: false)
+		}
 	}
 
 	private func lock(with passcode:String) {

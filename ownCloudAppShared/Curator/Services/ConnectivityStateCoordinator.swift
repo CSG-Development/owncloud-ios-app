@@ -23,6 +23,7 @@ public final actor ConnectivityStateCoordinator {
 	private var toastPublishTask: Task<Void, Never>?
 	private var snackbarDrivingEnabled = true
 	private var lastObservedInterface: NetworkState.Interface?
+	private var sdkCoreConnectionStatus: OCCoreConnectionStatus?
 
 	public init(pathProber: PathProber = PathProber()) {
 		self.pathProber = pathProber
@@ -32,6 +33,14 @@ public final actor ConnectivityStateCoordinator {
 	public var isSessionActive: Bool { !session.isLoggedOut }
 	public var isAwaitingRAAuthentication: Bool { session.isAwaitingRemoteAuthentication }
 	public var isBootstrapComplete: Bool { session.isActive }
+	public var isAwaitingLoginBootstrap: Bool { session.shouldCompleteLoginBootstrap }
+
+	public func setSDKCoreConnectionStatus(_ status: OCCoreConnectionStatus?) {
+		guard sdkCoreConnectionStatus != status else { return }
+		sdkCoreConnectionStatus = status
+		Self.log("sdk core status=\(ConnectivityBannerPresenter.coreStatusLabel(status))")
+		publish()
+	}
 
 	public func setSnackbarDrivingEnabled(_ enabled: Bool) {
 		snackbarDrivingEnabled = enabled
@@ -201,6 +210,7 @@ public final actor ConnectivityStateCoordinator {
 		probePathCache.invalidate()
 		lastObservedInterface = nil
 		pipelineReloadDepth = 0
+		sdkCoreConnectionStatus = nil
 		_ = session.handle(.reset(networkReachable: reachability?.currentState.isReachable ?? true))
 		publish()
 	}
@@ -395,7 +405,8 @@ public final actor ConnectivityStateCoordinator {
 		let presenter = ConnectivityBannerPresenter(
 			snackbarDrivingEnabled: snackbarDrivingEnabled,
 			connectivity: session.connectivity,
-			pipelineReloading: pipelineReloadDepth > 0
+			pipelineReloading: pipelineReloadDepth > 0,
+			sdkCoreConnectionStatus: sdkCoreConnectionStatus
 		)
 		SDKDeviceAvailabilityGate.shared.setDeviceConnected(presenter.sdkConnected)
 
@@ -405,12 +416,14 @@ public final actor ConnectivityStateCoordinator {
 		if let suppressReason {
 			Self.log(
 				"banner hidden (device=\(session.deviceAccess) network=\(session.networkReachable ? "up" : "down") "
+					+ "core=\(ConnectivityBannerPresenter.coreStatusLabel(sdkCoreConnectionStatus)) "
 					+ "reason=\(suppressReason) sdk=\(presenter.sdkConnected ? "online" : "offline"))"
 			)
 		} else {
 			Self.log(
 				"banner→\(ConnectivityBannerPresenter.bannerLabel(kind)) (device=\(session.deviceAccess) "
 					+ "network=\(session.networkReachable ? "up" : "down") "
+					+ "core=\(ConnectivityBannerPresenter.coreStatusLabel(sdkCoreConnectionStatus)) "
 					+ "sdk=\(presenter.sdkConnected ? "online" : "offline"))"
 			)
 		}

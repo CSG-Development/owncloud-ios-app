@@ -199,7 +199,16 @@ public class AppLockManager: NSObject {
 	}
 
 	// MARK: - Show / Dismiss Passcode View
+	private var isPasscodeLockConfigured: Bool {
+		AppLockSettings.shared.lockEnabled && passcode != nil
+	}
+
 	public func showLockscreenIfNeeded(forceShow: Bool = false, setupMode: Bool = false, context: LAContext? = nil) {
+		guard setupMode || isPasscodeLockConfigured else {
+			dismissLockscreen(animated: false)
+			return
+		}
+
 		if shouldDisplayLockscreen || forceShow || setupMode {
 			lockscreenOpenForced = forceShow
 			lockscreenOpen = true
@@ -267,6 +276,11 @@ public class AppLockManager: NSObject {
 	}
 
 	@objc func updateLockscreens() {
+		if lockscreenOpen, !isPasscodeLockConfigured {
+			dismissLockscreen(animated: false)
+			return
+		}
+
 		if lockscreenOpen {
 			if let passwordViewHostViewController = passwordViewHostViewController {
 				if let passcodeViewController = passwordViewHostViewController.children.last as? PasscodeViewController {
