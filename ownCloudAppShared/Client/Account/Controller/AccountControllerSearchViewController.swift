@@ -45,11 +45,41 @@ class AccountControllerSearchViewController: ClientItemViewController {
 		startSearch()
 	}
 
-	override var searchViewController: SearchViewController? {
-		didSet {
-			// Modify newly created SearchViewController before it is used
-			searchViewController?.showCancelButton = false
-			searchViewController?.hideNavigationButtons = false
+	override func startSearch() {
+		guard searchViewController == nil else { return }
+
+		if let clientContext = clientContext, let cellStyle = itemSection?.cellStyle {
+			let (scopes, defaultScope) = searchScopes(for: clientContext, cellStyle: cellStyle)
+
+			let noResultContent = SearchViewController.Content(type: .noResults, source: OCDataSourceArray(), style: emptySection!.cellStyle)
+			let noResultsView = ComposedMessageView.infoBox(image: UIImage(named: "search-empty", in: Bundle.sharedAppBundle, with: nil)!, title: OCLocalizedString("No matches", nil), subtitle: OCLocalizedString("The search term you entered did not match any item in the selected scope.", nil))
+
+			(noResultContent.source as? OCDataSourceArray)?.setVersionedItems([
+				noResultsView
+			])
+
+			let suggestionsSource = OCDataSourceArray()
+			suggestionsSource.trackItemVersions = true
+
+			let suggestionsContent = SearchViewController.Content(type: .suggestion, source: suggestionsSource, style: emptySection!.cellStyle)
+
+			if clientContext.core?.vault != nil {
+				startProvidingSearchSuggestions(to: suggestionsSource, in: clientContext)
+			}
+
+			let searchViewController = SearchViewController(
+				with: clientContext,
+				scopes: scopes,
+				defaultScope: defaultScope,
+				suggestionContent: suggestionsContent,
+				noResultContent: noResultContent,
+				delegate: self,
+				showCancelButton: false,
+				hideNavigationButtons: false
+			)
+
+			self.searchViewController = searchViewController
+			addStacked(child: searchViewController, position: .top)
 		}
 	}
 

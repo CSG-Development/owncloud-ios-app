@@ -135,11 +135,13 @@ open class SearchViewController: UIViewController, UITextFieldDelegate, Themeabl
 
 	private var _defaultScope: SearchScope?
 
-	init(with clientContext: ClientContext, scopes: [SearchScope]?, defaultScope: SearchScope? = nil, targetNavigationItem: UINavigationItem? = nil, suggestionContent: Content? = nil, noResultContent: Content? = nil, delegate: SearchViewControllerDelegate?) {
+	init(with clientContext: ClientContext, scopes: [SearchScope]?, defaultScope: SearchScope? = nil, targetNavigationItem: UINavigationItem? = nil, suggestionContent: Content? = nil, noResultContent: Content? = nil, delegate: SearchViewControllerDelegate?, showCancelButton: Bool = true, hideNavigationButtons: Bool = true) {
 		self.clientContext = clientContext
 
 		super.init(nibName: nil, bundle: nil)
 
+		self.showCancelButton = showCancelButton
+		self.hideNavigationButtons = hideNavigationButtons
 		self.targetNavigationItem = targetNavigationItem ?? clientContext.originatingViewController?.navigationItem
 
 		self.suggestionContent = suggestionContent

@@ -112,7 +112,9 @@ class TagsViewController: UITableViewController, Themeable {
 	init(context: ClientContext) {
 		self.clientContext = context
 		super.init(style: .plain)
-		self.title = OCLocalizedString("Tags", nil)
+		let tagsTitle = OCLocalizedString("Tags", nil)
+		self.title = tagsTitle
+		self.navigationItem.title = tagsTitle
 	}
 
 	required init?(coder: NSCoder) {

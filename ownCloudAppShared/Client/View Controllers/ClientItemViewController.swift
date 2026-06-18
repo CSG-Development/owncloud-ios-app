@@ -1394,6 +1394,8 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 			showEmptyOverlay(true)
 			showNoResultsOverlay(false)
 		}
+
+		browserNavigationViewController?.updateContentNavigationItems()
 	}
 
 	public func search(for viewController: SearchViewController, content: SearchViewController.Content?) {

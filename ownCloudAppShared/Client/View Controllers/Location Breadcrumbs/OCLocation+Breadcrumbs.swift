@@ -37,12 +37,33 @@ public extension OCLocation {
 	static func navigationTitleReplacingAccountName(_ title: String?, in context: ClientContext?) -> String? {
 		guard let title, !title.isEmpty else { return title }
 
-		if let bookmark = context?.core?.bookmark,
-		   title == bookmark.displayName || title == bookmark.shortName || title == bookmark.name {
+		if isAccountConnectionTitle(title, in: context) {
 			return filesNavigationTitle()
 		}
 
 		return title
+	}
+
+	/// True when `title` is account metadata (e.g. bookmark short name or `user@host`).
+	static func isAccountConnectionTitle(_ title: String, in context: ClientContext?) -> Bool {
+		guard let bookmark = context?.core?.bookmark else { return false }
+
+		let bookmarkTitles = [
+			bookmark.shortName,
+			bookmark.displayName,
+			bookmark.name,
+			bookmark.userName
+		].compactMap { $0 }.filter { !$0.isEmpty }
+
+		if bookmarkTitles.contains(title) {
+			return true
+		}
+
+		if title.contains("@"), let host = bookmark.url?.host, !host.isEmpty, title.hasSuffix(host) {
+			return true
+		}
+
+		return false
 	}
 
 	func displayName(in context: ClientContext?) -> String {

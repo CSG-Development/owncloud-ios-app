@@ -564,7 +564,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	private var isCurrentContentSpecialTabBarItem: Bool {
-		history.currentItem?.isSpecialTabBarItem ?? false
+		if let contentViewController,
+		   let navigationBookmark = contentViewController.navigationBookmark {
+			return BrowserNavigationItem(bookmark: navigationBookmark).isSpecialTabBarItem
+		}
+
+		return history.currentItem?.isSpecialTabBarItem ?? false
 	}
 
 	private func updateHistoryButtons() {
@@ -578,9 +583,37 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	private func previousHistoryItemTitle() -> String? {
 		let previousPosition = history.position - 1
 		guard previousPosition >= 0, previousPosition < history.items.count else { return nil }
-		let previousVC = history.items[previousPosition].viewControllerIfLoaded
+
+		let previousItem = history.items[previousPosition]
+		let context = clientContextProvider?()
+
+		if let specialItem = previousItem.navigationBookmark?.specialItem,
+		   let title = Self.backTitle(for: specialItem) {
+			return title
+		}
+
+		let previousVC = previousItem.viewControllerIfLoaded
 		let title = previousVC?.navigationItem.title ?? previousVC?.title
-		return OCLocation.navigationTitleReplacingAccountName(title, in: clientContextProvider?())
+
+		if let title, OCLocation.isAccountConnectionTitle(title, in: context) {
+			return nil
+		}
+
+		let replacedTitle = OCLocation.navigationTitleReplacingAccountName(title, in: context)
+		if let replacedTitle, OCLocation.isAccountConnectionTitle(replacedTitle, in: context) {
+			return nil
+		}
+
+		return replacedTitle
+	}
+
+	private static func backTitle(for specialItem: AccountController.SpecialItem) -> String? {
+		switch specialItem {
+			case .tags:
+				return OCLocalizedString("Tags", nil)
+			default:
+				return nil
+		}
 	}
 
 	private func buildBackBarButtonItem(title: String?) -> UIBarButtonItem {
@@ -683,56 +716,103 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			leadingButtons.append(item)
 		}
 
-		let sideBarItem = NavigationContentItem(
-			identifier: "browser-navigation-left", area: .left, priority: .standard,
-			position: .leading, items: sidebarButtons)
-		sideBarItem.visibleInPriorities = [.standard, .high, .highest]
+		var contentItems: [NavigationContentItem] = []
 
-		navigationItem.navigationContent.add(items: [
-			sideBarItem,
-			NavigationContentItem(
-				identifier: "browser-navigation-left", area: .left, priority: .standard,
-				position: .leading, items: leadingButtons)
-		])
+		if withToggleSideBar {
+			let sideBarItem = NavigationContentItem(
+				identifier: "browser-navigation-left", area: .left, priority: .highest,
+				position: .leading, items: sidebarButtons)
+			sideBarItem.visibleInPriorities = [.standard, .high, .highest]
+			contentItems.append(sideBarItem)
+		}
+
+		if !leadingButtons.isEmpty {
+			let leadingItem = NavigationContentItem(
+				identifier: "browser-navigation-left", area: .left,
+				priority: withToggleSideBar ? .standard : .highest,
+				position: withToggleSideBar ? .trailing : .leading,
+				items: leadingButtons)
+			if !withToggleSideBar {
+				leadingItem.visibleInPriorities = [.standard, .high, .highest]
+			}
+			contentItems.append(leadingItem)
+		}
+
+		if contentItems.isEmpty {
+			navigationItem.navigationContent.remove(itemsWithIdentifier: "browser-navigation-left")
+		} else {
+			navigationItem.navigationContent.add(items: contentItems)
+		}
+	}
+
+	private func effectiveFilesLocation(for contentViewController: UIViewController?) -> OCLocation? {
+		guard let itemVC = contentViewController as? ClientItemViewController,
+		      let clientContext = itemVC.clientContext,
+		      itemVC.query?.queryLocation != nil
+		else { return nil }
+
+		if let loc = itemVC.location {
+			return loc
+		}
+		if let queryLoc = itemVC.query?.queryLocation {
+			return queryLoc
+		}
+		if let rootItem = clientContext.rootItem as? OCItem {
+			return rootItem.location
+		}
+
+		return nil
+	}
+
+	private func isAtFilesRoot(for contentViewController: UIViewController?) -> Bool {
+		guard !isCurrentContentSpecialTabBarItem else { return false }
+		return effectiveFilesLocation(for: contentViewController)?.isRoot == true
 	}
 
 	private func isBreadcrumbNavigationAvailable(for contentViewController: UIViewController?) -> Bool {
 		guard let contentViewController else { return false }
 
-		if let itemVC = contentViewController as? ClientItemViewController, let clientContext = itemVC.clientContext {
+		if let itemVC = contentViewController as? ClientItemViewController, itemVC.clientContext != nil {
 			guard
 				!isCurrentContentSpecialTabBarItem,
 				itemVC.query?.queryLocation != nil
 			else { return false }
 
-			var effectiveLocation: OCLocation?
-			if let loc = itemVC.location {
-				effectiveLocation = loc
-			} else if let queryLoc = itemVC.query?.queryLocation {
-				effectiveLocation = queryLoc
-			} else if let rootItem = clientContext.rootItem as? OCItem {
-				effectiveLocation = rootItem.location
+			guard let effectiveLocation = effectiveFilesLocation(for: contentViewController) else {
+				return false
 			}
 
-			return effectiveLocation != nil && !effectiveLocation!.isRoot
+			return !effectiveLocation.isRoot
 		}
 
 		return contentViewController is DisplayHostType
+	}
+
+	private func isDetachedFileList(_ contentViewController: UIViewController?) -> Bool {
+		guard let itemVC = contentViewController as? ClientItemViewController else { return false }
+		guard !isCurrentContentSpecialTabBarItem else { return false }
+		return itemVC.query?.queryLocation == nil
 	}
 
 	func updateContentNavigationItems() {
 		if let contentNavigationItem = contentViewController?.navigationItem {
 			let hasHistoryBack = history.canMoveBack && !isCurrentContentSpecialTabBarItem
 			let hasBreadcrumbNavigation = isBreadcrumbNavigationAvailable(for: contentViewController)
+			let atFilesRoot = isAtFilesRoot(for: contentViewController)
+			let detachedFileList = isDetachedFileList(contentViewController)
 			let shouldShowSidebarToggleByDisplayMode = (effectiveSideBarDisplayMode == .sideBySide)
 				? isSideBarHidden
 				: true
-			// Prefer the sidebar toggle when breadcrumbs provide navigation; otherwise fall back
-			// to the nav-bar back button (e.g. tag file lists without a location bar).
-			let shouldShowSidebarToggle = hasBreadcrumbNavigation || !hasHistoryBack
-				? shouldShowSidebarToggleByDisplayMode
-				: false
-			let shouldShowBackButton = hasHistoryBack && !hasBreadcrumbNavigation
+			// Prefer the sidebar toggle at files root, when breadcrumbs provide navigation,
+			// or when there is no history back target. Back button is used for detached
+			// lists such as tag file lists that have no location breadcrumb bar.
+			let shouldPreferSidebarToggle = !detachedFileList
+				&& (atFilesRoot || hasBreadcrumbNavigation || !hasHistoryBack)
+			let shouldShowSidebarToggle = shouldPreferSidebarToggle && shouldShowSidebarToggleByDisplayMode
+			let shouldShowBackButton = detachedFileList && hasHistoryBack
+				|| (hasHistoryBack && !hasBreadcrumbNavigation && !atFilesRoot)
+
+			contentNavigationItem.hidesBackButton = true
 
 			updateLeftBarButtonItems(
 				for: contentNavigationItem,
