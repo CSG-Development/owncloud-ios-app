@@ -91,15 +91,24 @@ public final actor ConnectivityStateCoordinator {
 	}
 
 	private func setDeviceAccess(_ state: DeviceAccessState, allowDuringRAAuth: Bool) {
-		guard sessionActive else { return }
-		if awaitingRAAuthentication && !allowDuringRAAuth { return }
+		guard sessionActive else {
+			Self.log("device access \(Self.accessLabel(state)) ignored (no active session)")
+			return
+		}
+		if awaitingRAAuthentication && !allowDuringRAAuth {
+			Self.log("device access \(Self.accessLabel(state)) ignored (awaiting RA auth)")
+			return
+		}
 		if suppressConnectivitySnackbar,
 		   !allowDuringRAAuth,
 		   state == .connecting || state == .disconnected {
+			Self.log("device access \(Self.accessLabel(state)) ignored (bootstrap suppressing snackbar)")
 			return
 		}
 		guard deviceAccess != state else { return }
+		let previous = deviceAccess
 		deviceAccess = state
+		Self.log("device \(Self.accessLabel(previous))→\(Self.accessLabel(state))")
 		publish()
 	}
 
@@ -146,6 +155,7 @@ public final actor ConnectivityStateCoordinator {
 	private func finishBootstrapIfReady() async {
 		guard sessionActive, suppressConnectivitySnackbar, launchDetectionComplete else { return }
 		suppressConnectivitySnackbar = false
+		Self.log("bootstrap complete — snackbars enabled")
 		await validateConnectivityAfterBootstrap()
 		await onBootstrapComplete?()
 	}
@@ -219,7 +229,26 @@ public final actor ConnectivityStateCoordinator {
 
 	/// Periodic host-screen probe: current path first, then alternates.
 	public func evaluateConfiguredPaths(localPathsAllowed: Bool) async {
-		guard sessionActive, networkReachable, !awaitingRAAuthentication, isBootstrapComplete, let preferences else { return }
+		guard sessionActive else {
+			Self.log("periodic probe skipped (no active session)")
+			return
+		}
+		guard networkReachable else {
+			Self.log("periodic probe skipped (network unreachable)")
+			return
+		}
+		guard !awaitingRAAuthentication else {
+			Self.log("periodic probe skipped (awaiting RA auth)")
+			return
+		}
+		guard isBootstrapComplete else {
+			Self.log("periodic probe skipped (bootstrap incomplete)")
+			return
+		}
+		guard let preferences else {
+			Self.log("periodic probe skipped (preferences not configured)")
+			return
+		}
 
 		let paths = await configuredProbePaths(preferences: preferences)
 		guard !paths.isEmpty else {
@@ -251,19 +280,26 @@ public final actor ConnectivityStateCoordinator {
 
 	/// User tapped Retry — full recovery including RA auth when required.
 	public func retry() async {
+		Self.log("user retry tapped")
 		await runPathRecovery(localPathsAllowed: localPathsAllowed)
 	}
 
 	/// Transport / SDK errors — throttled full path recovery (same flow as Retry).
 	public func triggerPathRecoveryFromError(localPathsAllowed: Bool) async {
-		guard isBootstrapComplete else { return }
+		guard isBootstrapComplete else {
+			Self.log("transport recovery skipped (bootstrap incomplete)")
+			return
+		}
 		let now = Date()
 		if let last = lastErrorRecoveryAt,
 		   now.timeIntervalSince(last) < errorRecoveryThrottleSeconds {
+			let remaining = Int(errorRecoveryThrottleSeconds - now.timeIntervalSince(last))
+			Self.log("transport recovery throttled (\(remaining)s remaining)")
 			return
 		}
 		lastErrorRecoveryAt = now
 		Log.debug("[STX-RA]: Transport failure → coordinator path recovery")
+		Self.log("transport recovery started")
 		await runPathRecovery(localPathsAllowed: localPathsAllowed)
 	}
 
@@ -274,14 +310,29 @@ public final actor ConnectivityStateCoordinator {
 		localPathsFailed: Bool = false,
 		silentWhenConnected: Bool = false
 	) async {
-		guard sessionActive, networkReachable else { return }
-		if suppressConnectivitySnackbar && !silentWhenConnected { return }
+		guard sessionActive else {
+			Self.log("recovery skipped (no active session)")
+			return
+		}
+		guard networkReachable else {
+			Self.log("recovery skipped (network unreachable)")
+			return
+		}
+		if suppressConnectivitySnackbar && !silentWhenConnected {
+			Self.log("recovery skipped (bootstrap suppressing, non-silent)")
+			return
+		}
 
 		if let inFlight = pathRecoveryTask {
+			Self.log("recovery waiting for in-flight task")
 			await inFlight.value
 			return
 		}
 
+		Self.log(
+			"recovery started (silent=\(silentWhenConnected) skipProbe=\(skipInitialProbe) "
+				+ "localFailed=\(localPathsFailed) device=\(Self.accessLabel(deviceAccess)))"
+		)
 		let task = Task { [self] in
 			await self.performPathRecovery(
 				localPathsAllowed: localPathsAllowed,
@@ -446,26 +497,44 @@ public final actor ConnectivityStateCoordinator {
 	/// Called when the active device base URL changes (path switch). Dismisses a stale
 	/// "finding network" banner even when recovery finished outside `performPathRecovery`.
 	public func noteActivePathAvailable() {
-		guard sessionActive, networkReachable else { return }
+		guard sessionActive, networkReachable else {
+			Self.log("path available ignored (session=\(sessionActive) network=\(networkReachable))")
+			return
+		}
+		Self.log("active path available — marking connected")
 		markDeviceConnected(allowDuringRAAuth: true)
 	}
 
 	private func markDeviceConnected(allowDuringRAAuth: Bool = false) {
 		guard sessionActive else { return }
-		if awaitingRAAuthentication && !allowDuringRAAuth { return }
+		if awaitingRAAuthentication && !allowDuringRAAuth {
+			Self.log("mark connected ignored (awaiting RA auth)")
+			return
+		}
+		let previous = deviceAccess
 		deviceAccess = .connected
+		if previous != .connected {
+			Self.log("device \(Self.accessLabel(previous))→connected")
+		}
 		publish()
 	}
 
 	/// Ensures recovery never leaves the UI stuck in `.connecting`.
 	private func finalizeDeviceAccessAfterRecovery(suppressConnectingUI: Bool) async {
-		guard deviceAccess == .connecting else { return }
+		guard deviceAccess == .connecting else {
+			Self.log("recovery finalize skipped (device=\(Self.accessLabel(deviceAccess)))")
+			return
+		}
 		if await preferredDeviceIsReachable() {
+			Self.log("recovery finalize→connected (catalog reachable)")
 			markDeviceConnected(allowDuringRAAuth: true)
 			return
 		}
 		if !suppressConnectingUI {
+			Self.log("recovery finalize→disconnected (catalog unreachable)")
 			setDeviceAccess(.disconnected, allowDuringRAAuth: true)
+		} else {
+			Self.log("recovery finalize unchanged (connecting, silent suppress)")
 		}
 	}
 
@@ -475,13 +544,18 @@ public final actor ConnectivityStateCoordinator {
 
 		guard let toastMonitor else { return }
 		let kind: NetworkAvailabilityToastKind?
+		let suppressReason: String?
 		if !networkReachable {
 			kind = .noInternet
+			suppressReason = nil
 		} else if !sessionActive {
 			kind = nil
+			suppressReason = "no session"
 		} else if suppressConnectivitySnackbar {
 			kind = nil
+			suppressReason = "bootstrap"
 		} else {
+			suppressReason = nil
 			switch deviceAccess {
 				case .connected:     kind = nil
 				case .connecting:    kind = .findingNetwork
@@ -489,11 +563,47 @@ public final actor ConnectivityStateCoordinator {
 			}
 		}
 
+		if let suppressReason {
+			Self.log(
+				"banner hidden (device=\(Self.accessLabel(deviceAccess)) network=\(networkReachable ? "up" : "down") "
+					+ "reason=\(suppressReason) sdk=\(sdkConnected ? "online" : "offline"))"
+			)
+		} else {
+			Self.log(
+				"banner→\(Self.bannerLabel(kind)) (device=\(Self.accessLabel(deviceAccess)) "
+					+ "network=\(networkReachable ? "up" : "down") sdk=\(sdkConnected ? "online" : "offline"))"
+			)
+		}
+
 		toastPublishGeneration &+= 1
 		let generation = toastPublishGeneration
 		Task {
-			guard generation == self.toastPublishGeneration else { return }
+			guard generation == self.toastPublishGeneration else {
+				Self.log("banner publish gen=\(generation) dropped (stale)")
+				return
+			}
 			await toastMonitor.setVisibility(kind)
+		}
+	}
+
+	private static func log(_ message: String) {
+		Log.debug("[STX-CONN]: \(message)")
+	}
+
+	private static func accessLabel(_ state: DeviceAccessState) -> String {
+		switch state {
+			case .connected:     return "connected"
+			case .connecting:    return "connecting"
+			case .disconnected:  return "disconnected"
+		}
+	}
+
+	private static func bannerLabel(_ kind: NetworkAvailabilityToastKind?) -> String {
+		switch kind {
+			case nil:                 return "hidden"
+			case .findingNetwork:      return "findingNetwork"
+			case .noInternet:          return "noInternet"
+			case .connectionLost:      return "connectionLost"
 		}
 	}
 

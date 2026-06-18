@@ -185,6 +185,7 @@ public final actor ConnectionPingMonitor {
 
 	private func runProbeRound() async {
 		guard shouldProbe else { return }
+		Log.debug("[STX-CONN]: periodic probe round started")
 		await connectivityCoordinator?.evaluateConfiguredPaths(localPathsAllowed: localPathsAllowed)
 	}
 
