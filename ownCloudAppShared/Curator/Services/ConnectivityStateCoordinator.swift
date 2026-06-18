@@ -1,63 +1,64 @@
 import Foundation
 import ownCloudSDK
 
-public enum DeviceAccessState: Sendable, Equatable {
-	case connected
-	case connecting
-	case disconnected
-}
-
 /// Single source of truth for network + device connectivity. Drives snackbars and the SDK gate.
 public final actor ConnectivityStateCoordinator {
 	public static let shared = ConnectivityStateCoordinator()
 
-	private var networkReachable = true
-	private var deviceAccess: DeviceAccessState = .connected
-	private var sessionActive = false
+	private var session = ConnectivitySessionState()
+	private var probePathCache = ConnectivityProbePathCache()
+	private var probeScheduler = ConnectivityProbeScheduler()
+	private var recoveryRunner = ConnectivityRecoveryRunner()
+	private let lifecycleObserver = ConnectivityLifecycleObserver()
 
 	private var toastMonitor: NetworkAvailabilityMonitor?
 	private var preferences: HCPreferences?
 	private var reachability: ReachabilityObserving?
 	private var remoteAccessService: RemoteAccessService?
 	private let pathProber: PathProber
-	private var pathRecoveryHandler: ((Bool) async -> Void)?
-	private var onBootstrapComplete: (() async -> Void)?
+	private var pathRecoveryHandler: (() async throws -> Void)?
 	private var supplementalProbePaths: (() async -> [RemoteDevice.Path])?
 	private var isPreferredDeviceReachable: (() async -> Bool)?
-	private var lastErrorRecoveryAt: Date?
-	private let errorRecoveryThrottleSeconds: TimeInterval = 60
-	private var pathRecoveryTask: Task<Void, Never>?
-	private var awaitingRAAuthentication = false
-	/// While true, device-level snackbars are hidden and pessimistic access downgrades are ignored
-	/// until cold-launch path detection has populated the catalog.
-	private var suppressConnectivitySnackbar = false
-	private var launchDetectionComplete = false
-	private var toastPublishGeneration: UInt = 0
+	private var pipelineReloadDepth = 0
+	private var toastPublishTask: Task<Void, Never>?
+	private var snackbarDrivingEnabled = true
+	private var lastObservedInterface: NetworkState.Interface?
 
 	public init(pathProber: PathProber = PathProber()) {
 		self.pathProber = pathProber
 	}
 
-	public var currentDeviceAccess: DeviceAccessState { deviceAccess }
+	public var currentDeviceAccess: DeviceAccessState { session.deviceAccess }
+	public var isSessionActive: Bool { !session.isLoggedOut }
+	public var isAwaitingRAAuthentication: Bool { session.isAwaitingRemoteAuthentication }
+	public var isBootstrapComplete: Bool { session.isActive }
 
-	public var isSessionActive: Bool { sessionActive }
-
-	public var isAwaitingRAAuthentication: Bool { awaitingRAAuthentication }
-
-	public var isBootstrapComplete: Bool { !suppressConnectivitySnackbar }
-
-	/// Called when `DeviceReachabilityService` finishes cold-launch path detection.
-	public func noteLaunchDetectionComplete() async {
-		launchDetectionComplete = true
-		await finishBootstrapIfReady()
+	public func setSnackbarDrivingEnabled(_ enabled: Bool) {
+		snackbarDrivingEnabled = enabled
+		Self.log("snackbar driving \(enabled ? "enabled" : "disabled")")
 	}
+
+	public func noteLaunchDetectionComplete() async {
+		let transition = session.handle(.markLaunchDetectionComplete)
+		guard transition.launchDetectionMarkedComplete else { return }
+		await tryFinishBootstrap()
+	}
+
+	public func noteLoginBootstrapComplete() async {
+		guard session.shouldCompleteLoginBootstrap else {
+			Self.log("login bootstrap complete ignored (phase=\(session.connectivity))")
+			return
+		}
+		Self.log("login bootstrap complete")
+		await finishBootstrap()
+	}
+
 	public func configure(
 		preferences: HCPreferences,
 		reachability: ReachabilityObserving,
 		toastMonitor: NetworkAvailabilityMonitor,
 		remoteAccessService: RemoteAccessService,
-		pathRecoveryHandler: @escaping (Bool) async -> Void,
-		onBootstrapComplete: (() async -> Void)? = nil,
+		pathRecoveryHandler: @escaping () async throws -> Void,
 		supplementalProbePaths: (() async -> [RemoteDevice.Path])? = nil,
 		isPreferredDeviceReachable: (() async -> Bool)? = nil
 	) {
@@ -66,122 +67,299 @@ public final actor ConnectivityStateCoordinator {
 		self.toastMonitor = toastMonitor
 		self.remoteAccessService = remoteAccessService
 		self.pathRecoveryHandler = pathRecoveryHandler
-		self.onBootstrapComplete = onBootstrapComplete
 		self.supplementalProbePaths = supplementalProbePaths
 		self.isPreferredDeviceReachable = isPreferredDeviceReachable
-		networkReachable = reachability.currentState.isReachable
-		applySessionActive(Self.hasPersistedDeviceSession(preferences: preferences) || sessionActive)
+		if session.isLoggedOut, ConnectivitySessionState.hasPersistedDeviceSession(preferences: preferences) {
+			_ = session.handle(.activateSession(.launchDetection))
+			publish()
+		}
+		Self.log("configured (phase=\(session.connectivity))")
 	}
 
-	/// Re-reads persisted prefs / bookmarks and updates `sessionActive` (e.g. after cold launch).
 	public func refreshSessionActive() {
 		guard let preferences else { return }
-		let active = Self.hasPersistedDeviceSession(preferences: preferences)
+		let active = ConnectivitySessionState.hasPersistedDeviceSession(preferences: preferences)
 			|| !OCBookmarkManager.shared.bookmarks.isEmpty
-		applySessionActive(active)
+		Self.log("refreshSession active=\(active) phase=\(session.connectivity)")
+		if active {
+			_ = session.handle(.activateSession(.launchDetection))
+			publish()
+			Task { await self.tryFinishBootstrap() }
+		} else {
+			_ = session.handle(.deactivateSession)
+			publish()
+		}
 	}
 
 	public func setNetworkReachable(_ reachable: Bool) {
-		networkReachable = reachable
+		let transition = session.handle(.setNetworkReachable(reachable))
+		guard transition.connectivityChanged else { return }
+		Self.log("network \(reachable ? "up" : "down")")
 		publish()
 	}
 
-	public func setDeviceAccess(_ state: DeviceAccessState) {
-		setDeviceAccess(state, allowDuringRAAuth: false)
+	public func invalidateConfiguredProbePaths() {
+		probePathCache.invalidate()
 	}
 
-	private func setDeviceAccess(_ state: DeviceAccessState, allowDuringRAAuth: Bool) {
-		guard sessionActive else {
-			Self.log("device access \(Self.accessLabel(state)) ignored (no active session)")
-			return
+	public func handleNetworkState(_ state: NetworkState) async {
+		let previousInterface = lastObservedInterface
+		let interfaceChanged = previousInterface.map { $0 != state.interface } ?? false
+		lastObservedInterface = state.interface
+		let wasReachable = session.networkReachable
+		Self.log(
+			"network state interface=\(state.interface.rawValue) reachable=\(state.isReachable) "
+				+ "localPaths=\(state.allowsLocalPaths)"
+				+ (interfaceChanged ? " (changed)" : "")
+		)
+		setNetworkReachable(state.isReachable)
+
+		let localAllowed = state.allowsLocalPaths
+		if interfaceChanged {
+			probePathCache.invalidate()
 		}
-		if awaitingRAAuthentication && !allowDuringRAAuth {
-			Self.log("device access \(Self.accessLabel(state)) ignored (awaiting RA auth)")
-			return
+		if interfaceChanged, hasConfiguredPaths(), isBootstrapComplete {
+			Self.log(
+				"interface changed → path recovery "
+					+ "(\(previousInterface?.rawValue ?? "?")→\(state.interface.rawValue))"
+			)
+			await runPathRecovery(
+				localPathsAllowed: localAllowed,
+				skipInitialProbe: true,
+				localPathsFailed: !localAllowed
+			)
+		} else if state.isReachable, !wasReachable, probeScheduler.hostScreenActive, probeScheduler.isForeground {
+			Self.log("network restored — scheduling immediate probe")
+			probeScheduler.scheduleImmediateProbeOnNetworkRestore()
 		}
-		if suppressConnectivitySnackbar,
-		   !allowDuringRAAuth,
-		   state == .connecting || state == .disconnected {
-			Self.log("device access \(Self.accessLabel(state)) ignored (bootstrap suppressing snackbar)")
-			return
+
+		await reconcileProbeLoop()
+	}
+
+	public func installLifecycleObserversIfNeeded() {
+		lifecycleObserver.installIfNeeded { [weak self] foreground in
+			guard let self else { return }
+			Task { await self.handleAppForeground(foreground) }
 		}
-		guard deviceAccess != state else { return }
-		let previous = deviceAccess
-		deviceAccess = state
-		Self.log("device \(Self.accessLabel(previous))→\(Self.accessLabel(state))")
+	}
+
+	public func setHostScreenActive(_ active: Bool) async {
+		probeScheduler.setHostScreenActive(active)
+		Self.log("host screen active=\(active)")
+		await reconcileProbeLoop()
+	}
+
+	public func setPipelineReloading(_ active: Bool) {
+		if active {
+			pipelineReloadDepth += 1
+		} else {
+			pipelineReloadDepth = max(0, pipelineReloadDepth - 1)
+		}
 		publish()
+	}
+
+	public func applyCatalogSnapshot(_ snapshot: CatalogReachabilitySnapshot) {
+		guard !session.isLoggedOut else {
+			Self.log("catalog snapshot ignored (logged out)")
+			return
+		}
+		if session.isAwaitingRemoteAuthentication {
+			Self.log("catalog snapshot ignored (awaiting RA auth)")
+			return
+		}
+		if !snapshot.hasDeviceCN {
+			Self.log("catalog snapshot→disconnected (no device CN)")
+			applyDeviceAccess(.disconnected, policy: .catalogSync)
+			return
+		}
+		if snapshot.isReachable {
+			Self.log("catalog snapshot→connected")
+			applyDeviceAccess(.connected, policy: .catalogSync)
+		} else if session.deviceAccess == .connecting || session.deviceAccess == .connected {
+			Self.log("catalog snapshot→disconnected (unreachable)")
+			applyDeviceAccess(.disconnected, policy: .catalogSync)
+		}
+	}
+
+	public func noteCatalogReloadStarting() {
+		probePathCache.invalidate()
+		Self.log("catalog reload starting — showing connecting UI")
+		applyDeviceAccess(.connecting, policy: .normal)
+	}
+
+	public func noteRAAuthenticationFailed() {
+		Self.log("RA authentication failed")
+		applyDeviceAccess(.disconnected, policy: .duringRAAuth)
 	}
 
 	public func reset() {
-		pathRecoveryTask?.cancel()
-		pathRecoveryTask = nil
-		awaitingRAAuthentication = false
-		suppressConnectivitySnackbar = false
-		launchDetectionComplete = false
-		sessionActive = false
-		deviceAccess = .connected
-		networkReachable = reachability?.currentState.isReachable ?? true
-		lastErrorRecoveryAt = nil
+		Self.log("reset")
+		recoveryRunner.reset()
+		toastPublishTask?.cancel()
+		toastPublishTask = nil
+		probeScheduler.reset()
+		probePathCache.invalidate()
+		lastObservedInterface = nil
+		pipelineReloadDepth = 0
+		_ = session.handle(.reset(networkReachable: reachability?.currentState.isReachable ?? true))
 		publish()
 	}
 
-	/// Starts a fresh device connectivity session (login or reconnect).
 	public func beginSession() {
-		let wasActive = sessionActive
-		applySessionActive(true)
-		if !wasActive {
-			Task { await self.noteLaunchDetectionComplete() }
-		}
-	}
-
-	private func applySessionActive(_ active: Bool) {
-		let wasActive = sessionActive
-		sessionActive = active
-		if active && !wasActive {
-			deviceAccess = .connected
-			suppressConnectivitySnackbar = true
-		}
-		if !active {
-			suppressConnectivitySnackbar = false
-		}
-		if active != wasActive || active {
-			publish()
-		}
-		if active {
-			Task { await self.finishBootstrapIfReady() }
-		}
-	}
-
-	private func finishBootstrapIfReady() async {
-		guard sessionActive, suppressConnectivitySnackbar, launchDetectionComplete else { return }
-		suppressConnectivitySnackbar = false
-		Self.log("bootstrap complete — snackbars enabled")
-		await validateConnectivityAfterBootstrap()
-		await onBootstrapComplete?()
-	}
-
-	private func validateConnectivityAfterBootstrap() async {
-		guard sessionActive, networkReachable, let preferences else {
-			publish()
+		guard session.isLoggedOut else {
+			Self.log("beginSession ignored (phase=\(session.connectivity))")
 			return
 		}
+		let bootstrap: ConnectivityBootstrapWait =
+			session.coldLaunchDetectionComplete ? .loginCatalog : .launchDetection
+		Self.log("beginSession→bootstrapping(\(bootstrap))")
+		_ = session.handle(.activateSession(bootstrap))
+		publish()
+		Task { await self.tryFinishBootstrap() }
+	}
 
-		let paths = await configuredProbePaths(preferences: preferences)
-		guard !paths.isEmpty else {
-			if await preferredDeviceIsReachable() {
-				markDeviceConnected()
-			}
-			publish()
+	public func evaluateConfiguredPaths(localPathsAllowed: Bool) async {
+		await evaluateAndRecover(isPeriodic: true, localPathsAllowed: localPathsAllowed)
+	}
+
+	public func retry(localPathsAllowed: Bool? = nil) async {
+		Self.log("user retry tapped")
+		await runPathRecovery(localPathsAllowed: localPathsAllowed ?? currentLocalPathsAllowed())
+	}
+
+	public func triggerPathRecoveryFromError(localPathsAllowed: Bool) async {
+		guard isBootstrapComplete else {
+			Self.log("transport recovery skipped (bootstrap incomplete)")
 			return
 		}
+		Log.debug("[STX-RA]: Transport failure → coordinator path recovery")
+		Self.log("transport recovery started")
+		await runPathRecovery(localPathsAllowed: localPathsAllowed, fromTransportError: true)
+	}
 
-		let result = await probeConfiguredPaths(
-			paths: paths,
-			currentPathKey: preferences.currentConnectedDevice?.lastSuccessfulPathKey,
-			localPathsAllowed: localPathsAllowed
+	public func runPathRecovery(
+		localPathsAllowed: Bool,
+		skipInitialProbe: Bool = false,
+		localPathsFailed: Bool = false,
+		fromTransportError: Bool = false,
+		alternatePathReachable: Bool = false
+	) async {
+		switch session.checkRecoveryEligibility() {
+			case .eligible:
+				break
+			case .ineligible(let reason):
+				Self.log("recovery skipped (\(reason))")
+				return
+		}
+
+		let request = ConnectivityRecoveryRequest(
+			localPathsAllowed: localPathsAllowed,
+			skipInitialProbe: skipInitialProbe,
+			localPathsFailed: localPathsFailed,
+			fromTransportError: fromTransportError,
+			alternatePathReachable: alternatePathReachable
 		)
 
+		await recoveryRunner.run(
+			request: request,
+			session: session,
+			snackbarDrivingEnabled: snackbarDrivingEnabled,
+			dependencies: recoveryDependencies(),
+			perform: ConnectivityRecoveryRunner.performRecovery
+		)
+	}
+
+	public func noteActivePathAvailable() {
+		switch session.checkRecoveryEligibility() {
+			case .eligible:
+				break
+			case .ineligible(let reason):
+				Self.log("path available ignored (\(reason))")
+				return
+		}
+		Self.log("active path available — marking connected")
+		applyDeviceAccess(.connected, policy: .pathAvailable)
+	}
+
+	func setConnectingForAlternateProbe() {
+		applyDeviceAccess(.connecting, policy: .normal)
+	}
+
+	// MARK: - Private
+
+	private func handleAppForeground(_ foreground: Bool) async {
+		probeScheduler.setAppForeground(foreground)
+		Self.log("app foreground=\(foreground)")
+		await reconcileProbeLoop()
+	}
+
+	private func tryFinishBootstrap() async {
+		guard session.shouldCompleteLaunchBootstrap else { return }
+		await finishBootstrap()
+	}
+
+	private func finishBootstrap() async {
+		guard session.handle(.finishBootstrap).connectivityChanged else { return }
+		Self.log("bootstrap complete — snackbars enabled")
+		publish()
+		await evaluateAndRecover(isPeriodic: false, localPathsAllowed: currentLocalPathsAllowed())
+		await reconcileProbeLoop()
+	}
+
+	private func evaluateAndRecover(isPeriodic: Bool, localPathsAllowed: Bool) async {
+		let eligibility = isPeriodic
+			? session.checkPeriodicProbeEligibility(recoveryInFlight: recoveryRunner.isInFlight)
+			: session.checkPostBootstrapProbeEligibility()
+		switch eligibility {
+			case .eligible:
+				break
+			case .ineligible(let reason):
+				if isPeriodic {
+					Self.log("probe skipped (\(reason))")
+				} else {
+					publish()
+				}
+				return
+		}
+		guard let preferences else {
+			if isPeriodic { Self.log("periodic probe skipped (preferences not configured)") }
+			publish()
+			return
+		}
+
+		let paths = await ConnectivityRecoveryRunner.configuredProbePaths(
+			preferences: preferences,
+			dependencies: recoveryDependencies()
+		)
+		if paths.isEmpty {
+			await handleEmptyProbePaths(localPathsAllowed: localPathsAllowed)
+			return
+		}
+
+		let currentPathKey = preferences.currentConnectedDevice?.lastSuccessfulPathKey
+		let result = await ConnectivityRecoveryRunner.probeConfiguredPaths(
+			paths: paths,
+			currentPathKey: currentPathKey,
+			localPathsAllowed: localPathsAllowed,
+			dependencies: recoveryDependencies()
+		)
+		ConnectivityEventLog.probeResult(
+			result,
+			pathCount: paths.count,
+			currentPathKey: currentPathKey,
+			localPathsAllowed: localPathsAllowed
+		)
 		await handleConfiguredProbeResult(result, localPathsAllowed: localPathsAllowed)
+	}
+
+	private func handleEmptyProbePaths(localPathsAllowed: Bool) async {
+		Self.log("probe paths empty — checking catalog reachability")
+		if await preferredDeviceIsReachable() {
+			applyDeviceAccess(.connected, policy: .pathEvidence)
+			await runPathRecovery(localPathsAllowed: localPathsAllowed, skipInitialProbe: true)
+		} else {
+			await runPathRecovery(localPathsAllowed: localPathsAllowed, skipInitialProbe: true, localPathsFailed: true)
+		}
 	}
 
 	private func handleConfiguredProbeResult(
@@ -190,285 +368,105 @@ public final actor ConnectivityStateCoordinator {
 	) async {
 		switch result {
 			case .currentPathReachable:
-				markDeviceConnected()
+				applyDeviceAccess(.connected, policy: .pathEvidence)
 			case .alternatePathReachable:
 				await runPathRecovery(
 					localPathsAllowed: localPathsAllowed,
 					skipInitialProbe: true,
-					silentWhenConnected: true
+					alternatePathReachable: true
 				)
 			case .allUnreachable:
-				await handleAllConfiguredPathsUnreachable(localPathsAllowed: localPathsAllowed)
-		}
-	}
-
-	private func handleAllConfiguredPathsUnreachable(localPathsAllowed: Bool) async {
-		if await preferredDeviceIsReachable() {
-			markDeviceConnected()
-			await runPathRecovery(
-				localPathsAllowed: localPathsAllowed,
-				skipInitialProbe: true,
-				silentWhenConnected: true
-			)
-			return
-		}
-		await runPathRecovery(
-			localPathsAllowed: localPathsAllowed,
-			skipInitialProbe: true,
-			localPathsFailed: true
-		)
-	}
-
-	private func preferredDeviceIsReachable() async -> Bool {
-		await isPreferredDeviceReachable?() == true
-	}
-
-	private static func hasPersistedDeviceSession(preferences: HCPreferences) -> Bool {
-		preferences.currentConnectedDevice != nil || preferences.favoriteDeviceCN != nil
-	}
-
-	/// Periodic host-screen probe: current path first, then alternates.
-	public func evaluateConfiguredPaths(localPathsAllowed: Bool) async {
-		guard sessionActive else {
-			Self.log("periodic probe skipped (no active session)")
-			return
-		}
-		guard networkReachable else {
-			Self.log("periodic probe skipped (network unreachable)")
-			return
-		}
-		guard !awaitingRAAuthentication else {
-			Self.log("periodic probe skipped (awaiting RA auth)")
-			return
-		}
-		guard isBootstrapComplete else {
-			Self.log("periodic probe skipped (bootstrap incomplete)")
-			return
-		}
-		guard let preferences else {
-			Self.log("periodic probe skipped (preferences not configured)")
-			return
-		}
-
-		let paths = await configuredProbePaths(preferences: preferences)
-		guard !paths.isEmpty else {
-			if await preferredDeviceIsReachable() {
-				markDeviceConnected()
-				await runPathRecovery(
-					localPathsAllowed: localPathsAllowed,
-					skipInitialProbe: true,
-					silentWhenConnected: true
-				)
-			} else {
-				await runPathRecovery(
-					localPathsAllowed: localPathsAllowed,
-					skipInitialProbe: true,
-					localPathsFailed: true
-				)
-			}
-			return
-		}
-
-		let result = await probeConfiguredPaths(
-			paths: paths,
-			currentPathKey: preferences.currentConnectedDevice?.lastSuccessfulPathKey,
-			localPathsAllowed: localPathsAllowed
-		)
-
-		await handleConfiguredProbeResult(result, localPathsAllowed: localPathsAllowed)
-	}
-
-	/// User tapped Retry — full recovery including RA auth when required.
-	public func retry() async {
-		Self.log("user retry tapped")
-		await runPathRecovery(localPathsAllowed: localPathsAllowed)
-	}
-
-	/// Transport / SDK errors — throttled full path recovery (same flow as Retry).
-	public func triggerPathRecoveryFromError(localPathsAllowed: Bool) async {
-		guard isBootstrapComplete else {
-			Self.log("transport recovery skipped (bootstrap incomplete)")
-			return
-		}
-		let now = Date()
-		if let last = lastErrorRecoveryAt,
-		   now.timeIntervalSince(last) < errorRecoveryThrottleSeconds {
-			let remaining = Int(errorRecoveryThrottleSeconds - now.timeIntervalSince(last))
-			Self.log("transport recovery throttled (\(remaining)s remaining)")
-			return
-		}
-		lastErrorRecoveryAt = now
-		Log.debug("[STX-RA]: Transport failure → coordinator path recovery")
-		Self.log("transport recovery started")
-		await runPathRecovery(localPathsAllowed: localPathsAllowed)
-	}
-
-	/// Full path recovery: optional fast probe → RA auth if needed → reload paths.
-	public func runPathRecovery(
-		localPathsAllowed: Bool,
-		skipInitialProbe: Bool = false,
-		localPathsFailed: Bool = false,
-		silentWhenConnected: Bool = false
-	) async {
-		guard sessionActive else {
-			Self.log("recovery skipped (no active session)")
-			return
-		}
-		guard networkReachable else {
-			Self.log("recovery skipped (network unreachable)")
-			return
-		}
-		if suppressConnectivitySnackbar && !silentWhenConnected {
-			Self.log("recovery skipped (bootstrap suppressing, non-silent)")
-			return
-		}
-
-		if let inFlight = pathRecoveryTask {
-			Self.log("recovery waiting for in-flight task")
-			await inFlight.value
-			return
-		}
-
-		Self.log(
-			"recovery started (silent=\(silentWhenConnected) skipProbe=\(skipInitialProbe) "
-				+ "localFailed=\(localPathsFailed) device=\(Self.accessLabel(deviceAccess)))"
-		)
-		let task = Task { [self] in
-			await self.performPathRecovery(
-				localPathsAllowed: localPathsAllowed,
-				skipInitialProbe: skipInitialProbe,
-				localPathsFailed: localPathsFailed,
-				silentWhenConnected: silentWhenConnected
-			)
-		}
-		pathRecoveryTask = task
-		await task.value
-		pathRecoveryTask = nil
-	}
-
-	private func performPathRecovery(
-		localPathsAllowed: Bool,
-		skipInitialProbe: Bool,
-		localPathsFailed: Bool,
-		silentWhenConnected: Bool
-	) async {
-		guard sessionActive, networkReachable else { return }
-
-		let suppressConnectingUI = silentWhenConnected && deviceAccess == .connected
-		if !suppressConnectingUI {
-			setDeviceAccess(.connecting)
-		}
-
-		var localProbeFailed = localPathsFailed
-		if localProbeFailed, await preferredDeviceIsReachable() {
-			localProbeFailed = false
-		}
-
-		if !skipInitialProbe, let preferences {
-			let paths = await configuredProbePaths(preferences: preferences)
-			if !paths.isEmpty {
-				let result = await probeConfiguredPaths(
-					paths: paths,
-					currentPathKey: preferences.currentConnectedDevice?.lastSuccessfulPathKey,
-					localPathsAllowed: localPathsAllowed,
-					suppressConnectingUI: suppressConnectingUI
-				)
-				switch result {
-					case .currentPathReachable:
-						markDeviceConnected()
-						return
-					case .alternatePathReachable:
-						await pathRecoveryHandler?(suppressConnectingUI)
-						markDeviceConnected()
-						return
-					case .allUnreachable:
-						localProbeFailed = true
+				if await preferredDeviceIsReachable() {
+					applyDeviceAccess(.connected, policy: .pathEvidence)
+					await runPathRecovery(localPathsAllowed: localPathsAllowed, skipInitialProbe: true)
+				} else {
+					await runPathRecovery(localPathsAllowed: localPathsAllowed, skipInitialProbe: true, localPathsFailed: true)
 				}
-			}
-		}
-
-		// Run full discovery (mDNS, path reload) before RA — local may be available even
-		// when saved WAN paths fail and the catalog has not been populated yet.
-		await pathRecoveryHandler?(suppressConnectingUI)
-		if await preferredDeviceIsReachable() {
-			markDeviceConnected()
-			return
-		}
-		if localPathsAllowed {
-			localProbeFailed = true
-		}
-
-		if await requiresRAAuthentication(
-			localPathsAllowed: localPathsAllowed,
-			localProbeFailed: localProbeFailed
-		) {
-			guard let email = recoveryEmail() else {
-				Log.debug("[STX-RA]: RA tokens missing but no email available for verification.")
-				setDeviceAccess(.disconnected, allowDuringRAAuth: true)
-				return
-			}
-			Log.debug("[STX-RA]: Requesting RA verification for \(email).")
-			awaitingRAAuthentication = true
-			defer { awaitingRAAuthentication = false }
-			setDeviceAccess(.connecting, allowDuringRAAuth: true)
-			let authenticated = await requestRAAuthentication(email: email)
-			if !authenticated {
-				setDeviceAccess(.disconnected, allowDuringRAAuth: true)
-				return
-			}
-			await pathRecoveryHandler?(suppressConnectingUI)
-			await finalizeDeviceAccessAfterRecovery(suppressConnectingUI: suppressConnectingUI)
-			return
-		}
-
-		await finalizeDeviceAccessAfterRecovery(suppressConnectingUI: suppressConnectingUI)
-	}
-
-	private func needsRemoteAccessForRecovery(localPathsAllowed: Bool, localProbeFailed: Bool) -> Bool {
-		guard let preferences else { return localProbeFailed || !localPathsAllowed }
-		let paths = Self.pathsForConnectedDevice(preferences: preferences)
-		if paths.isEmpty { return true }
-		if !localPathsAllowed { return true }
-		return localProbeFailed
-	}
-
-	private func recoveryEmail() -> String? {
-		if let email = preferences?.favoriteEmail?.trimmingCharacters(in: .whitespacesAndNewlines),
-		   !email.isEmpty {
-			return email
-		}
-		if let userName = OCBookmarkManager.shared.bookmarks.first?.userName?
-			.trimmingCharacters(in: .whitespacesAndNewlines),
-		   !userName.isEmpty,
-		   userName.contains("@") {
-			return userName
-		}
-		return nil
-	}
-
-	private func probeConfiguredPaths(
-		paths: [RemoteDevice.Path],
-		currentPathKey: String?,
-		localPathsAllowed: Bool,
-		suppressConnectingUI: Bool = false
-	) async -> PathConnectivityProbeResult {
-		let coordinator = self
-		return await pathProber.probeConnectivityCurrentFirst(
-			paths: paths,
-			currentPathKey: currentPathKey,
-			localPathsAllowed: localPathsAllowed
-		) {
-			guard !suppressConnectingUI else { return }
-			await coordinator.setDeviceAccess(.connecting)
 		}
 	}
 
-	private func requiresRAAuthentication(localPathsAllowed: Bool, localProbeFailed: Bool) async -> Bool {
-		guard let remoteAccessService else { return false }
-		guard await remoteAccessService.hasValidTokens() == false else { return false }
-		return needsRemoteAccessForRecovery(
-			localPathsAllowed: localPathsAllowed,
-			localProbeFailed: localProbeFailed
+	private func applyDeviceAccess(_ state: DeviceAccessState, policy: ConnectivityAccessPolicy) {
+		let transition = session.handle(.applyDeviceAccess(state, policy))
+		guard transition.deviceAccessChanged || transition.connectivityChanged else { return }
+		publish()
+	}
+
+	private func publish() {
+		let presenter = ConnectivityBannerPresenter(
+			snackbarDrivingEnabled: snackbarDrivingEnabled,
+			connectivity: session.connectivity,
+			pipelineReloading: pipelineReloadDepth > 0
+		)
+		SDKDeviceAvailabilityGate.shared.setDeviceConnected(presenter.sdkConnected)
+
+		guard let toastMonitor else { return }
+		let (kind, suppressReason) = presenter.bannerKind()
+
+		if let suppressReason {
+			Self.log(
+				"banner hidden (device=\(session.deviceAccess) network=\(session.networkReachable ? "up" : "down") "
+					+ "reason=\(suppressReason) sdk=\(presenter.sdkConnected ? "online" : "offline"))"
+			)
+		} else {
+			Self.log(
+				"banner→\(ConnectivityBannerPresenter.bannerLabel(kind)) (device=\(session.deviceAccess) "
+					+ "network=\(session.networkReachable ? "up" : "down") "
+					+ "sdk=\(presenter.sdkConnected ? "online" : "offline"))"
+			)
+		}
+
+		toastPublishTask?.cancel()
+		toastPublishTask = Task {
+			guard !Task.isCancelled else { return }
+			await toastMonitor.setVisibility(kind)
+		}
+	}
+
+	private func beginRemoteAuthenticationOnSession() {
+		_ = session.handle(.beginRemoteAuthentication)
+	}
+
+	private func endRemoteAuthenticationOnSession(device: DeviceAccessState) {
+		_ = session.handle(.endRemoteAuthentication(device))
+	}
+
+	private func recoveryDependencies() -> ConnectivityRecoveryRunner.Dependencies {
+		ConnectivityRecoveryRunner.Dependencies(
+			pathProber: pathProber,
+			preferences: preferences,
+			remoteAccessService: remoteAccessService,
+			supplementalProbePaths: supplementalProbePaths,
+			isPreferredDeviceReachable: isPreferredDeviceReachable,
+			pathRecoveryHandler: pathRecoveryHandler,
+			configuredProbePaths: { [weak self] preferences in
+				guard let self else { return [] }
+				return await self.probePathCache.configuredPaths(
+					preferences: preferences,
+					supplementalProbePaths: { await self.supplementalProbePaths?() ?? [] }
+				)
+			},
+			requestRAAuthentication: { [weak self] email in
+				await self?.requestRAAuthentication(email: email) ?? false
+			},
+			recoveryEmail: { [preferences] in
+				ConnectivityRecoveryRunner.recoveryEmail(preferences: preferences)
+			},
+			setConnectingForAlternateProbe: { [weak self] in
+				await self?.setConnectingForAlternateProbe()
+			},
+			applyDeviceAccess: { [weak self] state, policy in
+				await self?.applyDeviceAccess(state, policy: policy)
+			},
+			currentDeviceAccess: { [weak self] in
+				await self?.session.deviceAccess ?? .connected
+			},
+			beginRemoteAuthentication: { [weak self] in
+				await self?.beginRemoteAuthenticationOnSession()
+			},
+			endRemoteAuthentication: { [weak self] device in
+				await self?.endRemoteAuthenticationOnSession(device: device)
+			},
+			log: { Self.log($0) }
 		)
 	}
 
@@ -486,149 +484,43 @@ public final actor ConnectivityStateCoordinator {
 		}
 	}
 
-	private var localPathsAllowed: Bool {
+	private func currentLocalPathsAllowed() -> Bool {
 		reachability?.currentState.allowsLocalPaths ?? true
 	}
 
-	public func confirmDeviceReachable() {
-		markDeviceConnected()
+	private func preferredDeviceIsReachable() async -> Bool {
+		await (isPreferredDeviceReachable?() ?? false)
 	}
 
-	/// Called when the active device base URL changes (path switch). Dismisses a stale
-	/// "finding network" banner even when recovery finished outside `performPathRecovery`.
-	public func noteActivePathAvailable() {
-		guard sessionActive, networkReachable else {
-			Self.log("path available ignored (session=\(sessionActive) network=\(networkReachable))")
-			return
-		}
-		Self.log("active path available — marking connected")
-		markDeviceConnected(allowDuringRAAuth: true)
+	private func hasConfiguredPaths() -> Bool {
+		preferences?.currentConnectedDevice != nil
 	}
 
-	private func markDeviceConnected(allowDuringRAAuth: Bool = false) {
-		guard sessionActive else { return }
-		if awaitingRAAuthentication && !allowDuringRAAuth {
-			Self.log("mark connected ignored (awaiting RA auth)")
-			return
-		}
-		let previous = deviceAccess
-		deviceAccess = .connected
-		if previous != .connected {
-			Self.log("device \(Self.accessLabel(previous))→connected")
-		}
-		publish()
+	private func probeEnvironment() -> ConnectivityProbeScheduler.Environment {
+		ConnectivityProbeScheduler.Environment(
+			networkReachable: session.networkReachable,
+			hasConfiguredPaths: hasConfiguredPaths(),
+			isBootstrapComplete: isBootstrapComplete
+		)
 	}
 
-	/// Ensures recovery never leaves the UI stuck in `.connecting`.
-	private func finalizeDeviceAccessAfterRecovery(suppressConnectingUI: Bool) async {
-		guard deviceAccess == .connecting else {
-			Self.log("recovery finalize skipped (device=\(Self.accessLabel(deviceAccess)))")
-			return
-		}
-		if await preferredDeviceIsReachable() {
-			Self.log("recovery finalize→connected (catalog reachable)")
-			markDeviceConnected(allowDuringRAAuth: true)
-			return
-		}
-		if !suppressConnectingUI {
-			Self.log("recovery finalize→disconnected (catalog unreachable)")
-			setDeviceAccess(.disconnected, allowDuringRAAuth: true)
-		} else {
-			Self.log("recovery finalize unchanged (connecting, silent suppress)")
-		}
-	}
-
-	private func publish() {
-		let sdkConnected = sessionActive && networkReachable && deviceAccess == .connected
-		SDKDeviceAvailabilityGate.shared.setDeviceConnected(sdkConnected)
-
-		guard let toastMonitor else { return }
-		let kind: NetworkAvailabilityToastKind?
-		let suppressReason: String?
-		if !networkReachable {
-			kind = .noInternet
-			suppressReason = nil
-		} else if !sessionActive {
-			kind = nil
-			suppressReason = "no session"
-		} else if suppressConnectivitySnackbar {
-			kind = nil
-			suppressReason = "bootstrap"
-		} else {
-			suppressReason = nil
-			switch deviceAccess {
-				case .connected:     kind = nil
-				case .connecting:    kind = .findingNetwork
-				case .disconnected:  kind = .connectionLost
+	private func reconcileProbeLoop() async {
+		await probeScheduler.reconcile(
+			environment: probeEnvironment(),
+			log: { Self.log($0) },
+			runRound: { [weak self] in
+				await self?.runPeriodicProbeRoundIfReady()
 			}
-		}
+		)
+	}
 
-		if let suppressReason {
-			Self.log(
-				"banner hidden (device=\(Self.accessLabel(deviceAccess)) network=\(networkReachable ? "up" : "down") "
-					+ "reason=\(suppressReason) sdk=\(sdkConnected ? "online" : "offline"))"
-			)
-		} else {
-			Self.log(
-				"banner→\(Self.bannerLabel(kind)) (device=\(Self.accessLabel(deviceAccess)) "
-					+ "network=\(networkReachable ? "up" : "down") sdk=\(sdkConnected ? "online" : "offline"))"
-			)
-		}
-
-		toastPublishGeneration &+= 1
-		let generation = toastPublishGeneration
-		Task {
-			guard generation == self.toastPublishGeneration else {
-				Self.log("banner publish gen=\(generation) dropped (stale)")
-				return
-			}
-			await toastMonitor.setVisibility(kind)
-		}
+	private func runPeriodicProbeRoundIfReady() async {
+		guard probeScheduler.canRunPeriodicProbe(in: probeEnvironment()) else { return }
+		Log.debug("[STX-CONN]: periodic probe round started")
+		await evaluateConfiguredPaths(localPathsAllowed: currentLocalPathsAllowed())
 	}
 
 	private static func log(_ message: String) {
-		Log.debug("[STX-CONN]: \(message)")
-	}
-
-	private static func accessLabel(_ state: DeviceAccessState) -> String {
-		switch state {
-			case .connected:     return "connected"
-			case .connecting:    return "connecting"
-			case .disconnected:  return "disconnected"
-		}
-	}
-
-	private static func bannerLabel(_ kind: NetworkAvailabilityToastKind?) -> String {
-		switch kind {
-			case nil:                 return "hidden"
-			case .findingNetwork:      return "findingNetwork"
-			case .noInternet:          return "noInternet"
-			case .connectionLost:      return "connectionLost"
-		}
-	}
-
-	private static func pathsForConnectedDevice(preferences: HCPreferences) -> [RemoteDevice.Path] {
-		guard let saved = preferences.currentConnectedDevice else { return [] }
-		return saved.paths.map { $0.asRemotePath() }.ordered()
-	}
-
-	private func configuredProbePaths(preferences: HCPreferences) async -> [RemoteDevice.Path] {
-		var paths = Self.pathsForConnectedDevice(preferences: preferences)
-		if let supplemental = await supplementalProbePaths?() {
-			paths = Self.merging(paths, with: supplemental)
-		}
-		return paths
-	}
-
-	private static func merging(
-		_ paths: [RemoteDevice.Path],
-		with supplemental: [RemoteDevice.Path]
-	) -> [RemoteDevice.Path] {
-		var seen = Set(paths.map(\.key))
-		var merged = paths
-		for path in supplemental where seen.insert(path.key).inserted {
-			merged.append(path)
-		}
-		return merged.ordered()
+		ConnectivityEventLog.log(message)
 	}
 }

@@ -117,6 +117,12 @@ public enum HCColor {
 		public static func primarySolidNormal(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#64B5F6FF") : UIColor(hexString: "#1976D2FF")
 		}
+
+		// Interaction/Primary Solid Normal inverted
+		public static func primarySolidNormalInverted(_ isDark: Bool) -> UIColor {
+			primarySolidNormal(!isDark)
+		}
+
 		//Interaction/Primary Transparent Normal 20
 		public static func primaryTransparentNormal20(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#64B5F63D") : UIColor(hexString: "#1976D233")

@@ -76,7 +76,7 @@ public final class ConnectionLostBannerView: UIView {
 		let isDark = traitCollection.userInterfaceStyle == .dark
 		backgroundColor = HCColor.Structure.snackbarBackground(isDark)
 		messageLabel.textColor = HCColor.Content.textPrimaryInverted(isDark)
-		retryButton.tintColor = HCColor.Content.textPrimaryInverted(isDark)
+		retryButton.tintColor = HCColor.Interaction.primarySolidNormalInverted(isDark)
 	}
 
 	@objc private func handleRetryTap() {

@@ -22,13 +22,17 @@ private enum Constants {
 public final class HCContext {
 	public static let shared = HCContext()
 
+	/// True for File Provider and other app extensions — separate process, no snackbar UI.
+	public static var isAppExtension: Bool {
+		Bundle.main.bundlePath.hasSuffix(".appex")
+	}
+
 	public let preferences: HCPreferences
 	public let remoteAccessService: RemoteAccessService
 	public let deviceReachabilityService: DeviceReachabilityService
 	public let mdnsService: MDNSService
 	public let remoteAccessTokenStore: RemoteAccessTokenStore
 	public let networkAvailabilityMonitor: NetworkAvailabilityMonitor
-	public let connectionPingMonitor: ConnectionPingMonitor
 	public let connectivityStateCoordinator: ConnectivityStateCoordinator
 	public var emailVerificationHandler: (@MainActor (_ email: String, _ completion: @escaping (Bool) -> Void) -> Void)?
 
@@ -58,7 +62,6 @@ public final class HCContext {
 		)
 		self.mdnsService = MDNSService()
 		self.networkAvailabilityMonitor = NetworkAvailabilityMonitor.shared
-		self.connectionPingMonitor = ConnectionPingMonitor.shared
 		self.connectivityStateCoordinator = ConnectivityStateCoordinator.shared
 
 		self.deviceReachabilityService = DeviceReachabilityService(
@@ -69,40 +72,20 @@ public final class HCContext {
 			connectivityCoordinator: connectivityStateCoordinator
 		)
 
-		Task {
-		await connectivityStateCoordinator.configure(
-			preferences: preferences,
-			reachability: reachabilityObserver,
-			toastMonitor: networkAvailabilityMonitor,
-			remoteAccessService: remoteAccessService,
-			pathRecoveryHandler: { [deviceReachabilityService] suppressConnectingUI in
-				await deviceReachabilityService.forceReloadDevices(suppressConnectingUI: suppressConnectingUI)
-			},
-			onBootstrapComplete: { [connectionPingMonitor] in
-				await connectionPingMonitor.resumeAfterBootstrap()
-			},
-			supplementalProbePaths: { [deviceReachabilityService] in
-				await deviceReachabilityService.supplementalProbePaths()
-			},
-			isPreferredDeviceReachable: { [deviceReachabilityService] in
-				await deviceReachabilityService.isPreferredDeviceReachable()
-			}
-		)
-			await connectionPingMonitor.configure(
-				preferences: preferences,
-				reachability: reachabilityObserver,
-				connectivityCoordinator: connectivityStateCoordinator
-			)
-		}
-
 		deviceReachabilityService.events
 			.receive(on: DispatchQueue.main)
 			.sink { [weak self] event in
 				guard case let .remoteBaseURLChanged(url) = event else { return }
 				self?.lastRemoteBaseURL = url
 				NotificationCenter.default.post(name: .hcRemoteBaseURLDidChange, object: nil)
-				if url != nil {
-					Task { await self?.connectivityStateCoordinator.noteActivePathAvailable() }
+				guard url != nil, !Self.isAppExtension else { return }
+				Task { [weak self] in
+					guard let self,
+					      await self.deviceReachabilityService.isPreferredDeviceReachable() else {
+						Self.logConnectivity("remote base URL changed but device not reachable — skipping")
+						return
+					}
+					await self.connectivityStateCoordinator.noteActivePathAvailable()
 				}
 			}
 			.store(in: &cancellables)
@@ -110,8 +93,8 @@ public final class HCContext {
 
 	/// Resets connectivity state on logout so the next login starts from a clean session.
 	public func resetConnectivityOnLogout() async {
+		Self.logConnectivity("logout reset")
 		preferences.clearConnectedDeviceSession()
-		await connectionPingMonitor.reset()
 		await connectivityStateCoordinator.reset()
 		await deviceReachabilityService.resetState()
 		await networkAvailabilityMonitor.reset()
@@ -119,16 +102,32 @@ public final class HCContext {
 
 	public func setup() {
 		OCConnection.defaultBaseURLProvider = deviceReachabilityService.urlProvider
+		reachabilityObserver.start()
 		deviceReachabilityService.start()
+		Self.logConnectivity("setup starting")
+
 		Task {
-			await connectionPingMonitor.installLifecycleObserversIfNeeded()
+			await configureConnectivityCoordinator()
+			let initialState = await reachabilityObserver.awaitFirstReading()
+			Self.logConnectivity(
+				"initial reachability interface=\(initialState.interface.rawValue) "
+					+ "reachable=\(initialState.isReachable) localPaths=\(initialState.allowsLocalPaths)"
+			)
+			await connectivityStateCoordinator.installLifecycleObserversIfNeeded()
 			await connectivityStateCoordinator.refreshSessionActive()
+			await deviceReachabilityService.handleNetworkPathSideEffects(initialState)
+			await connectivityStateCoordinator.handleNetworkState(initialState)
+			await deviceReachabilityService.performColdLaunchBootstrap()
+			Self.logConnectivity("setup complete")
 		}
 
 		reachabilityObserver.updatesPublisher
 			.removeDuplicates(by: { $0.interface == $1.interface && $0.isReachable == $1.isReachable })
-			.sink { [connectionPingMonitor] state in
-				Task { await connectionPingMonitor.setNetworkState(state) }
+			.sink { [deviceReachabilityService, connectivityStateCoordinator] state in
+				Task {
+					await deviceReachabilityService.handleNetworkPathSideEffects(state)
+					await connectivityStateCoordinator.handleNetworkState(state)
+				}
 			}
 			.store(in: &cancellables)
 
@@ -165,5 +164,30 @@ public final class HCContext {
 				}
 			}
 		}
+	}
+
+	private func configureConnectivityCoordinator() async {
+		await connectivityStateCoordinator.configure(
+			preferences: preferences,
+			reachability: reachabilityObserver,
+			toastMonitor: networkAvailabilityMonitor,
+			remoteAccessService: remoteAccessService,
+			pathRecoveryHandler: { [deviceReachabilityService] in
+				await deviceReachabilityService.forceReloadDevices()
+			},
+			supplementalProbePaths: { [deviceReachabilityService] in
+				await deviceReachabilityService.supplementalProbePaths()
+			},
+			isPreferredDeviceReachable: { [deviceReachabilityService] in
+				await deviceReachabilityService.isPreferredDeviceReachable()
+			}
+		)
+		if Self.isAppExtension {
+			await connectivityStateCoordinator.setSnackbarDrivingEnabled(false)
+		}
+	}
+
+	private static func logConnectivity(_ message: String) {
+		Log.debug("[STX-CONN]: \(message)")
 	}
 }

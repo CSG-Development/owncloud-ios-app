@@ -408,7 +408,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	private var _themeRegistered = false
 	open override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
-		Task { await HCContext.shared.connectionPingMonitor.setHostScreenActive(false) }
+		Task { await HCContext.shared.connectivityStateCoordinator.setHostScreenActive(false) }
 	}
 
 	open override func viewWillAppear(_ animated: Bool) {
@@ -417,7 +417,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			_themeRegistered = true
 			Theme.shared.register(client: self, applyImmediately: true)
 		}
-		Task { await HCContext.shared.connectionPingMonitor.setHostScreenActive(true) }
+		Task { await HCContext.shared.connectivityStateCoordinator.setHostScreenActive(true) }
 	}
 
 	open override func viewDidAppear(_ animated: Bool) {
