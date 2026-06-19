@@ -157,7 +157,8 @@ final class ConnectivityRecoveryRunner {
 		request: ConnectivityRecoveryRequest,
 		dependencies: Dependencies
 	) async -> Bool {
-		if !request.alternatePathReachable,
+		if !request.localPathsFailed,
+		   !request.alternatePathReachable,
 		   await preferredDeviceIsReachable(dependencies),
 		   await dependencies.currentDeviceAccess() == .connected {
 			dependencies.log("recovery→reload skipped (already connected and reachable)")
@@ -185,6 +186,10 @@ final class ConnectivityRecoveryRunner {
 			localProbeFailed: localProbeFailed,
 			dependencies: dependencies
 		) else {
+			dependencies.log(
+				"recovery RA skipped (localAllowed=\(request.localPathsAllowed) "
+					+ "localFailed=\(localProbeFailed))"
+			)
 			return false
 		}
 
@@ -287,6 +292,7 @@ final class ConnectivityRecoveryRunner {
 		request: ConnectivityRecoveryRequest,
 		dependencies: Dependencies
 	) async -> Bool {
+		if request.localPathsFailed { return true }
 		guard request.skipInitialProbe else { return true }
 		guard await dependencies.currentDeviceAccess() == .connected else { return true }
 		return !(await preferredDeviceIsReachable(dependencies))
@@ -313,7 +319,13 @@ final class ConnectivityRecoveryRunner {
 	) -> Bool {
 		guard let preferences = dependencies.preferences else { return localProbeFailed || !localPathsAllowed }
 		let paths = pathsForConnectedDevice(preferences: preferences)
-		if paths.isEmpty { return true }
+		if paths.isEmpty {
+			// mDNS-only / no saved WAN paths — still need RA when local probe failed (device left LAN).
+			return localProbeFailed || !localPathsAllowed
+		}
+		if paths.allSatisfy({ $0.kind == .local }) {
+			return localProbeFailed || !localPathsAllowed
+		}
 		if !localPathsAllowed { return true }
 		return localProbeFailed
 	}

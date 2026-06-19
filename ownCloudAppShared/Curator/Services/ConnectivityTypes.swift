@@ -26,26 +26,9 @@ public struct CatalogReachabilitySnapshot: Sendable, Equatable {
 	}
 }
 
-public enum ConnectivityBootstrapWait: Equatable, Sendable, CustomStringConvertible {
-	case launchDetection
-	case loginCatalog
-
-	public var description: String {
-		switch self {
-			case .launchDetection: return "launch"
-			case .loginCatalog:    return "login"
-		}
-	}
-}
-
 /// Unified connectivity state — session phase, network, and device access in one model.
 public enum ConnectivityState: Equatable, Sendable, CustomStringConvertible {
 	case loggedOut(networkReachable: Bool)
-	case bootstrapping(
-		wait: ConnectivityBootstrapWait,
-		networkReachable: Bool,
-		device: DeviceAccessState
-	)
 	case active(networkReachable: Bool, device: DeviceAccessState)
 	case authenticatingRemoteAccess(networkReachable: Bool, device: DeviceAccessState)
 
@@ -53,8 +36,6 @@ public enum ConnectivityState: Equatable, Sendable, CustomStringConvertible {
 		switch self {
 			case .loggedOut:
 				return "loggedOut"
-			case .bootstrapping(let wait, _, _):
-				return "bootstrapping(\(wait))"
 			case .active:
 				return "active"
 			case .authenticatingRemoteAccess:
@@ -65,7 +46,6 @@ public enum ConnectivityState: Equatable, Sendable, CustomStringConvertible {
 	public var networkReachable: Bool {
 		switch self {
 			case .loggedOut(let reachable):                    return reachable
-			case .bootstrapping(_, let reachable, _):          return reachable
 			case .active(let reachable, _):                     return reachable
 			case .authenticatingRemoteAccess(let reachable, _): return reachable
 		}
@@ -74,7 +54,6 @@ public enum ConnectivityState: Equatable, Sendable, CustomStringConvertible {
 	public var deviceAccess: DeviceAccessState {
 		switch self {
 			case .loggedOut:                                    return .connected
-			case .bootstrapping(_, _, let device):              return device
 			case .active(_, let device):                         return device
 			case .authenticatingRemoteAccess(_, let device):     return device
 		}
@@ -82,11 +61,6 @@ public enum ConnectivityState: Equatable, Sendable, CustomStringConvertible {
 
 	public var isLoggedOut: Bool {
 		if case .loggedOut = self { return true }
-		return false
-	}
-
-	public var isBootstrapping: Bool {
-		if case .bootstrapping = self { return true }
 		return false
 	}
 

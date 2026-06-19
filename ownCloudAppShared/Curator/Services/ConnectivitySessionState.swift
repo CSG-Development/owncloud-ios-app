@@ -5,45 +5,28 @@ import ownCloudSDK
 enum ConnectivitySessionEvent: Equatable {
 	case reset(networkReachable: Bool)
 	case setNetworkReachable(Bool)
-	case activateSession(ConnectivityBootstrapWait)
+	case activateSession
 	case deactivateSession
-	case finishBootstrap
 	case applyDeviceAccess(DeviceAccessState, ConnectivityAccessPolicy)
 	case beginRemoteAuthentication
 	case endRemoteAuthentication(DeviceAccessState)
-	case markLaunchDetectionComplete
 }
 
 /// Effects produced by a session transition.
 struct ConnectivitySessionTransition: Equatable {
 	var connectivityChanged = false
 	var deviceAccessChanged = false
-	var launchDetectionMarkedComplete = false
 }
 
 /// Pure session state machine for connectivity phase, network, and device access.
 struct ConnectivitySessionState: Equatable {
 	var connectivity: ConnectivityState = .loggedOut(networkReachable: true)
-	var coldLaunchDetectionComplete = false
 
 	var networkReachable: Bool { connectivity.networkReachable }
 	var deviceAccess: DeviceAccessState { connectivity.deviceAccess }
 	var isLoggedOut: Bool { connectivity.isLoggedOut }
-	var isBootstrapping: Bool { connectivity.isBootstrapping }
 	var isActive: Bool { connectivity.isActive }
 	var isAwaitingRemoteAuthentication: Bool { connectivity.isAwaitingRemoteAuthentication }
-
-	var shouldCompleteLaunchBootstrap: Bool {
-		if case .bootstrapping(.launchDetection, _, _) = connectivity, coldLaunchDetectionComplete {
-			return true
-		}
-		return false
-	}
-
-	var shouldCompleteLoginBootstrap: Bool {
-		if case .bootstrapping(.loginCatalog, _, _) = connectivity { return true }
-		return false
-	}
 
 	mutating func handle(_ event: ConnectivitySessionEvent) -> ConnectivitySessionTransition {
 		switch event {
@@ -51,29 +34,22 @@ struct ConnectivitySessionState: Equatable {
 				return handleReset(networkReachable: reachable)
 			case .setNetworkReachable(let reachable):
 				return handleSetNetworkReachable(reachable)
-			case .activateSession(let bootstrap):
-				return handleActivateSession(bootstrap: bootstrap)
+			case .activateSession:
+				return handleActivateSession()
 			case .deactivateSession:
 				return handleDeactivateSession()
-			case .finishBootstrap:
-				return handleFinishBootstrap()
 			case .applyDeviceAccess(let state, let policy):
 				return handleApplyDeviceAccess(state, policy: policy)
 			case .beginRemoteAuthentication:
 				return handleBeginRemoteAuthentication()
 			case .endRemoteAuthentication(let device):
 				return handleEndRemoteAuthentication(device: device)
-			case .markLaunchDetectionComplete:
-				return handleMarkLaunchDetectionComplete()
 		}
 	}
 
 	func checkRecoveryEligibility() -> ConnectivityRecoveryEligibility {
 		guard !isLoggedOut else { return .ineligible("no active session") }
 		guard networkReachable else { return .ineligible("network unreachable") }
-		if isBootstrapping {
-			return .ineligible("bootstrap in progress")
-		}
 		return .eligible
 	}
 
@@ -82,11 +58,6 @@ struct ConnectivitySessionState: Equatable {
 		guard isActive else { return .ineligible("phase=\(connectivity)") }
 		guard networkReachable else { return .ineligible("network unreachable") }
 		guard !isAwaitingRemoteAuthentication else { return .ineligible("awaiting RA auth") }
-		return .eligible
-	}
-
-	func checkPostBootstrapProbeEligibility() -> ConnectivityRecoveryEligibility {
-		guard isActive, networkReachable else { return .ineligible("not active or network down") }
 		return .eligible
 	}
 
@@ -99,7 +70,6 @@ struct ConnectivitySessionState: Equatable {
 	private mutating func handleReset(networkReachable: Bool) -> ConnectivitySessionTransition {
 		let before = connectivity
 		connectivity = .loggedOut(networkReachable: networkReachable)
-		coldLaunchDetectionComplete = false
 		ConnectivityEventLog.stateTransition(from: before, to: connectivity, reason: "reset")
 		return ConnectivitySessionTransition(connectivityChanged: before != connectivity)
 	}
@@ -111,14 +81,10 @@ struct ConnectivitySessionState: Equatable {
 		return ConnectivitySessionTransition(connectivityChanged: before != connectivity)
 	}
 
-	private mutating func handleActivateSession(bootstrap: ConnectivityBootstrapWait) -> ConnectivitySessionTransition {
+	private mutating func handleActivateSession() -> ConnectivitySessionTransition {
 		guard isLoggedOut else { return ConnectivitySessionTransition() }
 		let before = connectivity
-		connectivity = .bootstrapping(
-			wait: bootstrap,
-			networkReachable: networkReachable,
-			device: .connected
-		)
+		connectivity = .active(networkReachable: networkReachable, device: .connected)
 		ConnectivityEventLog.stateTransition(from: before, to: connectivity, reason: "activateSession")
 		return ConnectivitySessionTransition(connectivityChanged: true)
 	}
@@ -128,14 +94,6 @@ struct ConnectivitySessionState: Equatable {
 		let before = connectivity
 		connectivity = .loggedOut(networkReachable: networkReachable)
 		ConnectivityEventLog.stateTransition(from: before, to: connectivity, reason: "deactivateSession")
-		return ConnectivitySessionTransition(connectivityChanged: true)
-	}
-
-	private mutating func handleFinishBootstrap() -> ConnectivitySessionTransition {
-		guard isBootstrapping else { return ConnectivitySessionTransition() }
-		let before = connectivity
-		connectivity = .active(networkReachable: networkReachable, device: deviceAccess)
-		ConnectivityEventLog.stateTransition(from: before, to: connectivity, reason: "finishBootstrap")
 		return ConnectivitySessionTransition(connectivityChanged: true)
 	}
 
@@ -180,13 +138,6 @@ struct ConnectivitySessionState: Equatable {
 		)
 	}
 
-	private mutating func handleMarkLaunchDetectionComplete() -> ConnectivitySessionTransition {
-		guard !coldLaunchDetectionComplete else { return ConnectivitySessionTransition() }
-		coldLaunchDetectionComplete = true
-		ConnectivityEventLog.log("launch detection complete")
-		return ConnectivitySessionTransition(launchDetectionMarkedComplete: true)
-	}
-
 	private func shouldSuppressDeviceAccess(_ state: DeviceAccessState, policy: ConnectivityAccessPolicy) -> Bool {
 		switch policy {
 			case .duringRAAuth, .recoveryFinalize, .pathAvailable:
@@ -202,8 +153,6 @@ struct ConnectivitySessionState: Equatable {
 		switch connectivity {
 			case .loggedOut:
 				connectivity = .loggedOut(networkReachable: reachable)
-			case .bootstrapping(let wait, _, let device):
-				connectivity = .bootstrapping(wait: wait, networkReachable: reachable, device: device)
 			case .active(_, let device):
 				connectivity = .active(networkReachable: reachable, device: device)
 			case .authenticatingRemoteAccess(_, let device):
@@ -215,8 +164,6 @@ struct ConnectivitySessionState: Equatable {
 		switch connectivity {
 			case .loggedOut(let reachable):
 				connectivity = .loggedOut(networkReachable: reachable)
-			case .bootstrapping(let wait, let reachable, _):
-				connectivity = .bootstrapping(wait: wait, networkReachable: reachable, device: state)
 			case .active(let reachable, _):
 				connectivity = .active(networkReachable: reachable, device: state)
 			case .authenticatingRemoteAccess(let reachable, _):
