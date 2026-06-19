@@ -19,10 +19,13 @@ public enum DeviceAccessState: Sendable, Equatable, CustomStringConvertible {
 public struct CatalogReachabilitySnapshot: Sendable, Equatable {
 	public let hasDeviceCN: Bool
 	public let isReachable: Bool
+	/// A non-local path is queued for the SDK even though nothing is verified yet.
+	public let hasAlternateNonLocalPath: Bool
 
-	public init(hasDeviceCN: Bool, isReachable: Bool) {
+	public init(hasDeviceCN: Bool, isReachable: Bool, hasAlternateNonLocalPath: Bool = false) {
 		self.hasDeviceCN = hasDeviceCN
 		self.isReachable = isReachable
+		self.hasAlternateNonLocalPath = hasAlternateNonLocalPath
 	}
 }
 

@@ -208,6 +208,57 @@ public actor DeviceCatalog {
 		return nil
 	}
 
+	/// Whether a persisted preferred path should be retried after detection.
+	/// Stale local/mDNS keys are skipped when there is no positive local evidence.
+	private static func preferredPathIsRetryable(
+		_ preferred: SelectedPath,
+		probes: [String: PathProbe],
+		localDevice: LocalDevice?,
+		wifiAvailable: Bool
+	) -> Bool {
+		switch preferred {
+			case let .mdns(host, port):
+				guard wifiAvailable,
+				      let local = localDevice,
+				      local.certificateCommonName != nil,
+				      local.host == host,
+				      local.port == port
+				else { return false }
+				return true
+			case let .remote(path):
+				switch path.kind {
+					case .local:
+						return probes[path.key]?.isOperational == true
+					case .public, .remote:
+						return true
+				}
+		}
+	}
+
+	private static func preferredPathIsRetryable(
+		_ preferred: SelectedPath,
+		merged: MergedDevice,
+		wifiAvailable: Bool
+	) -> Bool {
+		switch preferred {
+			case let .mdns(host, port):
+				guard wifiAvailable,
+				      let local = merged.localDevice,
+				      local.certificateCommonName != nil,
+				      local.host == host,
+				      local.port == port
+				else { return false }
+				return true
+			case let .remote(path):
+				switch path.kind {
+					case .local:
+						return firstOperationalProbePath(merged.pathProbes, where: { $0 == .local }) != nil
+					case .public, .remote:
+						return true
+				}
+		}
+	}
+
 	public func nextURLToAttempt(
 		forCN cn: String,
 		wifiAvailable: Bool,
@@ -249,11 +300,18 @@ public actor DeviceCatalog {
 		}
 
 		// 3) Cold launch / relaunch: retry last successful path before defaulting.
+		let localDevice = localDevicesStore.first(where: { $0.certificateCommonName == cn })
 		if let preferredPathKey, let remote = dynamicRemote,
 		   let preferred = SelectedPath.matching(
 		   	persistenceKey: preferredPathKey,
 		   	paths: remote.paths,
-		   	localDevice: localDevicesStore.first(where: { $0.certificateCommonName == cn }),
+		   	localDevice: localDevice,
+		   	wifiAvailable: wifiAvailable
+		   ),
+		   Self.preferredPathIsRetryable(
+		   	preferred,
+		   	probes: probesDict,
+		   	localDevice: localDevice,
 		   	wifiAvailable: wifiAvailable
 		   ) {
 			return preferred
@@ -264,11 +322,23 @@ public actor DeviceCatalog {
 		   	paths: remote.paths,
 		   	localDevice: nil,
 		   	wifiAvailable: wifiAvailable
+		   ),
+		   Self.preferredPathIsRetryable(
+		   	preferred,
+		   	probes: probesDict,
+		   	localDevice: nil,
+		   	wifiAvailable: wifiAvailable
 		   ) {
 			return preferred
 		}
 
-		// 4) Static device fallback: user-configured override — always offer its first
+		// 4) Fallback: first ordered non-local remote path (unprobed).
+		if let remote = dynamicRemote,
+		   let first = remote.paths.ordered().first(where: { $0.kind != .local }) {
+			return .remote(first)
+		}
+
+		// 5) Static device fallback: user-configured override — always offer its first
 		// non-local path even when no probe succeeded, so the SDK can keep trying.
 		if let remote = staticRemote,
 		   let first = remote.paths.ordered().first(where: { $0.kind != .local }) {
@@ -346,7 +416,8 @@ public actor DeviceCatalog {
 		   	paths: remote.paths,
 		   	localDevice: merged.localDevice,
 		   	wifiAvailable: wifiAvailable
-		   ) {
+		   ),
+		   Self.preferredPathIsRetryable(preferred, merged: merged, wifiAvailable: wifiAvailable) {
 			return preferred
 		}
 

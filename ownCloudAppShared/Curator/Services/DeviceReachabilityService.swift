@@ -113,8 +113,7 @@ public final actor DeviceReachabilityService {
 	/// Seeds the SDK base URL from the last successful path or bookmark before the first
 	/// detection pass, so authenticated cold launch does not default to local-first.
 	private func seedInitialBestURLFromSession() async {
-		guard let cn = preferences.favoriteDeviceCN,
-		      await remoteAccessService.hasValidTokens() else { return }
+		guard let cn = preferences.favoriteDeviceCN else { return }
 
 		let url: URL?
 		if let saved = preferences.currentConnectedDevice,
@@ -136,10 +135,17 @@ public final actor DeviceReachabilityService {
 			url = Self.deviceBaseURLFromBookmark()
 		}
 
-		if let url {
-			urlProvider.setBestURL(url, for: cn)
-			Log.debug("[STX-RA]: Cold launch seeded base URL: \(url.absoluteString)")
+		guard let url else { return }
+		// WAN paths require RA tokens; mDNS-only sessions can seed immediately on the LAN.
+		let isMDNSPath = preferences.currentConnectedDevice?.lastSuccessfulPathKey?.hasPrefix("mdns|") == true
+		if !isMDNSPath {
+			guard await remoteAccessService.hasValidTokens() else { return }
+		} else {
+			guard allowsLocalPaths else { return }
 		}
+
+		urlProvider.setBestURL(url, for: cn)
+		Log.debug("[STX-RA]: Cold launch seeded base URL: \(url.absoluteString)")
 	}
 
 	private static func deviceBaseURLFromBookmark() -> URL? {
@@ -191,9 +197,20 @@ public final actor DeviceReachabilityService {
 	/// Algorithm B — same entry as `NetworkChangeCoordinator.performDetection`.
 	private func tryLaunchDirectPathResolution() async -> Bool {
 		guard let saved = preferences.currentConnectedDevice,
-		      let seagateDeviceID = saved.seagateDeviceID,
-		      !seagateDeviceID.isEmpty
-		else {
+		      !saved.certificateCommonName.isEmpty
+		else { return false }
+		let cn = saved.certificateCommonName
+
+		if allowsLocalPaths,
+		   (saved.seagateDeviceID ?? "").isEmpty,
+		   await pipeline.attemptMDNSOnlyDirectResolution(
+		   	certificateCommonName: cn,
+		   	preferredPathKey: saved.lastSuccessfulPathKey
+		   ) {
+			return true
+		}
+
+		guard let seagateDeviceID = saved.seagateDeviceID, !seagateDeviceID.isEmpty else {
 			return false
 		}
 
@@ -204,7 +221,7 @@ public final actor DeviceReachabilityService {
 
 		return await pipeline.attemptDirectResolution(
 			seagateDeviceID: seagateDeviceID,
-			certificateCommonName: saved.certificateCommonName,
+			certificateCommonName: cn,
 			wifiAvailable: allowsLocalPaths
 		)
 	}
@@ -337,17 +354,52 @@ public final actor DeviceReachabilityService {
 		return false
 	}
 
+	// MARK: - Post-login catalog sync
+
+	/// Refreshes the RA device list without clearing login probes or restarting mDNS.
+	public func mergeRemoteCatalogAfterLogin() async {
+		guard let email = preferences.favoriteEmail, !email.isEmpty else { return }
+		guard await remoteAccessService.hasValidTokens() else { return }
+		do {
+			try await pipeline.mergeRemoteDevices(email: email)
+			await connectivityCoordinator?.invalidateConfiguredProbePaths()
+			Self.logReachability("post-login remote catalog merged")
+		} catch {
+			Self.logReachability("post-login remote catalog merge failed: \(error.localizedDescription)")
+		}
+	}
+
 	public func forceReloadDevices() async {
 		Self.logReachability("force reload starting")
 		await withPipelineReloadBanner {
 			await connectivityCoordinator?.invalidateConfiguredProbePaths()
 			await connectivityCoordinator?.noteCatalogReloadStarting()
-			await coordinator.beginExternalDetection()
-			await pipeline.reloadDevices()
-			await coordinator.endExternalDetection()
+			if await tryMDNSOnlyReloadIfApplicable() {
+				Self.logReachability("mDNS-only reload succeeded — skipping full catalog reset")
+			} else {
+				await coordinator.beginExternalDetection()
+				await pipeline.reloadDevices()
+				await coordinator.endExternalDetection()
+			}
 			await reportCatalogSnapshot()
 		}
 		Self.logReachability("force reload complete")
+	}
+
+	/// Lightweight reload for mDNS-only sessions: re-validates the persisted local path
+	/// without clearing the catalog or restarting mDNS discovery.
+	private func tryMDNSOnlyReloadIfApplicable() async -> Bool {
+		guard allowsLocalPaths,
+		      let saved = preferences.currentConnectedDevice,
+		      (saved.seagateDeviceID ?? "").isEmpty,
+		      saved.paths.isEmpty,
+		      !saved.certificateCommonName.isEmpty
+		else { return false }
+		let cn = saved.certificateCommonName
+		return await pipeline.attemptMDNSOnlyDirectResolution(
+			certificateCommonName: cn,
+			preferredPathKey: saved.lastSuccessfulPathKey
+		)
 	}
 
 	private func withPipelineReloadBanner(_ work: () async -> Void) async {
@@ -387,21 +439,31 @@ public final actor DeviceReachabilityService {
 	private func reportCatalogSnapshot() async {
 		let cn = preferences.favoriteDeviceCN ?? preferences.currentConnectedDevice?.certificateCommonName
 		let isReachable: Bool
+		let hasAlternateNonLocalPath: Bool
 		if let cn {
 			isReachable = await reachableSelection(certificateCommonName: cn) != nil
+			if isReachable {
+				hasAlternateNonLocalPath = false
+			} else {
+				hasAlternateNonLocalPath = await hasNonLocalPathToAttempt(certificateCommonName: cn)
+			}
 			Self.logReachability(
 				isReachable
 					? "catalog snapshot→reachable (\(cn))"
-					: "catalog snapshot→unreachable (\(cn))"
+					: hasAlternateNonLocalPath
+						? "catalog snapshot→WAN fallback (\(cn))"
+						: "catalog snapshot→unreachable (\(cn))"
 			)
 		} else {
 			isReachable = false
+			hasAlternateNonLocalPath = false
 			Self.logReachability("catalog snapshot (no device CN)")
 		}
 		await connectivityCoordinator?.applyCatalogSnapshot(
 			CatalogReachabilitySnapshot(
 				hasDeviceCN: cn != nil,
-				isReachable: isReachable
+				isReachable: isReachable,
+				hasAlternateNonLocalPath: hasAlternateNonLocalPath
 			)
 		)
 	}
@@ -410,36 +472,76 @@ public final actor DeviceReachabilityService {
 		Log.debug("[STX-CONN]: reachability \(message)")
 	}
 
-	/// Supplemental local paths for connectivity probes (mDNS / persisted local keys).
-	public func supplementalProbePaths() async -> [RemoteDevice.Path] {
-		guard allowsLocalPaths else { return [] }
+	/// Every path that should be considered during connectivity probes for the preferred device.
+	public func allProbePaths() async -> [RemoteDevice.Path] {
 		guard let cn = preferences.favoriteDeviceCN ?? preferences.currentConnectedDevice?.certificateCommonName else {
 			return []
 		}
 
 		var paths: [RemoteDevice.Path] = []
-		if let key = preferences.currentConnectedDevice?.lastSuccessfulPathKey,
-		   let localPath = PathProber.localPath(fromMDNSPersistenceKey: key) {
-			paths.append(localPath)
+		var seen = Set<String>()
+		func append(_ path: RemoteDevice.Path) {
+			guard seen.insert(path.key).inserted else { return }
+			paths.append(path)
 		}
 
-		if let local = await catalog.localDevices().first(where: { $0.certificateCommonName == cn }) {
-			let localPath = RemoteDevice.Path(kind: .local, address: local.host, port: local.port)
-			if !paths.contains(where: { $0.key == localPath.key }) {
-				paths.append(localPath)
+		let merged = await catalog.mergedDevices().first(where: { $0.certificateCommonName == cn })
+		if let remote = merged?.remoteDevice {
+			for path in remote.paths.ordered() {
+				append(path)
+			}
+		}
+
+		if let staticRemote = await catalog.staticRemoteDevice(),
+		   staticRemote.certificateCommonName == cn {
+			for path in staticRemote.paths.ordered() {
+				append(path)
+			}
+		}
+
+		if let remote = await catalog.remoteDevice(forCN: cn) {
+			for path in remote.paths.ordered() {
+				append(path)
 			}
 		}
 
 		if let saved = preferences.currentConnectedDevice {
-			for savedPath in saved.paths where savedPath.kind == .local {
-				let localPath = savedPath.asRemotePath()
-				if !paths.contains(where: { $0.key == localPath.key }) {
-					paths.append(localPath)
-				}
+			for savedPath in saved.paths {
+				append(savedPath.asRemotePath())
 			}
 		}
 
-		return paths
+		if allowsLocalPaths {
+			if let local = merged?.localDevice {
+				append(RemoteDevice.Path(kind: .local, address: local.host, port: local.port))
+			}
+			for local in await catalog.localDevices() where local.certificateCommonName == cn {
+				append(RemoteDevice.Path(kind: .local, address: local.host, port: local.port))
+			}
+			if let key = preferences.currentConnectedDevice?.lastSuccessfulPathKey,
+			   let localPath = PathProber.localPath(fromMDNSPersistenceKey: key) {
+				append(localPath)
+			}
+		}
+
+		return paths.ordered()
+	}
+
+	private func hasNonLocalPathToAttempt(certificateCommonName cn: String) async -> Bool {
+		guard let next = await nextURLToAttempt(certificateCommonName: cn) else { return false }
+		switch next {
+			case .mdns:
+				return false
+			case .remote(let path):
+				return path.kind != .local
+		}
+	}
+
+	public func hasNonLocalPathToAttemptForFavoriteDevice() async -> Bool {
+		guard let cn = preferences.favoriteDeviceCN ?? preferences.currentConnectedDevice?.certificateCommonName else {
+			return false
+		}
+		return await hasNonLocalPathToAttempt(certificateCommonName: cn)
 	}
 
 	public func isPreferredDeviceReachable() async -> Bool {

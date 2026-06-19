@@ -7,7 +7,7 @@ final class ConnectivityRecoveryRunner {
 		let pathProber: PathProber
 		var preferences: HCPreferences?
 		var remoteAccessService: RemoteAccessService?
-		var supplementalProbePaths: (() async -> [RemoteDevice.Path])?
+		var allProbePaths: (() async -> [RemoteDevice.Path])?
 		var isPreferredDeviceReachable: (() async -> Bool)?
 		var pathRecoveryHandler: (() async throws -> Void)?
 		var configuredProbePaths: ((HCPreferences) async -> [RemoteDevice.Path])?
@@ -100,7 +100,7 @@ final class ConnectivityRecoveryRunner {
 			return
 		}
 
-		if request.localPathsAllowed {
+		if !(await preferredDeviceIsReachable(dependencies)) {
 			localProbeFailed = true
 		}
 
@@ -253,11 +253,7 @@ final class ConnectivityRecoveryRunner {
 		if let resolver = dependencies.configuredProbePaths {
 			return await resolver(preferences)
 		}
-		var paths = pathsForConnectedDevice(preferences: preferences)
-		if let supplemental = await dependencies.supplementalProbePaths?() {
-			paths = merging(paths, with: supplemental)
-		}
-		return paths
+		return await dependencies.allProbePaths?() ?? pathsForConnectedDevice(preferences: preferences)
 	}
 
 	private static func invokePathRecoveryHandler(dependencies: Dependencies) async {
@@ -317,7 +313,8 @@ final class ConnectivityRecoveryRunner {
 		localProbeFailed: Bool,
 		dependencies: Dependencies
 	) -> Bool {
-		guard let preferences = dependencies.preferences else { return localProbeFailed || !localPathsAllowed }
+		guard localPathsAllowed == false || localProbeFailed else { return false }
+		guard let preferences = dependencies.preferences else { return !localPathsAllowed }
 		let paths = pathsForConnectedDevice(preferences: preferences)
 		if paths.isEmpty {
 			// mDNS-only / no saved WAN paths — still need RA when local probe failed (device left LAN).

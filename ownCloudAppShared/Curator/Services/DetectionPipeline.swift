@@ -98,7 +98,13 @@ public actor DetectionPipeline {
 			if let probe = await pathProber.probeSingle(path: localPath), probe.isOperational {
 				let path: SelectedPath = .mdns(host: local.host, port: local.port)
 				if let cn = local.certificateCommonName ?? merged.certificateCommonName {
-					await commitLoginProbe(cn: cn, pathKey: localPath.key, probe: probe, remote: merged.remoteDevice)
+					await commitLoginProbe(
+						cn: cn,
+						pathKey: localPath.key,
+						probe: probe,
+						remote: merged.remoteDevice,
+						local: local
+					)
 				}
 				return LoginPathResult(path: path, probe: probe)
 			}
@@ -154,7 +160,8 @@ public actor DetectionPipeline {
 		cn: String,
 		pathKey: String,
 		probe: PathProbe,
-		remote: RemoteDevice?
+		remote: RemoteDevice?,
+		local: LocalDevice? = nil
 	) async {
 		if let remote {
 			await catalog.upsertResolution(remote, winningPathKey: pathKey, winningProbe: probe)
@@ -162,6 +169,13 @@ public actor DetectionPipeline {
 			var probes = await catalog.probes()
 			probes[cn] = [pathKey: probe]
 			await catalog.setProbes(probes)
+		}
+		if let local {
+			var locals = await catalog.localDevices()
+			if !locals.contains(where: { $0.host == local.host && $0.port == local.port }) {
+				locals.append(local)
+				await catalog.setLocalDevices(locals)
+			}
 		}
 		await recalculateBestURLs()
 	}
@@ -252,6 +266,16 @@ public actor DetectionPipeline {
 
 	// MARK: - Merged devices
 
+	/// Fetches remote devices from RA and upserts them without clearing probes or locals.
+	public func mergeRemoteDevices(email: String) async throws {
+		let remote = try await remoteAccessService.getRemoteDevices(email: email)
+		for device in remote {
+			await catalog.upsertRemoteDevice(device)
+		}
+		await pathCacheStore.update(fromDevices: await catalog.remoteDevices())
+		emit(.devicesUpdated(await catalog.mergedDevices()))
+	}
+
 	public func getMergedDevices(
 		email: String,
 		includeRemote: Bool = true,
@@ -287,7 +311,7 @@ public actor DetectionPipeline {
 				let targets = Self.probeTargets(from: remote, preferences: preferences)
 				probes = (try? await pathProber.probeAll(targets)) ?? [:]
 			} else {
-				probes = [:]
+				probes = await catalog.probes()
 			}
 			await catalog.setProbes(probes)
 			if Task.isCancelled { return [] }
@@ -422,6 +446,60 @@ public actor DetectionPipeline {
 	}
 
 	// MARK: - Algorithm B passthrough
+
+	/// Validates a persisted mDNS path for sessions without a Seagate device ID or RA paths.
+	/// Returns `true` when the local device is reachable and catalog state is updated.
+	public func attemptMDNSOnlyDirectResolution(
+		certificateCommonName cn: String,
+		preferredPathKey: String?
+	) async -> Bool {
+		guard wifiAvailableForLocalPaths,
+		      let key = preferredPathKey,
+		      key.hasPrefix("mdns|"),
+		      let localPath = PathProber.localPath(fromMDNSPersistenceKey: key),
+		      let url = localPath.apiBaseURL()
+		else { return false }
+
+		do {
+			let about = try await pathProber.fetchAbout(url: url)
+			guard about.certificate_common_name == cn else { return false }
+		} catch {
+			Log.debug("[STX-RA]: mDNS-only direct resolution failed for \(cn): \(error).")
+			return false
+		}
+
+		let host = localPath.address
+		let port = localPath.port ?? 443
+		var locals = await catalog.localDevices()
+		if let index = locals.firstIndex(where: { $0.host == host && $0.port == port }) {
+			let existing = locals[index]
+			if existing.certificateCommonName != cn {
+				locals[index] = LocalDevice(
+					name: existing.name,
+					host: host,
+					port: port,
+					certificateCommonName: cn,
+					oobeIsDone: existing.oobeIsDone
+				)
+			}
+		} else {
+			locals.append(
+				LocalDevice(
+					name: cn,
+					host: host,
+					port: port,
+					certificateCommonName: cn,
+					oobeIsDone: true
+				)
+			)
+		}
+		await catalog.setLocalDevices(locals)
+		await catalog.recordLocalURL(url, forCN: cn)
+		emit(.devicesUpdated(await catalog.mergedDevices()))
+		await recalculateBestURLs()
+		Log.debug("[STX-RA]: mDNS-only direct resolution succeeded for \(cn).")
+		return true
+	}
 
 	public func attemptDirectResolution(
 		seagateDeviceID: String,

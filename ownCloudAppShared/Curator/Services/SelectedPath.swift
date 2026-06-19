@@ -38,9 +38,11 @@ public enum SelectedPath: Sendable {
 			let parts = key.split(separator: "|", omittingEmptySubsequences: false)
 			guard parts.count == 3, let port = Int(parts[2]) else { return nil }
 			let host = String(parts[1])
-			if let local = localDevice, local.host == host, local.port == port {
-				return .mdns(host: host, port: port)
-			}
+			guard let local = localDevice,
+			      local.certificateCommonName != nil,
+			      local.host == host,
+			      local.port == port
+			else { return nil }
 			return .mdns(host: host, port: port)
 		}
 		if let path = paths.first(where: { $0.key == key }) {
