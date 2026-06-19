@@ -65,13 +65,6 @@ public extension BrowserNavigationBookmark {
 			case .specialItem:
 				if let specialItem {
 					itemRefs.append(composedItemRef(for: specialItem))
-
-					switch specialItem {
-						case .sharedByMe, .sharedWithMe, .sharedByLink:
-							itemRefs.append(composedItemRef(for: .sharingFolder))
-
-						default: break
-					}
 				}
 
 			default: break

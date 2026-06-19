@@ -170,6 +170,11 @@
 		991727772E55C37500AD9C54 /* HCSidebarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991727732E55C36E00AD9C54 /* HCSidebarHeaderView.swift */; };
 		991727792E55D87300AD9C54 /* HCSeparatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991727782E55D86D00AD9C54 /* HCSeparatorView.swift */; };
 		9917277B2E55F28F00AD9C54 /* HCSidebarFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */; };
+		99F0A1012F12345600SIDEBAR /* HCSidebarMenuRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F0A1002F12345600SIDEBAR /* HCSidebarMenuRowView.swift */; };
+		99F0A1032F12345600SIDEBAR /* SidebarMenuBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F0A1022F12345600SIDEBAR /* SidebarMenuBuilder.swift */; };
+		99F0C0022F12345600SIDEBAR /* SidebarDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F0C0012F12345600SIDEBAR /* SidebarDataModel.swift */; };
+		99F0C0042F12345600SIDEBAR /* ClientSidebarViewController+MenuRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F0C0032F12345600SIDEBAR /* ClientSidebarViewController+MenuRendering.swift */; };
+		99F0C0062F12345600SIDEBAR /* ClientSidebarViewController+FolderAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F0C0052F12345600SIDEBAR /* ClientSidebarViewController+FolderAnimation.swift */; };
 		9917277D2E571A7E00AD9C54 /* HCBytesFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9917277C2E571A7700AD9C54 /* HCBytesFormatter.swift */; };
 		9917277F2E571CBE00AD9C54 /* HCProgressBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9917277E2E571CB700AD9C54 /* HCProgressBarView.swift */; };
 		9917278A2E5DC3F500AD9C54 /* RunGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991727862E5DC3F100AD9C54 /* RunGate.swift */; };
@@ -1381,6 +1386,11 @@
 		991727732E55C36E00AD9C54 /* HCSidebarHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSidebarHeaderView.swift; sourceTree = "<group>"; };
 		991727782E55D86D00AD9C54 /* HCSeparatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSeparatorView.swift; sourceTree = "<group>"; };
 		9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSidebarFooterView.swift; sourceTree = "<group>"; };
+		99F0A1002F12345600SIDEBAR /* HCSidebarMenuRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCSidebarMenuRowView.swift; sourceTree = "<group>"; };
+		99F0A1022F12345600SIDEBAR /* SidebarMenuBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarMenuBuilder.swift; sourceTree = "<group>"; };
+		99F0C0012F12345600SIDEBAR /* SidebarDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarDataModel.swift; sourceTree = "<group>"; };
+		99F0C0032F12345600SIDEBAR /* ClientSidebarViewController+MenuRendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClientSidebarViewController+MenuRendering.swift"; sourceTree = "<group>"; };
+		99F0C0052F12345600SIDEBAR /* ClientSidebarViewController+FolderAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClientSidebarViewController+FolderAnimation.swift"; sourceTree = "<group>"; };
 		9917277C2E571A7700AD9C54 /* HCBytesFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCBytesFormatter.swift; sourceTree = "<group>"; };
 		9917277E2E571CB700AD9C54 /* HCProgressBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCProgressBarView.swift; sourceTree = "<group>"; };
 		991727862E5DC3F100AD9C54 /* RunGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunGate.swift; sourceTree = "<group>"; };
@@ -2978,6 +2988,21 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		99F0B0012F12345600SIDEBAR /* Sidebar */ = {
+			isa = PBXGroup;
+			children = (
+				DCB6B1E8292B6E6B00D27573 /* ClientSidebarViewController.swift */,
+				99F0C0032F12345600SIDEBAR /* ClientSidebarViewController+MenuRendering.swift */,
+				99F0C0052F12345600SIDEBAR /* ClientSidebarViewController+FolderAnimation.swift */,
+				99F0A1022F12345600SIDEBAR /* SidebarMenuBuilder.swift */,
+				99F0C0012F12345600SIDEBAR /* SidebarDataModel.swift */,
+				991727732E55C36E00AD9C54 /* HCSidebarHeaderView.swift */,
+				9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */,
+				99F0A1002F12345600SIDEBAR /* HCSidebarMenuRowView.swift */,
+			);
+			path = Sidebar;
+			sourceTree = "<group>";
+		};
 		99F472F02E095C1500104592 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -2987,9 +3012,7 @@
 				99C42E172EB3890C00E36414 /* HCCodeView.swift */,
 				99C42DDA2EA667F800E36414 /* HCOverlayView.swift */,
 				99C42DD82EA6670200E36414 /* HCCardView.swift */,
-				9917277A2E55F28700AD9C54 /* HCSidebarFooterView.swift */,
 				991727782E55D86D00AD9C54 /* HCSeparatorView.swift */,
-				991727732E55C36E00AD9C54 /* HCSidebarHeaderView.swift */,
 				99BC9F2A2E4C72D60004F6B2 /* HCErrorView.swift */,
 				99CE0A5F2E4A231500380EB8 /* HCSpinnerView.swift */,
 				99139B622E3CE1E70044889B /* HCImageHighlightCapsuleButton.swift */,
@@ -3016,6 +3039,7 @@
 				99E73E942F1186DD00477600 /* CrossDissolveTransition.swift */,
 				99C42DD72EA666CD00E36414 /* Services */,
 				99C42DD62EA666C000E36414 /* API */,
+				99F0B0012F12345600SIDEBAR /* Sidebar */,
 				99F9CC1E2E82D0E9000BC8E0 /* DisplayHostType.swift */,
 				9956119B2E6C706600FA252D /* Combine */,
 				995611832E6B6C1500FA252D /* LocationTreePicker */,
@@ -3358,7 +3382,6 @@
 			isa = PBXGroup;
 			children = (
 				DC3AB1972808C35300789435 /* ClientItemViewController.swift */,
-				DCB6B1E8292B6E6B00D27573 /* ClientSidebarViewController.swift */,
 				DC6FDAF62953AD50004F0C7F /* ClientSharedWithMeViewController.swift */,
 				DC921A0A2968BA4D00F538EE /* ClientSharedByMeViewController.swift */,
 				DC3F0C2329828AB500C832DB /* Location Breadcrumbs */,
@@ -5812,6 +5835,11 @@
 				DC28F828294BB5ED00AC4013 /* SortedItemDataSource.swift in Sources */,
 				DCA05A602AE6603E00BFF393 /* ClientLocationPopupButton.swift in Sources */,
 				9917277B2E55F28F00AD9C54 /* HCSidebarFooterView.swift in Sources */,
+				99F0A1012F12345600SIDEBAR /* HCSidebarMenuRowView.swift in Sources */,
+				99F0A1032F12345600SIDEBAR /* SidebarMenuBuilder.swift in Sources */,
+				99F0C0022F12345600SIDEBAR /* SidebarDataModel.swift in Sources */,
+				99F0C0042F12345600SIDEBAR /* ClientSidebarViewController+MenuRendering.swift in Sources */,
+				99F0C0062F12345600SIDEBAR /* ClientSidebarViewController+FolderAnimation.swift in Sources */,
 				DC298C992934D3F8009FA87F /* AlertViewController.swift in Sources */,
 				DC8E99DC297E79E900594697 /* BrowserNavigationHistory.swift in Sources */,
 				DCBAEAE829A568D500BFF393 /* TitleSupplementaryCell.swift in Sources */,
