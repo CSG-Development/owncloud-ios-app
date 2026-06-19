@@ -1,7 +1,15 @@
 import Foundation
 import ownCloudSDK
 
-/// Path recovery orchestration extracted from `ConnectivityStateCoordinator`.
+/// The single connectivity evaluator. Serializes concurrent requests, then:
+///   1. probes every configured path and selects the best reachable one (local > public > remote),
+///   2. switches the SDK base URL directly when a better reachable path is found,
+///   3. only falls back to a full catalog reload (discovery) when nothing responded,
+///   4. attempts remote-access re-authentication when required,
+///   5. otherwise reports the device as disconnected (the "Retry" banner).
+///
+/// This runner is the *only* writer of `DeviceAccessState`, which is why no access-policy
+/// arbitration is needed any more.
 final class ConnectivityRecoveryRunner {
 	struct Dependencies {
 		let pathProber: PathProber
@@ -11,237 +19,170 @@ final class ConnectivityRecoveryRunner {
 		var isPreferredDeviceReachable: (() async -> Bool)?
 		var pathRecoveryHandler: (() async throws -> Void)?
 		var configuredProbePaths: ((HCPreferences) async -> [RemoteDevice.Path])?
+		var applyBestProbedPath: (@Sendable (RemoteDevice.Path) async -> Void)?
 		var requestRAAuthentication: ((String) async -> Bool)?
 		var recoveryEmail: () -> String?
-		var setConnectingForAlternateProbe: () async -> Void
-		var applyDeviceAccess: @Sendable (DeviceAccessState, ConnectivityAccessPolicy) async -> Void
-		var currentDeviceAccess: @Sendable () async -> DeviceAccessState
+		var applyDeviceAccess: @Sendable (DeviceAccessState) async -> Void
 		var beginRemoteAuthentication: @Sendable () async -> Void
 		var endRemoteAuthentication: @Sendable (DeviceAccessState) async -> Void
 		var log: (String) -> Void
 	}
 
 	private(set) var task: Task<Void, Never>?
-	private(set) var pendingRequest: ConnectivityRecoveryRequest?
+	private var pendingLocalPathsAllowed: Bool?
 
 	var isInFlight: Bool { task != nil }
 
 	func reset() {
 		task?.cancel()
 		task = nil
-		pendingRequest = nil
+		pendingLocalPathsAllowed = nil
 	}
 
 	func run(
-		request incoming: ConnectivityRecoveryRequest,
+		localPathsAllowed: Bool,
 		session: ConnectivitySessionState,
 		snackbarDrivingEnabled: Bool,
 		dependencies: Dependencies,
-		perform: @escaping @Sendable (ConnectivityRecoveryRequest, Dependencies, ConnectivitySessionState, Bool) async -> Void
+		perform: @escaping @Sendable (Bool, Dependencies, ConnectivitySessionState, Bool) async -> Void
 	) async {
 		if let inFlight = task {
-			pendingRequest = ConnectivityRecoveryRequest.merge(pendingRequest, with: incoming)
-			dependencies.log("recovery coalesced with in-flight task")
+			pendingLocalPathsAllowed = localPathsAllowed
+			dependencies.log("evaluate coalesced with in-flight run")
 			await inFlight.value
 			return
 		}
 
-		var request = incoming
+		var localAllowed = localPathsAllowed
 		repeat {
-			dependencies.log(
-				"recovery started (skipProbe=\(request.skipInitialProbe) "
-					+ "localFailed=\(request.localPathsFailed) device=\(session.deviceAccess))"
-			)
+			dependencies.log("evaluate started (localAllowed=\(localAllowed))")
 			task = Task {
-				await perform(request, dependencies, session, snackbarDrivingEnabled)
+				await perform(localAllowed, dependencies, session, snackbarDrivingEnabled)
 			}
 			await task?.value
 			task = nil
 
-			guard let pending = pendingRequest else { break }
-			pendingRequest = nil
-			request = pending
+			guard let pending = pendingLocalPathsAllowed else { break }
+			pendingLocalPathsAllowed = nil
+			localAllowed = pending
 		} while true
 	}
 
-	static func performRecovery(
-		_ request: ConnectivityRecoveryRequest,
+	static func performEvaluate(
+		_ localPathsAllowed: Bool,
 		dependencies: Dependencies,
 		session: ConnectivitySessionState,
 		snackbarDrivingEnabled: Bool
 	) async {
 		switch session.checkRecoveryEligibility() {
-			case .eligible:
-				break
-			case .ineligible:
-				return
+			case .eligible:    break
+			case .ineligible:  return
 		}
 		if Task.isCancelled { return }
 
-		if snackbarDrivingEnabled,
-		   await shouldShowConnectingAtRecoveryStart(request: request, dependencies: dependencies) {
-			await dependencies.applyDeviceAccess(.connecting, .normal)
+		if snackbarDrivingEnabled {
+			await dependencies.applyDeviceAccess(.connecting)
 		}
 
-		var localProbeFailed = request.localPathsFailed
-		if localProbeFailed, await preferredDeviceIsReachable(dependencies) {
-			localProbeFailed = false
-		}
-
-		if await tryInitialProbeRecovery(
-			request: request,
-			localProbeFailed: &localProbeFailed,
-			dependencies: dependencies
-		) {
+		guard let preferences = dependencies.preferences else {
+			await dependencies.applyDeviceAccess(.disconnected)
 			return
 		}
-
-		if await tryFullCatalogReload(request: request, dependencies: dependencies) {
-			return
-		}
-
-		if !(await preferredDeviceIsReachable(dependencies)) {
-			localProbeFailed = true
-		}
-
-		if await tryRemoteAuthentication(
-			request: request,
-			localProbeFailed: localProbeFailed,
-			dependencies: dependencies
-		) {
-			return
-		}
-
-		dependencies.log("recovery finalize (no RA required)")
-		await finalizeDeviceAccessAfterRecovery(dependencies: dependencies)
-	}
-
-	// MARK: - Recovery steps
-
-	private static func tryInitialProbeRecovery(
-		request: ConnectivityRecoveryRequest,
-		localProbeFailed: inout Bool,
-		dependencies: Dependencies
-	) async -> Bool {
-		guard !request.skipInitialProbe, let preferences = dependencies.preferences else { return false }
 
 		let paths = await configuredProbePaths(preferences: preferences, dependencies: dependencies)
-		guard !paths.isEmpty else { return false }
+		let currentPathKey = preferences.currentConnectedDevice?.lastSuccessfulPathKey
 
-		let result = await probeConfiguredPaths(
-			paths: paths,
-			currentPathKey: preferences.currentConnectedDevice?.lastSuccessfulPathKey,
-			localPathsAllowed: request.localPathsAllowed,
-			dependencies: dependencies
-		)
-		if Task.isCancelled { return true }
+		if !paths.isEmpty {
+			let outcome = await dependencies.pathProber.probeAndSelectBest(
+				paths: paths,
+				currentPathKey: currentPathKey,
+				localPathsAllowed: localPathsAllowed
+			)
+			ConnectivityEventLog.probeOutcome(
+				outcome,
+				pathCount: paths.count,
+				currentPathKey: currentPathKey,
+				localPathsAllowed: localPathsAllowed
+			)
 
-		switch result {
-			case .currentPathReachable:
-				dependencies.log("recovery initial probe→current path reachable")
-				await dependencies.applyDeviceAccess(.connected, .pathEvidence)
-				return true
-			case .alternatePathReachable:
-				dependencies.log("recovery initial probe→alternate reachable — reloading paths")
-				await invokePathRecoveryHandler(dependencies: dependencies)
-				await dependencies.applyDeviceAccess(.connected, .pathEvidence)
-				return true
-			case .allUnreachable:
-				dependencies.log("recovery initial probe→all unreachable")
-				localProbeFailed = true
-				return false
+			switch outcome {
+				case .currentIsBest:
+					dependencies.log("probe→keep current path")
+					await dependencies.applyDeviceAccess(.connected)
+					return
+				case .betterPath(let path):
+					// The probe already verified `path` is reachable, so switch the SDK base
+					// URL directly instead of triggering a slow full catalog reload.
+					dependencies.log("probe→switch to better path (\(path.key))")
+					await dependencies.applyBestProbedPath?(path)
+					await dependencies.applyDeviceAccess(.connected)
+					return
+				case .noneReachable:
+					dependencies.log("probe→no path reachable")
+			}
+		} else {
+			dependencies.log("probe→no paths configured")
 		}
-	}
 
-	private static func tryFullCatalogReload(
-		request: ConnectivityRecoveryRequest,
-		dependencies: Dependencies
-	) async -> Bool {
-		if !request.localPathsFailed,
-		   !request.alternatePathReachable,
-		   await preferredDeviceIsReachable(dependencies),
-		   await dependencies.currentDeviceAccess() == .connected {
-			dependencies.log("recovery→reload skipped (already connected and reachable)")
-			return true
-		}
-		dependencies.log("recovery→full path reload")
+		// Nothing responded with the known paths — run discovery (full catalog reload, which
+		// re-probes everything) and trust the freshly-probed catalog for the verdict.
 		await invokePathRecoveryHandler(dependencies: dependencies)
-		if Task.isCancelled { return true }
-		guard await preferredDeviceIsReachable(dependencies) else {
-			await applyDisconnectedAfterUnreachableReload(dependencies: dependencies, context: "reload")
-			return false
+		if await preferredDeviceIsReachable(dependencies) {
+			dependencies.log("reload→connected")
+			await dependencies.applyDeviceAccess(.connected)
+			return
 		}
-		dependencies.log("recovery→connected after reload (catalog reachable)")
-		await dependencies.applyDeviceAccess(.connected, .pathEvidence)
-		return true
+
+		if await tryRemoteAuthentication(localPathsAllowed: localPathsAllowed, dependencies: dependencies) {
+			return
+		}
+
+		dependencies.log("evaluate→disconnected (retry)")
+		await dependencies.applyDeviceAccess(.disconnected)
 	}
+
+	// MARK: - Remote-access re-authentication
 
 	private static func tryRemoteAuthentication(
-		request: ConnectivityRecoveryRequest,
-		localProbeFailed: Bool,
+		localPathsAllowed: Bool,
 		dependencies: Dependencies
 	) async -> Bool {
 		guard await requiresRAAuthentication(
-			localPathsAllowed: request.localPathsAllowed,
-			localProbeFailed: localProbeFailed,
+			localPathsAllowed: localPathsAllowed,
 			dependencies: dependencies
 		) else {
-			dependencies.log(
-				"recovery RA skipped (localAllowed=\(request.localPathsAllowed) "
-					+ "localFailed=\(localProbeFailed))"
-			)
+			dependencies.log("RA skipped (localAllowed=\(localPathsAllowed))")
 			return false
 		}
 
-		dependencies.log("recovery requires RA authentication")
+		dependencies.log("evaluate requires RA authentication")
 		guard let email = dependencies.recoveryEmail() else {
 			Log.debug("[STX-RA]: RA tokens missing but no email available for verification.")
-			await dependencies.applyDeviceAccess(.disconnected, .duringRAAuth)
-			return true
+			return false
 		}
 		Log.debug("[STX-RA]: Requesting RA verification for \(email).")
 		await dependencies.beginRemoteAuthentication()
-		await dependencies.applyDeviceAccess(.connecting, .duringRAAuth)
 		let authenticated = await dependencies.requestRAAuthentication?(email) ?? false
 		if Task.isCancelled {
 			await dependencies.endRemoteAuthentication(.connecting)
 			return true
 		}
 		if !authenticated {
-			dependencies.log("recovery RA auth failed")
+			dependencies.log("RA auth failed")
 			await dependencies.endRemoteAuthentication(.disconnected)
-			await dependencies.applyDeviceAccess(.disconnected, .duringRAAuth)
-			return true
+			return false
 		}
 		await dependencies.endRemoteAuthentication(.connecting)
-		dependencies.log("recovery RA auth succeeded — reloading paths")
+		dependencies.log("RA auth succeeded — reloading paths")
 		await invokePathRecoveryHandler(dependencies: dependencies)
-		await finalizeDeviceAccessAfterRecovery(dependencies: dependencies)
-		return true
-	}
-
-	private static func finalizeDeviceAccessAfterRecovery(dependencies: Dependencies) async {
-		let current = await dependencies.currentDeviceAccess()
 		if await preferredDeviceIsReachable(dependencies) {
-			guard current == .connecting else { return }
-			dependencies.log("recovery finalize→connected (catalog reachable)")
-			await dependencies.applyDeviceAccess(.connected, .recoveryFinalize)
-			return
+			dependencies.log("RA reload→connected")
+			await dependencies.applyDeviceAccess(.connected)
+		} else {
+			dependencies.log("RA reload→disconnected (retry)")
+			await dependencies.applyDeviceAccess(.disconnected)
 		}
-		await applyDisconnectedAfterUnreachableReload(dependencies: dependencies, context: "finalize")
-	}
-
-	private static func applyDisconnectedAfterUnreachableReload(
-		dependencies: Dependencies,
-		context: String
-	) async {
-		let current = await dependencies.currentDeviceAccess()
-		guard current == .connecting || current == .connected else {
-			dependencies.log("recovery \(context) skipped (device=\(current))")
-			return
-		}
-		dependencies.log("recovery \(context)→disconnected (catalog unreachable)")
-		await dependencies.applyDeviceAccess(.disconnected, .recoveryFinalize)
+		return true
 	}
 
 	// MARK: - Probe helpers
@@ -265,66 +206,37 @@ final class ConnectivityRecoveryRunner {
 		}
 	}
 
-	static func probeConfiguredPaths(
-		paths: [RemoteDevice.Path],
-		currentPathKey: String?,
-		localPathsAllowed: Bool,
-		dependencies: Dependencies
-	) async -> PathConnectivityProbeResult {
-		await dependencies.pathProber.probeConnectivityCurrentFirst(
-			paths: paths,
-			currentPathKey: currentPathKey,
-			localPathsAllowed: localPathsAllowed
-		) {
-			await dependencies.setConnectingForAlternateProbe()
-		}
-	}
-
 	private static func preferredDeviceIsReachable(_ dependencies: Dependencies) async -> Bool {
 		await (dependencies.isPreferredDeviceReachable?() ?? false)
 	}
 
-	private static func shouldShowConnectingAtRecoveryStart(
-		request: ConnectivityRecoveryRequest,
-		dependencies: Dependencies
-	) async -> Bool {
-		if request.localPathsFailed { return true }
-		guard request.skipInitialProbe else { return true }
-		guard await dependencies.currentDeviceAccess() == .connected else { return true }
-		return !(await preferredDeviceIsReachable(dependencies))
-	}
-
 	private static func requiresRAAuthentication(
 		localPathsAllowed: Bool,
-		localProbeFailed: Bool,
 		dependencies: Dependencies
 	) async -> Bool {
 		guard let remoteAccessService = dependencies.remoteAccessService else { return false }
 		guard await remoteAccessService.hasValidTokens() == false else { return false }
 		return needsRemoteAccessForRecovery(
 			localPathsAllowed: localPathsAllowed,
-			localProbeFailed: localProbeFailed,
 			dependencies: dependencies
 		)
 	}
 
 	private static func needsRemoteAccessForRecovery(
 		localPathsAllowed: Bool,
-		localProbeFailed: Bool,
 		dependencies: Dependencies
 	) -> Bool {
-		guard localPathsAllowed == false || localProbeFailed else { return false }
-		guard let preferences = dependencies.preferences else { return !localPathsAllowed }
+		// At this point the local/known probes already failed, so remote access is the only
+		// remaining way in unless every configured path is local and we are on the LAN.
+		guard let preferences = dependencies.preferences else { return true }
 		let paths = pathsForConnectedDevice(preferences: preferences)
 		if paths.isEmpty {
-			// mDNS-only / no saved WAN paths — still need RA when local probe failed (device left LAN).
-			return localProbeFailed || !localPathsAllowed
+			return true
 		}
 		if paths.allSatisfy({ $0.kind == .local }) {
-			return localProbeFailed || !localPathsAllowed
+			return !localPathsAllowed
 		}
-		if !localPathsAllowed { return true }
-		return localProbeFailed
+		return true
 	}
 
 	static func recoveryEmail(preferences: HCPreferences?) -> String? {
@@ -344,17 +256,5 @@ final class ConnectivityRecoveryRunner {
 	private static func pathsForConnectedDevice(preferences: HCPreferences) -> [RemoteDevice.Path] {
 		guard let saved = preferences.currentConnectedDevice else { return [] }
 		return saved.paths.map { $0.asRemotePath() }.ordered()
-	}
-
-	private static func merging(
-		_ paths: [RemoteDevice.Path],
-		with supplemental: [RemoteDevice.Path]
-	) -> [RemoteDevice.Path] {
-		var seen = Set(paths.map(\.key))
-		var merged = paths
-		for path in supplemental where seen.insert(path.key).inserted {
-			merged.append(path)
-		}
-		return merged.ordered()
 	}
 }

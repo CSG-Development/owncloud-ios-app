@@ -15,20 +15,6 @@ public enum DeviceAccessState: Sendable, Equatable, CustomStringConvertible {
 	}
 }
 
-/// Facts reported by `DeviceReachabilityService` after catalog reload or sync.
-public struct CatalogReachabilitySnapshot: Sendable, Equatable {
-	public let hasDeviceCN: Bool
-	public let isReachable: Bool
-	/// A non-local path is queued for the SDK even though nothing is verified yet.
-	public let hasAlternateNonLocalPath: Bool
-
-	public init(hasDeviceCN: Bool, isReachable: Bool, hasAlternateNonLocalPath: Bool = false) {
-		self.hasDeviceCN = hasDeviceCN
-		self.isReachable = isReachable
-		self.hasAlternateNonLocalPath = hasAlternateNonLocalPath
-	}
-}
-
 /// Unified connectivity state — session phase, network, and device access in one model.
 public enum ConnectivityState: Equatable, Sendable, CustomStringConvertible {
 	case loggedOut(networkReachable: Bool)
@@ -78,62 +64,19 @@ public enum ConnectivityState: Equatable, Sendable, CustomStringConvertible {
 	}
 }
 
-enum ConnectivityAccessPolicy: Equatable, CustomStringConvertible {
-	case normal
-	case duringRAAuth
-	case catalogSync
-	case pathEvidence
-	case pathAvailable
-	case recoveryFinalize
-
-	var description: String {
-		switch self {
-			case .normal:           return "normal"
-			case .duringRAAuth:     return "duringRAAuth"
-			case .catalogSync:      return "catalogSync"
-			case .pathEvidence:     return "pathEvidence"
-			case .pathAvailable:    return "pathAvailable"
-			case .recoveryFinalize: return "recoveryFinalize"
-		}
-	}
+/// Why a connectivity evaluation was requested. Logging / diagnostics only.
+public enum ConnectivityEvaluateReason: String, Sendable {
+	case networkChanged
+	case foreground
+	case periodic
+	case retry
+	case transportError
+	case discovery
+	case login
+	case sessionStart
 }
 
 enum ConnectivityRecoveryEligibility: Equatable {
 	case eligible
 	case ineligible(String)
-}
-
-struct ConnectivityRecoveryRequest: Equatable {
-	var localPathsAllowed: Bool
-	var skipInitialProbe: Bool
-	var localPathsFailed: Bool
-	var fromTransportError: Bool
-	/// Probe found a reachable path other than the current one — catalog reload must run to switch.
-	var alternatePathReachable: Bool
-
-	/// Merges a coalesced recovery with a new request while an earlier recovery is in flight.
-	///
-	/// - `localPathsAllowed`: always the **incoming** value (latest network interface snapshot).
-	/// - `skipInitialProbe`: AND — stricter wins.
-	/// - `localPathsFailed` / `fromTransportError` / `alternatePathReachable`: OR — preserved if any set.
-	static func merge(_ existing: Self?, with incoming: Self) -> Self {
-		guard let existing else { return incoming }
-		return Self(
-			localPathsAllowed: incoming.localPathsAllowed,
-			skipInitialProbe: existing.skipInitialProbe && incoming.skipInitialProbe,
-			localPathsFailed: existing.localPathsFailed || incoming.localPathsFailed,
-			fromTransportError: existing.fromTransportError || incoming.fromTransportError,
-			alternatePathReachable: existing.alternatePathReachable || incoming.alternatePathReachable
-		)
-	}
-}
-
-enum ConnectivityProbeResultLabel {
-	static func label(_ result: PathConnectivityProbeResult) -> String {
-		switch result {
-			case .currentPathReachable:   return "currentReachable"
-			case .alternatePathReachable: return "alternateReachable"
-			case .allUnreachable:         return "allUnreachable"
-		}
-	}
 }
