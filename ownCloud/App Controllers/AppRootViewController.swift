@@ -147,7 +147,7 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 						(OCBookmarkManager.shared.bookmarksDatasource as? OCDataSourceArray)?.setVersionedItems(bookmarks)
 					}
 					// Reload sidebar UI to reflect any changes
-					self?.sidebarViewController?.collectionView.reloadData()
+					self?.sidebarViewController?.reloadMenu(animated: false)
 					self?.sidebarViewController?.updateAvailableSpace()
 				}
 			}
@@ -402,7 +402,7 @@ extension AppRootViewController: AccountAuthenticationHandlerBookmarkEditingHand
 // MARK: - Message presentation
 extension AppRootViewController : ClientSessionManagerDelegate {
 	var selectedAccountConnection: AccountController? {
-		if let accountControllerSection = self.sidebarViewController?.sectionOfCurrentSelection as? AccountControllerSection {
+		if let accountControllerSection = self.sidebarViewController?.sectionOfCurrentSelection {
 			return accountControllerSection.accountController
 		}
 
@@ -508,47 +508,6 @@ extension ClientSidebarViewController {
 	// MARK: - Add account
 	func addBookmark() {
 		BookmarkViewController.showBookmarkUI(on: self, attemptLoginOnSuccess: true, completion: nil)
-	}
-
-	// MARK: - Update selection
-	public func section(for bookmarkUUID: UUID) -> AccountControllerSection? {
-		for section in allSections {
-			if let accountControllerSection = section as? AccountControllerSection,
-			   let sectionBookmark = accountControllerSection.accountController.bookmark,
-			   sectionBookmark.uuid == bookmarkUUID {
-				return accountControllerSection
-			}
-		}
-
-		return nil
-	}
-
-	public func accountController(for bookmarkUUID: UUID) -> AccountController? {
-		return section(for: bookmarkUUID)?.accountController
-	}
-
-	public func itemReferences(for itemReferences: [OCDataItemReference], inSectionFor bookmarkUUID: UUID?) -> [ItemRef]? {
-		if let bookmarkUUID, let section = section(for: bookmarkUUID) {
-			return section.collectionViewController?.wrap(references: itemReferences, forSection: section.identifier)
-		}
-
-		return nil
-	}
-
-	func updateSelection(for navigationBookmark: BrowserNavigationBookmark?) {
-		// Always clear previous selection first to reflect current content accurately
-		var actions: [CollectionViewAction] = [
-			CollectionViewAction(kind: .unhighlightAll(animated: false))
-		]
-
-		if let sideBarItemRefs = navigationBookmark?.representationSideBarItemRefs,
-		   let bookmarkUUID = navigationBookmark?.bookmarkUUID,
-		   let selectionItemRefs = itemReferences(for: sideBarItemRefs, inSectionFor: bookmarkUUID),
-		   let highlightAction = CollectionViewAction(kind: .highlight(animated: false, scrollPosition: []), itemReferences: selectionItemRefs) {
-			actions.append(highlightAction)
-		}
-
-		addActions(actions)
 	}
 }
 

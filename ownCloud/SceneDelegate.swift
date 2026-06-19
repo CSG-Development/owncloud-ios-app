@@ -173,13 +173,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 extension ClientContext: ownCloudAppShared.ClientContextProvider {
 	public func provideClientContext(for bookmarkUUID: UUID, completion: (Error?, ownCloudAppShared.ClientContext?) -> Void) {
 		if let sceneDelegate = scene?.delegate as? SceneDelegate,
-		   let sections = sceneDelegate.appRootViewController.sidebarViewController?.allSections {
-			for section in sections {
-				if let accountControllerSection = section as? AccountControllerSection, accountControllerSection.clientContext?.accountConnection?.bookmark.uuid == bookmarkUUID {
-					completion(nil, section.clientContext)
-					return
-				}
-			}
+		   let accountController = sceneDelegate.appRootViewController.sidebarViewController?.accountController(for: bookmarkUUID) {
+			completion(nil, accountController.clientContext)
+			return
 		}
 
 		completion(nil, nil)

@@ -993,6 +993,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 				sidebarViewControllerView.translatesAutoresizingMaskIntoConstraints = false
 				updateSideBarLayoutAndAppearance()
 				sidebarViewController.didMove(toParent: self)
+				view.bringSubviewToFront(sidebarViewControllerView)
 			} else {
 				updateSideBarLayoutAndAppearance()
 			}
@@ -1095,6 +1096,10 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		}
 		self.updateSideBarLayoutAndAppearance()
 		self.isSideBarHidden = isHidden
+		if !isHidden, let sidebarView {
+			view.bringSubviewToFront(sidebarView)
+			view.bringSubviewToFront(sideBarSeperatorView)
+		}
 		let shouldAnimate = animated && hasCompletedInitialLayout
 		if shouldAnimate {
 			UIView.animate(withDuration: 0.3, animations: animations, completion: completion)
