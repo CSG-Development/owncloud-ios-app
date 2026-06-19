@@ -1,7 +1,13 @@
 import Foundation
 import ownCloudSDK
 
-/// Single source of truth for network + device connectivity. Drives snackbars and the SDK gate.
+/// Single source of truth for network + device connectivity. Drives the snackbar and the SDK gate.
+///
+/// Every signal that could affect connectivity (network change, app foreground, the periodic
+/// tick, a Retry tap, a transport failure, mDNS / static-address discovery, login) funnels
+/// through `evaluate(reason:)`. That serialized evaluation is the *only* writer of
+/// `DeviceAccessState`, which is why there is no longer an access-policy arbitration layer or a
+/// second catalog-snapshot writer.
 public final actor ConnectivityStateCoordinator {
 	public static let shared = ConnectivityStateCoordinator()
 
@@ -19,11 +25,10 @@ public final actor ConnectivityStateCoordinator {
 	private var pathRecoveryHandler: (() async throws -> Void)?
 	private var allProbePaths: (() async -> [RemoteDevice.Path])?
 	private var isPreferredDeviceReachable: (() async -> Bool)?
-	private var pipelineReloadDepth = 0
+	private var applyBestProbedPath: (@Sendable (RemoteDevice.Path) async -> Void)?
 	private var toastPublishTask: Task<Void, Never>?
 	private var snackbarDrivingEnabled = true
 	private var lastObservedInterface: NetworkState.Interface?
-	private var sdkCoreConnectionStatus: OCCoreConnectionStatus?
 
 	public init(pathProber: PathProber = PathProber()) {
 		self.pathProber = pathProber
@@ -32,13 +37,6 @@ public final actor ConnectivityStateCoordinator {
 	public var currentDeviceAccess: DeviceAccessState { session.deviceAccess }
 	public var isSessionActive: Bool { !session.isLoggedOut }
 	public var isAwaitingRAAuthentication: Bool { session.isAwaitingRemoteAuthentication }
-
-	public func setSDKCoreConnectionStatus(_ status: OCCoreConnectionStatus?) {
-		guard sdkCoreConnectionStatus != status else { return }
-		sdkCoreConnectionStatus = status
-		Self.log("sdk core status=\(ConnectivityBannerPresenter.coreStatusLabel(status))")
-		publish()
-	}
 
 	public func setSnackbarDrivingEnabled(_ enabled: Bool) {
 		snackbarDrivingEnabled = enabled
@@ -52,7 +50,8 @@ public final actor ConnectivityStateCoordinator {
 		remoteAccessService: RemoteAccessService,
 		pathRecoveryHandler: @escaping () async throws -> Void,
 		allProbePaths: (() async -> [RemoteDevice.Path])? = nil,
-		isPreferredDeviceReachable: (() async -> Bool)? = nil
+		isPreferredDeviceReachable: (() async -> Bool)? = nil,
+		applyBestProbedPath: (@Sendable (RemoteDevice.Path) async -> Void)? = nil
 	) {
 		self.preferences = preferences
 		self.reachability = reachability
@@ -61,6 +60,7 @@ public final actor ConnectivityStateCoordinator {
 		self.pathRecoveryHandler = pathRecoveryHandler
 		self.allProbePaths = allProbePaths
 		self.isPreferredDeviceReachable = isPreferredDeviceReachable
+		self.applyBestProbedPath = applyBestProbedPath
 		if session.isLoggedOut, ConnectivitySessionState.hasPersistedDeviceSession(preferences: preferences) {
 			_ = session.handle(.activateSession)
 			publish()
@@ -93,6 +93,8 @@ public final actor ConnectivityStateCoordinator {
 		probePathCache.invalidate()
 	}
 
+	/// The single network-change reactive entry. Updates the reachable flag, then evaluates
+	/// when the interface changed or the network just came back.
 	public func handleNetworkState(_ state: NetworkState) async {
 		let previousInterface = lastObservedInterface
 		let interfaceChanged = previousInterface.map { $0 != state.interface } ?? false
@@ -105,20 +107,15 @@ public final actor ConnectivityStateCoordinator {
 		)
 		setNetworkReachable(state.isReachable)
 
-		let localAllowed = state.allowsLocalPaths
 		if interfaceChanged {
 			probePathCache.invalidate()
 		}
 		if interfaceChanged, hasConfiguredPaths() {
 			Self.log(
-				"interface changed → path recovery "
+				"interface changed → evaluate "
 					+ "(\(previousInterface?.rawValue ?? "?")→\(state.interface.rawValue))"
 			)
-			await runPathRecovery(
-				localPathsAllowed: localAllowed,
-				skipInitialProbe: true,
-				localPathsFailed: !localAllowed
-			)
+			await evaluate(reason: .networkChanged)
 		} else if state.isReachable, !wasReachable, probeScheduler.isForeground {
 			Self.log("network restored — scheduling immediate probe")
 			probeScheduler.scheduleImmediateProbeOnNetworkRestore()
@@ -140,52 +137,9 @@ public final actor ConnectivityStateCoordinator {
 		await reconcileProbeLoop()
 	}
 
-	public func setPipelineReloading(_ active: Bool) {
-		if active {
-			pipelineReloadDepth += 1
-		} else {
-			pipelineReloadDepth = max(0, pipelineReloadDepth - 1)
-		}
-		publish()
-	}
-
-	public func applyCatalogSnapshot(_ snapshot: CatalogReachabilitySnapshot) {
-		guard !session.isLoggedOut else {
-			Self.log("catalog snapshot ignored (logged out)")
-			return
-		}
-		if session.isAwaitingRemoteAuthentication {
-			Self.log("catalog snapshot ignored (awaiting RA auth)")
-			return
-		}
-		if !snapshot.hasDeviceCN {
-			Self.log("catalog snapshot→disconnected (no device CN)")
-			applyDeviceAccess(.disconnected, policy: .catalogSync)
-			return
-		}
-		if snapshot.isReachable {
-			Self.log("catalog snapshot→connected")
-			applyDeviceAccess(.connected, policy: .catalogSync)
-		} else if snapshot.hasAlternateNonLocalPath {
-			Self.log("catalog snapshot→connecting (non-local path queued)")
-			applyDeviceAccess(.connecting, policy: .catalogSync)
-		} else if pipelineReloadDepth > 0, snapshot.hasDeviceCN {
-			Self.log("catalog snapshot→unreachable during reload (keeping connecting)")
-		} else if session.deviceAccess == .connecting || session.deviceAccess == .connected {
-			Self.log("catalog snapshot→disconnected (unreachable)")
-			applyDeviceAccess(.disconnected, policy: .catalogSync)
-		}
-	}
-
-	public func noteCatalogReloadStarting() {
-		probePathCache.invalidate()
-		Self.log("catalog reload starting — showing connecting UI")
-		applyDeviceAccess(.connecting, policy: .normal)
-	}
-
 	public func noteRAAuthenticationFailed() {
 		Self.log("RA authentication failed")
-		applyDeviceAccess(.disconnected, policy: .duringRAAuth)
+		applyDeviceAccess(.disconnected)
 	}
 
 	public func reset() {
@@ -196,8 +150,6 @@ public final actor ConnectivityStateCoordinator {
 		probeScheduler.reset()
 		probePathCache.invalidate()
 		lastObservedInterface = nil
-		pipelineReloadDepth = 0
-		sdkCoreConnectionStatus = nil
 		_ = session.handle(.reset(networkReachable: reachability?.currentState.isReachable ?? true))
 		publish()
 	}
@@ -211,13 +163,13 @@ public final actor ConnectivityStateCoordinator {
 		_ = session.handle(.activateSession)
 		publish()
 		Task {
-			await self.evaluateAndRecover(isPeriodic: false, localPathsAllowed: self.currentLocalPathsAllowed())
-			await self.reconcileProbeLoop()
+			await self.evaluate(reason: .sessionStart)
 		}
 	}
 
 	/// Call after login path selection succeeded. The login probe already verified reachability;
-	/// avoid immediate full catalog reload which clears that state and stalls on "Finding network".
+	/// avoid an immediate full catalog reload which would clear that state and stall on
+	/// "Finding network".
 	public func activateAfterLogin() async {
 		guard session.isLoggedOut else {
 			Self.log("activateAfterLogin ignored (phase=\(session.connectivity))")
@@ -226,60 +178,44 @@ public final actor ConnectivityStateCoordinator {
 		Self.log("activateAfterLogin→active (login path verified)")
 		_ = session.handle(.activateSession)
 		invalidateConfiguredProbePaths()
-		applyDeviceAccess(.connected, policy: .pathAvailable)
+		applyDeviceAccess(.connected)
 		await reconcileProbeLoop()
 	}
 
 	public func refreshSessionAfterBookmarkAdded() async {
 		refreshSessionActive()
 		invalidateConfiguredProbePaths()
-		await reconcileProbeLoop()
+		await evaluate(reason: .discovery)
 	}
 
-	public func evaluateConfiguredPaths(localPathsAllowed: Bool) async {
-		await evaluateAndRecover(isPeriodic: true, localPathsAllowed: localPathsAllowed)
-	}
-
-	public func retry(localPathsAllowed: Bool? = nil) async {
+	public func retry() async {
 		Self.log("user retry tapped")
-		await runPathRecovery(localPathsAllowed: localPathsAllowed ?? currentLocalPathsAllowed())
+		await evaluate(reason: .retry)
 	}
 
-	public func triggerPathRecoveryFromError(localPathsAllowed: Bool) async {
-		Log.debug("[STX-RA]: Transport failure → coordinator path recovery")
-		Self.log("transport recovery started")
-		await runPathRecovery(localPathsAllowed: localPathsAllowed, fromTransportError: true)
+	public func triggerPathRecoveryFromError() async {
+		Log.debug("[STX-RA]: Transport failure → coordinator evaluate")
+		await evaluate(reason: .transportError)
 	}
 
-	public func runPathRecovery(
-		localPathsAllowed: Bool,
-		skipInitialProbe: Bool = false,
-		localPathsFailed: Bool = false,
-		fromTransportError: Bool = false,
-		alternatePathReachable: Bool = false
-	) async {
+	/// The single connectivity evaluator. All triggers route here. Serialized by
+	/// `ConnectivityRecoveryRunner`, so overlapping requests coalesce.
+	public func evaluate(reason: ConnectivityEvaluateReason) async {
 		switch session.checkRecoveryEligibility() {
 			case .eligible:
 				break
-			case .ineligible(let reason):
-				Self.log("recovery skipped (\(reason))")
+			case .ineligible(let why):
+				Self.log("evaluate skipped (\(why)) reason=\(reason.rawValue)")
 				return
 		}
 
-		let request = ConnectivityRecoveryRequest(
-			localPathsAllowed: localPathsAllowed,
-			skipInitialProbe: skipInitialProbe,
-			localPathsFailed: localPathsFailed,
-			fromTransportError: fromTransportError,
-			alternatePathReachable: alternatePathReachable
-		)
-
+		Self.log("evaluate (reason=\(reason.rawValue))")
 		await recoveryRunner.run(
-			request: request,
+			localPathsAllowed: currentLocalPathsAllowed(),
 			session: session,
 			snackbarDrivingEnabled: snackbarDrivingEnabled,
 			dependencies: recoveryDependencies(),
-			perform: ConnectivityRecoveryRunner.performRecovery
+			perform: ConnectivityRecoveryRunner.performEvaluate
 		)
 		await reconcileProbeLoop()
 	}
@@ -293,11 +229,7 @@ public final actor ConnectivityStateCoordinator {
 				return
 		}
 		Self.log("active path available — marking connected")
-		applyDeviceAccess(.connected, policy: .pathAvailable)
-	}
-
-	func setConnectingForAlternateProbe() {
-		applyDeviceAccess(.connecting, policy: .normal)
+		applyDeviceAccess(.connected)
 	}
 
 	// MARK: - Private
@@ -308,118 +240,8 @@ public final actor ConnectivityStateCoordinator {
 		await reconcileProbeLoop()
 	}
 
-	private func evaluateAndRecover(isPeriodic: Bool, localPathsAllowed: Bool) async {
-		let eligibility = isPeriodic
-			? session.checkPeriodicProbeEligibility(recoveryInFlight: recoveryRunner.isInFlight)
-			: session.checkRecoveryEligibility()
-		switch eligibility {
-			case .eligible:
-				break
-			case .ineligible(let reason):
-				if isPeriodic {
-					Self.log("probe skipped (\(reason))")
-				} else {
-					publish()
-				}
-				return
-		}
-		guard let preferences else {
-			if isPeriodic { Self.log("periodic probe skipped (preferences not configured)") }
-			publish()
-			return
-		}
-
-		let paths = await ConnectivityRecoveryRunner.configuredProbePaths(
-			preferences: preferences,
-			dependencies: recoveryDependencies()
-		)
-		if paths.isEmpty {
-			if isPeriodic, session.deviceAccess == .connected, await preferredDeviceIsReachable() {
-				Self.log("periodic probe steady (empty paths, catalog reachable)")
-				return
-			}
-			await handleEmptyProbePaths(localPathsAllowed: localPathsAllowed, isPeriodic: isPeriodic)
-			return
-		}
-
-		let currentPathKey = preferences.currentConnectedDevice?.lastSuccessfulPathKey
-		let result = await ConnectivityRecoveryRunner.probeConfiguredPaths(
-			paths: paths,
-			currentPathKey: currentPathKey,
-			localPathsAllowed: localPathsAllowed,
-			dependencies: recoveryDependencies()
-		)
-		ConnectivityEventLog.probeResult(
-			result,
-			pathCount: paths.count,
-			currentPathKey: currentPathKey,
-			localPathsAllowed: localPathsAllowed
-		)
-		await handleConfiguredProbeResult(
-			result,
-			localPathsAllowed: localPathsAllowed,
-			isPeriodic: isPeriodic
-		)
-	}
-
-	private func handleEmptyProbePaths(localPathsAllowed: Bool, isPeriodic: Bool) async {
-		Self.log("probe paths empty — checking catalog reachability")
-		if await preferredDeviceIsReachable() {
-			applyDeviceAccess(.connected, policy: .pathEvidence)
-			guard !isPeriodic else {
-				Self.log("periodic probe steady (catalog reachable)")
-				return
-			}
-			await runPathRecovery(localPathsAllowed: localPathsAllowed, skipInitialProbe: true)
-		} else {
-			await runPathRecovery(localPathsAllowed: localPathsAllowed, skipInitialProbe: true, localPathsFailed: true)
-		}
-	}
-
-	private func handleConfiguredProbeResult(
-		_ result: PathConnectivityProbeResult,
-		localPathsAllowed: Bool,
-		isPeriodic: Bool
-	) async {
-		switch result {
-			case .currentPathReachable:
-				applyDeviceAccess(.connected, policy: .pathEvidence)
-			case .alternatePathReachable:
-				guard !isPeriodic else {
-					Self.log("periodic probe steady (alternate reachable, deferring switch)")
-					applyDeviceAccess(.connected, policy: .pathEvidence)
-					return
-				}
-				await runPathRecovery(
-					localPathsAllowed: localPathsAllowed,
-					skipInitialProbe: true,
-					alternatePathReachable: true
-				)
-			case .allUnreachable:
-				if isPeriodic {
-					if await preferredDeviceIsReachable() {
-						Self.log("periodic probe steady (probe failed, catalog reachable)")
-						applyDeviceAccess(.connected, policy: .pathEvidence)
-						return
-					}
-					Self.log("periodic probe→recovery (probe and catalog unreachable)")
-					await runPathRecovery(
-						localPathsAllowed: localPathsAllowed,
-						skipInitialProbe: true,
-						localPathsFailed: true
-					)
-					return
-				}
-				await runPathRecovery(
-					localPathsAllowed: localPathsAllowed,
-					skipInitialProbe: true,
-					localPathsFailed: true
-				)
-		}
-	}
-
-	private func applyDeviceAccess(_ state: DeviceAccessState, policy: ConnectivityAccessPolicy) {
-		let transition = session.handle(.applyDeviceAccess(state, policy))
+	private func applyDeviceAccess(_ state: DeviceAccessState) {
+		let transition = session.handle(.applyDeviceAccess(state))
 		guard transition.deviceAccessChanged || transition.connectivityChanged else { return }
 		publish()
 	}
@@ -427,9 +249,7 @@ public final actor ConnectivityStateCoordinator {
 	private func publish() {
 		let presenter = ConnectivityBannerPresenter(
 			snackbarDrivingEnabled: snackbarDrivingEnabled,
-			connectivity: session.connectivity,
-			pipelineReloading: pipelineReloadDepth > 0,
-			sdkCoreConnectionStatus: sdkCoreConnectionStatus
+			connectivity: session.connectivity
 		)
 		SDKDeviceAvailabilityGate.shared.setDeviceConnected(presenter.sdkConnected)
 
@@ -439,15 +259,12 @@ public final actor ConnectivityStateCoordinator {
 		if let suppressReason {
 			Self.log(
 				"banner hidden (device=\(session.deviceAccess) network=\(session.networkReachable ? "up" : "down") "
-					+ "core=\(ConnectivityBannerPresenter.coreStatusLabel(sdkCoreConnectionStatus)) "
 					+ "reason=\(suppressReason) sdk=\(presenter.sdkConnected ? "online" : "offline"))"
 			)
 		} else {
 			Self.log(
 				"banner→\(ConnectivityBannerPresenter.bannerLabel(kind)) (device=\(session.deviceAccess) "
 					+ "network=\(session.networkReachable ? "up" : "down") "
-					+ "core=\(ConnectivityBannerPresenter.coreStatusLabel(sdkCoreConnectionStatus)) "
-					+ "pipelineReloading=\(pipelineReloadDepth > 0) "
 					+ "sdk=\(presenter.sdkConnected ? "online" : "offline"))"
 			)
 		}
@@ -461,10 +278,12 @@ public final actor ConnectivityStateCoordinator {
 
 	private func beginRemoteAuthenticationOnSession() {
 		_ = session.handle(.beginRemoteAuthentication)
+		publish()
 	}
 
 	private func endRemoteAuthenticationOnSession(device: DeviceAccessState) {
 		_ = session.handle(.endRemoteAuthentication(device))
+		publish()
 	}
 
 	private func recoveryDependencies() -> ConnectivityRecoveryRunner.Dependencies {
@@ -482,20 +301,17 @@ public final actor ConnectivityStateCoordinator {
 					allProbePaths: { await self.allProbePaths?() ?? [] }
 				)
 			},
+			applyBestProbedPath: { [weak self] path in
+				await self?.applyBestProbedPath?(path)
+			},
 			requestRAAuthentication: { [weak self] email in
 				await self?.requestRAAuthentication(email: email) ?? false
 			},
 			recoveryEmail: { [preferences] in
 				ConnectivityRecoveryRunner.recoveryEmail(preferences: preferences)
 			},
-			setConnectingForAlternateProbe: { [weak self] in
-				await self?.setConnectingForAlternateProbe()
-			},
-			applyDeviceAccess: { [weak self] state, policy in
-				await self?.applyDeviceAccess(state, policy: policy)
-			},
-			currentDeviceAccess: { [weak self] in
-				await self?.session.deviceAccess ?? .connected
+			applyDeviceAccess: { [weak self] state in
+				await self?.applyDeviceAccess(state)
 			},
 			beginRemoteAuthentication: { [weak self] in
 				await self?.beginRemoteAuthenticationOnSession()
@@ -523,10 +339,6 @@ public final actor ConnectivityStateCoordinator {
 
 	private func currentLocalPathsAllowed() -> Bool {
 		reachability?.currentState.allowsLocalPaths ?? true
-	}
-
-	private func preferredDeviceIsReachable() async -> Bool {
-		await (isPreferredDeviceReachable?() ?? false)
 	}
 
 	private func hasConfiguredPaths() -> Bool {
@@ -562,8 +374,15 @@ public final actor ConnectivityStateCoordinator {
 			)
 			return
 		}
+		switch session.checkPeriodicProbeEligibility(recoveryInFlight: recoveryRunner.isInFlight) {
+			case .eligible:
+				break
+			case .ineligible(let reason):
+				Self.log("periodic probe skipped (\(reason))")
+				return
+		}
 		Log.debug("[STX-CONN]: periodic probe round started")
-		await evaluateConfiguredPaths(localPathsAllowed: currentLocalPathsAllowed())
+		await evaluate(reason: .periodic)
 	}
 
 	private static func log(_ message: String) {

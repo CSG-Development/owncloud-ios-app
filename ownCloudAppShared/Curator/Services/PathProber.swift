@@ -108,6 +108,70 @@ public struct PathProber: Sendable {
 		return await Self.probe(path: path, url: url)
 	}
 
+	public func probeAndSelectBest(
+		paths: [RemoteDevice.Path],
+		currentPathKey: String?,
+		localPathsAllowed: Bool
+	) async -> PathProbeOutcome {
+		var candidates = paths.ordered().filter { path in
+			path.kind == .local ? localPathsAllowed : true
+		}
+		if let currentPathKey, currentPathKey.hasPrefix("mdns|"), localPathsAllowed,
+		   let localPath = Self.localPath(fromMDNSPersistenceKey: currentPathKey),
+		   !candidates.contains(where: { $0.key == localPath.key }) {
+			candidates.insert(localPath, at: 0)
+		}
+		guard !candidates.isEmpty else {
+			Log.debug("[STX-CONN]: probe all paths=0 candidates localAllowed=\(localPathsAllowed) → noneReachable")
+			return .noneReachable
+		}
+
+		var currentPath: RemoteDevice.Path?
+		for path in candidates where currentPathKey.map({ Self.path(path, matchesPersistenceKey: $0) }) == true {
+			currentPath = path
+			break
+		}
+
+		var reachable: [RemoteDevice.Path] = []
+		await withTaskGroup(of: RemoteDevice.Path?.self) { group in
+			for path in candidates {
+				group.addTask {
+					guard let url = path.apiBaseURL() else { return nil }
+					let ok = await self.pingStatusReady(url: url, path: path)
+					return ok ? path : nil
+				}
+			}
+			for await path in group {
+				if let path { reachable.append(path) }
+			}
+		}
+
+		guard !reachable.isEmpty else {
+			Log.debug(
+				"[STX-CONN]: probe all paths=\(candidates.count) "
+					+ "current=\(currentPathKey ?? "none") → noneReachable"
+			)
+			return .noneReachable
+		}
+
+		let best = reachable.sorted { $0.kind < $1.kind }.first!
+		if let current = currentPath,
+		   reachable.contains(where: { $0.key == current.key }),
+		   best.key == current.key || !(best.kind < current.kind) {
+			Log.debug(
+				"[STX-CONN]: probe all paths=\(candidates.count) "
+					+ "current=\(currentPathKey ?? "none") → currentIsBest"
+			)
+			return .currentIsBest
+		}
+
+		Log.debug(
+			"[STX-CONN]: probe all paths=\(candidates.count) "
+				+ "current=\(currentPathKey ?? "none") → betterPath(\(best.key))"
+		)
+		return .betterPath(best)
+	}
+
 	/// Network monitor ping: probes the current path first, then remaining paths.
 	/// Invokes `onStartedAlternateProbe` when the current path failed and alternates are tried.
 	public func probeConnectivityCurrentFirst(
@@ -140,6 +204,18 @@ public struct PathProber: Sendable {
 		}
 
 		if let currentPath, let url = currentPath.apiBaseURL() {
+			if localPathsAllowed, currentPath.kind != .local {
+				for path in alternatePaths where path.kind == .local {
+					guard let localURL = path.apiBaseURL() else { continue }
+					if await pingStatusReady(url: localURL, path: path) {
+						Log.debug(
+							"[STX-CONN]: probe connectivity paths=\(candidates.count) "
+								+ "current=\(currentPathKey ?? "none") → alternateReachable (local preferred)"
+						)
+						return .alternatePathReachable
+					}
+				}
+			}
 			if await pingStatusReady(url: url, path: currentPath) {
 				Log.debug(
 					"[STX-CONN]: probe connectivity paths=\(candidates.count) "
@@ -278,6 +354,15 @@ public struct PathProber: Sendable {
 /// surfaced from `DeviceAPI` and not wrapped.
 public enum PathProberError: Error {
 	case timedOut
+}
+
+public enum PathProbeOutcome: Sendable {
+	/// Current path is reachable and is the best available option.
+	case currentIsBest
+	/// A reachable path that should replace the current one (higher priority or current dead).
+	case betterPath(RemoteDevice.Path)
+	/// No candidate responded.
+	case noneReachable
 }
 
 public enum PathConnectivityProbeResult: Sendable {

@@ -184,6 +184,9 @@ public final class HCContext {
 			},
 			isPreferredDeviceReachable: { [deviceReachabilityService] in
 				await deviceReachabilityService.isPreferredDeviceReachable()
+			},
+			applyBestProbedPath: { [deviceReachabilityService] path in
+				await deviceReachabilityService.applyBestProbedPath(path)
 			}
 		)
 		if Self.isAppExtension {

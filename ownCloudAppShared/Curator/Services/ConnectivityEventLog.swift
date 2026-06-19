@@ -17,34 +17,37 @@ enum ConnectivityEventLog {
 
 	static func deviceAccess(
 		from: DeviceAccessState,
-		to: DeviceAccessState,
-		policy: ConnectivityAccessPolicy
+		to: DeviceAccessState
 	) {
 		guard from != to else { return }
-		log("device \(from)→\(to) policy=\(policy)")
+		log("device \(from)→\(to)")
 	}
 
 	static func deviceAccessSuppressed(
 		_ state: DeviceAccessState,
-		policy: ConnectivityAccessPolicy,
 		reason: String
 	) {
-		log("device access \(state) ignored (\(reason) policy=\(policy))")
+		log("device access \(state) ignored (\(reason))")
 	}
 
 	static func recoveryFailure(_ step: String, error: Error) {
 		log("recovery \(step) failed: \(error.localizedDescription)")
 	}
 
-	static func probeResult(
-		_ result: PathConnectivityProbeResult,
+	static func probeOutcome(
+		_ outcome: PathProbeOutcome,
 		pathCount: Int,
 		currentPathKey: String?,
 		localPathsAllowed: Bool
 	) {
+		let label: String
+		switch outcome {
+			case .currentIsBest:   label = "currentIsBest"
+			case .betterPath:      label = "betterPath"
+			case .noneReachable:   label = "noneReachable"
+		}
 		log(
-			"probe result=\(ConnectivityProbeResultLabel.label(result)) "
-				+ "paths=\(pathCount) current=\(currentPathKey ?? "none") "
+			"probe outcome=\(label) paths=\(pathCount) current=\(currentPathKey ?? "none") "
 				+ "localAllowed=\(localPathsAllowed)"
 		)
 	}

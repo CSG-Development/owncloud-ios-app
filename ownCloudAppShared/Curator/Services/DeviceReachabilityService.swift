@@ -87,9 +87,8 @@ public final actor DeviceReachabilityService {
 			remoteAccessService: remoteAccessService,
 			preferences: preferences,
 			emit: { event in subject.send(event) },
-			onPathRecoveryNeeded: { [connectivityCoordinator, reachability] in
-				let localAllowed = reachability.currentState.allowsLocalPaths
-				await connectivityCoordinator?.runPathRecovery(localPathsAllowed: localAllowed)
+			onPathRecoveryNeeded: { [connectivityCoordinator] in
+				await connectivityCoordinator?.evaluate(reason: .discovery)
 			}
 		)
 
@@ -162,6 +161,7 @@ public final actor DeviceReachabilityService {
 		Self.logReachability("cold launch path detection starting")
 		await seedInitialBestURLFromSession()
 		await performLaunchPathDetection()
+		await connectivityCoordinator?.evaluate(reason: .discovery)
 		Self.logReachability("cold launch path detection complete")
 	}
 
@@ -179,18 +179,15 @@ public final actor DeviceReachabilityService {
 	/// (priority path probing / local shortcut) so we can switch to a better link when available.
 	private func performLaunchPathDetection() async {
 		Self.logReachability("launch path detection starting")
-		await withPipelineReloadBanner {
-			await coordinator.beginExternalDetection()
-			let directResolved = await tryLaunchDirectPathResolution()
-			if directResolved == false {
-				Self.logReachability("direct path resolution failed — full reload")
-				await pipeline.reloadDevices()
-			} else {
-				Self.logReachability("direct path resolution succeeded")
-			}
-			await coordinator.endExternalDetection()
-			await reportCatalogSnapshot()
+		await coordinator.beginExternalDetection()
+		let directResolved = await tryLaunchDirectPathResolution()
+		if directResolved == false {
+			Self.logReachability("direct path resolution failed — full reload")
+			await pipeline.reloadDevices()
+		} else {
+			Self.logReachability("direct path resolution succeeded")
 		}
+		await coordinator.endExternalDetection()
 		Self.logReachability("launch path detection complete")
 	}
 
@@ -227,30 +224,13 @@ public final actor DeviceReachabilityService {
 	}
 
 	private func installReloadTriggers() {
+		// Reachability and app-foreground are observed once, by `ConnectivityStateCoordinator`,
+		// which funnels them into `evaluate(reason:)`. The discovery engine no longer subscribes
+		// to those signals itself — it only reloads the catalog when `evaluate` asks it to.
 		networkChangeCancellable?.cancel()
+		networkChangeCancellable = nil
 		foregroundCancellable?.cancel()
-
-		// Track foreground/background without UIApplication.shared (unavailable in extensions).
-		// Spec: process any deferred network change when the app returns to foreground.
-		foregroundCancellable = Publishers.Merge(
-			NotificationCenter.default
-				.publisher(for: UIApplication.didBecomeActiveNotification)
-				.map { _ in true },
-			NotificationCenter.default
-				.publisher(for: UIApplication.willResignActiveNotification)
-				.map { _ in false }
-		)
-		.sink { [coordinator] isActive in
-			Task { await coordinator.handle(isActive ? .appBecameActive : .appResignedActive) }
-		}
-
-		// Spec Algorithm D: debounce rapid network changes for 3 seconds before re-detecting.
-		networkChangeCancellable = reachability
-			.updatesPublisher
-			.debounce(for: .seconds(3), scheduler: DispatchQueue.main)
-			.sink { [coordinator] state in
-				Task { await coordinator.handle(.networkStateChanged(state)) }
-			}
+		foregroundCancellable = nil
 	}
 
 	private func uninstallReloadTriggers() async {
@@ -313,21 +293,14 @@ public final actor DeviceReachabilityService {
 			Self.logReachability("mDNS update (\(locals.count) local device(s)) — no catalog change, skipping recovery")
 			return
 		}
-		Self.logReachability("mDNS update (\(locals.count) local device(s)) — triggering recovery")
-		await connectivityCoordinator?.runPathRecovery(
-			localPathsAllowed: allowsLocalPaths,
-			skipInitialProbe: true
-		)
+		Self.logReachability("mDNS update (\(locals.count) local device(s)) — triggering evaluate")
+		await connectivityCoordinator?.evaluate(reason: .discovery)
 	}
 
 	private func handleStaticDeviceAddressChange(_ address: String?) async {
-		Self.logReachability("static device address changed — triggering recovery")
+		Self.logReachability("static device address changed — triggering evaluate")
 		await pipeline.handleStaticDeviceAddressChange(address)
-		await connectivityCoordinator?.runPathRecovery(
-			localPathsAllowed: allowsLocalPaths,
-			skipInitialProbe: true,
-			localPathsFailed: !allowsLocalPaths
-		)
+		await connectivityCoordinator?.evaluate(reason: .discovery)
 	}
 
 	// MARK: - Operation error handling → reprobe prompt
@@ -369,19 +342,18 @@ public final actor DeviceReachabilityService {
 		}
 	}
 
+	/// Discovery step invoked by `ConnectivityStateCoordinator.evaluate` when no known path
+	/// responded. Refreshes the catalog (mDNS / RA) and recalculates the best URL. It does NOT
+	/// drive the banner — the evaluator inspects the freshly-probed catalog afterwards.
 	public func forceReloadDevices() async {
 		Self.logReachability("force reload starting")
-		await withPipelineReloadBanner {
-			await connectivityCoordinator?.invalidateConfiguredProbePaths()
-			await connectivityCoordinator?.noteCatalogReloadStarting()
-			if await tryMDNSOnlyReloadIfApplicable() {
-				Self.logReachability("mDNS-only reload succeeded — skipping full catalog reset")
-			} else {
-				await coordinator.beginExternalDetection()
-				await pipeline.reloadDevices()
-				await coordinator.endExternalDetection()
-			}
-			await reportCatalogSnapshot()
+		await connectivityCoordinator?.invalidateConfiguredProbePaths()
+		if await tryMDNSOnlyReloadIfApplicable() {
+			Self.logReachability("mDNS-only reload succeeded — skipping full catalog reset")
+		} else {
+			await coordinator.beginExternalDetection()
+			await pipeline.reloadDevices()
+			await coordinator.endExternalDetection()
 		}
 		Self.logReachability("force reload complete")
 	}
@@ -402,14 +374,22 @@ public final actor DeviceReachabilityService {
 		)
 	}
 
-	private func withPipelineReloadBanner(_ work: () async -> Void) async {
-		await connectivityCoordinator?.setPipelineReloading(true)
-		await work()
-		await connectivityCoordinator?.setPipelineReloading(false)
-	}
-
 	public func recalculateBestURLs() async {
 		await pipeline.recalculateBestURLs()
+	}
+
+	/// Applies a path that `PathProber` already verified reachable: switches the SDK base URL
+	/// immediately and persists it as the preferred path, avoiding a full catalog reload when
+	/// the evaluator just needs to switch links (e.g. to a higher-priority local path).
+	public func applyBestProbedPath(_ path: RemoteDevice.Path) async {
+		guard let cn = preferences.favoriteDeviceCN ?? preferences.currentConnectedDevice?.certificateCommonName,
+		      let url = path.apiBaseURL()
+		else { return }
+		// Local paths are persisted in the `mdns|host|port` form the cold-launch seeding expects.
+		let key = path.kind == .local ? "mdns|\(path.address)|\(path.port ?? -1)" : path.key
+		urlProvider.setBestURL(url, for: cn)
+		preferences.updateLastSuccessfulPathKey(key, forCN: cn)
+		Self.logReachability("applied probed best path \(key)")
 	}
 
 	// MARK: - Reset cached reachability state (e.g., on logout)
@@ -430,42 +410,8 @@ public final actor DeviceReachabilityService {
 	}
 
 	private func handleOperationError(_ error: Error) async {
-		Self.logReachability("transport error → path recovery (\(error.localizedDescription))")
-		await connectivityCoordinator?.triggerPathRecoveryFromError(
-			localPathsAllowed: allowsLocalPaths
-		)
-	}
-
-	private func reportCatalogSnapshot() async {
-		let cn = preferences.favoriteDeviceCN ?? preferences.currentConnectedDevice?.certificateCommonName
-		let isReachable: Bool
-		let hasAlternateNonLocalPath: Bool
-		if let cn {
-			isReachable = await reachableSelection(certificateCommonName: cn) != nil
-			if isReachable {
-				hasAlternateNonLocalPath = false
-			} else {
-				hasAlternateNonLocalPath = await hasNonLocalPathToAttempt(certificateCommonName: cn)
-			}
-			Self.logReachability(
-				isReachable
-					? "catalog snapshot→reachable (\(cn))"
-					: hasAlternateNonLocalPath
-						? "catalog snapshot→WAN fallback (\(cn))"
-						: "catalog snapshot→unreachable (\(cn))"
-			)
-		} else {
-			isReachable = false
-			hasAlternateNonLocalPath = false
-			Self.logReachability("catalog snapshot (no device CN)")
-		}
-		await connectivityCoordinator?.applyCatalogSnapshot(
-			CatalogReachabilitySnapshot(
-				hasDeviceCN: cn != nil,
-				isReachable: isReachable,
-				hasAlternateNonLocalPath: hasAlternateNonLocalPath
-			)
-		)
+		Self.logReachability("transport error → evaluate (\(error.localizedDescription))")
+		await connectivityCoordinator?.triggerPathRecoveryFromError()
 	}
 
 	private static func logReachability(_ message: String) {

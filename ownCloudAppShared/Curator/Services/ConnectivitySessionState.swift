@@ -7,7 +7,7 @@ enum ConnectivitySessionEvent: Equatable {
 	case setNetworkReachable(Bool)
 	case activateSession
 	case deactivateSession
-	case applyDeviceAccess(DeviceAccessState, ConnectivityAccessPolicy)
+	case applyDeviceAccess(DeviceAccessState)
 	case beginRemoteAuthentication
 	case endRemoteAuthentication(DeviceAccessState)
 }
@@ -38,8 +38,8 @@ struct ConnectivitySessionState: Equatable {
 				return handleActivateSession()
 			case .deactivateSession:
 				return handleDeactivateSession()
-			case .applyDeviceAccess(let state, let policy):
-				return handleApplyDeviceAccess(state, policy: policy)
+			case .applyDeviceAccess(let state):
+				return handleApplyDeviceAccess(state)
 			case .beginRemoteAuthentication:
 				return handleBeginRemoteAuthentication()
 			case .endRemoteAuthentication(let device):
@@ -98,21 +98,16 @@ struct ConnectivitySessionState: Equatable {
 	}
 
 	private mutating func handleApplyDeviceAccess(
-		_ state: DeviceAccessState,
-		policy: ConnectivityAccessPolicy
+		_ state: DeviceAccessState
 	) -> ConnectivitySessionTransition {
 		guard !isLoggedOut else {
-			ConnectivityEventLog.deviceAccessSuppressed(state, policy: policy, reason: "logged out")
-			return ConnectivitySessionTransition()
-		}
-		if shouldSuppressDeviceAccess(state, policy: policy) {
-			ConnectivityEventLog.deviceAccessSuppressed(state, policy: policy, reason: "policy")
+			ConnectivityEventLog.deviceAccessSuppressed(state, reason: "logged out")
 			return ConnectivitySessionTransition()
 		}
 		guard deviceAccess != state else { return ConnectivitySessionTransition() }
 		let previous = deviceAccess
 		updateDevice(state)
-		ConnectivityEventLog.deviceAccess(from: previous, to: state, policy: policy)
+		ConnectivityEventLog.deviceAccess(from: previous, to: state)
 		return ConnectivitySessionTransition(connectivityChanged: true, deviceAccessChanged: true)
 	}
 
@@ -136,17 +131,6 @@ struct ConnectivitySessionState: Equatable {
 			connectivityChanged: true,
 			deviceAccessChanged: before.deviceAccess != device
 		)
-	}
-
-	private func shouldSuppressDeviceAccess(_ state: DeviceAccessState, policy: ConnectivityAccessPolicy) -> Bool {
-		switch policy {
-			case .duringRAAuth, .recoveryFinalize, .pathAvailable:
-				return false
-			case .pathEvidence:
-				return isAwaitingRemoteAuthentication
-			case .normal, .catalogSync:
-				return isAwaitingRemoteAuthentication
-		}
 	}
 
 	private mutating func updateNetworkReachable(_ reachable: Bool) {
