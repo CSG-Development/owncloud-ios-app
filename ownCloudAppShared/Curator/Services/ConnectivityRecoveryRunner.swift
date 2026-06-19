@@ -186,6 +186,10 @@ final class ConnectivityRecoveryRunner {
 			localProbeFailed: localProbeFailed,
 			dependencies: dependencies
 		) else {
+			dependencies.log(
+				"recovery RA skipped (localAllowed=\(request.localPathsAllowed) "
+					+ "localFailed=\(localProbeFailed))"
+			)
 			return false
 		}
 
@@ -316,11 +320,11 @@ final class ConnectivityRecoveryRunner {
 		guard let preferences = dependencies.preferences else { return localProbeFailed || !localPathsAllowed }
 		let paths = pathsForConnectedDevice(preferences: preferences)
 		if paths.isEmpty {
-			// mDNS-only / no saved WAN paths — RA cannot help on the same LAN.
-			return !localPathsAllowed
+			// mDNS-only / no saved WAN paths — still need RA when local probe failed (device left LAN).
+			return localProbeFailed || !localPathsAllowed
 		}
 		if paths.allSatisfy({ $0.kind == .local }) {
-			return !localPathsAllowed
+			return localProbeFailed || !localPathsAllowed
 		}
 		if !localPathsAllowed { return true }
 		return localProbeFailed

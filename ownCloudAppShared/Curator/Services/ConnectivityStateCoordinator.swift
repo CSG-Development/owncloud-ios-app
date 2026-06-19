@@ -376,8 +376,12 @@ public final actor ConnectivityStateCoordinator {
 						Self.log("periodic probe steady (probe failed, catalog reachable)")
 						return
 					}
-					Self.log("periodic probe→disconnected (probe and catalog unreachable)")
-					applyDeviceAccess(.disconnected, policy: .pathEvidence)
+					Self.log("periodic probe→recovery (probe and catalog unreachable)")
+					await runPathRecovery(
+						localPathsAllowed: localPathsAllowed,
+						skipInitialProbe: true,
+						localPathsFailed: true
+					)
 					return
 				}
 				await runPathRecovery(
