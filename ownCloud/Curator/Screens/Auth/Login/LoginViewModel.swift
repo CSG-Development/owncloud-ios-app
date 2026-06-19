@@ -277,6 +277,9 @@ final public class LoginViewModel {
 						Log.debug("[STX]: Bookmark is complete. Adding bookmark")
 						self.bookmark.authenticationDataStorage = .keychain // Commit auth changes to keychain
 						OCBookmarkManager.shared.addBookmark(self.bookmark)
+						Task {
+							await HCContext.shared.connectivityStateCoordinator.refreshSessionAfterBookmarkAdded()
+						}
 					} else {
 						Log.debug("[STX]: Bookmark is not complete")
 					}
@@ -518,7 +521,10 @@ final public class LoginViewModel {
 			}
 		}
 		if !email.isEmpty { HCContext.shared.preferences.favoriteEmail = email }
-		Task { await HCContext.shared.connectivityStateCoordinator.beginSession() }
+		await HCContext.shared.connectivityStateCoordinator.activateAfterLogin()
+		Task {
+			await HCContext.shared.deviceReachabilityService.mergeRemoteCatalogAfterLogin()
+		}
 		login(url: owncloudServerURL)
 	}
 

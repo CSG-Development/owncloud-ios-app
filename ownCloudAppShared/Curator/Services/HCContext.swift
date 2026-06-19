@@ -80,12 +80,16 @@ public final class HCContext {
 				NotificationCenter.default.post(name: .hcRemoteBaseURLDidChange, object: nil)
 				guard url != nil, !Self.isAppExtension else { return }
 				Task { [weak self] in
-					guard let self,
-					      await self.deviceReachabilityService.isPreferredDeviceReachable() else {
-						Self.logConnectivity("remote base URL changed but device not reachable — skipping")
+					guard let self, url != nil else { return }
+					if await self.deviceReachabilityService.isPreferredDeviceReachable() {
+						await self.connectivityStateCoordinator.noteActivePathAvailable()
 						return
 					}
-					await self.connectivityStateCoordinator.noteActivePathAvailable()
+					if await self.deviceReachabilityService.hasNonLocalPathToAttemptForFavoriteDevice() {
+						Self.logConnectivity("remote base URL changed — WAN path queued for SDK")
+					} else {
+						Self.logConnectivity("remote base URL changed but device not reachable — skipping")
+					}
 				}
 			}
 			.store(in: &cancellables)
@@ -175,8 +179,8 @@ public final class HCContext {
 			pathRecoveryHandler: { [deviceReachabilityService] in
 				await deviceReachabilityService.forceReloadDevices()
 			},
-			supplementalProbePaths: { [deviceReachabilityService] in
-				await deviceReachabilityService.supplementalProbePaths()
+			allProbePaths: { [deviceReachabilityService] in
+				await deviceReachabilityService.allProbePaths()
 			},
 			isPreferredDeviceReachable: { [deviceReachabilityService] in
 				await deviceReachabilityService.isPreferredDeviceReachable()

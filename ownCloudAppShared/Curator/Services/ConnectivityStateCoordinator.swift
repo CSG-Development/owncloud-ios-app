@@ -17,7 +17,7 @@ public final actor ConnectivityStateCoordinator {
 	private var remoteAccessService: RemoteAccessService?
 	private let pathProber: PathProber
 	private var pathRecoveryHandler: (() async throws -> Void)?
-	private var supplementalProbePaths: (() async -> [RemoteDevice.Path])?
+	private var allProbePaths: (() async -> [RemoteDevice.Path])?
 	private var isPreferredDeviceReachable: (() async -> Bool)?
 	private var pipelineReloadDepth = 0
 	private var toastPublishTask: Task<Void, Never>?
@@ -51,7 +51,7 @@ public final actor ConnectivityStateCoordinator {
 		toastMonitor: NetworkAvailabilityMonitor,
 		remoteAccessService: RemoteAccessService,
 		pathRecoveryHandler: @escaping () async throws -> Void,
-		supplementalProbePaths: (() async -> [RemoteDevice.Path])? = nil,
+		allProbePaths: (() async -> [RemoteDevice.Path])? = nil,
 		isPreferredDeviceReachable: (() async -> Bool)? = nil
 	) {
 		self.preferences = preferences
@@ -59,7 +59,7 @@ public final actor ConnectivityStateCoordinator {
 		self.toastMonitor = toastMonitor
 		self.remoteAccessService = remoteAccessService
 		self.pathRecoveryHandler = pathRecoveryHandler
-		self.supplementalProbePaths = supplementalProbePaths
+		self.allProbePaths = allProbePaths
 		self.isPreferredDeviceReachable = isPreferredDeviceReachable
 		if session.isLoggedOut, ConnectivitySessionState.hasPersistedDeviceSession(preferences: preferences) {
 			_ = session.handle(.activateSession)
@@ -166,6 +166,11 @@ public final actor ConnectivityStateCoordinator {
 		if snapshot.isReachable {
 			Self.log("catalog snapshot→connected")
 			applyDeviceAccess(.connected, policy: .catalogSync)
+		} else if snapshot.hasAlternateNonLocalPath {
+			Self.log("catalog snapshot→connecting (non-local path queued)")
+			applyDeviceAccess(.connecting, policy: .catalogSync)
+		} else if pipelineReloadDepth > 0, snapshot.hasDeviceCN {
+			Self.log("catalog snapshot→unreachable during reload (keeping connecting)")
 		} else if session.deviceAccess == .connecting || session.deviceAccess == .connected {
 			Self.log("catalog snapshot→disconnected (unreachable)")
 			applyDeviceAccess(.disconnected, policy: .catalogSync)
@@ -209,6 +214,26 @@ public final actor ConnectivityStateCoordinator {
 			await self.evaluateAndRecover(isPeriodic: false, localPathsAllowed: self.currentLocalPathsAllowed())
 			await self.reconcileProbeLoop()
 		}
+	}
+
+	/// Call after login path selection succeeded. The login probe already verified reachability;
+	/// avoid immediate full catalog reload which clears that state and stalls on "Finding network".
+	public func activateAfterLogin() async {
+		guard session.isLoggedOut else {
+			Self.log("activateAfterLogin ignored (phase=\(session.connectivity))")
+			return
+		}
+		Self.log("activateAfterLogin→active (login path verified)")
+		_ = session.handle(.activateSession)
+		invalidateConfiguredProbePaths()
+		applyDeviceAccess(.connected, policy: .pathAvailable)
+		await reconcileProbeLoop()
+	}
+
+	public func refreshSessionAfterBookmarkAdded() async {
+		refreshSessionActive()
+		invalidateConfiguredProbePaths()
+		await reconcileProbeLoop()
 	}
 
 	public func evaluateConfiguredPaths(localPathsAllowed: Bool) async {
@@ -374,6 +399,7 @@ public final actor ConnectivityStateCoordinator {
 				if isPeriodic {
 					if await preferredDeviceIsReachable() {
 						Self.log("periodic probe steady (probe failed, catalog reachable)")
+						applyDeviceAccess(.connected, policy: .pathEvidence)
 						return
 					}
 					Self.log("periodic probe→recovery (probe and catalog unreachable)")
@@ -446,14 +472,14 @@ public final actor ConnectivityStateCoordinator {
 			pathProber: pathProber,
 			preferences: preferences,
 			remoteAccessService: remoteAccessService,
-			supplementalProbePaths: supplementalProbePaths,
+			allProbePaths: allProbePaths,
 			isPreferredDeviceReachable: isPreferredDeviceReachable,
 			pathRecoveryHandler: pathRecoveryHandler,
 			configuredProbePaths: { [weak self] preferences in
 				guard let self else { return [] }
 				return await self.probePathCache.configuredPaths(
 					preferences: preferences,
-					supplementalProbePaths: { await self.supplementalProbePaths?() ?? [] }
+					allProbePaths: { await self.allProbePaths?() ?? [] }
 				)
 			},
 			requestRAAuthentication: { [weak self] email in
