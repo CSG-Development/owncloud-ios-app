@@ -311,11 +311,9 @@ public actor DetectionPipeline {
 		loadTask?.cancel()
 		loadTask = nil
 		isReloading = true
-		emit(.pipelineReloadingChanged(true))
 		defer {
 			if detectionGeneration == myGen {
 				isReloading = false
-				emit(.pipelineReloadingChanged(false))
 			}
 		}
 

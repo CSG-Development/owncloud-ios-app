@@ -25,9 +25,10 @@ struct ConnectivityBannerPresenter {
 		if !connectivity.networkReachable {
 			return (.noInternet, nil)
 		}
-		if pipelineReloading
-			|| connectivity.deviceAccess == .connecting
-			|| isAwaitingSDKOnline {
+		if connectivity.deviceAccess == .disconnected {
+			return (.connectionLost, nil)
+		}
+		if shouldShowPipelineFindingNetwork {
 			return (.findingNetwork, nil)
 		}
 		switch connectivity.deviceAccess {
@@ -35,6 +36,14 @@ struct ConnectivityBannerPresenter {
 			case .connecting:    return (.findingNetwork, nil)
 			case .disconnected:  return (.connectionLost, nil)
 		}
+	}
+
+	/// Only surface reload UI while the device or SDK is still coming online — not after
+	/// both are steady (avoids stale `pipelineReloadDepth` keeping the banner up).
+	private var shouldShowPipelineFindingNetwork: Bool {
+		guard pipelineReloading else { return false }
+		if connectivity.deviceAccess == .connecting { return true }
+		return isAwaitingSDKOnline
 	}
 
 	/// Snackbar only — wait for `OCCore` to report `.online` before hiding.

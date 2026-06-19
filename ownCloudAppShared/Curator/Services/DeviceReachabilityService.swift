@@ -79,12 +79,7 @@ public final actor DeviceReachabilityService {
 			remoteAccessService: remoteAccessService,
 			preferences: preferences,
 			reachability: reachability,
-			emit: { event in
-				subject.send(event)
-				if case .pipelineReloadingChanged(let loading) = event {
-					Task { await connectivityCoordinator?.setPipelineReloading(loading) }
-				}
-			}
+			emit: { event in subject.send(event) }
 		)
 		self.pipeline = pipeline
 		self.coordinator = NetworkChangeCoordinator(
@@ -155,13 +150,13 @@ public final actor DeviceReachabilityService {
 		return bookmarkURL
 	}
 
-	/// Cold-launch bootstrap: seed URL then run path detection. Call from `HCContext.setup()`
+	/// Cold launch: seed URL then run path detection. Call from `HCContext.setup()`
 	/// after reachability has delivered a real reading.
-	public func performColdLaunchBootstrap() async {
-		Self.logReachability("cold launch bootstrap starting")
+	public func performColdLaunchPathDetection() async {
+		Self.logReachability("cold launch path detection starting")
 		await seedInitialBestURLFromSession()
 		await performLaunchPathDetection()
-		Self.logReachability("cold launch bootstrap complete")
+		Self.logReachability("cold launch path detection complete")
 	}
 
 	/// Clears stale local catalog entries when local paths are no longer available.
@@ -178,19 +173,18 @@ public final actor DeviceReachabilityService {
 	/// (priority path probing / local shortcut) so we can switch to a better link when available.
 	private func performLaunchPathDetection() async {
 		Self.logReachability("launch path detection starting")
-		await connectivityCoordinator?.setPipelineReloading(true)
-		defer { Task { await connectivityCoordinator?.setPipelineReloading(false) } }
-		await coordinator.beginExternalDetection()
-		let directResolved = await tryLaunchDirectPathResolution()
-		if directResolved == false {
-			Self.logReachability("direct path resolution failed — full reload")
-			await pipeline.reloadDevices()
-		} else {
-			Self.logReachability("direct path resolution succeeded")
+		await withPipelineReloadBanner {
+			await coordinator.beginExternalDetection()
+			let directResolved = await tryLaunchDirectPathResolution()
+			if directResolved == false {
+				Self.logReachability("direct path resolution failed — full reload")
+				await pipeline.reloadDevices()
+			} else {
+				Self.logReachability("direct path resolution succeeded")
+			}
+			await coordinator.endExternalDetection()
+			await reportCatalogSnapshot()
 		}
-		await coordinator.endExternalDetection()
-		await reportCatalogSnapshot()
-		await connectivityCoordinator?.noteLaunchDetectionComplete()
 		Self.logReachability("launch path detection complete")
 	}
 
@@ -345,14 +339,21 @@ public final actor DeviceReachabilityService {
 
 	public func forceReloadDevices() async {
 		Self.logReachability("force reload starting")
-		await connectivityCoordinator?.invalidateConfiguredProbePaths()
-		await connectivityCoordinator?.noteCatalogReloadStarting()
-		await coordinator.beginExternalDetection()
-		await pipeline.reloadDevices()
-		await coordinator.endExternalDetection()
-		await connectivityCoordinator?.noteLoginBootstrapComplete()
-		await reportCatalogSnapshot()
+		await withPipelineReloadBanner {
+			await connectivityCoordinator?.invalidateConfiguredProbePaths()
+			await connectivityCoordinator?.noteCatalogReloadStarting()
+			await coordinator.beginExternalDetection()
+			await pipeline.reloadDevices()
+			await coordinator.endExternalDetection()
+			await reportCatalogSnapshot()
+		}
 		Self.logReachability("force reload complete")
+	}
+
+	private func withPipelineReloadBanner(_ work: () async -> Void) async {
+		await connectivityCoordinator?.setPipelineReloading(true)
+		await work()
+		await connectivityCoordinator?.setPipelineReloading(false)
 	}
 
 	public func recalculateBestURLs() async {

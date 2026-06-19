@@ -117,7 +117,7 @@ public final class HCContext {
 			await connectivityStateCoordinator.refreshSessionActive()
 			await deviceReachabilityService.handleNetworkPathSideEffects(initialState)
 			await connectivityStateCoordinator.handleNetworkState(initialState)
-			await deviceReachabilityService.performColdLaunchBootstrap()
+			await deviceReachabilityService.performColdLaunchPathDetection()
 			Self.logConnectivity("setup complete")
 		}
 

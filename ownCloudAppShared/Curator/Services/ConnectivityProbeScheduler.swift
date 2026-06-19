@@ -1,11 +1,11 @@
 import Foundation
 
-/// Host-screen periodic path probe loop (formerly part of `ConnectionPingMonitor`).
+/// Foreground periodic tick for connectivity probes. The loop runs whenever the app is
+/// active; host screen, network, and paths are checked before each round.
 final class ConnectivityProbeScheduler {
 	struct Environment: Equatable {
 		var networkReachable: Bool
 		var hasConfiguredPaths: Bool
-		var isBootstrapComplete: Bool
 	}
 
 	let intervalSeconds: TimeInterval = 30
@@ -28,9 +28,6 @@ final class ConnectivityProbeScheduler {
 
 	func setHostScreenActive(_ active: Bool) {
 		hostScreenActive = active
-		if active {
-			pendingForegroundDelay = true
-		}
 	}
 
 	func setAppForeground(_ foreground: Bool) {
@@ -55,31 +52,14 @@ final class ConnectivityProbeScheduler {
 			&& isForeground
 			&& environment.networkReachable
 			&& environment.hasConfiguredPaths
-			&& environment.isBootstrapComplete
 	}
 
 	func reconcile(
-		environment: Environment,
 		log: (String) -> Void,
 		runRound: @escaping @Sendable () async -> Void
 	) async {
-		guard hostScreenActive, isForeground else {
-			if isRunning { log("probe loop stopping (host=\(hostScreenActive) fg=\(isForeground))") }
-			stop()
-			return
-		}
-		guard environment.networkReachable else {
-			if isRunning { log("probe loop stopping (network down)") }
-			stop()
-			return
-		}
-		guard environment.hasConfiguredPaths else {
-			if isRunning { log("probe loop stopping (no configured paths)") }
-			stop()
-			return
-		}
-		guard environment.isBootstrapComplete else {
-			if isRunning { log("probe loop stopping (bootstrap incomplete)") }
+		guard isForeground else {
+			if isRunning { log("probe loop stopping (foreground=false)") }
 			stop()
 			return
 		}

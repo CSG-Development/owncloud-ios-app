@@ -505,6 +505,16 @@ final public class LoginViewModel {
 					lastSuccessfulPathKey: bestPath.persistenceKey
 				)
 				HCContext.shared.preferences.currentConnectedDevice = saved
+			} else {
+				// mDNS-only login — no RA remote catalog; still persist for periodic probes.
+				let saved = HCPreferences.SavedConnectedDevice(
+					certificateCommonName: cn,
+					friendlyName: selectedDevice.localDevice?.name,
+					hostname: nil,
+					paths: [],
+					lastSuccessfulPathKey: bestPath.persistenceKey
+				)
+				HCContext.shared.preferences.currentConnectedDevice = saved
 			}
 		}
 		if !email.isEmpty { HCContext.shared.preferences.favoriteEmail = email }
