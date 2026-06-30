@@ -60,13 +60,13 @@ class DisplayHostViewController: UIPageViewController, DisplayHostType {
 	var progressSummarizer : ProgressSummarizer?
 
 	// MARK: - Init & deinit
-	init(clientContext inClientContext: ClientContext? = nil, core: OCCore? = nil, selectedItem: OCItem, queryDataSource inQueryDataSource: OCDataSource? = nil) {
+	init(clientContext inClientContext: ClientContext? = nil, core: OCCore? = nil, selectedItem: OCItem, queryDataSource inQueryDataSource: OCDataSource? = nil, staticItems: [OCItem]? = nil) {
 		var clientContext = inClientContext
 
 		initialItem = selectedItem
 		queryDatasource = inQueryDataSource ?? clientContext?.queryDatasource
 
-		if queryDatasource == nil, let parentLocation = selectedItem.location?.parent, let core = clientContext?.core {
+		if staticItems == nil, queryDatasource == nil, let parentLocation = selectedItem.location?.parent, let core = clientContext?.core {
 			// If no data source was given, create one for the parent location
 			let query = OCQuery(for: parentLocation)
 			core.start(query)
@@ -82,7 +82,9 @@ class DisplayHostViewController: UIPageViewController, DisplayHostType {
 
 		self.clientContext = ClientContext(with: clientContext, originatingViewController: self)
 
-		if let queryDatasource {
+		if let staticItems {
+			self.items = self.applyMediaFilesFilter(items: staticItems)
+		} else if let queryDatasource {
 			queryDatasourceSubscription = queryDatasource.subscribe(updateHandler: { [weak self]  subscription in
 				guard let self = self, let queryDataSource = self.queryDatasource else {
 					return
@@ -138,8 +140,7 @@ class DisplayHostViewController: UIPageViewController, DisplayHostType {
 		var initialIndex : Int?
 
 		if let items = self.items,
-		   let initialItemLocalID = self.initialItem.localID,
-		   let itemIndex = items.firstIndex(where: {$0.localID == initialItemLocalID}) {
+		   let itemIndex = Self.index(of: self.initialItem, in: items) {
 			initialIndex = itemIndex
 		}
 
@@ -339,7 +340,12 @@ class DisplayHostViewController: UIPageViewController, DisplayHostType {
 
 	private func viewController(for item: OCItem, at index: Int? = nil) -> UIViewController? {
 
-		guard let mimeType = item.mimeType else { return nil }
+		guard let mimeType = item.previewMIMEType else {
+			Log.debug(tagged: ["Trash", "Preview"], "viewController(for:) nil — no previewMIMEType for item name=\(item.name ?? "nil") mimeType=\(item.mimeType ?? "nil") isTrash=\(item.isTrashItem)")
+			return nil
+		}
+
+		Log.debug(tagged: ["Trash", "Preview"], "viewController(for:) creating VC for mimeType=\(mimeType) item=\(item.name ?? "nil") isTrash=\(item.isTrashItem)")
 
 		let newViewController = createDisplayViewController(for: mimeType)
 
@@ -349,7 +355,7 @@ class DisplayHostViewController: UIPageViewController, DisplayHostType {
 
 		newViewController.item = item
 
-		Log.debug("Created DisplayViewController: \(newViewController.item?.name ?? "-")")
+		Log.debug(tagged: ["Trash", "Preview"], "Created DisplayViewController type=\(type(of: newViewController)) for item=\(newViewController.item?.name ?? "-")")
 
 		return newViewController
 	}
@@ -361,7 +367,7 @@ class DisplayHostViewController: UIPageViewController, DisplayHostType {
 		guard let processedItems = includeOnlyMediaItems ? playableItems : items else { return nil }
 
 		// Is the item assigned to the currently visible view controller still available?
-		let index = processedItems.firstIndex(where: {$0.localID == item.localID})
+		let index = processedItems.firstIndex(where: { Self.representsSameItem($0, item) })
 
 		if index != nil {
 			// If so, then vend view controller with the item next to the current item
@@ -392,12 +398,33 @@ class DisplayHostViewController: UIPageViewController, DisplayHostType {
 		return false
 	}
 
+	private static func representsSameItem(_ lhs: OCItem, _ rhs: OCItem) -> Bool {
+		if let lhsLocalID = lhs.localID, let rhsLocalID = rhs.localID, lhsLocalID == rhsLocalID {
+			return true
+		}
+		if let lhsPath = lhs.path, let rhsPath = rhs.path, lhsPath == rhsPath {
+			return true
+		}
+		if let lhsFileID = lhs.fileID, let rhsFileID = rhs.fileID, lhsFileID == rhsFileID {
+			return true
+		}
+		return false
+	}
+
+	private static func index(of item: OCItem, in items: [OCItem]) -> Int? {
+		items.firstIndex(where: { representsSameItem($0, item) })
+	}
+
 	private func applyMediaFilesFilter(items: [OCItem]) -> [OCItem] {
-		if filtersMatch(item: initialItem) {
+		let isMedia = filtersMatch(item: initialItem)
+		Log.debug(tagged: ["Trash", "Preview"], "applyMediaFilesFilter: initialItem=\(initialItem.name ?? "nil") mimeType=\(initialItem.mimeType ?? "nil") isMedia=\(isMedia) inputCount=\(items.count)")
+		if isMedia {
 			let filteredItems = items.filter({$0.type != .collection && filtersMatch(item: $0)})
+			Log.debug(tagged: ["Trash", "Preview"], "applyMediaFilesFilter: media filter → \(filteredItems.count) items")
 			return filteredItems
 		} else {
-			let filteredItems = items.filter({$0.type != .collection && $0.fileID == self.initialItem.fileID})
+			let filteredItems = items.filter({ $0.type != .collection && Self.representsSameItem($0, self.initialItem) })
+			Log.debug(tagged: ["Trash", "Preview"], "applyMediaFilesFilter: single-item filter → \(filteredItems.count) items (found=\(!filteredItems.isEmpty))")
 			return filteredItems
 		}
 	}

@@ -668,6 +668,11 @@
 		DCB6B20A292E296800D27573 /* CollectionSidebarAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB6B209292E296800D27573 /* CollectionSidebarAction.swift */; };
 		DCB6B20C292E428000D27573 /* AccountController+ExtraItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB6B20B292E428000D27573 /* AccountController+ExtraItems.swift */; };
 		DCA0000103ABCDEF00000001 /* TagsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000102ABCDEF00000001 /* TagsViewController.swift */; };
+		DCA0000303ABCDEF00000001 /* TrashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000302ABCDEF00000001 /* TrashViewController.swift */; };
+		DCA0000311ABCDEF00000001 /* OCItem+TrashPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000310ABCDEF00000001 /* OCItem+TrashPresentation.swift */; };
+		DCA0000305ABCDEF00000001 /* TrashItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000304ABCDEF00000001 /* TrashItemCell.swift */; };
+		DCA0000307ABCDEF00000001 /* TrashLayoutMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000306ABCDEF00000001 /* TrashLayoutMetrics.swift */; };
+		DCA000030ABCDEEF00000001 /* TrashDebugLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000309ABCDEEF00000001 /* TrashDebugLogging.swift */; };
 		DCA0000105ABCDEF00000001 /* TagEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000104ABCDEF00000001 /* TagEditViewController.swift */; };
 		DCA0000111ABCDEF00000001 /* TagNameValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000110ABCDEF00000001 /* TagNameValidation.swift */; };
 		DCA0000113ABCDEF00000001 /* FileTagsManagementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000112ABCDEF00000001 /* FileTagsManagementViewController.swift */; };
@@ -1841,6 +1846,11 @@
 		DCB6B209292E296800D27573 /* CollectionSidebarAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionSidebarAction.swift; sourceTree = "<group>"; };
 		DCB6B20B292E428000D27573 /* AccountController+ExtraItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountController+ExtraItems.swift"; sourceTree = "<group>"; };
 		DCA0000102ABCDEF00000001 /* TagsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsViewController.swift; sourceTree = "<group>"; };
+		DCA0000302ABCDEF00000001 /* TrashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashViewController.swift; sourceTree = "<group>"; };
+		DCA0000310ABCDEF00000001 /* OCItem+TrashPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OCItem+TrashPresentation.swift"; sourceTree = "<group>"; };
+		DCA0000304ABCDEF00000001 /* TrashItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashItemCell.swift; sourceTree = "<group>"; };
+		DCA0000306ABCDEF00000001 /* TrashLayoutMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashLayoutMetrics.swift; sourceTree = "<group>"; };
+		DCA0000309ABCDEEF00000001 /* TrashDebugLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashDebugLogging.swift; sourceTree = "<group>"; };
 		DCA0000104ABCDEF00000001 /* TagEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagEditViewController.swift; sourceTree = "<group>"; };
 		DCA0000110ABCDEF00000001 /* TagNameValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagNameValidation.swift; sourceTree = "<group>"; };
 		DCA0000112ABCDEF00000001 /* FileTagsManagementViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileTagsManagementViewController.swift; sourceTree = "<group>"; };
@@ -2329,6 +2339,7 @@
 				DCB5D5692861BE9A004AF425 /* Search */,
 				DCA0000207ABCDEF00000001 /* Tags */,
 				DCA2EDDB279B0E5D001F04E6 /* Resource Sources */,
+				DCA0000308ABCDEEF00000001 /* Trash */,
 				DCE4E43424C199860051722F /* Actions */,
 				DC16213C2B8FF02500EB17F8 /* Sidebar Items */,
 				DC9CE3BC2D0F31C800979C44 /* Spaces */,
@@ -3404,6 +3415,7 @@
 				23EC774D2137F3CD0032D4E6 /* Viewer */,
 				236735A421217C2300E5834A /* Actions */,
 				DCA0000101ABCDEF00000001 /* Tags */,
+				DCA0000301ABCDEF00000001 /* Trash */,
 				DC63208421FCEBE9007EC0A8 /* ClientActivityCell.swift */,
 				DC63208221FCAC1E007EC0A8 /* ClientActivityViewController.swift */,
 				DCE28F5F2433683700879DEC /* ClientSessionManager.swift */,
@@ -3422,6 +3434,17 @@
 				DCA0000112ABCDEF00000001 /* FileTagsManagementViewController.swift */,
 			);
 			path = Tags;
+			sourceTree = "<group>";
+		};
+		DCA0000301ABCDEF00000001 /* Trash */ = {
+			isa = PBXGroup;
+			children = (
+				DCA0000302ABCDEF00000001 /* TrashViewController.swift */,
+				DCA0000310ABCDEF00000001 /* OCItem+TrashPresentation.swift */,
+				DCA0000304ABCDEF00000001 /* TrashItemCell.swift */,
+				DCA0000306ABCDEF00000001 /* TrashLayoutMetrics.swift */,
+			);
+			path = Trash;
 			sourceTree = "<group>";
 		};
 		DC3DDEFE287E1AA500E5586D /* UIKit Extensions */ = {
@@ -3777,6 +3800,14 @@
 				DCA2EDE3279B1789001F04E6 /* ResourceItemIcon.swift */,
 			);
 			path = "Resource Sources";
+			sourceTree = "<group>";
+		};
+		DCA0000308ABCDEEF00000001 /* Trash */ = {
+			isa = PBXGroup;
+			children = (
+				DCA0000309ABCDEEF00000001 /* TrashDebugLogging.swift */,
+			);
+			path = Trash;
 			sourceTree = "<group>";
 		};
 		DCA35D6724CF7B6E00DBE2B0 /* Diagnostic */ = {
@@ -5453,6 +5484,10 @@
 				DCB6B1EB292B7C2400D27573 /* AppRootViewController+ItemActions.swift in Sources */,
 				DCB6B20C292E428000D27573 /* AccountController+ExtraItems.swift in Sources */,
 				DCA0000103ABCDEF00000001 /* TagsViewController.swift in Sources */,
+				DCA0000303ABCDEF00000001 /* TrashViewController.swift in Sources */,
+				DCA0000311ABCDEF00000001 /* OCItem+TrashPresentation.swift in Sources */,
+				DCA0000305ABCDEF00000001 /* TrashItemCell.swift in Sources */,
+				DCA0000307ABCDEF00000001 /* TrashLayoutMetrics.swift in Sources */,
 				DCA0000105ABCDEF00000001 /* TagEditViewController.swift in Sources */,
 				DCA0000111ABCDEF00000001 /* TagNameValidation.swift in Sources */,
 				DCA0000113ABCDEF00000001 /* FileTagsManagementViewController.swift in Sources */,
@@ -5739,6 +5774,7 @@
 				DC6B938B2D2D43290016A549 /* ByteCountEditView.swift in Sources */,
 				DC298C972934D354009FA87F /* IssuesCardViewController.swift in Sources */,
 				DCA2EDE2279B16F1001F04E6 /* ResourceSourceItemIcons.swift in Sources */,
+				DCA000030ABCDEEF00000001 /* TrashDebugLogging.swift in Sources */,
 				DCB330E629F18C6F00BFF393 /* OptionGroup.swift in Sources */,
 				DCBAEADE29A5536F00BFF393 /* CollectionViewSupplementaryCellProvider.swift in Sources */,
 				99AD431F2DF310CA00914C19 /* SidebarCollectionViewListCell.swift in Sources */,

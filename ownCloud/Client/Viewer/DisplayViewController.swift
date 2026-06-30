@@ -77,7 +77,12 @@ class DisplayViewController: UIViewController, Themeable, OCQueryDelegate {
 						stopQuery()
 
 					case .online:
-						startQuery()
+						if item?.isTrashItem == true {
+							Log.debug(tagged: ["Trash", "Preview"], "connectionStatus → online for trash item \(item?.name ?? "nil"), calling considerUpdate()")
+							considerUpdate()
+						} else {
+							startQuery()
+						}
 
 					default: break
 				}
@@ -122,6 +127,8 @@ class DisplayViewController: UIViewController, Themeable, OCQueryDelegate {
 
 	@objc dynamic var item: OCItem? {
 		didSet {
+			Log.debug(tagged: ["Trash", "Preview"], "item.didSet: name=\(item?.name ?? "nil") isTrash=\(item?.isTrashItem == true) mimeType=\(item?.mimeType ?? "nil") connectionStatus=\(String(describing: connectionStatus?.rawValue))")
+
 			if itemClaimIdentifier == nil, // No claim registered by the DisplayViewController for the item yet
 			let item = item, let core = core,
 			core.localCopy(of: item) != nil, // The item has a local copy
@@ -345,6 +352,22 @@ class DisplayViewController: UIViewController, Themeable, OCQueryDelegate {
 
 	@objc func downloadItem(sender: Any? = nil) {
 		guard let core = core, let item = item, self.state == .online else {
+			Log.debug(tagged: ["Trash", "Preview"], "downloadItem: guard failed — hasCore=\(core != nil) hasItem=\(item != nil) state=\(state)")
+			return
+		}
+
+		// Trash items are not in the core's sync engine; use a direct connection-level download instead
+		if item.isTrashItem {
+			if trashDownloadPermanentlyFailed {
+				Log.debug(tagged: ["Trash", "Preview"], "downloadItem: permanently failed for \(item.name ?? "nil"), not retrying")
+				return
+			}
+			if isDownloadingTrashItem {
+				Log.debug(tagged: ["Trash", "Preview"], "downloadItem: trash download already in flight for \(item.name ?? "nil"), skipping")
+				return
+			}
+			Log.debug(tagged: ["Trash", "Preview"], "downloadItem: routing to downloadTrashItem() for \(item.name ?? "nil")")
+			downloadTrashItem()
 			return
 		}
 
@@ -374,6 +397,82 @@ class DisplayViewController: UIViewController, Themeable, OCQueryDelegate {
 
 		if let progress = self.downloadProgress {
 			self.progressView.observedProgress = self.downloadProgress
+			self.progressSummarizer?.startTracking(progress: progress)
+		}
+	}
+
+	private func downloadTrashItem() {
+		guard let core = core, let item = item else { return }
+
+		isDownloadingTrashItem = true
+		state = .downloadInProgress
+
+		Log.debug(tagged: ["Trash", "Preview"], "downloadTrashItem: starting download for \(item.name ?? "nil") path=\(item.path ?? "nil")")
+
+		self.downloadProgress = core.downloadTrashedItem(item) { [weak self] error, localFileURL in
+			guard let self else { return }
+
+			OnMainThread {
+				self.isDownloadingTrashItem = false
+
+				if let error {
+					Log.error(tagged: ["Trash", "Preview"], "downloadTrashItem: FAILED for \(item.name ?? "nil"): \(error)")
+
+					// Permanent HTTP failures (403 Forbidden, 404 Not Found, 405 Method Not Allowed)
+					// mean the server will never serve this file from trash — stop retrying.
+					let nsError = error as NSError
+					let code = nsError.code
+					let permanentHTTPCodes = [403, 404, 405, 501]
+					let isFeatureNotSupported = nsError.domain == OCErrorDomain && code == Int(OCError.featureNotSupportedForItem.rawValue)
+
+					if nsError.domain == "OCHTTPStatusErrorDomain", permanentHTTPCodes.contains(code) {
+						Log.debug(tagged: ["Trash", "Preview"], "downloadTrashItem: permanent failure (HTTP \(code)), marking as preview-failed")
+						self.trashDownloadPermanentlyFailed = true
+						self.state = .previewFailed
+					} else if isFeatureNotSupported {
+						Log.debug(tagged: ["Trash", "Preview"], "downloadTrashItem: preview not supported by server, marking as preview-failed")
+						self.trashDownloadPermanentlyFailed = true
+						self.state = .previewFailed
+					} else {
+						self.state = .downloadFailed
+					}
+					return
+				}
+
+				guard let localFileURL else {
+					Log.error(tagged: ["Trash", "Preview"], "downloadTrashItem: nil fileURL with no error for \(item.name ?? "nil")")
+					self.state = .downloadFailed
+					return
+				}
+
+				Log.debug(tagged: ["Trash", "Preview"], "downloadTrashItem: SUCCESS → \(localFileURL.path)")
+
+				self.itemDirectURL = localFileURL
+				self.state = .downloadFinished
+
+				guard self.canPreviewCurrentItem, let currentItem = self.item else {
+					Log.debug(tagged: ["Trash", "Preview"], "downloadTrashItem: canPreviewCurrentItem=\(self.canPreviewCurrentItem), skipping render")
+					return
+				}
+
+				self.shouldRenderItem(item: currentItem, isUpdate: (self.lastRenderSuccessful == true)) { [weak self] shouldRender in
+					Log.debug(tagged: ["Trash", "Preview"], "downloadTrashItem: shouldRender=\(shouldRender)")
+					guard shouldRender else { return }
+					OnMainThread {
+						self?.renderItem { success in
+							Log.debug(tagged: ["Trash", "Preview"], "downloadTrashItem: renderItem success=\(success)")
+							self?.lastRenderSuccessful = success
+							if !success {
+								self?.state = .previewFailed
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if let progress = self.downloadProgress {
+			self.progressView.observedProgress = progress
 			self.progressSummarizer?.startTracking(progress: progress)
 		}
 	}
@@ -507,6 +606,9 @@ class DisplayViewController: UIViewController, Themeable, OCQueryDelegate {
 
 			if let queryState = query?.state {
 				displayBarButtonItems = composedDisplayBarButtonItems(previous: displayBarButtonItems, itemName: itemName, itemRemoved: queryState == .targetRemoved)
+			} else if item?.isTrashItem == true {
+				// Trash items have no running query; still compose the action bar button
+				displayBarButtonItems = composedDisplayBarButtonItems(previous: displayBarButtonItems, itemName: itemName, itemRemoved: false)
 			}
 		}
 	}
@@ -616,7 +718,7 @@ class DisplayViewController: UIViewController, Themeable, OCQueryDelegate {
 	// MARK: - Query management
 
 	private func startQuery() {
-		if query == nil, let item = item, let core = core {
+		if query == nil, let item = item, let core = core, !item.isTrashItem {
 			query = OCQuery(item: item)
 
 			if let query = query {
@@ -640,118 +742,151 @@ class DisplayViewController: UIViewController, Themeable, OCQueryDelegate {
 
 	private var lastRenderSuccessful : Bool?
 
+	/// Guards against launching a second trash download while one is already in flight.
+	/// Necessary because `connectionStatus.didSet` resets `state` to `.online` periodically
+	/// (even while a download is in progress), which would otherwise re-trigger `considerUpdate()`.
+	private var isDownloadingTrashItem = false
+
+	/// Set after a permanent HTTP failure (403/404/405) so that no further download
+	/// attempts are made for the lifetime of this viewer instance.
+	private var trashDownloadPermanentlyFailed = false
+
 	private func considerUpdate() {
 		var localURLLastModified : Date?
 		let oldItem = lastUsedItem
 
-		if let newItem = item {
-			if let localURL = core?.localCopy(of: newItem) {
-				do {
-					localURLLastModified  = (try localURL.resourceValues(forKeys: [ .contentModificationDateKey ])).contentModificationDate
-				} catch {
-					Log.error("Error fetching last modification date of \(localURL): \(error)")
-				}
+		guard let newItem = item else {
+			Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: item is nil, skipping")
+			return
+		}
+
+		Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: item=\(newItem.name ?? "nil") isTrash=\(newItem.isTrashItem) state=\(state) requiresLocalCopy=\(requiresLocalCopyForPreview) itemDirectURL=\(itemDirectURL?.path ?? "nil") lastUsedItemVersion=\(String(describing: lastUsedItemVersion))")
+
+		if let localURL = core?.localCopy(of: newItem) {
+			do {
+				localURLLastModified  = (try localURL.resourceValues(forKeys: [ .contentModificationDateKey ])).contentModificationDate
+			} catch {
+				Log.error("Error fetching last modification date of \(localURL): \(error)")
+			}
+		}
+
+		let localCopyVanished = (newItem.localRelativePath == nil) && (oldItem?.localRelativePath != nil) && !newItem.syncActivity.contains(.downloading)
+
+		let versionChanged = (newItem.itemVersionIdentifier != oldItem?.itemVersionIdentifier)
+		let nameChanged = (newItem.name != oldItem?.name)
+		let lastVersionMismatch = ((lastUsedItemVersion != nil) && (newItem.itemVersionIdentifier != lastUsedItemVersion))
+		let locallyModifiedChanged = (newItem.locallyModified && (localURLLastModified != nil) && (localURLLastModified != lastUsedItemModificationDate))
+
+		Log.debug(tagged: ["Trash", "Preview"], "considerUpdate conditions: syncUpdating=\(newItem.syncActivity.contains(.updating)) versionChanged=\(versionChanged) nameChanged=\(nameChanged) localCopyVanished=\(localCopyVanished) lastVersionMismatch=\(lastVersionMismatch) locallyModifiedChanged=\(locallyModifiedChanged)")
+
+		if !newItem.syncActivity.contains(.updating) &&
+		    (// Item version changed
+		     versionChanged ||
+
+		     // Item name changed
+		     nameChanged ||
+
+		     // Local copy vanished
+		     localCopyVanished ||
+
+		     // Item already shown, this version is different from what was shown last
+		     lastVersionMismatch ||
+
+		     // Item changed locally, exists locally, local file modification date changed
+		     locallyModifiedChanged
+		) {
+			if let lastModified = localURLLastModified {
+				lastUsedItemModificationDate = lastModified
 			}
 
-			let localCopyVanished = (newItem.localRelativePath == nil) && (oldItem?.localRelativePath != nil) && !newItem.syncActivity.contains(.downloading)
+			if localCopyVanished, state == .downloadFinished, let currentStateByConnectionStatus = stateByConnectionStatus {
+				state = currentStateByConnectionStatus
+				itemDirectURL = nil
+			}
 
-			if !newItem.syncActivity.contains(.updating) &&
-			    (// Item version changed
-			     (newItem.itemVersionIdentifier != oldItem?.itemVersionIdentifier) ||
+			guard newItem.removed == false else {
+				return
+			}
 
-			     // Item name changed
-			     (newItem.name != oldItem?.name) ||
+			metadataInfoLabel.text = newItem.sizeLocalized + " - " + newItem.lastModifiedLocalized
+			updateDisplayTitleAndButtons()
 
-			     // Local copy vanished
-			     localCopyVanished ||
+			if let core = self.core {
+				var didUpdate : Bool = false
 
-			     // Item already shown, this version is different from what was shown last
-			     ((lastUsedItemVersion != nil) && (newItem.itemVersionIdentifier != lastUsedItemVersion)) ||
+				let request = OCResourceRequestItemThumbnail.request(for: newItem, maximumSize: iconImageSize, scale: 0, waitForConnectivity: true, changeHandler: nil)
+				iconImageView.request = request
 
-			     // Item changed locally, exists locally, local file modification date changed
-			     (newItem.locallyModified && (localURLLastModified != nil) && (localURLLastModified != lastUsedItemModificationDate))
-			) {
-				if let lastModified = localURLLastModified {
-					lastUsedItemModificationDate = lastModified
+				core.vault.resourceManager?.start(request)
+
+				// If we don't need to download item, just get direct URL (e.g. for video which can be streamed)
+				if itemDirectURL == nil && !requiresLocalCopyForPreview {
+					Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: calling provideDirectURL for \(newItem.name ?? "nil") isTrash=\(newItem.isTrashItem)")
+					core.provideDirectURL(for: newItem, allowFileURL: true, completionHandler: { (error, url, authHeaders) in
+						Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: provideDirectURL result error=\(String(describing: error)) url=\(url?.absoluteString ?? "nil")")
+						if error == nil {
+							self.httpAuthHeaders = authHeaders
+							self.itemDirectURL = url
+							didUpdate = true
+						}
+					})
+				} else {
+					Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: requiresLocalCopy=\(requiresLocalCopyForPreview) itemDirectURL=\(itemDirectURL?.path ?? "nil")")
+					if newItem.isTrashItem && (isDownloadingTrashItem || trashDownloadPermanentlyFailed) {
+						Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: skipping trash download — inFlight=\(isDownloadingTrashItem) permanentlyFailed=\(trashDownloadPermanentlyFailed)")
+					} else if requiresLocalCopyForPreview, 		  // Don't download automatically if the file can't be previewed +
+					   !newItem.syncActivity.contains(.downloading),  // Avoid download if the file is already being downloaded	 +
+					   ( // + either of:
+						// - item version mismatch
+						((lastUsedItemVersion != nil) && (newItem.itemVersionIdentifier != lastUsedItemVersion)) ||
+						// - item locally modified or no itemDirectURL yet
+						(newItem.locallyModified || itemDirectURL == nil)
+					   ) {
+						if let file = newItem.file(with: core),
+						   let filePath = file.url?.path,
+						   FileManager.default.fileExists(atPath: filePath) { // If file does not exist, force download, which will take care of this
+
+							Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: using existing local copy at \(filePath)")
+							// Use existing local copy
+							itemDirectURL = file.url
+							state = .downloadFinished
+							didUpdate = true
+
+							// Modify item's last used timestamp
+							core.registerUsage(of: newItem, completionHandler: nil)
+						} else {
+							Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: no local copy — triggering download for \(newItem.name ?? "nil") isTrash=\(newItem.isTrashItem) state=\(state)")
+							// Download item
+							self.downloadItem()
+							return
+						}
+					}
 				}
 
-				if localCopyVanished, state == .downloadFinished, let currentStateByConnectionStatus = stateByConnectionStatus {
-					state = currentStateByConnectionStatus
-					itemDirectURL = nil
-				}
+				// Item rendering
+				if itemDirectURL != nil, canPreviewCurrentItem, didUpdate, let item = item {
+					Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: triggering render for \(item.name ?? "nil") itemDirectURL=\(itemDirectURL?.path ?? "nil")")
+					// Determine if the item should be rendered
+					shouldRenderItem(item: item, isUpdate: (lastRenderSuccessful == true)) { [weak self] (shouldRender) in
+						if shouldRender {
+							// Render item
+							OnMainThread {
+								self?.renderItem(completion: { (success) in
+									self?.lastRenderSuccessful = success
 
-				guard newItem.removed == false else {
-					return
-				}
-
-				metadataInfoLabel.text = newItem.sizeLocalized + " - " + newItem.lastModifiedLocalized
-				updateDisplayTitleAndButtons()
-
-				if let core = self.core {
-					var didUpdate : Bool = false
-
-					let request = OCResourceRequestItemThumbnail.request(for: newItem, maximumSize: iconImageSize, scale: 0, waitForConnectivity: true, changeHandler: nil)
-					iconImageView.request = request
-
-					core.vault.resourceManager?.start(request)
-
-					// If we don't need to download item, just get direct URL (e.g. for video which can be streamed)
-					if itemDirectURL == nil && !requiresLocalCopyForPreview {
-						core.provideDirectURL(for: newItem, allowFileURL: true, completionHandler: { (error, url, authHeaders) in
-							if error == nil {
-								self.httpAuthHeaders = authHeaders
-								self.itemDirectURL = url
-								didUpdate = true
-							}
-						})
-					} else {
-						if requiresLocalCopyForPreview, 		  // Don't download automatically if the file can't be previewed +
-						   !newItem.syncActivity.contains(.downloading),  // Avoid download if the file is already being downloaded	 +
-						   ( // + either of:
-							// - item version mismatch
-							((lastUsedItemVersion != nil) && (newItem.itemVersionIdentifier != lastUsedItemVersion)) ||
-							// - item locally modified or no itemDirectURL yet
-							(newItem.locallyModified || itemDirectURL == nil)
-						   ) {
-							if let file = newItem.file(with: core),
-							   let filePath = file.url?.path,
-							   FileManager.default.fileExists(atPath: filePath) { // If file does not exist, force download, which will take care of this
-
-								// Use existing local copy
-								itemDirectURL = file.url
-								state = .downloadFinished
-								didUpdate = true
-
-								// Modify item's last used timestamp
-								core.registerUsage(of: newItem, completionHandler: nil)
-							} else {
-								// Download item
-								self.downloadItem()
-								return
+									if !success {
+										self?.state = .previewFailed
+									}
+								})
 							}
 						}
 					}
-
-					// Item rendering
-					if itemDirectURL != nil, canPreviewCurrentItem, didUpdate, let item = item {
-						// Determine if the item should be rendered
-						shouldRenderItem(item: item, isUpdate: (lastRenderSuccessful == true)) { [weak self] (shouldRender) in
-							if shouldRender {
-								// Render item
-								OnMainThread {
-									self?.renderItem(completion: { (success) in
-										self?.lastRenderSuccessful = success
-
-										if !success {
-											self?.state = .previewFailed
-										}
-									})
-								}
-							}
-						}
-					}
+				} else {
+					Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: render skipped — itemDirectURL=\(itemDirectURL?.path ?? "nil") canPreview=\(canPreviewCurrentItem) didUpdate=\(didUpdate)")
 				}
 			}
+		} else {
+			Log.debug(tagged: ["Trash", "Preview"], "considerUpdate: no update needed (conditions not met)")
 		}
 	}
 

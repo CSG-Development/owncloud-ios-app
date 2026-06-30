@@ -265,4 +265,41 @@ public enum HCL10n {
 			.union(.controlCharacters)
 			.union(.newlines)
 	}
+
+	public enum Trash {
+		public static var title: String { OCLocalizedString("Trash.title", nil) }
+		public static func titleWithCount(_ count: Int) -> String {
+			String(format: OCLocalizedString("Trash.titleWithCount", nil), count)
+		}
+		public static func selectedTitle(_ count: Int) -> String {
+			String(format: OCLocalizedString("Trash.selectedTitle", nil), count)
+		}
+		public static func restoreSuccess(_ count: Int) -> String {
+			String(format: OCLocalizedString("Trash.restoreSuccess", nil), count)
+		}
+		public static var retentionNotice: String { OCLocalizedString("Trash.retentionNotice", nil) }
+		public static func daysUntilDeletion(_ days: Int) -> String {
+			String(format: OCLocalizedString("Trash.daysLeft", nil), days)
+		}
+		public static var daysLeftUnknown: String { OCLocalizedString("Trash.daysLeftUnknown", nil) }
+		public static var pendingSync: String { OCLocalizedString("Trash.pendingSync", nil) }
+		public static var allItems: String { OCLocalizedString("Trash.allItems", nil) }
+		public static var select: String { OCLocalizedString("Trash.select", nil) }
+		public static var cancel: String { OCLocalizedString("Trash.cancel", nil) }
+		public static var restore: String { OCLocalizedString("Trash.restore", nil) }
+		public static var delete: String { OCLocalizedString("Trash.delete", nil) }
+		public static var empty: String { OCLocalizedString("Trash.empty", nil) }
+		public static var loadingError: String { OCLocalizedString("Trash.loadingError", nil) }
+		public static var restoreError: String { OCLocalizedString("Trash.restoreError", nil) }
+		public static var deleteError: String { OCLocalizedString("Trash.deleteError", nil) }
+		public static var errorOk: String { OCLocalizedString("Trash.errorOk", nil) }
+		public enum Delete {
+			public static func title(count: Int) -> String {
+				String(format: OCLocalizedString("Trash.Delete.title", nil), count)
+			}
+			public static var description: String { OCLocalizedString("Trash.Delete.description", nil) }
+			public static var cancel: String { OCLocalizedString("Trash.Delete.cancel", nil) }
+			public static var confirm: String { OCLocalizedString("Trash.Delete.confirm", nil) }
+		}
+	}
 }

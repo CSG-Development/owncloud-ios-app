@@ -123,14 +123,19 @@ public enum HCColor {
 			primarySolidNormal(!isDark)
 		}
 
-		//Interaction/Primary Transparent Normal 20
+		// Interaction/Primary Transparent Normal 20
 		public static func primaryTransparentNormal20(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#64B5F63D") : UIColor(hexString: "#1976D233")
 		}
 
-		//Interaction/Primary Transparent Normal 12
+		// Interaction/Primary Transparent Normal 12
 		public static func primaryTransparentNormal12(_ isDark: Bool) -> UIColor {
-			isDark ? UIColor(hexString: "#64B5F61F") : UIColor(hexString: "#1976D21F")
+			isDark ? UIColor(hexString: "#EEEEEE1F") : UIColor(hexString: "#1976D21F")
+		}
+
+		// Interaction/Secondary Transparent Pressed 12
+		public static func secondaryTransparentPressed12(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#64B5F61F") : UIColor(hexString: "#4242421F")
 		}
 
 		// Interaction/Secondary Label

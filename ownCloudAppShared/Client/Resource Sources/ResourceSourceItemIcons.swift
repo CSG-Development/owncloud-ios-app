@@ -41,6 +41,17 @@ public class ResourceSourceItemIcons: OCResourceSource {
 	public override func provideResource(for request: OCResourceRequest, resultHandler: @escaping OCResourceSourceResultHandler) {
 		if let thumbnailRequest = request as? OCResourceRequestItemThumbnail,
 		   let iconName = thumbnailRequest.item.iconName {
+			let item = thumbnailRequest.item
+			let isTrashItem = item.value(forLocalAttribute: OCLocalAttribute.trashItem) != nil
+			if isTrashItem {
+				TrashDebugLogging.log("""
+				ResourceSourceItemIcons: \
+				path=\(Log.mask(item.path ?? "nil")) \
+				mimeType=\(item.mimeType ?? "nil") \
+				iconName=\(iconName)
+				""")
+			}
+
 			let resource = ResourceItemIcon(request: request)
 
 			resource.iconName = iconName
@@ -49,6 +60,10 @@ public class ResourceSourceItemIcons: OCResourceSource {
 
 			resultHandler(nil, resource)
 		} else {
+			if let thumbnailRequest = request as? OCResourceRequestItemThumbnail,
+			   thumbnailRequest.item.value(forLocalAttribute: OCLocalAttribute.trashItem) != nil {
+				TrashDebugLogging.log("ResourceSourceItemIcons: no iconName for trash item path=\(Log.mask(thumbnailRequest.item.path ?? "nil")) mimeType=\(thumbnailRequest.item.mimeType ?? "nil")")
+			}
 			resultHandler(nil, nil)
 		}
 	}
