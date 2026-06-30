@@ -18,6 +18,17 @@ public enum HCIcon {
 	public static var appIconGradient: UIImage? { sharedIcon("app-icon-gradient") }
 	public static var seagateIconOverlay: UIImage? { sharedIcon("seagate-icon-overlay") }
 	public static var tick: UIImage? { sharedIcon("tick") }
+	public static var restore: UIImage? { sharedIcon("restore") }
+	public static var binx: UIImage? { sharedIcon("bin-x") }
+
+	public static var checkboxFilledLight: UIImage? { sharedIcon("checkbox_filled_light") }
+	public static var checkboxFilledDark: UIImage? { sharedIcon("checkbox_filled_dark") }
+	public static var checkboxEmpty: UIImage? { sharedIcon("checkbox_empty") }
+
+	public static var checkboxShadowEmptyLight: UIImage? { sharedIcon("checkbox_shadow_empty_light") }
+	public static var checkboxShadowFilledLight: UIImage? { sharedIcon("checkbox_shadow_filled_light") }
+	public static var checkboxShadowEmptyDark: UIImage? { sharedIcon("checkbox_shadow_empty_dark") }
+	public static var checkboxShadowFilledDark: UIImage? { sharedIcon("checkbox_shadow_filled_dark") }
 
 	private static func sharedIcon(_ name: String) -> UIImage? {
 		UIImage(named: name, in: Bundle.sharedAppBundle, with: nil)

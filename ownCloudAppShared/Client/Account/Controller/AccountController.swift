@@ -91,6 +91,7 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 
 	case recents
 	case tags
+	case trash
 	case favoriteItems
 	case availableOfflineItems
 
@@ -449,6 +450,13 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 				return OCSavedSearch(scope: .account, location: nil, name: OCLocalizedString("Recents", nil), isTemplate: false, searchTerm: ":recent :file").withCustomIcon(name: "clock.arrow.circlepath").useNameAsTitle(true).useSortDescriptor(SortDescriptor(method: .lastUsed, direction: .ascending))
 			}
 
+			// Favorites
+			if bookmark?.hasCapability(.favorites) == true {
+				addSidebarItem(.favoriteItems) {
+					return buildSidebarSpecialItem(with: OCLocalizedString("Favorites", nil), icon: OCSymbol.icon(forSymbolName: "star"), for: .favoriteItems)
+				}
+			}
+
 			// Tags
 			if configuration.showTags {
 				addSidebarItem(.tags) {
@@ -456,11 +464,9 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 				}
 			}
 
-			// Favorites
-			if bookmark?.hasCapability(.favorites) == true {
-				addSidebarItem(.favoriteItems) {
-					return buildSidebarSpecialItem(with: OCLocalizedString("Favorites", nil), icon: OCSymbol.icon(forSymbolName: "star"), for: .favoriteItems)
-				}
+			// Trash
+			addSidebarItem(.trash) {
+				return buildSidebarSpecialItem(with: HCL10n.Trash.title, icon: OCSymbol.icon(forSymbolName: "trash"), for: .trash)
 			}
 
 			if otherItems.count > 0 {

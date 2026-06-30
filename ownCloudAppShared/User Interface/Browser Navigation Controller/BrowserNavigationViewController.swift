@@ -30,6 +30,14 @@ public protocol ScrollViewProviding: AnyObject {
 	var providedScrollView: UIScrollView? { get }
 }
 
+public protocol BrowserNavigationSidebarToggleControlling: AnyObject {
+	var suppressesBrowserSidebarToggle: Bool { get }
+}
+
+public protocol BrowserNavigationTabBarVisibilityControlling: AnyObject {
+	var prefersTabBarHidden: Bool { get }
+}
+
 open class BrowserNavigationViewController: EmbeddingViewController, Themeable, BrowserNavigationHistoryDelegate, ThemeCSSAutoSelector {
 	lazy var contentContainerView: UIView = {
 		let view = UIView()
@@ -611,6 +619,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		switch specialItem {
 			case .tags:
 				return OCLocalizedString("Tags", nil)
+			case .trash:
+				return HCL10n.Trash.title
 			default:
 				return nil
 		}
@@ -809,6 +819,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			let shouldPreferSidebarToggle = !detachedFileList
 				&& (atFilesRoot || hasBreadcrumbNavigation || !hasHistoryBack)
 			let shouldShowSidebarToggle = shouldPreferSidebarToggle && shouldShowSidebarToggleByDisplayMode
+				&& (contentViewController as? BrowserNavigationSidebarToggleControlling)?.suppressesBrowserSidebarToggle != true
 			let shouldShowBackButton = detachedFileList && hasHistoryBack
 				|| (hasHistoryBack && !hasBreadcrumbNavigation && !atFilesRoot)
 
@@ -1040,7 +1051,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	public var emptyHistoryBehaviour: EmptyHistoryBehaviour = .none
 	public var hideSideBarInOverDisplayModeOnPush: Bool = true
 
-	func setTabBarHidden(_ isHidden: Bool, animated: Bool = true) {
+	public func setTabBarHidden(_ isHidden: Bool, animated: Bool = true) {
+		let resolvedHidden = isHidden || contentPrefersTabBarHidden
 		let animations = {
 			self.updateDynamicLayout()
 			self.tabBarView.layoutIfNeeded()
@@ -1051,13 +1063,17 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		}
 
 		updateDynamicLayout()
-		self.isTabBarHidden = isHidden
+		self.isTabBarHidden = resolvedHidden
 		if animated {
 			UIView.animate(withDuration: 0.3, animations: animations, completion: completion)
 		} else {
 			animations()
 			completion(true)
 		}
+	}
+
+	private var contentPrefersTabBarHidden: Bool {
+		(contentViewController as? BrowserNavigationTabBarVisibilityControlling)?.prefersTabBarHidden == true
 	}
 
 	func setContainerLidHidden(_ isHidden: Bool, animated: Bool = true) {
