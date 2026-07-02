@@ -39,7 +39,7 @@ public enum TrashDebugLogging {
 	}
 
 	public static func log(_ message: String) {
-		Log.debug(tagged: tag, message)
+		Log.debug(tagged: tag, "%@", message)
 	}
 
 	public static func log(item: OCItem, context: String) {

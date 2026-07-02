@@ -670,6 +670,8 @@
 		DCA0000103ABCDEF00000001 /* TagsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000102ABCDEF00000001 /* TagsViewController.swift */; };
 		DCA0000303ABCDEF00000001 /* TrashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000302ABCDEF00000001 /* TrashViewController.swift */; };
 		DCA0000311ABCDEF00000001 /* OCItem+TrashPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000310ABCDEF00000001 /* OCItem+TrashPresentation.swift */; };
+		DCA0000313ABCDEF00000001 /* TrashErrorPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000312ABCDEF00000001 /* TrashErrorPresentation.swift */; };
+		DCA0000315ABCDEF00000001 /* TrashRestoreConflictChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000314ABCDEF00000001 /* TrashRestoreConflictChecker.swift */; };
 		DCA0000305ABCDEF00000001 /* TrashItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000304ABCDEF00000001 /* TrashItemCell.swift */; };
 		DCA0000307ABCDEF00000001 /* TrashLayoutMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000306ABCDEF00000001 /* TrashLayoutMetrics.swift */; };
 		DCA000030ABCDEEF00000001 /* TrashDebugLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA0000309ABCDEEF00000001 /* TrashDebugLogging.swift */; };
@@ -1848,6 +1850,8 @@
 		DCA0000102ABCDEF00000001 /* TagsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsViewController.swift; sourceTree = "<group>"; };
 		DCA0000302ABCDEF00000001 /* TrashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashViewController.swift; sourceTree = "<group>"; };
 		DCA0000310ABCDEF00000001 /* OCItem+TrashPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OCItem+TrashPresentation.swift"; sourceTree = "<group>"; };
+		DCA0000312ABCDEF00000001 /* TrashErrorPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashErrorPresentation.swift; sourceTree = "<group>"; };
+		DCA0000314ABCDEF00000001 /* TrashRestoreConflictChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashRestoreConflictChecker.swift; sourceTree = "<group>"; };
 		DCA0000304ABCDEF00000001 /* TrashItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashItemCell.swift; sourceTree = "<group>"; };
 		DCA0000306ABCDEF00000001 /* TrashLayoutMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashLayoutMetrics.swift; sourceTree = "<group>"; };
 		DCA0000309ABCDEEF00000001 /* TrashDebugLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashDebugLogging.swift; sourceTree = "<group>"; };
@@ -3441,6 +3445,8 @@
 			children = (
 				DCA0000302ABCDEF00000001 /* TrashViewController.swift */,
 				DCA0000310ABCDEF00000001 /* OCItem+TrashPresentation.swift */,
+				DCA0000312ABCDEF00000001 /* TrashErrorPresentation.swift */,
+				DCA0000314ABCDEF00000001 /* TrashRestoreConflictChecker.swift */,
 				DCA0000304ABCDEF00000001 /* TrashItemCell.swift */,
 				DCA0000306ABCDEF00000001 /* TrashLayoutMetrics.swift */,
 			);
@@ -5486,6 +5492,8 @@
 				DCA0000103ABCDEF00000001 /* TagsViewController.swift in Sources */,
 				DCA0000303ABCDEF00000001 /* TrashViewController.swift in Sources */,
 				DCA0000311ABCDEF00000001 /* OCItem+TrashPresentation.swift in Sources */,
+				DCA0000313ABCDEF00000001 /* TrashErrorPresentation.swift in Sources */,
+				DCA0000315ABCDEF00000001 /* TrashRestoreConflictChecker.swift in Sources */,
 				DCA0000305ABCDEF00000001 /* TrashItemCell.swift in Sources */,
 				DCA0000307ABCDEF00000001 /* TrashLayoutMetrics.swift in Sources */,
 				DCA0000105ABCDEF00000001 /* TagEditViewController.swift in Sources */,

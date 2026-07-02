@@ -41,6 +41,7 @@ final class TrashItemCell: UICollectionViewCell, Themeable {
 	private var themeRegistered = false
 	private var isDark = false
 	private var iconRequest: OCResourceRequest?
+	private var configuredItemKey: String?
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -79,8 +80,9 @@ final class TrashItemCell: UICollectionViewCell, Themeable {
 
 	override func prepareForReuse() {
 		super.prepareForReuse()
-		iconImageView.image = nil
 		iconRequest = nil
+		configuredItem = nil
+		configuredItemKey = nil
 	}
 
 	override func didMoveToWindow() {
@@ -101,6 +103,11 @@ final class TrashItemCell: UICollectionViewCell, Themeable {
 		TrashDebugLogging.log(item: item, context: "TrashItemCell.configure")
 		TrashDebugLogging.log("TrashItemCell.configure core=\(core != nil ? "present" : "nil") resourceManager=\(core?.vault.resourceManager != nil ? "present" : "nil") layout=\(layout)")
 
+		let itemKey = item.path ?? item.fileID ?? item.eTag ?? item.name ?? ""
+		let itemConfigurationKey = "\(itemKey)|\(layout)|\(showsSelection)|\(isSelected)"
+		let shouldReloadIcon = itemConfigurationKey != configuredItemKey
+		configuredItemKey = itemConfigurationKey
+
 		let needsLayoutUpdate = layout != currentLayout || showsSelection != self.showsSelection
 		self.showsSelection = showsSelection
 		selectionIndicator.isHidden = !showsSelection
@@ -116,7 +123,7 @@ final class TrashItemCell: UICollectionViewCell, Themeable {
 		detailLabel.text = item.trashDetailText
 		detailLabel.isHidden = false
 
-		loadIcon(for: item, core: core, layout: layout)
+		loadIcon(for: item, core: core, layout: layout, reloadPlaceholder: shouldReloadIcon)
 		updateSelectionAppearance(isSelected: isSelected)
 		accessibilityLabel = [titleLabel.text, detailLabel.text].compactMap { $0 }.joined(separator: ", ")
 	}
@@ -149,30 +156,35 @@ final class TrashItemCell: UICollectionViewCell, Themeable {
 		}
 	}
 
-	private func loadIcon(for item: OCItem, core: OCCore?, layout: Layout) {
-		if let previousRequest = iconRequest {
-			core?.vault.resourceManager?.stop(previousRequest)
+	private func loadIcon(for item: OCItem, core: OCCore?, layout: Layout, reloadPlaceholder: Bool) {
+		if reloadPlaceholder {
+			if let previousRequest = iconRequest {
+				core?.vault.resourceManager?.stop(previousRequest)
+			}
+			iconRequest = nil
+
+			let iconSize = iconSize(for: layout)
+			item.trashApplyPresentationMimeType()
+			iconImageView.image = item.trashIconImage(fitIn: iconSize)
 		}
-		iconRequest = nil
 
 		let iconSize = iconSize(for: layout)
-		item.trashApplyPresentationMimeType()
-
-		let iconImage = item.trashIconImage(fitIn: iconSize)
-		iconImageView.image = iconImage
 
 		TrashDebugLogging.log("""
 		TrashItemCell.loadIcon: \
 		iconSize=\(iconSize) \
 		effectiveMime=\(item.trashEffectiveMimeType ?? "nil") \
 		iconName=\(item.iconName ?? "nil") \
-		iconImage=\(iconImage != nil ? "present(\(iconImage?.size ?? .zero))" : "nil") \
+		iconImage=\(iconImageView.image != nil ? "present(\(iconImageView.image?.size ?? .zero))" : "nil") \
 		supportsThumbnail=\(item.trashSupportsThumbnail) \
-		thumbnailAvailability=\(item.thumbnailAvailability.rawValue)
+		thumbnailAvailability=\(item.thumbnailAvailability.rawValue) \
+		reloadPlaceholder=\(reloadPlaceholder)
 		""")
 
-		guard item.trashSupportsThumbnail else {
-			TrashDebugLogging.log("TrashItemCell.loadIcon: skipping thumbnail request")
+		guard item.trashSupportsThumbnail, iconRequest == nil else {
+			if !item.trashSupportsThumbnail {
+				TrashDebugLogging.log("TrashItemCell.loadIcon: skipping thumbnail request")
+			}
 			return
 		}
 
