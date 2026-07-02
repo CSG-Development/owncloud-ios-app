@@ -5,6 +5,7 @@ public enum HCConfig {
 	public static let supportLink: URL = URL(string: "http://seagate.com/")!
 
 	// Pinning
+	// TODO: Reenable certificate pinning when ready for production.
     public static var disableCertificatePinning: Bool = true
 	public static let raPinnedCertificateFiles: [String] = [
 		"fake-device-noveo.cer"
