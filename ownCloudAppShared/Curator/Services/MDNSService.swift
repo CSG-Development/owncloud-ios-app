@@ -13,8 +13,12 @@ public struct LocalDevice: Sendable, Codable {
 
 private enum Constants {
 	static let mDNSServiceType = "_https._tcp"
-	static func isHomeCloud(_ name: String) -> Bool {
-		name.range(of: "homecloud", options: [.caseInsensitive]) != nil
+	static let txtRecordKey = "seagate"
+	static let txtRecordValue = "homecloud"
+
+	static func isHomeCloudDevice(_ result: NWBrowser.Result) -> Bool {
+		guard case .bonjour(let txtRecord) = result.metadata else { return false }
+		return txtRecord[txtRecordKey] == txtRecordValue
 	}
 }
 
@@ -33,7 +37,7 @@ public final class MDNSService {
 	public init() {}
 
 	public func start() {
-		let descriptor = NWBrowser.Descriptor.bonjour(type: Constants.mDNSServiceType, domain: nil)
+		let descriptor = NWBrowser.Descriptor.bonjourWithTXTRecord(type: Constants.mDNSServiceType, domain: nil)
 		let params = NWParameters()
 		params.includePeerToPeer = true
 
@@ -67,7 +71,7 @@ public final class MDNSService {
 				switch change {
 				case .added(let result), .changed(_, let result, _):
 					guard case let .service(name: name, type: _, domain: _, interface: _) = result.endpoint else { continue }
-					guard Constants.isHomeCloud(name) else { continue }
+					guard Constants.isHomeCloudDevice(result) else { continue }
 					self.resolve(result: result)
 					Log.debug("[STX-MDNS]: Found service: \"\(name)\"")
 
@@ -75,7 +79,7 @@ public final class MDNSService {
 					// Spec: when a service disappears, remove it from the local device list
 					// immediately so stale entries don't accumulate until WiFi loss or restart.
 					guard case let .service(name: name, type: _, domain: _, interface: _) = result.endpoint else { continue }
-					guard Constants.isHomeCloud(name) else { continue }
+
 					self.remove(byName: name)
 					Log.debug("[STX-MDNS]: Removed service: \"\(name)\"")
 
