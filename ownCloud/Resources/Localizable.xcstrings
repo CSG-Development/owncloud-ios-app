@@ -105485,345 +105485,117 @@
       "extractionState" : "manual",
       "localizations" : {
         "ca" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "cs" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "de" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "en-GB" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "eu" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "fr" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "ko" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "mk" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "nb-NO" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "nn-NO" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "pt-BR" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "pt-PT" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "ru" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "sq" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "th-TH" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "tr" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         },
         "zh-Hans" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "1 selected item will be permanently deleted. This cannot be undone."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%d selected item(s) will be permanently deleted. This cannot be undone."
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will also remove them from their album(s). \n\nYou can’t undo this action."
           }
         }
       }
@@ -106761,6 +106533,829 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pending sync"
+          }
+        }
+      }
+    },
+    "Trash.deleteSuccess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "cs" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "en-GB" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "eu" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "ko" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "mk" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "nb-NO" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "nn-NO" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "pt-PT" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "sq" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "th-TH" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "tr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One item permanently deleted"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%d items permanently deleted"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Trash.Restore.nameConflict" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A file with this name already exists in the destination folder."
+          }
+        }
+      }
+    },
+    "Trash.Restore.partialSuccess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) restored. %d item(s) could not be restored."
+          }
+        }
+      }
+    },
+    "Trash.partialDeleteFailure" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d item(s) permanently deleted. %d item(s) could not be deleted."
+          }
+        }
+      }
+    },
+    "Trash.deleteQueuedSuccess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items were queued for permanent deletion"
           }
         }
       }

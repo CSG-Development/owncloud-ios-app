@@ -277,6 +277,12 @@ public enum HCL10n {
 		public static func restoreSuccess(_ count: Int) -> String {
 			String(format: OCLocalizedString("Trash.restoreSuccess", nil), count)
 		}
+		public static func deleteSuccess(_ count: Int) -> String {
+			String(format: OCLocalizedString("Trash.deleteSuccess", nil), count)
+		}
+		public static func deleteQueuedSuccess(_ count: Int) -> String {
+			String(format: OCLocalizedString("Trash.deleteQueuedSuccess", nil), count)
+		}
 		public static var retentionNotice: String { OCLocalizedString("Trash.retentionNotice", nil) }
 		public static func daysUntilDeletion(_ days: Int) -> String {
 			String(format: OCLocalizedString("Trash.daysLeft", nil), days)
@@ -293,6 +299,15 @@ public enum HCL10n {
 		public static var restoreError: String { OCLocalizedString("Trash.restoreError", nil) }
 		public static var deleteError: String { OCLocalizedString("Trash.deleteError", nil) }
 		public static var errorOk: String { OCLocalizedString("Trash.errorOk", nil) }
+		public enum Restore {
+			public static var nameConflict: String { OCLocalizedString("Trash.Restore.nameConflict", nil) }
+			public static func partialSuccess(succeeded: Int, failed: Int) -> String {
+				String(format: OCLocalizedString("Trash.Restore.partialSuccess", nil), succeeded, failed)
+			}
+		}
+		public static func partialDeleteFailure(succeeded: Int, failed: Int) -> String {
+			String(format: OCLocalizedString("Trash.partialDeleteFailure", nil), succeeded, failed)
+		}
 		public enum Delete {
 			public static func title(count: Int) -> String {
 				String(format: OCLocalizedString("Trash.Delete.title", nil), count)

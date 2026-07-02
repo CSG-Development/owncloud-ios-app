@@ -851,7 +851,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			case .activity:
 				tabBarView.selectedTab = .status
 			default:
-				break
+				// Trash, tags, and other sidebar items are not tab-bar destinations.
+				tabBarView.selectedTab = nil
 		}
 	}
 

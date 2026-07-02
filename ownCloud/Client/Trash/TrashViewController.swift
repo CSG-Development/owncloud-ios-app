@@ -156,8 +156,16 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 	private var foregroundObserver: NSObjectProtocol?
 	private var connectionStatusObservation: NSKeyValueObservation?
 	private var isShowingCachedContent = false
-	/// Trash item IDs currently being permanently deleted; excluded from fetch results until the operation completes.
+	private var hasAppliedContentSnapshot = false
+	private var isBulkActionInProgress = false
+	/// Trash item IDs queued for permanent deletion; excluded from fetch results until the server confirms removal.
 	private var pendingPermanentDeleteIDs = Set<String>()
+	private var pendingServerFetchCompletion: (() -> Void)?
+
+	private struct TrashBulkItemResult {
+		let item: OCItem
+		let error: Error?
+	}
 
 	private lazy var navigationTitleLabel: ThemeCSSLabel = {
 		let label = ThemeCSSLabel(withSelectors: [.title])
@@ -220,6 +228,22 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		) { [weak self] in
 			self?.confirmDeleteSelectedItems()
 		}
+	}()
+
+	private lazy var bulkActionOverlay: UIView = {
+		let overlay = UIView()
+		overlay.translatesAutoresizingMaskIntoConstraints = false
+		overlay.backgroundColor = UIColor.black.withAlphaComponent(0.08)
+		overlay.isHidden = true
+		overlay.isUserInteractionEnabled = true
+		return overlay
+	}()
+
+	private lazy var bulkActionActivityIndicator: UIActivityIndicatorView = {
+		let indicator = UIActivityIndicatorView(style: .large)
+		indicator.translatesAutoresizingMaskIntoConstraints = false
+		indicator.hidesWhenStopped = true
+		return indicator
 	}()
 
 	private lazy var layoutToggleButton: UIButton = {
@@ -307,6 +331,8 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 
 		view.addSubview(collectionView)
 		view.addSubview(bottomActionBar)
+		view.addSubview(bulkActionOverlay)
+		bulkActionOverlay.addSubview(bulkActionActivityIndicator)
 
 		NSLayoutConstraint.activate([
 			collectionView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -316,10 +342,17 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 
 			bottomActionBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 			bottomActionBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			bottomActionBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+			bottomActionBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+			bulkActionOverlay.topAnchor.constraint(equalTo: view.topAnchor),
+			bulkActionOverlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			bulkActionOverlay.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			bulkActionOverlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+			bulkActionActivityIndicator.centerXAnchor.constraint(equalTo: bulkActionOverlay.centerXAnchor),
+			bulkActionActivityIndicator.centerYAnchor.constraint(equalTo: bulkActionOverlay.centerYAnchor)
 		])
 
-		navigationItem.rightBarButtonItems = [layoutBarButtonItem, selectBarButtonItem]
 		updateLayoutBarButtonItem()
 		updateNavigationTitle()
 		updateNavigationBarButtonItems()
@@ -440,6 +473,7 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		collectionView.backgroundColor = collection.css.getColor(.fill, for: collectionView) ?? appBackground
 		bottomActionBar.backgroundColor = appBackground
 		layoutToggleButton.tintColor = HCColor.Content.textPrimary(isDark)
+		bulkActionActivityIndicator.color = HCColor.Content.textPrimary(isDark)
 		navigationTitleLabel.textColor = HCColor.Content.textPrimary(isDark)
 		updateBottomActionButtonStyles(isDark: isDark)
 		if event != .initial {
@@ -486,10 +520,15 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		return items
 	}
 
-	private func fetchTrashedItems(preserveSelection: Bool = false) {
+	private func fetchTrashedItems(preserveSelection: Bool = false, onServerFetchComplete: (() -> Void)? = nil) {
 		guard let core = clientContext.core else {
 			refreshControl?.endRefreshing()
+			onServerFetchComplete?()
 			return
+		}
+
+		if let onServerFetchComplete {
+			pendingServerFetchCompletion = onServerFetchComplete
 		}
 
 		let folder = TrashFeatures.folderNavigationEnabled ? folderStack.last : nil
@@ -504,7 +543,10 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 
 				if fromCache {
 					self.isShowingCachedContent = core.connectionStatus != .online
-					self.applyFetchedTrashItems(resolvedItems, previousSelection: previousSelection)
+					self.applyFetchedTrashItems(resolvedItems, previousSelection: previousSelection, fromServer: false)
+					if core.connectionStatus != .online {
+						self.finishPendingServerFetch()
+					}
 					return
 				}
 
@@ -515,15 +557,25 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 						TrashDebugLogging.log("TrashViewController.fetchTrashedItems: error=\(error.localizedDescription)")
 						self.showError(error, title: HCL10n.Trash.loadingError)
 					}
+					self.finishPendingServerFetch()
 					return
 				}
 
-				self.applyFetchedTrashItems(resolvedItems, previousSelection: previousSelection)
+				self.applyFetchedTrashItems(resolvedItems, previousSelection: previousSelection, fromServer: true)
+				self.finishPendingServerFetch()
 			}
 		}
 	}
 
-	private func applyFetchedTrashItems(_ fetchedItems: [OCItem], previousSelection: Set<String>?) {
+	private func finishPendingServerFetch() {
+		let completion = pendingServerFetchCompletion
+		pendingServerFetchCompletion = nil
+		completion?()
+	}
+
+	private func applyFetchedTrashItems(_ fetchedItems: [OCItem], previousSelection: Set<String>?, fromServer: Bool) {
+		prunePendingPermanentDeleteIDs(using: fetchedItems, fromServer: fromServer)
+
 		var resolvedItems = fetchedItems
 		if !pendingPermanentDeleteIDs.isEmpty {
 			resolvedItems = resolvedItems.filter { !pendingPermanentDeleteIDs.contains(itemIdentifier(for: $0)) }
@@ -542,7 +594,8 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 			selectedItemIDs.removeAll()
 		}
 
-		applySnapshot()
+		applySnapshot(animated: hasAppliedContentSnapshot)
+		hasAppliedContentSnapshot = true
 		updateNavigationTitle()
 		updateNavigationBarButtonItems()
 		updateActionButtonsEnabled()
@@ -629,10 +682,18 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 	}
 
 	@objc private func toggleItemLayout() {
+		let wasAtTop = collectionView.contentOffset.y <= -collectionView.adjustedContentInset.top + 0.5
+
 		itemLayout = itemLayout == .list ? Self.preferredGridLayout : .list
+		ItemLayoutPreference.preferred = itemLayout
 		updateLayoutBarButtonItem()
-		reloadLayout(animated: true)
-		applySnapshot(animated: true, reconfigureAll: true)
+		reloadLayout(animated: false)
+		applySnapshot(animated: false, reconfigureAll: true)
+
+		if wasAtTop {
+			collectionView.layoutIfNeeded()
+			collectionView.setContentOffset(CGPoint(x: 0, y: -collectionView.adjustedContentInset.top), animated: false)
+		}
 	}
 
 	private var layoutToggleTargetLayout: ItemLayout {
@@ -663,6 +724,8 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 	private func setSelecting(_ selecting: Bool) {
 		guard isSelecting != selecting else { return }
 
+		let wasAtTop = collectionView.contentOffset.y <= -collectionView.adjustedContentInset.top + 0.5
+
 		isSelecting = selecting
 		collectionView.allowsMultipleSelection = selecting
 		selectBarButtonItem.title = selecting ? HCL10n.Trash.cancel : HCL10n.Trash.select
@@ -678,8 +741,13 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		browserNavigationViewController?.updateNavigation()
 		browserNavigationViewController?.setTabBarHidden(selecting && hidesNavigationChromeDuringSelection, animated: true)
 		reloadLayout(animated: false)
-		restoreCollectionViewSelection()
+		applySnapshot(animated: false, reconfigureAll: true)
 		updateActionButtonsEnabled()
+
+		if wasAtTop {
+			collectionView.layoutIfNeeded()
+			collectionView.setContentOffset(CGPoint(x: 0, y: -collectionView.adjustedContentInset.top), animated: false)
+		}
 	}
 
 	private func updateCollectionViewInsets() {
@@ -703,7 +771,7 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		updateNavigationTitle()
 		browserNavigationViewController?.updateNavigation()
 		reloadSelectAllHeader()
-		reconfigureVisibleCells()
+		applySnapshot(animated: false, reconfigureAll: true)
 	}
 
 	private func reloadSelectAllHeader() {
@@ -715,8 +783,27 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 
 	private func updateActionButtonsEnabled() {
 		let hasSelection = !selectedItemIDs.isEmpty
-		restoreButton.isEnabled = hasSelection
-		deleteButton.isEnabled = hasSelection
+		let enabled = hasSelection && !isBulkActionInProgress
+		restoreButton.isEnabled = enabled
+		deleteButton.isEnabled = enabled
+	}
+
+	private func setBulkActionInProgress(_ inProgress: Bool) {
+		guard isBulkActionInProgress != inProgress else { return }
+
+		isBulkActionInProgress = inProgress
+		bulkActionOverlay.isHidden = !inProgress
+		collectionView.isUserInteractionEnabled = !inProgress
+		layoutToggleButton.isEnabled = !inProgress && !items.isEmpty
+		selectBarButtonItem.isEnabled = !inProgress && !items.isEmpty
+
+		if inProgress {
+			bulkActionActivityIndicator.startAnimating()
+		} else {
+			bulkActionActivityIndicator.stopAnimating()
+		}
+
+		updateActionButtonsEnabled()
 	}
 
 	// MARK: - UICollectionViewDelegate
@@ -775,35 +862,74 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		let itemsToRestore = selectedItems
 		guard !itemsToRestore.isEmpty, let core = clientContext.core else { return }
 
-		var pendingRestores = itemsToRestore.count
-		var failedRestores = 0
-		var firstError: Error?
+		setBulkActionInProgress(true)
 
-		for item in itemsToRestore {
-			restoreTrashItem(item, using: core) { [weak self] error in
-				OnMainThread {
-					guard let self else { return }
+		performSerialTrashOperations(items: itemsToRestore, core: core, operation: performRestoreOperation) { [weak self] results in
+			guard let self else { return }
 
-					if let error {
-						failedRestores += 1
-						if firstError == nil {
-							firstError = error
-						}
-					}
-
-					pendingRestores -= 1
-					guard pendingRestores == 0 else { return }
-
-					self.setSelecting(false)
-					self.fetchTrashedItems()
-
-					if failedRestores == 0 {
-						self.showRestoreSuccessToast(restoredCount: itemsToRestore.count)
-					} else if let firstError {
-						self.showError(firstError, title: HCL10n.Trash.restoreError)
-					}
-				}
+			self.fetchTrashedItems {
+				self.completeBulkRestore(itemsToRestore: itemsToRestore, results: results)
 			}
+		}
+	}
+
+	private func completeBulkRestore(itemsToRestore: [OCItem], results: [TrashBulkItemResult]) {
+		setBulkActionInProgress(false)
+		setSelecting(false)
+
+		let remainingIDs = itemIDsStillPresent(from: itemsToRestore)
+		let hasOperationErrors = results.contains { $0.error != nil }
+		let succeededCount = itemsToRestore.count - remainingIDs.count
+		let failedCount = remainingIDs.count
+
+		if remainingIDs.isEmpty && !hasOperationErrors {
+			showActionSuccessToast(message: HCL10n.Trash.restoreSuccess(succeededCount))
+			return
+		}
+
+		let failureMessage = bestRestoreFailureMessage(results: results, remainingIDs: remainingIDs)
+
+		if succeededCount == 0 {
+			showError(message: failureMessage, title: HCL10n.Trash.restoreError)
+		} else {
+			showPartialBulkFailureAlert(
+				title: HCL10n.Trash.restoreError,
+				message: HCL10n.Trash.Restore.partialSuccess(succeeded: succeededCount, failed: failedCount) + "\n\n" + failureMessage
+			)
+		}
+	}
+
+	private func performRestoreOperation(item: OCItem, core: OCCore, completion: @escaping (Error?) -> Void) {
+		restoreTrashItem(item, using: core, completion: completion)
+	}
+
+	private func performTrashItemOperationWithRetry(
+		item: OCItem,
+		core: OCCore,
+		attempt: Int = 0,
+		operation: @escaping (OCItem, OCCore, @escaping (Error?) -> Void) -> Void,
+		completion: @escaping (Error?) -> Void
+	) {
+		operation(item, core) { [weak self] error in
+			guard let self else {
+				completion(error)
+				return
+			}
+
+			if let error, attempt < 1, TrashErrorPresentation.isTransientLockError(error) {
+				DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+					self.performTrashItemOperationWithRetry(
+						item: item,
+						core: core,
+						attempt: attempt + 1,
+						operation: operation,
+						completion: completion
+					)
+				}
+				return
+			}
+
+			completion(error)
 		}
 	}
 
@@ -817,8 +943,22 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 			return
 		}
 
-		_ = core.connection.restoreTrashedItem(item) { error in
-			completion(error)
+		TrashRestoreConflictChecker.checkDestinationConflict(for: item, connection: core.connection) { conflictError in
+			if let conflictError {
+				completion(conflictError)
+				return
+			}
+
+			_ = core.connection.restoreTrashedItem(item) { error in
+				if let error {
+					completion(error)
+					return
+				}
+
+				core.removeTrashedItem(fromCache: item) { cacheError in
+					completion(cacheError)
+				}
+			}
 		}
 	}
 
@@ -828,7 +968,7 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 
 		let alert = UIAlertController(
 			title: HCL10n.Trash.Delete.title(count: count),
-			message: nil,
+			message: HCL10n.Trash.Delete.description,
 			preferredStyle: .alert
 		)
 		alert.addAction(UIAlertAction(title: HCL10n.Trash.Delete.cancel, style: .cancel) { [weak self] _ in
@@ -846,39 +986,159 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		let itemsToDelete = selectedItems
 		guard !itemsToDelete.isEmpty, let core = clientContext.core else { return }
 
+		setBulkActionInProgress(true)
+
+		let queuedForDeletion = core.connectionStatus != .online
 		let deleteIDs = Set(itemsToDelete.map { itemIdentifier(for: $0) })
 		pendingPermanentDeleteIDs.formUnion(deleteIDs)
 		removeItemsFromDisplay(withIDs: deleteIDs)
 		setSelecting(false)
 
-		var pendingDeletes = itemsToDelete.count
-		var failedDeletes = 0
-		var firstError: Error?
+		performSerialTrashOperations(items: itemsToDelete, core: core, operation: performPermanentDeleteOperation) { [weak self] results in
+			guard let self else { return }
 
-		for item in itemsToDelete {
-			core.permanentlyDeleteTrashedItem(item) { [weak self] error, _, _, _ in
+			self.fetchTrashedItems {
+				self.completeBulkDelete(
+					itemsToDelete: itemsToDelete,
+					deleteIDs: deleteIDs,
+					results: results,
+					queuedForDeletion: queuedForDeletion
+				)
+			}
+		}
+	}
+
+	private func completeBulkDelete(
+		itemsToDelete: [OCItem],
+		deleteIDs: Set<String>,
+		results: [TrashBulkItemResult],
+		queuedForDeletion: Bool
+	) {
+		for result in results where result.error != nil {
+			pendingPermanentDeleteIDs.remove(itemIdentifier(for: result.item))
+		}
+		setBulkActionInProgress(false)
+
+		let remainingIDs = itemIDsStillPresent(from: itemsToDelete)
+		let succeededCount = itemsToDelete.count - remainingIDs.count
+		let failedCount = remainingIDs.count
+
+		if failedCount == 0 {
+			let message = queuedForDeletion
+				? HCL10n.Trash.deleteQueuedSuccess(succeededCount)
+				: HCL10n.Trash.deleteSuccess(succeededCount)
+			showActionSuccessToast(message: message)
+			return
+		}
+
+		let failureMessage = results.compactMap(\.error).first.map { TrashErrorPresentation.userMessage(for: $0) }
+			?? HCL10n.Trash.deleteError
+
+		if succeededCount == 0 {
+			showError(message: failureMessage, title: HCL10n.Trash.deleteError)
+		} else {
+			showPartialBulkFailureAlert(
+				title: HCL10n.Trash.deleteError,
+				message: HCL10n.Trash.partialDeleteFailure(succeeded: succeededCount, failed: failedCount) + "\n\n" + failureMessage
+			)
+		}
+	}
+
+	private func performPermanentDeleteOperation(item: OCItem, core: OCCore, completion: @escaping (Error?) -> Void) {
+		performTrashItemOperationWithRetry(item: item, core: core, operation: permanentlyDeleteTrashItem) { completion($0) }
+	}
+
+	private func permanentlyDeleteTrashItem(_ item: OCItem, using core: OCCore, completion: @escaping (Error?) -> Void) {
+		_ = core.permanentlyDeleteTrashedItem(item, enqueueCompletionHandler: { enqueueError in
+			completion(enqueueError)
+		}, resultHandler: { error, _, _, _ in
+			if let error {
+				TrashDebugLogging.log("TrashViewController.permanentlyDeleteTrashItem completion: \(error.localizedDescription)")
+			}
+		})
+	}
+
+	private func prunePendingPermanentDeleteIDs(using fetchedItems: [OCItem], fromServer: Bool) {
+		guard fromServer, !pendingPermanentDeleteIDs.isEmpty else { return }
+
+		let presentIDs = Set(fetchedItems.map { itemIdentifier(for: $0) })
+		pendingPermanentDeleteIDs = pendingPermanentDeleteIDs.intersection(presentIDs)
+	}
+
+	private func performSerialTrashOperations(
+		items: [OCItem],
+		core: OCCore,
+		operation: @escaping (OCItem, OCCore, @escaping (Error?) -> Void) -> Void,
+		completion: @escaping ([TrashBulkItemResult]) -> Void
+	) {
+		var results: [TrashBulkItemResult] = []
+		var index = 0
+
+		func processNext() {
+			guard index < items.count else {
+				completion(results)
+				return
+			}
+
+			let item = items[index]
+			index += 1
+			operation(item, core) { error in
 				OnMainThread {
-					guard let self else { return }
-
-					if let error {
-						failedDeletes += 1
-						if firstError == nil {
-							firstError = error
-						}
-					}
-
-					pendingDeletes -= 1
-					guard pendingDeletes == 0 else { return }
-
-					self.pendingPermanentDeleteIDs.subtract(deleteIDs)
-					self.fetchTrashedItems()
-
-					if let firstError {
-						self.showError(firstError, title: HCL10n.Trash.deleteError)
-					}
+					results.append(TrashBulkItemResult(item: item, error: error))
+					processNext()
 				}
 			}
 		}
+
+		processNext()
+	}
+
+	private func itemIDsStillPresent(from attemptedItems: [OCItem]) -> Set<String> {
+		var remaining = Set<String>()
+
+		for attempted in attemptedItems {
+			if items.contains(where: { matchesTrashItem($0, attempted) }) {
+				remaining.insert(itemIdentifier(for: attempted))
+			}
+		}
+
+		return remaining
+	}
+
+	private func matchesTrashItem(_ lhs: OCItem, _ rhs: OCItem) -> Bool {
+		if let lhsFileID = lhs.fileID, let rhsFileID = rhs.fileID,
+		   !lhsFileID.isEmpty, lhsFileID == rhsFileID {
+			return true
+		}
+
+		if let lhsPath = lhs.path, let rhsPath = rhs.path,
+		   !lhsPath.isEmpty, lhsPath == rhsPath {
+			return true
+		}
+
+		return itemIdentifier(for: lhs) == itemIdentifier(for: rhs)
+	}
+
+	private func bestRestoreFailureMessage(results: [TrashBulkItemResult], remainingIDs: Set<String>) -> String {
+		let remainingResults = results.filter { remainingIDs.contains(itemIdentifier(for: $0.item)) }
+
+		if let conflictError = results.compactMap(\.error).first(where: { TrashErrorPresentation.isNameConflictError($0) }) {
+			return TrashErrorPresentation.userMessage(for: conflictError)
+		}
+
+		if let conflictError = remainingResults.compactMap(\.error).first(where: { TrashErrorPresentation.isNameConflictError($0) }) {
+			return TrashErrorPresentation.userMessage(for: conflictError)
+		}
+
+		if remainingResults.contains(where: { $0.error == nil }) {
+			return HCL10n.Trash.Restore.nameConflict
+		}
+
+		if let firstError = remainingResults.compactMap(\.error).first {
+			return TrashErrorPresentation.userMessage(for: firstError)
+		}
+
+		return HCL10n.Trash.Restore.nameConflict
 	}
 
 	private func removeItemsFromDisplay(withIDs idsToRemove: Set<String>) {
@@ -886,7 +1146,7 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 
 		items.removeAll { idsToRemove.contains(itemIdentifier(for: $0)) }
 		selectedItemIDs.subtract(idsToRemove)
-		applySnapshot()
+		applySnapshot(animated: hasAppliedContentSnapshot)
 		updateNavigationTitle()
 		updateNavigationBarButtonItems()
 		updateActionButtonsEnabled()
@@ -895,7 +1155,21 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 	// MARK: - Errors
 
 	private func showError(_ error: Error, title: String) {
-		let alert = UIAlertController(title: title, message: error.localizedDescription, preferredStyle: .alert)
+		showError(message: error.localizedDescription, title: title)
+	}
+
+	private func showError(message: String, title: String) {
+		let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+		alert.addAction(UIAlertAction(title: HCL10n.Trash.errorOk, style: .default) { [weak self] _ in
+			self?.syncSelectionChrome()
+		})
+		present(alert, animated: true) { [weak self] in
+			self?.syncSelectionChrome()
+		}
+	}
+
+	private func showPartialBulkFailureAlert(title: String, message: String) {
+		let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
 		alert.addAction(UIAlertAction(title: HCL10n.Trash.errorOk, style: .default) { [weak self] _ in
 			self?.syncSelectionChrome()
 		})
@@ -941,8 +1215,9 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		titleItem.visibleInPriorities = [.standard, .high, .highest]
 		navigationItem.navigationContent.add(items: [titleItem])
 
-		browserNavigationViewController?.updateNavigation()
 		updateFolderBackNavigation()
+		updateNavigationBarButtonItems()
+		browserNavigationViewController?.updateNavigation()
 	}
 
 	private func trashDisplayName(for item: OCItem) -> String {
@@ -1049,13 +1324,22 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 	}
 
 	private func updateNavigationBarButtonItems() {
-		if isSelecting {
-			navigationItem.rightBarButtonItems = [selectBarButtonItem]
-			selectBarButtonItem.isEnabled = true
-		} else {
-			navigationItem.rightBarButtonItems = [layoutBarButtonItem, selectBarButtonItem]
-			selectBarButtonItem.isEnabled = !items.isEmpty
-		}
+		navigationItem.navigationContent.remove(itemsWithIdentifier: "trash-header-actions")
+
+		guard !items.isEmpty else { return }
+
+		layoutToggleButton.isEnabled = !isBulkActionInProgress
+		selectBarButtonItem.isEnabled = !isBulkActionInProgress
+
+		let actionItem = NavigationContentItem(
+			identifier: "trash-header-actions",
+			area: .right,
+			priority: .highest,
+			position: .trailing,
+			items: [layoutBarButtonItem, selectBarButtonItem]
+		)
+		actionItem.visibleInPriorities = [.standard, .high, .highest]
+		navigationItem.navigationContent.add(items: [actionItem])
 	}
 
 	private func makeBottomActionButton(
@@ -1082,10 +1366,10 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		applyBottomActionButtonStyle(deleteButton, title: HCL10n.Trash.delete, style: .primary(configuration: .filled), icon: HCIcon.binx)
 	}
 
-	private func showRestoreSuccessToast(restoredCount: Int) {
+	private func showActionSuccessToast(message: String) {
 		restoreSuccessToast?.removeFromSuperview()
 
-		let toast = NetworkAvailabilityToastView(message: HCL10n.Trash.restoreSuccess(restoredCount), style: .snackbar)
+		let toast = NetworkAvailabilityToastView(message: message, style: .snackbar)
 		toast.configure(for: nil)
 		toast.alpha = 0
 		toast.onDismiss = { [weak self] in
