@@ -294,6 +294,12 @@
 		99EF0CCA2F5190F900AA4521 /* HCCodePadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EF0CC62F5190E200AA4521 /* HCCodePadView.swift */; };
 		99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F175312E8C001500FE7DEC /* ImageCropAction.swift */; };
 		99F175342E8C063E00FE7DEC /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = 99F175332E8C063E00FE7DEC /* Mantis */; };
+		99ZIP032F30C9D10090C477 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 99ZIP022F30C9D10090C477 /* ZIPFoundation */; };
+		99ZIP052F30C9D10090C477 /* ZipArchiveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99ZIP042F30C9D10090C477 /* ZipArchiveService.swift */; };
+		99ZIP0D2F30C9D10090C477 /* ZipDebugLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99ZIP102F30C9D10090C477 /* ZipDebugLogging.swift */; };
+		99ZIP072F30C9D10090C477 /* CompressAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99ZIP062F30C9D10090C477 /* CompressAction.swift */; };
+		99ZIP092F30C9D10090C477 /* DecompressAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99ZIP082F30C9D10090C477 /* DecompressAction.swift */; };
+		99ZIP0B2F30C9D10090C477 /* ZipOperationHUDViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99ZIP0A2F30C9D10090C477 /* ZipOperationHUDViewController.swift */; };
 		99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+Extensions.swift */; };
 		99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EA2E095C1500104592 /* HCButtonStyle.swift */; };
 		99F472F72E095C1500104592 /* HCColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EB2E095C1500104592 /* HCColor.swift */; };
@@ -1492,6 +1498,11 @@
 		99DA8B732E12806F00D726DC /* TelemetryAnalyticsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryAnalyticsTracker.swift; sourceTree = "<group>"; };
 		99DA8B752E12809900D726DC /* AnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsEvent.swift; sourceTree = "<group>"; };
 		99DA8B782E1281D500D726DC /* FileManager+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+Extensions.swift"; sourceTree = "<group>"; };
+		99ZIP042F30C9D10090C477 /* ZipArchiveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipArchiveService.swift; sourceTree = "<group>"; };
+		99ZIP102F30C9D10090C477 /* ZipDebugLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipDebugLogging.swift; sourceTree = "<group>"; };
+		99ZIP062F30C9D10090C477 /* CompressAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompressAction.swift; sourceTree = "<group>"; };
+		99ZIP082F30C9D10090C477 /* DecompressAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecompressAction.swift; sourceTree = "<group>"; };
+		99ZIP0A2F30C9D10090C477 /* ZipOperationHUDViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipOperationHUDViewController.swift; sourceTree = "<group>"; };
 		99DA8B7A2E1286EE00D726DC /* AnalyticsTrackerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsTrackerType.swift; sourceTree = "<group>"; };
 		99DA8B7D2E128A8100D726DC /* AnalyticsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsTracker.swift; sourceTree = "<group>"; };
 		99DF68662E1E672000F1A0B9 /* FirstRunCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstRunCoordinator.swift; sourceTree = "<group>"; };
@@ -2043,6 +2054,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99F175342E8C063E00FE7DEC /* Mantis in Frameworks */,
+				99ZIP032F30C9D10090C477 /* ZIPFoundation in Frameworks */,
 				024F3A2124A3AB410083E11E /* CrashReporter in Frameworks */,
 				394A0B0022EEFC2C00603813 /* ownCloudAppShared.framework in Frameworks */,
 				DC3BE0D82077BC5D002A0AC0 /* ownCloudSDK.framework in Frameworks */,
@@ -2280,6 +2292,7 @@
 			children = (
 				DCE4E43D24C19C3E0051722F /* Action+UserInterface.swift */,
 				DC255E432319AD13007279B1 /* Scanner */,
+				99ZIP0C2F30C9D10090C477 /* Zip */,
 				DCB796A52BCFB5DA00D6D759 /* Shortcuts */,
 				6E586CF52199A70100F680C4 /* Actions+Extensions */,
 				39CD755323D8392D00193950 /* EditDocumentViewController.swift */,
@@ -2344,6 +2357,7 @@
 				DCA0000207ABCDEF00000001 /* Tags */,
 				DCA2EDDB279B0E5D001F04E6 /* Resource Sources */,
 				DCA0000308ABCDEEF00000001 /* Trash */,
+				99ZIP0E2F30C9D10090C477 /* Zip */,
 				DCE4E43424C199860051722F /* Actions */,
 				DC16213C2B8FF02500EB17F8 /* Sidebar Items */,
 				DC9CE3BC2D0F31C800979C44 /* Spaces */,
@@ -2631,6 +2645,8 @@
 				6E91F37D21ECA6FD009436D2 /* CopyAction.swift */,
 				6E586CFF2199A78E00F680C4 /* DeleteAction.swift */,
 				6E3A104C219D6F0100F90C96 /* DuplicateAction.swift */,
+				99ZIP062F30C9D10090C477 /* CompressAction.swift */,
+				99ZIP082F30C9D10090C477 /* DecompressAction.swift */,
 				DC815C3E2A65D9CB00BFF393 /* AvailableOfflineAction.swift */,
 				6E586CFD2199A75900F680C4 /* MoveAction.swift */,
 				6E586CFB2199A72600F680C4 /* OpenInAction.swift */,
@@ -3317,6 +3333,14 @@
 			path = Scanner;
 			sourceTree = "<group>";
 		};
+		99ZIP0C2F30C9D10090C477 /* Zip */ = {
+			isa = PBXGroup;
+			children = (
+				99ZIP0A2F30C9D10090C477 /* ZipOperationHUDViewController.swift */,
+			);
+			path = Zip;
+			sourceTree = "<group>";
+		};
 		DC26ADBD2550C02F0059680D /* Metadata */ = {
 			isa = PBXGroup;
 			children = (
@@ -3814,6 +3838,14 @@
 				DCA0000309ABCDEEF00000001 /* TrashDebugLogging.swift */,
 			);
 			path = Trash;
+			sourceTree = "<group>";
+		};
+		99ZIP0E2F30C9D10090C477 /* Zip */ = {
+			isa = PBXGroup;
+			children = (
+				99ZIP102F30C9D10090C477 /* ZipDebugLogging.swift */,
+			);
+			path = Zip;
 			sourceTree = "<group>";
 		};
 		DCA35D6724CF7B6E00DBE2B0 /* Diagnostic */ = {
@@ -4518,6 +4550,7 @@
 				4CAF783B2282FD40000C85CF /* FileManager+Extension.swift */,
 				DC3DEC7C22AFFE8E00F3352D /* KVOWaiter.swift */,
 				4CC4A21122FA20AD00AE7E2C /* URL+Extensions.swift */,
+				99ZIP042F30C9D10090C477 /* ZipArchiveService.swift */,
 				DCC832DD242C0C3700153F8C /* DisplaySleepPreventer.swift */,
 				DCFEF90526EFA45A001DC7A4 /* VendorServices+App.swift */,
 			);
@@ -4771,6 +4804,7 @@
 				DC8BFC0D2A14CAB900BFF393 /* PocketSVG */,
 				99FC321D2DE99A1C0011D066 /* FirebaseCrashlytics */,
 				99F175332E8C063E00FE7DEC /* Mantis */,
+				99ZIP022F30C9D10090C477 /* ZIPFoundation */,
 			);
 			productName = ownCloud;
 			productReference = 233BDE9C204FEFE500C06732 /* personalCloudFiles.app */;
@@ -5099,6 +5133,7 @@
 				998CC82D2DF97A9700BDA4CB /* XCRemoteSwiftPackageReference "SnapKit" */,
 				995611882E6B6E5100FA252D /* XCRemoteSwiftPackageReference "Reusable" */,
 				99F175302E8BF9DA00FE7DEC /* XCRemoteSwiftPackageReference "Mantis" */,
+				99ZIP012F30C9D10090C477 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				9903EF362F20C9D10090C477 /* XCRemoteSwiftPackageReference "swift-certificates" */,
 			);
 			productRefGroup = 233BDE9D204FEFE500C06732 /* Products */;
@@ -5572,6 +5607,10 @@
 				DCEE1C9C23A0EADD00FE8D98 /* LicenseOfferView.swift in Sources */,
 				99C18E3D2F28AE760001C7F0 /* DeveloperOptionsViewController.swift in Sources */,
 				6E3A104D219D6F0100F90C96 /* DuplicateAction.swift in Sources */,
+				99ZIP052F30C9D10090C477 /* ZipArchiveService.swift in Sources */,
+				99ZIP072F30C9D10090C477 /* CompressAction.swift in Sources */,
+				99ZIP092F30C9D10090C477 /* DecompressAction.swift in Sources */,
+				99ZIP0B2F30C9D10090C477 /* ZipOperationHUDViewController.swift in Sources */,
 				39D06BEC229BE8D8000D7FC9 /* SettingsSection.swift in Sources */,
 				99DA8B792E1281D900D726DC /* FileManager+Extensions.swift in Sources */,
 				DC51FD922475715F0069AB79 /* CellularSettingsViewController.swift in Sources */,
@@ -5783,6 +5822,7 @@
 				DC298C972934D354009FA87F /* IssuesCardViewController.swift in Sources */,
 				DCA2EDE2279B16F1001F04E6 /* ResourceSourceItemIcons.swift in Sources */,
 				DCA000030ABCDEEF00000001 /* TrashDebugLogging.swift in Sources */,
+				99ZIP0D2F30C9D10090C477 /* ZipDebugLogging.swift in Sources */,
 				DCB330E629F18C6F00BFF393 /* OptionGroup.swift in Sources */,
 				DCBAEADE29A5536F00BFF393 /* CollectionViewSupplementaryCellProvider.swift in Sources */,
 				99AD431F2DF310CA00914C19 /* SidebarCollectionViewListCell.swift in Sources */,
@@ -7397,6 +7437,14 @@
 				minimumVersion = 1.7.5;
 			};
 		};
+		99ZIP012F30C9D10090C477 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.19;
+			};
+		};
 		99FC321C2DE99A1C0011D066 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -7456,6 +7504,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 99F175302E8BF9DA00FE7DEC /* XCRemoteSwiftPackageReference "Mantis" */;
 			productName = Mantis;
+		};
+		99ZIP022F30C9D10090C477 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99ZIP012F30C9D10090C477 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
 		};
 		99F472FF2E095CD600104592 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
