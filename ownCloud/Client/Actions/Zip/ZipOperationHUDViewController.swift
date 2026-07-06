@@ -289,8 +289,7 @@ class ZipOperationHUDViewController: CardViewController {
 			}
 
 			let downloadedCount = plan.fileEntries.filter { entry in
-				let item = ZipArchiveService.resolvedItemForDownload(entry.item, core: core)
-				return core.localCopy(of: item) != nil
+				ZipArchiveService.localFileURL(for: entry.item, core: core) != nil
 			}.count
 
 			if totalFiles > 0 {

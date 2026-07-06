@@ -65,58 +65,11 @@ enum ZipArchiveService {
 			return
 		}
 
-		let folders = items.filter { $0.type == .collection }
-		ZipDebugLogging.log("collectArchivePlan: preparing \(folders.count) folder(s) for offline availability")
-		prepareFoldersForCompression(folders, core: core) { error in
-			if let error = error {
-				ZipDebugLogging.log(error: error, context: "collectArchivePlan.prepareFoldersForCompression")
-				completion(.failure(error))
-				return
-			}
-
-			collectArchivePlanEntries(for: items, core: core, completion: completion)
-		}
-	}
-
-	private static func prepareFoldersForCompression(_ folders: [OCItem], core: OCCore, completion: @escaping (Error?) -> Void) {
-		guard folders.count > 0 else {
-			ZipDebugLogging.log("prepareFoldersForCompression: no folders — skipping")
-			completion(nil)
-			return
-		}
-
-		let group = DispatchGroup()
-		var firstError: Error?
-
-		for folder in folders {
-			ZipDebugLogging.log(item: folder, context: "prepareFoldersForCompression.makeAvailableOffline")
-			group.enter()
-			core.makeAvailableOffline(folder, options: [
-				.skipRedundancyChecks: true,
-				.convertExistingLocalDownloads: true
-			], completionHandler: { error, _ in
-				if let error = error as NSError? {
-					if error.isOCError(withCode: .itemPolicyRedundant) {
-						ZipDebugLogging.log("prepareFoldersForCompression: redundant policy for \(Log.mask(folder.name ?? "nil")) — continuing")
-					} else if firstError == nil {
-						ZipDebugLogging.log(error: error, context: "prepareFoldersForCompression.makeAvailableOffline(\(Log.mask(folder.name ?? "nil")))")
-						firstError = error
-					}
-				} else {
-					ZipDebugLogging.log("prepareFoldersForCompression: offline preparation started for \(Log.mask(folder.name ?? "nil"))")
-				}
-				group.leave()
-			})
-		}
-
-		group.notify(queue: .main) {
-			if let firstError = firstError {
-				ZipDebugLogging.log(error: firstError, context: "prepareFoldersForCompression.completed")
-			} else {
-				ZipDebugLogging.log("prepareFoldersForCompression: all folder(s) prepared")
-			}
-			completion(firstError)
-		}
+		// Enumerate folder contents and download each file individually in
+		// downloadArchiveEntries. makeAvailableOffline is intentionally not used
+		// here — it can leave files stuck in .downloading (especially when the
+		// folder tree contains empty subfolders) and blocks compress progress.
+		collectArchivePlanEntries(for: items, core: core, completion: completion)
 	}
 
 	private static func collectArchivePlanEntries(for items: [OCItem], core: OCCore, completion: @escaping (Result<ZipArchivePlan, Error>) -> Void) {
@@ -173,7 +126,12 @@ enum ZipArchiveService {
 				return
 			}
 
-			let plan = ZipArchivePlan(fileEntries: fileEntries, emptyFolderPaths: emptyFolderPaths)
+			let downloadableFileEntries = fileEntries.filter { $0.item.type == .file }
+			if downloadableFileEntries.count < fileEntries.count {
+				ZipDebugLogging.log("collectArchivePlanEntries: filtered \(fileEntries.count - downloadableFileEntries.count) non-file entr\(fileEntries.count - downloadableFileEntries.count == 1 ? "y" : "ies") from plan")
+			}
+
+			let plan = ZipArchivePlan(fileEntries: downloadableFileEntries, emptyFolderPaths: emptyFolderPaths)
 			ZipDebugLogging.log(plan: plan, context: "collectArchivePlanEntries")
 			completion(.success(plan))
 		}
@@ -188,11 +146,11 @@ enum ZipArchiveService {
 		}
 
 		let deadline = Date().addingTimeInterval(600)
-		var startedDownloadKeys = Set<String>()
+		var inFlightDownloadKeys = Set<String>()
 		var lastLoggedDownloadedCount = -1
 
 		func itemKey(for item: OCItem, fallback: String) -> String {
-			return item.localID ?? item.path ?? fallback
+			item.localID ?? item.path ?? fallback
 		}
 
 		func poll() {
@@ -201,7 +159,11 @@ enum ZipArchiveService {
 
 			for entry in plan.fileEntries {
 				let item = resolvedItem(entry.item, core: core)
-				if let localURL = core.localCopy(of: item) {
+				guard item.type == .file else {
+					ZipDebugLogging.log("downloadArchiveEntries: skipping non-file entry \(Log.mask(entry.archiveRelativePath)) type=\(item.type.rawValue)")
+					continue
+				}
+				if let localURL = localFileURL(for: item, core: core) {
 					core.registerUsage(of: item, completionHandler: nil)
 					localEntries.append(ZipLocalEntry(archiveRelativePath: entry.archiveRelativePath, localURL: localURL))
 				} else {
@@ -211,7 +173,7 @@ enum ZipArchiveService {
 
 			if localEntries.count != lastLoggedDownloadedCount {
 				lastLoggedDownloadedCount = localEntries.count
-				ZipDebugLogging.log("downloadArchiveEntries: progress \(localEntries.count)/\(plan.fileEntries.count) downloaded, \(missingEntries.count) missing")
+				ZipDebugLogging.log("downloadArchiveEntries: progress \(localEntries.count)/\(plan.fileEntries.count) ready, \(missingEntries.count) missing")
 			}
 
 			if missingEntries.isEmpty {
@@ -223,7 +185,8 @@ enum ZipArchiveService {
 			if Date() > deadline {
 				ZipDebugLogging.log("downloadArchiveEntries: timed out with \(missingEntries.count) file(s) still missing")
 				for entry in missingEntries {
-					ZipDebugLogging.log("downloadArchiveEntries.missing: relativePath=\(Log.mask(entry.archiveRelativePath)) path=\(Log.mask(entry.item.path ?? "nil")) syncActivity=\(entry.item.syncActivity.rawValue)")
+					let item = resolvedItem(entry.item, core: core)
+					ZipDebugLogging.log("downloadArchiveEntries.missing: relativePath=\(Log.mask(entry.archiveRelativePath)) path=\(Log.mask(item.path ?? "nil")) syncActivity=\(item.syncActivity.rawValue) localRelativePath=\(Log.mask(item.localRelativePath ?? "nil"))")
 				}
 				completion(.failure(NSError(ocError: .requestTimeout)))
 				return
@@ -231,25 +194,26 @@ enum ZipArchiveService {
 
 			for entry in missingEntries {
 				let item = resolvedItem(entry.item, core: core)
+				guard item.type == .file else {
+					continue
+				}
 				let key = itemKey(for: item, fallback: entry.archiveRelativePath)
 
-				if item.syncActivity.contains(.downloading) {
-					startedDownloadKeys.insert(key)
+				if inFlightDownloadKeys.contains(key) {
 					continue
 				}
 
-				if startedDownloadKeys.contains(key) {
-					continue
-				}
-
-				startedDownloadKeys.insert(key)
-				ZipDebugLogging.log("downloadArchiveEntries: starting download for \(Log.mask(entry.archiveRelativePath)) path=\(Log.mask(item.path ?? "nil"))")
+				inFlightDownloadKeys.insert(key)
+				ZipDebugLogging.log("downloadArchiveEntries: starting download for \(Log.mask(entry.archiveRelativePath)) path=\(Log.mask(item.path ?? "nil")) localRelativePath=\(Log.mask(item.localRelativePath ?? "nil"))")
 				_ = core.downloadItem(item, options: [
-					.returnImmediatelyIfOfflineOrUnavailable: false,
+					.returnImmediatelyIfOfflineOrUnavailable: true,
 					.addTemporaryClaimForPurpose: OCCoreClaimPurpose.view.rawValue
 				], resultHandler: { error, _, _, _ in
+					inFlightDownloadKeys.remove(key)
 					if let error = error {
 						ZipDebugLogging.log(error: error, context: "downloadArchiveEntries.download(\(Log.mask(entry.archiveRelativePath)))")
+					} else {
+						ZipDebugLogging.log("downloadArchiveEntries: download finished for \(Log.mask(entry.archiveRelativePath))")
 					}
 				})
 			}
@@ -267,10 +231,30 @@ enum ZipArchiveService {
 		resolvedItem(item, core: core)
 	}
 
+	static func localFileURL(for item: OCItem, core: OCCore) -> URL? {
+		let resolved = resolvedItem(item, core: core)
+		guard let url = core.localCopy(of: resolved) else {
+			return nil
+		}
+		guard FileManager.default.fileExists(atPath: url.path) else {
+			ZipDebugLogging.log("localFileURL: missing on disk path=\(Log.mask(url.path))")
+			return nil
+		}
+		return url
+	}
+
 	private static func resolvedItem(_ item: OCItem, core: OCCore) -> OCItem {
 		if let location = item.location, let cachedItem = try? core.cachedItem(at: location) {
 			return cachedItem
 		}
+
+		if let name = item.name, name.isEmpty == false, let parent = item.parentItem(from: core) {
+			let isDirectory = item.type == .collection
+			if let cachedItem = try? core.cachedItem(inParent: parent, withName: name, isDirectory: isDirectory) {
+				return cachedItem
+			}
+		}
+
 		return item
 	}
 
