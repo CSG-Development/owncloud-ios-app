@@ -92,6 +92,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		OCExtensionManager.shared.addExtension(MoveAction.actionExtension)
 		OCExtensionManager.shared.addExtension(RenameAction.actionExtension)
 		OCExtensionManager.shared.addExtension(DuplicateAction.actionExtension)
+		OCExtensionManager.shared.addExtension(CompressAction.actionExtension)
+		OCExtensionManager.shared.addExtension(DecompressAction.actionExtension)
 		OCExtensionManager.shared.addExtension(CreateFolderAction.actionExtension)
 		OCExtensionManager.shared.addExtension(CopyAction.actionExtension)
 		OCExtensionManager.shared.addExtension(UploadFileAction.actionExtension)

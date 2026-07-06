@@ -82,6 +82,25 @@ public enum HCL10n {
 		}
 	}
 
+	public enum ZipAction {
+		public enum Compress {
+			public static var name: String { OCLocalizedString("ZipAction.Compress.name", nil) }
+		}
+
+		public enum Decompress {
+			public static var name: String { OCLocalizedString("ZipAction.Decompress.name", nil) }
+		}
+
+		public enum Progress {
+			public static var preparing: String { OCLocalizedString("ZipAction.Progress.preparing", nil) }
+			public static var downloading: String { OCLocalizedString("ZipAction.Progress.downloading", nil) }
+			public static var compressing: String { OCLocalizedString("ZipAction.Progress.compressing", nil) }
+			public static var decompressing: String { OCLocalizedString("ZipAction.Progress.decompressing", nil) }
+		}
+
+		public static var defaultArchiveName: String { OCLocalizedString("ZipAction.defaultArchiveName", nil) }
+	}
+
 	public enum Auth {
 		public enum Login {
 			public static var logoTitle: String { OCLocalizedString("Auth.Login.logoTitle", nil) }
