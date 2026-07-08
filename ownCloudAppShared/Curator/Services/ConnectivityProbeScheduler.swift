@@ -34,7 +34,8 @@ final class ConnectivityProbeScheduler {
 		let wasForeground = isForeground
 		isForeground = foreground
 		if foreground, !wasForeground {
-			pendingForegroundDelay = true
+			pendingImmediateProbe = true
+			pendingForegroundDelay = false
 		}
 		if !foreground {
 			pendingForegroundDelay = false

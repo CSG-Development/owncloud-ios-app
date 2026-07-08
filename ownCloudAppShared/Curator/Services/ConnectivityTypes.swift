@@ -80,3 +80,22 @@ enum ConnectivityRecoveryEligibility: Equatable {
 	case eligible
 	case ineligible(String)
 }
+
+/// Controls when the "Finding network" snackbar may appear during an evaluation.
+enum FindingNetworkBannerPolicy: Equatable, Sendable {
+	/// Never show the banner (cold start, latched connection-lost background checks).
+	case never
+	/// Show from the start of evaluation (user-initiated Retry).
+	case fromStart
+	/// Show only after the current path is confirmed unreachable, then for the rest of discovery.
+	case whenUnreachable
+}
+
+/// Per-evaluation options derived from the trigger reason and current banner latch state.
+struct ConnectivityEvaluationContext: Equatable, Sendable {
+	var bannerPolicy: FindingNetworkBannerPolicy
+	/// Keep the SDK online while probing when the device was connected at evaluation start.
+	var retainSDKOnActiveConnection: Bool
+	/// Force a full server-address catalog refresh before probing (Retry).
+	var forceCatalogReload: Bool
+}
