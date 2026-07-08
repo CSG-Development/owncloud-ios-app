@@ -3,20 +3,23 @@ import ownCloudSDK
 
 /// Maps connectivity state to the SDK gate and host-screen snackbar.
 ///
-/// The banner is a pure function of the session: it never derives state from the SDK core
-/// status or pipeline-reload depth. `ConnectivityStateCoordinator` is the single writer of
-/// `deviceAccess`, so this type only has to translate three values into a banner kind.
+/// Banner visibility is driven by explicit presentation flags (`findingNetworkBannerVisible`,
+/// `connectionLostLatched`) in addition to session device access, so background probes and
+/// cold-start discovery can run without flashing "Finding network" or disabling the SDK.
 struct ConnectivityBannerPresenter {
 	let snackbarDrivingEnabled: Bool
 	let connectivity: ConnectivityState
+	let findingNetworkBannerVisible: Bool
+	let connectionLostLatched: Bool
+	let sdkConnectionRetained: Bool
 
 	var sdkConnected: Bool {
 		guard !connectivity.isLoggedOut,
 		      connectivity.isActive,
-		      connectivity.networkReachable,
-		      connectivity.deviceAccess == .connected
+		      connectivity.networkReachable
 		else { return false }
-		return true
+		if sdkConnectionRetained { return true }
+		return connectivity.deviceAccess == .connected
 	}
 
 	func bannerKind() -> (kind: NetworkAvailabilityToastKind?, suppressReason: String?) {
@@ -27,11 +30,13 @@ struct ConnectivityBannerPresenter {
 		if !connectivity.networkReachable {
 			return (.noInternet, nil)
 		}
-		switch connectivity.deviceAccess {
-			case .connected:     return (nil, nil)
-			case .connecting:    return (.findingNetwork, nil)
-			case .disconnected:  return (.connectionLost, nil)
+		if findingNetworkBannerVisible {
+			return (.findingNetwork, nil)
 		}
+		if connectionLostLatched || connectivity.deviceAccess == .disconnected {
+			return (.connectionLost, nil)
+		}
+		return (nil, nil)
 	}
 
 	static func bannerLabel(_ kind: NetworkAvailabilityToastKind?) -> String {

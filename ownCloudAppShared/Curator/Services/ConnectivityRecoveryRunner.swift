@@ -25,6 +25,9 @@ final class ConnectivityRecoveryRunner {
 		var applyDeviceAccess: @Sendable (DeviceAccessState) async -> Void
 		var beginRemoteAuthentication: @Sendable () async -> Void
 		var endRemoteAuthentication: @Sendable (DeviceAccessState) async -> Void
+		var showFindingNetworkBanner: @Sendable () async -> Void
+		var finishConnected: @Sendable () async -> Void
+		var finishDisconnected: @Sendable () async -> Void
 		var log: (String) -> Void
 	}
 
@@ -43,8 +46,15 @@ final class ConnectivityRecoveryRunner {
 		localPathsAllowed: Bool,
 		session: ConnectivitySessionState,
 		snackbarDrivingEnabled: Bool,
+		context: ConnectivityEvaluationContext,
 		dependencies: Dependencies,
-		perform: @escaping @Sendable (Bool, Dependencies, ConnectivitySessionState, Bool) async -> Void
+		perform: @escaping @Sendable (
+			Bool,
+			Dependencies,
+			ConnectivitySessionState,
+			Bool,
+			ConnectivityEvaluationContext
+		) async -> Void
 	) async {
 		if let inFlight = task {
 			pendingLocalPathsAllowed = localPathsAllowed
@@ -57,7 +67,7 @@ final class ConnectivityRecoveryRunner {
 		repeat {
 			dependencies.log("evaluate started (localAllowed=\(localAllowed))")
 			task = Task {
-				await perform(localAllowed, dependencies, session, snackbarDrivingEnabled)
+				await perform(localAllowed, dependencies, session, snackbarDrivingEnabled, context)
 			}
 			await task?.value
 			task = nil
@@ -72,7 +82,8 @@ final class ConnectivityRecoveryRunner {
 		_ localPathsAllowed: Bool,
 		dependencies: Dependencies,
 		session: ConnectivitySessionState,
-		snackbarDrivingEnabled: Bool
+		snackbarDrivingEnabled: Bool,
+		context: ConnectivityEvaluationContext
 	) async {
 		switch session.checkRecoveryEligibility() {
 			case .eligible:    break
@@ -80,12 +91,17 @@ final class ConnectivityRecoveryRunner {
 		}
 		if Task.isCancelled { return }
 
-		if snackbarDrivingEnabled {
-			await dependencies.applyDeviceAccess(.connecting)
+		if snackbarDrivingEnabled, context.bannerPolicy == .fromStart {
+			await dependencies.showFindingNetworkBanner()
+		}
+
+		if context.forceCatalogReload {
+			dependencies.log("evaluate→forced catalog reload (retry)")
+			await invokePathRecoveryHandler(dependencies: dependencies)
 		}
 
 		guard let preferences = dependencies.preferences else {
-			await dependencies.applyDeviceAccess(.disconnected)
+			await dependencies.finishDisconnected()
 			return
 		}
 
@@ -108,28 +124,34 @@ final class ConnectivityRecoveryRunner {
 			switch outcome {
 				case .currentIsBest:
 					dependencies.log("probe→keep current path")
-					await dependencies.applyDeviceAccess(.connected)
+					await dependencies.finishConnected()
 					return
 				case .betterPath(let path):
-					// The probe already verified `path` is reachable, so switch the SDK base
-					// URL directly instead of triggering a slow full catalog reload.
 					dependencies.log("probe→switch to better path (\(path.key))")
 					await dependencies.applyBestProbedPath?(path)
-					await dependencies.applyDeviceAccess(.connected)
+					await dependencies.finishConnected()
 					return
 				case .noneReachable:
 					dependencies.log("probe→no path reachable")
+					if snackbarDrivingEnabled, context.bannerPolicy == .whenUnreachable {
+						await dependencies.showFindingNetworkBanner()
+					}
 			}
 		} else {
 			dependencies.log("probe→no paths configured")
+			if snackbarDrivingEnabled, context.bannerPolicy == .whenUnreachable {
+				await dependencies.showFindingNetworkBanner()
+			}
 		}
 
 		// Nothing responded with the known paths — run discovery (full catalog reload, which
 		// re-probes everything) and trust the freshly-probed catalog for the verdict.
-		await invokePathRecoveryHandler(dependencies: dependencies)
+		if !context.forceCatalogReload {
+			await invokePathRecoveryHandler(dependencies: dependencies)
+		}
 		if await preferredDeviceIsReachable(dependencies) {
 			dependencies.log("reload→connected")
-			await dependencies.applyDeviceAccess(.connected)
+			await dependencies.finishConnected()
 			return
 		}
 
@@ -138,7 +160,7 @@ final class ConnectivityRecoveryRunner {
 		}
 
 		dependencies.log("evaluate→disconnected (retry)")
-		await dependencies.applyDeviceAccess(.disconnected)
+		await dependencies.finishDisconnected()
 	}
 
 	// MARK: - Remote-access re-authentication
@@ -177,10 +199,10 @@ final class ConnectivityRecoveryRunner {
 		await invokePathRecoveryHandler(dependencies: dependencies)
 		if await preferredDeviceIsReachable(dependencies) {
 			dependencies.log("RA reload→connected")
-			await dependencies.applyDeviceAccess(.connected)
+			await dependencies.finishConnected()
 		} else {
 			dependencies.log("RA reload→disconnected (retry)")
-			await dependencies.applyDeviceAccess(.disconnected)
+			await dependencies.finishDisconnected()
 		}
 		return true
 	}
@@ -226,8 +248,6 @@ final class ConnectivityRecoveryRunner {
 		localPathsAllowed: Bool,
 		dependencies: Dependencies
 	) -> Bool {
-		// At this point the local/known probes already failed, so remote access is the only
-		// remaining way in unless every configured path is local and we are on the LAN.
 		guard let preferences = dependencies.preferences else { return true }
 		let paths = pathsForConnectedDevice(preferences: preferences)
 		if paths.isEmpty {

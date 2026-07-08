@@ -29,6 +29,10 @@ public final actor ConnectivityStateCoordinator {
 	private var toastPublishTask: Task<Void, Never>?
 	private var snackbarDrivingEnabled = true
 	private var lastObservedInterface: NetworkState.Interface?
+	private var findingNetworkBannerVisible = false
+	private var connectionLostLatched = false
+	private var sdkConnectionRetained = false
+	private var hasCompletedInitialConnectivityEvaluation = false
 
 	public init(pathProber: PathProber = PathProber()) {
 		self.pathProber = pathProber
@@ -86,6 +90,10 @@ public final actor ConnectivityStateCoordinator {
 		let transition = session.handle(.setNetworkReachable(reachable))
 		guard transition.connectivityChanged else { return }
 		Self.log("network \(reachable ? "up" : "down")")
+		if !reachable {
+			findingNetworkBannerVisible = false
+			sdkConnectionRetained = false
+		}
 		publish()
 	}
 
@@ -139,7 +147,7 @@ public final actor ConnectivityStateCoordinator {
 
 	public func noteRAAuthenticationFailed() {
 		Self.log("RA authentication failed")
-		applyDeviceAccess(.disconnected)
+		finishDisconnected()
 	}
 
 	public func reset() {
@@ -150,6 +158,10 @@ public final actor ConnectivityStateCoordinator {
 		probeScheduler.reset()
 		probePathCache.invalidate()
 		lastObservedInterface = nil
+		findingNetworkBannerVisible = false
+		connectionLostLatched = false
+		sdkConnectionRetained = false
+		hasCompletedInitialConnectivityEvaluation = false
 		_ = session.handle(.reset(networkReachable: reachability?.currentState.isReachable ?? true))
 		publish()
 	}
@@ -178,7 +190,7 @@ public final actor ConnectivityStateCoordinator {
 		Self.log("activateAfterLogin→active (login path verified)")
 		_ = session.handle(.activateSession)
 		invalidateConfiguredProbePaths()
-		applyDeviceAccess(.connected)
+		finishConnected()
 		await reconcileProbeLoop()
 	}
 
@@ -190,6 +202,10 @@ public final actor ConnectivityStateCoordinator {
 
 	public func retry() async {
 		Self.log("user retry tapped")
+		connectionLostLatched = false
+		findingNetworkBannerVisible = true
+		invalidateConfiguredProbePaths()
+		publish()
 		await evaluate(reason: .retry)
 	}
 
@@ -210,13 +226,21 @@ public final actor ConnectivityStateCoordinator {
 		}
 
 		Self.log("evaluate (reason=\(reason.rawValue))")
+		let context = evaluationContext(for: reason)
+		if context.retainSDKOnActiveConnection, session.deviceAccess == .connected {
+			sdkConnectionRetained = true
+		}
 		await recoveryRunner.run(
 			localPathsAllowed: currentLocalPathsAllowed(),
 			session: session,
 			snackbarDrivingEnabled: snackbarDrivingEnabled,
+			context: context,
 			dependencies: recoveryDependencies(),
 			perform: ConnectivityRecoveryRunner.performEvaluate
 		)
+		if reason == .discovery || reason == .sessionStart {
+			hasCompletedInitialConnectivityEvaluation = true
+		}
 		await reconcileProbeLoop()
 	}
 
@@ -229,7 +253,7 @@ public final actor ConnectivityStateCoordinator {
 				return
 		}
 		Self.log("active path available — marking connected")
-		applyDeviceAccess(.connected)
+		finishConnected()
 	}
 
 	// MARK: - Private
@@ -246,10 +270,59 @@ public final actor ConnectivityStateCoordinator {
 		publish()
 	}
 
+	private func showFindingNetworkBanner() {
+		guard !findingNetworkBannerVisible else { return }
+		findingNetworkBannerVisible = true
+		Self.log("banner→findingNetwork (search started)")
+		publish()
+	}
+
+	private func finishConnected() {
+		findingNetworkBannerVisible = false
+		connectionLostLatched = false
+		sdkConnectionRetained = false
+		_ = session.handle(.applyDeviceAccess(.connected))
+		publish()
+	}
+
+	private func finishDisconnected() {
+		findingNetworkBannerVisible = false
+		connectionLostLatched = true
+		sdkConnectionRetained = false
+		_ = session.handle(.applyDeviceAccess(.disconnected))
+		publish()
+	}
+
+	private func evaluationContext(for reason: ConnectivityEvaluateReason) -> ConnectivityEvaluationContext {
+		let latched = connectionLostLatched
+		let initialEvalDone = hasCompletedInitialConnectivityEvaluation
+
+		let bannerPolicy: FindingNetworkBannerPolicy
+		switch reason {
+			case .retry:
+				bannerPolicy = .fromStart
+			case .discovery, .sessionStart, .login:
+				bannerPolicy = .never
+			case .transportError, .networkChanged:
+				bannerPolicy = latched ? .never : .whenUnreachable
+			case .periodic, .foreground:
+				bannerPolicy = (latched || !initialEvalDone) ? .never : .whenUnreachable
+		}
+
+		return ConnectivityEvaluationContext(
+			bannerPolicy: bannerPolicy,
+			retainSDKOnActiveConnection: session.deviceAccess == .connected,
+			forceCatalogReload: reason == .retry
+		)
+	}
+
 	private func publish() {
 		let presenter = ConnectivityBannerPresenter(
 			snackbarDrivingEnabled: snackbarDrivingEnabled,
-			connectivity: session.connectivity
+			connectivity: session.connectivity,
+			findingNetworkBannerVisible: findingNetworkBannerVisible,
+			connectionLostLatched: connectionLostLatched,
+			sdkConnectionRetained: sdkConnectionRetained
 		)
 		SDKDeviceAvailabilityGate.shared.setDeviceConnected(presenter.sdkConnected)
 
@@ -318,6 +391,15 @@ public final actor ConnectivityStateCoordinator {
 			},
 			endRemoteAuthentication: { [weak self] device in
 				await self?.endRemoteAuthenticationOnSession(device: device)
+			},
+			showFindingNetworkBanner: { [weak self] in
+				await self?.showFindingNetworkBanner()
+			},
+			finishConnected: { [weak self] in
+				await self?.finishConnected()
+			},
+			finishDisconnected: { [weak self] in
+				await self?.finishDisconnected()
 			},
 			log: { Self.log($0) }
 		)

@@ -97895,6 +97895,125 @@
         }
       }
     },
+    "Network.connectionLost" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost with Home Cloud. Please check the device is powered on and connected to the network."
+          }
+        }
+      }
+    },
     "Network.findingNetwork" : {
       "extractionState" : "manual",
       "localizations" : {
