@@ -81,13 +81,12 @@ enum ConnectivityRecoveryEligibility: Equatable {
 	case ineligible(String)
 }
 
-/// Controls when the "Finding network" snackbar may appear during an evaluation.
+/// Controls when the recovery runner may reveal the "Finding network" snackbar mid-evaluation.
+/// User Retry shows the banner immediately in `ConnectivityStateCoordinator.retry()` instead.
 enum FindingNetworkBannerPolicy: Equatable, Sendable {
-	/// Never show the banner (cold start, latched connection-lost background checks).
+	/// Do not reveal the banner from the runner (cold start, latched background checks, Retry).
 	case never
-	/// Show from the start of evaluation (user-initiated Retry).
-	case fromStart
-	/// Show only after the current path is confirmed unreachable, then for the rest of discovery.
+	/// Reveal the banner once the current path is confirmed unreachable, then keep it for discovery.
 	case whenUnreachable
 }
 
@@ -98,4 +97,70 @@ struct ConnectivityEvaluationContext: Equatable, Sendable {
 	var retainSDKOnActiveConnection: Bool
 	/// Force a full server-address catalog refresh before probing (Retry).
 	var forceCatalogReload: Bool
+
+	static func make(
+		for reason: ConnectivityEvaluateReason,
+		deviceAccess: DeviceAccessState,
+		connectionLostLatched: Bool,
+		hasCompletedInitialEvaluation: Bool
+	) -> ConnectivityEvaluationContext {
+		let silentWhileLatchedOrColdStart = connectionLostLatched || !hasCompletedInitialEvaluation
+		let bannerPolicy: FindingNetworkBannerPolicy
+		switch reason {
+			case .retry, .discovery, .sessionStart, .login:
+				// `.retry` — banner is shown by `retry()` → `beginRetrySearch()` before evaluate runs.
+				bannerPolicy = .never
+			case .transportError, .networkChanged:
+				bannerPolicy = connectionLostLatched ? .never : .whenUnreachable
+			case .periodic, .foreground:
+				bannerPolicy = silentWhileLatchedOrColdStart ? .never : .whenUnreachable
+		}
+		return ConnectivityEvaluationContext(
+			bannerPolicy: bannerPolicy,
+			retainSDKOnActiveConnection: deviceAccess == .connected,
+			forceCatalogReload: reason == .retry
+		)
+	}
+}
+
+/// UI presentation flags for the connectivity snackbar and SDK gate latch.
+struct ConnectivityBannerPresentation: Equatable, Sendable {
+	var findingNetworkVisible = false
+	var connectionLostLatched = false
+	var sdkConnectionRetained = false
+
+	mutating func reset() {
+		findingNetworkVisible = false
+		connectionLostLatched = false
+		sdkConnectionRetained = false
+	}
+
+	mutating func clearTransientOnNetworkDown() {
+		findingNetworkVisible = false
+		sdkConnectionRetained = false
+	}
+
+	/// User tapped Retry: show "Finding network" immediately for the full search duration.
+	mutating func beginRetrySearch() {
+		connectionLostLatched = false
+		findingNetworkVisible = true
+	}
+
+	mutating func showFindingNetwork() -> Bool {
+		guard !findingNetworkVisible else { return false }
+		findingNetworkVisible = true
+		return true
+	}
+
+	mutating func finishConnected() {
+		findingNetworkVisible = false
+		connectionLostLatched = false
+		sdkConnectionRetained = false
+	}
+
+	mutating func finishDisconnected() {
+		findingNetworkVisible = false
+		connectionLostLatched = true
+		sdkConnectionRetained = false
+	}
 }
