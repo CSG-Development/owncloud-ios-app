@@ -29,9 +29,9 @@ public final actor NetworkAvailabilityMonitor {
 		let previousVisible = visibleKind
 		visibleKind = kind
 		if let kind {
-			Self.log("banner show \(Self.bannerLabel(kind))")
+			Self.log("banner show \(ConnectivityBannerPresenter.bannerLabel(kind))")
 		} else if previousVisible != nil {
-			Self.log("banner hide (was \(Self.bannerLabel(previousVisible)))")
+			Self.log("banner hide (was \(ConnectivityBannerPresenter.bannerLabel(previousVisible)))")
 		}
 		emitVisibility(kind)
 	}
@@ -46,7 +46,7 @@ public final actor NetworkAvailabilityMonitor {
 		guard let dismissed = visibleKind,
 		      dismissed == .findingNetwork || dismissed == .noInternet else { return }
 		visibleKind = nil
-		Self.log("banner user dismissed \(Self.bannerLabel(dismissed))")
+		Self.log("banner user dismissed \(ConnectivityBannerPresenter.bannerLabel(dismissed))")
 		emitVisibility(nil)
 	}
 
@@ -57,14 +57,5 @@ public final actor NetworkAvailabilityMonitor {
 
 	private static func log(_ message: String) {
 		Log.debug("[STX-CONN]: \(message)")
-	}
-
-	private static func bannerLabel(_ kind: NetworkAvailabilityToastKind?) -> String {
-		switch kind {
-			case nil:                  return "hidden"
-			case .findingNetwork:      return "findingNetwork"
-			case .noInternet:          return "noInternet"
-			case .connectionLost:      return "connectionLost"
-		}
 	}
 }

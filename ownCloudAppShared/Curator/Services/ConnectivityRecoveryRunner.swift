@@ -22,7 +22,6 @@ final class ConnectivityRecoveryRunner {
 		var applyBestProbedPath: (@Sendable (RemoteDevice.Path) async -> Void)?
 		var requestRAAuthentication: ((String) async -> Bool)?
 		var recoveryEmail: () -> String?
-		var applyDeviceAccess: @Sendable (DeviceAccessState) async -> Void
 		var beginRemoteAuthentication: @Sendable () async -> Void
 		var endRemoteAuthentication: @Sendable (DeviceAccessState) async -> Void
 		var showFindingNetworkBanner: @Sendable () async -> Void
@@ -91,10 +90,6 @@ final class ConnectivityRecoveryRunner {
 		}
 		if Task.isCancelled { return }
 
-		if snackbarDrivingEnabled, context.bannerPolicy == .fromStart {
-			await dependencies.showFindingNetworkBanner()
-		}
-
 		if context.forceCatalogReload {
 			dependencies.log("evaluate→forced catalog reload (retry)")
 			await invokePathRecoveryHandler(dependencies: dependencies)
@@ -133,15 +128,19 @@ final class ConnectivityRecoveryRunner {
 					return
 				case .noneReachable:
 					dependencies.log("probe→no path reachable")
-					if snackbarDrivingEnabled, context.bannerPolicy == .whenUnreachable {
-						await dependencies.showFindingNetworkBanner()
-					}
+					await revealFindingNetworkIfNeeded(
+						snackbarDrivingEnabled: snackbarDrivingEnabled,
+						context: context,
+						dependencies: dependencies
+					)
 			}
 		} else {
 			dependencies.log("probe→no paths configured")
-			if snackbarDrivingEnabled, context.bannerPolicy == .whenUnreachable {
-				await dependencies.showFindingNetworkBanner()
-			}
+			await revealFindingNetworkIfNeeded(
+				snackbarDrivingEnabled: snackbarDrivingEnabled,
+				context: context,
+				dependencies: dependencies
+			)
 		}
 
 		// Nothing responded with the known paths — run discovery (full catalog reload, which
@@ -208,6 +207,15 @@ final class ConnectivityRecoveryRunner {
 	}
 
 	// MARK: - Probe helpers
+
+	private static func revealFindingNetworkIfNeeded(
+		snackbarDrivingEnabled: Bool,
+		context: ConnectivityEvaluationContext,
+		dependencies: Dependencies
+	) async {
+		guard snackbarDrivingEnabled, context.bannerPolicy == .whenUnreachable else { return }
+		await dependencies.showFindingNetworkBanner()
+	}
 
 	static func configuredProbePaths(
 		preferences: HCPreferences,

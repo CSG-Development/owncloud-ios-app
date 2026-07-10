@@ -12,7 +12,6 @@ final class ConnectivityProbeScheduler {
 
 	private(set) var hostScreenActive = false
 	private(set) var isForeground = false
-	private(set) var pendingForegroundDelay = false
 	private(set) var pendingImmediateProbe = false
 	private var loopTask: Task<Void, Never>?
 
@@ -22,7 +21,6 @@ final class ConnectivityProbeScheduler {
 		stop()
 		hostScreenActive = false
 		isForeground = false
-		pendingForegroundDelay = false
 		pendingImmediateProbe = false
 	}
 
@@ -35,17 +33,14 @@ final class ConnectivityProbeScheduler {
 		isForeground = foreground
 		if foreground, !wasForeground {
 			pendingImmediateProbe = true
-			pendingForegroundDelay = false
 		}
 		if !foreground {
-			pendingForegroundDelay = false
 			pendingImmediateProbe = false
 		}
 	}
 
 	func scheduleImmediateProbeOnNetworkRestore() {
 		pendingImmediateProbe = true
-		pendingForegroundDelay = false
 	}
 
 	func canRunPeriodicProbe(in environment: Environment) -> Bool {
@@ -73,9 +68,7 @@ final class ConnectivityProbeScheduler {
 
 		guard loopTask == nil else { return }
 
-		let delay = pendingForegroundDelay ? intervalSeconds : 0
-		pendingForegroundDelay = false
-		restart(initialDelay: delay, log: log, runRound: runRound)
+		restart(initialDelay: 0, log: log, runRound: runRound)
 	}
 
 	func stop() {

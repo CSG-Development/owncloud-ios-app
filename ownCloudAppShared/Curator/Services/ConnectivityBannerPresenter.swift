@@ -3,22 +3,20 @@ import ownCloudSDK
 
 /// Maps connectivity state to the SDK gate and host-screen snackbar.
 ///
-/// Banner visibility is driven by explicit presentation flags (`findingNetworkBannerVisible`,
-/// `connectionLostLatched`) in addition to session device access, so background probes and
-/// cold-start discovery can run without flashing "Finding network" or disabling the SDK.
+/// Banner visibility is driven by `ConnectivityBannerPresentation` in addition to session
+/// device access, so background probes and cold-start discovery can run without flashing
+/// "Finding network" or disabling the SDK.
 struct ConnectivityBannerPresenter {
 	let snackbarDrivingEnabled: Bool
 	let connectivity: ConnectivityState
-	let findingNetworkBannerVisible: Bool
-	let connectionLostLatched: Bool
-	let sdkConnectionRetained: Bool
+	let banner: ConnectivityBannerPresentation
 
 	var sdkConnected: Bool {
 		guard !connectivity.isLoggedOut,
 		      connectivity.isActive,
 		      connectivity.networkReachable
 		else { return false }
-		if sdkConnectionRetained { return true }
+		if banner.sdkConnectionRetained { return true }
 		return connectivity.deviceAccess == .connected
 	}
 
@@ -30,10 +28,10 @@ struct ConnectivityBannerPresenter {
 		if !connectivity.networkReachable {
 			return (.noInternet, nil)
 		}
-		if findingNetworkBannerVisible {
+		if banner.findingNetworkVisible {
 			return (.findingNetwork, nil)
 		}
-		if connectionLostLatched || connectivity.deviceAccess == .disconnected {
+		if banner.connectionLostLatched || connectivity.deviceAccess == .disconnected {
 			return (.connectionLost, nil)
 		}
 		return (nil, nil)
