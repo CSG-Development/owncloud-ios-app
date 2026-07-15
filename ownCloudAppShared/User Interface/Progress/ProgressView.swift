@@ -35,10 +35,10 @@ public class ProgressView: UIView, Themeable, CAAnimationDelegate, ThemeCSSAutoS
 		set {
 			OCSynchronized(self) {
 				if _observerRegistered, let progress = _progress {
-					progress.removeObserver(self, forKeyPath: "fractionCompleted")
-					progress.removeObserver(self, forKeyPath: "indeterminate")
-					progress.removeObserver(self, forKeyPath: "cancelled")
-					progress.removeObserver(self, forKeyPath: "finished")
+					progress.removeObserver(self, forKeyPath: #keyPath(Progress.fractionCompleted))
+					progress.removeObserver(self, forKeyPath: #keyPath(Progress.isIndeterminate))
+					progress.removeObserver(self, forKeyPath: #keyPath(Progress.isCancelled))
+					progress.removeObserver(self, forKeyPath: #keyPath(Progress.isFinished))
 
 					_observerRegistered = false
 				}
@@ -46,10 +46,10 @@ public class ProgressView: UIView, Themeable, CAAnimationDelegate, ThemeCSSAutoS
 				_progress = newValue
 
 				if !_observerRegistered, let progress = newValue {
-					progress.addObserver(self, forKeyPath: "fractionCompleted", options: [], context: nil)
-					progress.addObserver(self, forKeyPath: "indeterminate", options: [], context: nil)
-					progress.addObserver(self, forKeyPath: "cancelled", options: [], context: nil)
-					progress.addObserver(self, forKeyPath: "finished", options: [], context: nil)
+					progress.addObserver(self, forKeyPath: #keyPath(Progress.fractionCompleted), options: [], context: nil)
+					progress.addObserver(self, forKeyPath: #keyPath(Progress.isIndeterminate), options: [], context: nil)
+					progress.addObserver(self, forKeyPath: #keyPath(Progress.isCancelled), options: [], context: nil)
+					progress.addObserver(self, forKeyPath: #keyPath(Progress.isFinished), options: [], context: nil)
 
 					_observerRegistered = true
 				}
@@ -190,24 +190,28 @@ public class ProgressView: UIView, Themeable, CAAnimationDelegate, ThemeCSSAutoS
 		}
 
 		if let progress = self.progress {
+			let hasKnownTotal = progress.totalUnitCount > 0
+			let shouldSpin = !hasKnownTotal && (progress.isIndeterminate || progress.isCancelled)
+			self.spinning = shouldSpin
 
-			self.spinning = progress.isIndeterminate || progress.isCancelled
-
-			if progress.isIndeterminate || progress.isCancelled {
+			if shouldSpin {
 				backgroundCircleLayer.isHidden = true
 				foregroundCircleLayer.strokeEnd = 0.9
 			} else {
+				foregroundCircleLayer.removeAnimation(forKey: "spinningAnimation")
+				spinningAnimationActive = false
 				backgroundCircleLayer.isHidden = false
-				if foregroundCircleLayer.strokeEnd > CGFloat(progress.fractionCompleted) {
+				let displayedFraction = max(CGFloat(progress.fractionCompleted), 0.02)
+				if foregroundCircleLayer.strokeEnd > displayedFraction {
 					CATransaction.begin()
 					CATransaction.setDisableActions(true)
 					CATransaction.setAnimationDuration(0)
 
-					foregroundCircleLayer.strokeEnd = CGFloat(progress.fractionCompleted)
+					foregroundCircleLayer.strokeEnd = displayedFraction
 
 					CATransaction.commit()
 				} else {
-					foregroundCircleLayer.strokeEnd = CGFloat(progress.fractionCompleted)
+					foregroundCircleLayer.strokeEnd = displayedFraction
 				}
 			}
 

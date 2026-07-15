@@ -46,10 +46,18 @@ class OCItemUniversalItemListCellHelper {
 
 		NotificationCenter.default.addObserver(self, selector: #selector(updateAvailableOfflineStatus(_:)), name: .OCCoreItemPoliciesChanged, object: OCItemPolicyKind.availableOffline)
 		NotificationCenter.default.addObserver(self, selector: #selector(updateHasMessage(_:)), name: .ClientSyncRecordIDsWithMessagesChanged, object: nil)
+
+		if let activityUpdateNotificationName = clientContext?.core?.activityManager.activityUpdateNotificationName {
+			NotificationCenter.default.addObserver(self, selector: #selector(activityDidUpdate(_:)), name: activityUpdateNotificationName, object: nil)
+		}
 	}
 	func removeObservers() {
 		NotificationCenter.default.removeObserver(self, name: .OCCoreItemPoliciesChanged, object: OCItemPolicyKind.availableOffline)
 		NotificationCenter.default.removeObserver(self, name: .ClientSyncRecordIDsWithMessagesChanged, object: nil)
+
+		if let activityUpdateNotificationName = clientContext?.core?.activityManager.activityUpdateNotificationName {
+			NotificationCenter.default.removeObserver(self, name: activityUpdateNotificationName, object: nil)
+		}
 
 		localID = nil
 	}
@@ -70,7 +78,36 @@ class OCItemUniversalItemListCellHelper {
 	}
 
 	@objc open func progressChangedForItem(_ notification : Notification) {
-		self.refreshContent(fields: .progress)
+		self.refreshContent(fields: [.progress, .accessories])
+	}
+
+	@objc open func activityDidUpdate(_ notification: Notification) {
+		guard let activityUpdates = notification.userInfo?[OCActivityManagerNotificationUserInfoUpdatesKey] as? [[String: Any]] else {
+			return
+		}
+
+		for activityUpdate in activityUpdates {
+			guard let activity = activityUpdate[OCActivityManagerUpdateActivityKey] as? OCSyncRecordActivity else {
+				continue
+			}
+
+			guard activity.type == .download || activity.type == .upload else {
+				continue
+			}
+
+			if matchesTransferActivity(activity) {
+				self.refreshContent(fields: [.progress, .accessories])
+				return
+			}
+		}
+	}
+
+	private func matchesTransferActivity(_ activity: OCSyncRecordActivity) -> Bool {
+		guard let itemName = item.name, !itemName.isEmpty else {
+			return false
+		}
+
+		return activity.localizedDescription.contains(itemName)
 	}
 
 	// MARK: - Available offline tracking
@@ -256,21 +293,13 @@ extension OCItem: UniversalItemListCellContentProvider {
 		var progress : Progress?
 
 		if syncActivity.rawValue & (OCItemSyncActivity.downloading.rawValue | OCItemSyncActivity.uploading.rawValue) != 0, !hasMessageForItem {
-			progress = context?.core?.progressForItem(withLocalID: self.localID, matching: .none)?.first
+			progress = self.bestTransferProgress(for: context)
 
-			// Fallback: progressForItem can return nil on subsequent uploads (registration timing).
-			// Use activity progress so cancel works; avoid dummy Progress.indeterminate() which cannot cancel.
-			if progress == nil, let core = context?.core, let activities = core.activityManager.activities as? [OCActivity] {
-				let uploadActivities = activities.compactMap { $0 as? OCSyncRecordActivity }.filter { $0.type == .upload }
-				if uploadActivities.count == 1 {
-					progress = uploadActivities.first?.progress as Progress?
-				} else if uploadActivities.count > 1, let itemName = name {
-					progress = uploadActivities.first { $0.localizedDescription.contains(itemName) }?.progress as Progress?
-				}
-			}
-
-			if progress == nil {
-				progress = Progress.indeterminate()
+			if progress == nil, size > 0 {
+				progress = Progress(totalUnitCount: Int64(size))
+			} else if progress == nil {
+				// Avoid indeterminate spinner while waiting for pipeline progress to reconnect after restart.
+				progress = Progress(totalUnitCount: 1)
 			}
 
 			content.progress = progress
@@ -313,7 +342,7 @@ extension OCItem: UniversalItemListCellContentProvider {
 			if hasMessageForItem {
 				accessories.append(cell.messageButtonAccessory)
 			} else if progress != nil {
-				accessories.append(cell.progressAccessory)
+				accessories.append(cell.progressAccessoryForCurrentTransfer())
 			} else if includeMoreButton {
 				accessories.append(cell.moreButtonAccessory)
 			}
@@ -326,6 +355,52 @@ extension OCItem: UniversalItemListCellContentProvider {
 		content.accessories = accessories
 
 		return (content, hasMessageForItem)
+	}
+
+	/// Resolves the best available transfer progress for list cell display, using the same activity progress source as the Status tab.
+	private func bestTransferProgress(for context: ClientContext?) -> Progress? {
+		guard let core = context?.core, let localID = self.localID else {
+			return nil
+		}
+
+		if let activityProgress = matchingTransferActivityProgress(in: core), activityProgress.totalUnitCount > 0 {
+			return activityProgress
+		}
+
+		if let registeredProgresses = core.progressForItem(withLocalID: localID, matching: .none),
+		   let determinateProgress = registeredProgresses.first(where: { $0.totalUnitCount > 0 }) {
+			return determinateProgress
+		}
+
+		if let pipelineProgress = core.connection.liveDownloadTransferProgress(forItemLocalID: localID) as Progress?,
+		   pipelineProgress.totalUnitCount > 0 {
+			return pipelineProgress
+		}
+
+		if let activityProgress = matchingTransferActivityProgress(in: core) {
+			return activityProgress
+		}
+
+		return nil
+	}
+
+	private func matchingTransferActivityProgress(in core: OCCore) -> Progress? {
+		guard let activities = core.activityManager.activities as? [OCActivity] else {
+			return nil
+		}
+
+		let transferActivities = activities.compactMap { $0 as? OCSyncRecordActivity }.filter { $0.type == .upload || $0.type == .download }
+		let matchedActivity: OCSyncRecordActivity?
+
+		if transferActivities.count == 1 {
+			matchedActivity = transferActivities.first
+		} else if transferActivities.count > 1, let itemName = name {
+			matchedActivity = transferActivities.first { $0.localizedDescription.contains(itemName) }
+		} else {
+			matchedActivity = nil
+		}
+
+		return matchedActivity?.progress
 	}
 
 	// MARK: - UniversalItemListCellContentProvider implementation
