@@ -45,6 +45,7 @@ class MediaDisplayViewController : DisplayViewController {
 	private var playerItem: AVPlayerItem?
 	private var player: AVPlayer?
 	private var playerViewController: AVPlayerViewController?
+	private var registeredProxyURL: URL?
 
 	// Information for now playing
 	private var mediaItemArtwork: MPMediaItemArtwork?
@@ -61,6 +62,10 @@ class MediaDisplayViewController : DisplayViewController {
 	}
 
 	deinit {
+		if let registeredProxyURL {
+			StreamingProxyServer.shared.remove(proxyURL: registeredProxyURL)
+		}
+
 		playerStatusObservation?.invalidate()
 		playerItemStatusObservation?.invalidate()
 
@@ -176,7 +181,25 @@ class MediaDisplayViewController : DisplayViewController {
 			playerItemStatusObservation = nil
 			player?.pause()
 
-			let asset = AVURLAsset(url: directURL, options: self.httpAuthHeaders != nil ? ["AVURLAssetHTTPHeaderFieldsKey" : self.httpAuthHeaders!] : nil )
+			if let registeredProxyURL {
+				StreamingProxyServer.shared.remove(proxyURL: registeredProxyURL)
+				self.registeredProxyURL = nil
+			}
+
+			let playbackURL: URL
+			let assetOptions: [String: Any]?
+
+			if StreamingProxy.shouldProxy(remoteURL: directURL, requiresLocalCopy: requiresLocalCopyForPreview) {
+				let proxyURL = StreamingProxyServer.shared.register(remoteURL: directURL, headers: httpAuthHeaders)
+				registeredProxyURL = proxyURL
+				playbackURL = proxyURL
+				assetOptions = nil
+			} else {
+				playbackURL = directURL
+				assetOptions = self.httpAuthHeaders != nil ? ["AVURLAssetHTTPHeaderFieldsKey": self.httpAuthHeaders!] : nil
+			}
+
+			let asset = AVURLAsset(url: playbackURL, options: assetOptions)
 			playerItem = AVPlayerItem(asset: asset)
 
 			playerItemStatusObservation = playerItem?.observe(\AVPlayerItem.status, options: [.initial, .new], changeHandler: { [weak self] (item, _) in

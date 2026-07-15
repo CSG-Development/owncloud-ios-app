@@ -664,7 +664,7 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 
 			// Progress
 			if onlyFields == nil || onlyFields?.contains(.progress) == true {
-				progressView?.progress = content?.progress
+				applyDisplayedProgress(content?.progress)
 			}
 
 			// Accessibility actions
@@ -911,19 +911,26 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 	}
 
 	// - Progress View
-	open var progressView: ProgressView?
-	open lazy var progressAccessory: UICellAccessory = {
+	// Single shared instance passed into UICellAccessory so progress updates always reach the visible ring.
+	open private(set) lazy var inlineProgressView: ProgressView = {
 		let progressView = ProgressView()
-		progressView.contentMode = .center
-
-		progressView.progress = Progress(totalUnitCount: 100)
-
+		progressView.isHidden = true
 		progressView.cssSelectors = [.accessory, .progress]
-
-		self.progressView = progressView
-
-		return .customView(configuration: UICellAccessory.CustomViewConfiguration(customView: progressView, placement: .trailing(displayed: .whenNotEditing)))
+		return progressView
 	}()
+
+	open var progressView: ProgressView? {
+		inlineProgressView
+	}
+
+	open func progressAccessoryForCurrentTransfer() -> UICellAccessory {
+		.customView(configuration: UICellAccessory.CustomViewConfiguration(customView: inlineProgressView, placement: .trailing(displayed: .whenNotEditing)))
+	}
+
+	private func applyDisplayedProgress(_ progress: Progress?) {
+		inlineProgressView.isHidden = (progress == nil) || cellStyle.isGrid
+		inlineProgressView.progress = progress
+	}
 
 	// - Make custom accessory buttons
 	open func makeAccessoryButton(image: UIImage? = nil, title: String? = nil, accessibilityLabel: String? = nil, cssSelectors: [ThemeCSSSelector]? = [.accessory], action: OCAction, provideAccessibilityCustomAction: Bool = false) -> (UIButton, UICellAccessory) {
@@ -947,11 +954,21 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 	}
 
 	// MARK: - Prepare for reuse
+	open override func layoutSubviews() {
+		super.layoutSubviews()
+
+		if content?.progress != nil {
+			applyDisplayedProgress(content?.progress)
+		}
+	}
+
 	open override func prepareForReuse() {
 		super.prepareForReuse()
 
 		primaryDetailSegments = nil
 		title = nil
+
+		applyDisplayedProgress(nil)
 
 		iconView.request = nil
 		iconView.activeViewProvider = nil
