@@ -22,7 +22,7 @@ import ownCloudApp
 
 // MARK: - Selection > Open
 extension OCLocation : DataItemSelectionInteraction {
-	public func customizedOpenItem(from viewController: UIViewController?, with context: ClientContext?, animated: Bool, pushViewController: Bool, customizeViewController: ((ClientItemViewController) -> Void)?, completion: ((Bool) -> Void)?) -> UIViewController? {
+	public func customizedOpenItem(from viewController: UIViewController?, with context: ClientContext?, animated: Bool, pushViewController: Bool, customizeViewController: ((FileListViewController) -> Void)?, completion: ((Bool) -> Void)?) -> UIViewController? {
 		let driveContext = ClientContext(with: context, modifier: { context in
 			if let driveID = self.driveID, let core = context.core {
 				context.drive = core.drive(withIdentifier: driveID, attachedOnly: false)
@@ -38,7 +38,7 @@ extension OCLocation : DataItemSelectionInteraction {
 				location.bookmarkUUID = driveContext.core?.bookmark.uuid
 			}
 
-			let viewController = ClientItemViewController(context: context, query: query, location: location)
+			let viewController = FileListViewController(context: context, query: query, location: location)
 			viewController.navigationBookmark = BrowserNavigationBookmark.from(dataItem: location, clientContext: context, restoreAction: .open)
 			viewController.revoke(in: context, when: [ .connectionClosed, .driveRemoved ])
 

@@ -58,8 +58,8 @@ open class BrowserNavigationItem: NSObject {
 			return true
 		}
 
-		if let itemViewController = viewControllerIfLoaded as? ClientItemViewController,
-		   itemViewController.query?.queryLocation != nil {
+		if let fileBrowser = viewControllerIfLoaded as? FileBrowserContent,
+		   fileBrowser.query?.queryLocation != nil {
 			return true
 		}
 

@@ -35,8 +35,8 @@ extension OCSidebarItem : DataItemSelectionInteraction {
 		var viewController: UIViewController?
 
 		if let location {
-			viewController = location.customizedOpenItem(from: viewController, with: context, animated: animated, pushViewController: pushViewController, customizeViewController: { itemViewController in
-				itemViewController.navigationBookmark = BrowserNavigationBookmark.from(dataItem: self, clientContext: context, restoreAction: .open)
+			viewController = location.customizedOpenItem(from: viewController, with: context, animated: animated, pushViewController: pushViewController, customizeViewController: { fileListViewController in
+				fileListViewController.navigationBookmark = BrowserNavigationBookmark.from(dataItem: self, clientContext: context, restoreAction: .open)
 			}, completion: completion)
 		}
 

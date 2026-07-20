@@ -756,15 +756,15 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	private func effectiveFilesLocation(for contentViewController: UIViewController?) -> OCLocation? {
-		guard let itemVC = contentViewController as? ClientItemViewController,
-		      let clientContext = itemVC.clientContext,
-		      itemVC.query?.queryLocation != nil
+		guard let fileBrowser = contentViewController as? FileBrowserContent,
+		      let clientContext = fileBrowser.clientContext,
+		      fileBrowser.query?.queryLocation != nil
 		else { return nil }
 
-		if let loc = itemVC.location {
+		if let loc = fileBrowser.location {
 			return loc
 		}
-		if let queryLoc = itemVC.query?.queryLocation {
+		if let queryLoc = fileBrowser.query?.queryLocation {
 			return queryLoc
 		}
 		if let rootItem = clientContext.rootItem as? OCItem {
@@ -782,10 +782,10 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	private func isBreadcrumbNavigationAvailable(for contentViewController: UIViewController?) -> Bool {
 		guard let contentViewController else { return false }
 
-		if let itemVC = contentViewController as? ClientItemViewController, itemVC.clientContext != nil {
+		if let fileBrowser = contentViewController as? FileBrowserContent, fileBrowser.clientContext != nil {
 			guard
 				!isCurrentContentSpecialTabBarItem,
-				itemVC.query?.queryLocation != nil
+				fileBrowser.query?.queryLocation != nil
 			else { return false }
 
 			guard let effectiveLocation = effectiveFilesLocation(for: contentViewController) else {
@@ -799,9 +799,9 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	private func isDetachedFileList(_ contentViewController: UIViewController?) -> Bool {
-		guard let itemVC = contentViewController as? ClientItemViewController else { return false }
+		guard let fileBrowser = contentViewController as? FileBrowserContent else { return false }
 		guard !isCurrentContentSpecialTabBarItem else { return false }
-		return itemVC.query?.queryLocation == nil
+		return fileBrowser.query?.queryLocation == nil
 	}
 
 	func updateContentNavigationItems() {
@@ -880,12 +880,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			return
 		}
 
-		// Install a location bar when the content is a ClientItemViewController with a non-root location
-		if let itemVC = contentViewController as? ClientItemViewController, let clientContext = itemVC.clientContext {
+		// Install a location bar when the content is a file browser with a non-root location
+		if let fileBrowser = contentViewController as? FileBrowserContent, let clientContext = fileBrowser.clientContext {
 			var effectiveLocation: OCLocation?
-			if let loc = itemVC.location {
+			if let loc = fileBrowser.location {
 				effectiveLocation = loc
-			} else if let queryLoc = itemVC.query?.queryLocation {
+			} else if let queryLoc = fileBrowser.query?.queryLocation {
 				effectiveLocation = queryLoc
 			} else if let rootItem = clientContext.rootItem as? OCItem {
 				effectiveLocation = rootItem.location
