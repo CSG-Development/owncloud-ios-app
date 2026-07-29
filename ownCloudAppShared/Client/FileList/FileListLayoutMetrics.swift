@@ -18,7 +18,7 @@ import UIKit
 
 enum FileListLayoutMetrics {
 	static let listItemHeight: CGFloat = 68
-	static let sortBarHeight: CGFloat = 60
+	static let sortBarHeight: CGFloat = 42
 	static let statisticsFooterHeight: CGFloat = 54
 	static let spaceHeaderHeight: CGFloat = 48
 	static let gridSpacing: CGFloat = 4
@@ -33,19 +33,47 @@ enum FileListLayoutMetrics {
 	static let gridDetailHeight: CGFloat = 16
 	static let gridBottomInset: CGFloat = 5
 
-	static func gridItemHeight(columnWidth: CGFloat) -> CGFloat {
-		let iconWidth = max(0, columnWidth - (2 * gridIconHorizontalInset))
-		let iconHeight = iconWidth * gridIconAspect
-		return gridIconTopInset
-			+ iconHeight
-			+ gridTitleSpacing
-			+ gridTitleMaxHeight
-			+ gridDetailSpacing
-			+ gridDetailHeight
-			+ gridBottomInset
+	static func gridTextAreaHeight(for layout: FileListItemCell.Layout) -> CGFloat {
+		switch layout {
+			case .grid:
+				return gridTitleSpacing + gridTitleMaxHeight + gridDetailSpacing + gridDetailHeight + gridBottomInset
+			case .gridLowDetail:
+				return gridTitleSpacing + gridTitleMaxHeight + gridBottomInset
+			case .gridNoDetail:
+				return gridBottomInset + 11
+			case .list:
+				return 0
+		}
 	}
 
-	static func makeGridSection(layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+	static func gridTextAreaHeight(for itemLayout: ItemLayout) -> CGFloat {
+		gridTextAreaHeight(for: cellLayout(for: itemLayout))
+	}
+
+	static func cellLayout(for itemLayout: ItemLayout) -> FileListItemCell.Layout {
+		switch itemLayout {
+			case .list: return .list
+			case .grid: return .grid
+			case .gridLowDetail: return .gridLowDetail
+			case .gridNoDetail: return .gridNoDetail
+		}
+	}
+
+	static func gridItemHeight(columnWidth: CGFloat, itemLayout: ItemLayout) -> CGFloat {
+		gridItemHeight(columnWidth: columnWidth, layout: cellLayout(for: itemLayout))
+	}
+
+	static func gridItemHeight(columnWidth: CGFloat, layout: FileListItemCell.Layout) -> CGFloat {
+		let iconWidth = max(0, columnWidth - (2 * gridIconHorizontalInset))
+		let iconHeight = iconWidth * gridIconAspect
+		return gridIconTopInset + iconHeight + gridTextAreaHeight(for: layout)
+	}
+
+	static func gridItemHeight(columnWidth: CGFloat) -> CGFloat {
+		gridItemHeight(columnWidth: columnWidth, layout: .grid)
+	}
+
+	static func makeGridSection(itemLayout: ItemLayout, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
 		let sectionInsets = NSDirectionalEdgeInsets(
 			top: gridSpacing,
 			leading: gridSpacing,
@@ -82,7 +110,7 @@ enum FileListLayoutMetrics {
 		groupInsets.trailing += extraLeadingTrailingSpace
 
 		let innerWidth = totalItemWidth - cellInsets.leading - cellInsets.trailing
-		let itemHeight = gridItemHeight(columnWidth: innerWidth) + cellInsets.top + cellInsets.bottom
+		let itemHeight = gridItemHeight(columnWidth: innerWidth, itemLayout: itemLayout) + cellInsets.top + cellInsets.bottom
 
 		let itemSize = NSCollectionLayoutSize(
 			widthDimension: .absolute(totalItemWidth),

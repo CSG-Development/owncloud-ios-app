@@ -65,10 +65,9 @@ enum ZipArchiveService {
 			return
 		}
 
-		// Enumerate folder contents and download each file individually in
-		// downloadArchiveEntries. makeAvailableOffline is intentionally not used
-		// here — it can leave files stuck in .downloading (especially when the
-		// folder tree contains empty subfolders) and blocks compress progress.
+		// Enumerate folder contents; files are materialized into the job downloads
+		// directory (local copy or connection.downloadItem). makeAvailableOffline /
+		// vault downloadItem are intentionally not used.
 		collectArchivePlanEntries(for: items, core: core, completion: completion)
 	}
 
@@ -137,94 +136,495 @@ enum ZipArchiveService {
 		}
 	}
 
-	static func downloadArchiveEntries(_ plan: ZipArchivePlan, core: OCCore, completion: @escaping (Result<[ZipLocalEntry], Error>) -> Void) {
-		ZipDebugLogging.log(plan: plan, context: "downloadArchiveEntries")
+	/// Cancels an in-flight materialize pass so it cannot restart downloads after Cancel.
+	final class ZipDownloadCancellationToken {
+		private let lock = NSLock()
+		private var _isCancelled = false
+		private var downloadProgresses: [Progress] = []
+		private var onCancel: (() -> Void)?
+
+		var isCancelled: Bool {
+			lock.lock()
+			defer { lock.unlock() }
+			return _isCancelled
+		}
+
+		func track(_ progress: Progress) {
+			lock.lock()
+			downloadProgresses.append(progress)
+			let shouldCancel = _isCancelled
+			lock.unlock()
+			if shouldCancel {
+				progress.cancel()
+			}
+		}
+
+		func setCancelHandler(_ handler: @escaping () -> Void) {
+			lock.lock()
+			onCancel = handler
+			lock.unlock()
+		}
+
+		func cancel() {
+			lock.lock()
+			guard !_isCancelled else {
+				lock.unlock()
+				return
+			}
+			_isCancelled = true
+			let progresses = downloadProgresses
+			let handler = onCancel
+			onCancel = nil
+			lock.unlock()
+
+			for progress in progresses {
+				progress.cancel()
+			}
+			handler?()
+		}
+	}
+
+	/// Copies offline locals or downloads via `connection.downloadItem(_:to:)` into `downloadsDirectory`.
+	/// Never writes into the vault or creates temporary view claims.
+	/// File copies and download enqueue run on a utility queue so callers on the main thread stay responsive.
+	@discardableResult
+	static func materializeArchiveEntries(
+		_ plan: ZipArchivePlan,
+		core: OCCore,
+		into downloadsDirectory: URL,
+		alreadyMaterializedRelativePaths: Set<String> = [],
+		publishProgress: ((Progress) -> Void)? = nil,
+		onEntryMaterialized: ((String) -> Void)? = nil,
+		cancellationToken: ZipDownloadCancellationToken? = nil,
+		completion: @escaping (Result<[ZipLocalEntry], Error>) -> Void
+	) -> ZipDownloadCancellationToken {
+		let token = cancellationToken ?? ZipDownloadCancellationToken()
+		ZipDebugLogging.log(plan: plan, context: "materializeArchiveEntries")
+
 		guard plan.fileEntries.count > 0 else {
-			ZipDebugLogging.log("downloadArchiveEntries: no files in plan — returning empty result")
+			ZipDebugLogging.log("materializeArchiveEntries: no files in plan — returning empty result")
 			completion(.success([]))
-			return
+			return token
 		}
 
-		let deadline = Date().addingTimeInterval(600)
-		var inFlightDownloadKeys = Set<String>()
-		var lastLoggedDownloadedCount = -1
-
-		func itemKey(for item: OCItem, fallback: String) -> String {
-			item.localID ?? item.path ?? fallback
+		do {
+			try FileManager.default.createDirectory(at: downloadsDirectory, withIntermediateDirectories: true)
+		} catch {
+			completion(.failure(error))
+			return token
 		}
 
-		func poll() {
-			var localEntries: [ZipLocalEntry] = []
-			var missingEntries: [ZipArchiveEntry] = []
+		let progressTracker = ZipDownloadProgressTracker(entries: plan.fileEntries)
+		publishProgress?(progressTracker.progress)
+		token.track(progressTracker.progress)
 
-			for entry in plan.fileEntries {
-				let item = resolvedItem(entry.item, core: core)
-				guard item.type == .file else {
-					ZipDebugLogging.log("downloadArchiveEntries: skipping non-file entry \(Log.mask(entry.archiveRelativePath)) type=\(item.type.rawValue)")
-					continue
-				}
-				if let localURL = localFileURL(for: item, core: core) {
-					core.registerUsage(of: item, completionHandler: nil)
-					localEntries.append(ZipLocalEntry(archiveRelativePath: entry.archiveRelativePath, localURL: localURL))
-				} else {
-					missingEntries.append(entry)
-				}
-			}
+		final class ObservationBox {
+			var observations: [NSKeyValueObservation] = []
+		}
+		let observationBox = ObservationBox()
+		var didFinish = false
+		let finishLock = NSLock()
+		var pendingKeys = Set(plan.fileEntries.map(\.archiveRelativePath))
+		var localEntriesByKey: [String: ZipLocalEntry] = [:]
+		var firstError: Error?
+		var inFlightDownloads: [String: OCItem] = [:]
+		var progressPollActive = false
 
-			if localEntries.count != lastLoggedDownloadedCount {
-				lastLoggedDownloadedCount = localEntries.count
-				ZipDebugLogging.log("downloadArchiveEntries: progress \(localEntries.count)/\(plan.fileEntries.count) ready, \(missingEntries.count) missing")
-			}
-
-			if missingEntries.isEmpty {
-				ZipDebugLogging.log(localEntries: localEntries, context: "downloadArchiveEntries.completed")
-				completion(.success(localEntries))
+		func finish(_ result: Result<[ZipLocalEntry], Error>) {
+			finishLock.lock()
+			guard !didFinish else {
+				finishLock.unlock()
 				return
 			}
+			didFinish = true
+			inFlightDownloads.removeAll()
+			progressPollActive = false
+			finishLock.unlock()
+			observationBox.observations.removeAll()
+			completion(result)
+		}
 
-			if Date() > deadline {
-				ZipDebugLogging.log("downloadArchiveEntries: timed out with \(missingEntries.count) file(s) still missing")
-				for entry in missingEntries {
-					let item = resolvedItem(entry.item, core: core)
-					ZipDebugLogging.log("downloadArchiveEntries.missing: relativePath=\(Log.mask(entry.archiveRelativePath)) path=\(Log.mask(item.path ?? "nil")) syncActivity=\(item.syncActivity.rawValue) localRelativePath=\(Log.mask(item.localRelativePath ?? "nil"))")
-				}
-				completion(.failure(NSError(ocError: .requestTimeout)))
-				return
-			}
+		token.setCancelHandler {
+			ZipDebugLogging.log("materializeArchiveEntries: cancelled")
+			finish(.failure(NSError(ocError: .cancelled)))
+		}
 
-			for entry in missingEntries {
-				let item = resolvedItem(entry.item, core: core)
-				guard item.type == .file else {
-					continue
-				}
-				let key = itemKey(for: item, fallback: entry.archiveRelativePath)
+		func markDone(key: String, entry: ZipLocalEntry?, error: Error?) {
+			var resultToFinish: Result<[ZipLocalEntry], Error>?
+			var shouldNotifyMaterialized = false
 
-				if inFlightDownloadKeys.contains(key) {
-					continue
-				}
-
-				inFlightDownloadKeys.insert(key)
-				ZipDebugLogging.log("downloadArchiveEntries: starting download for \(Log.mask(entry.archiveRelativePath)) path=\(Log.mask(item.path ?? "nil")) localRelativePath=\(Log.mask(item.localRelativePath ?? "nil"))")
-				_ = core.downloadItem(item, options: [
-					.returnImmediatelyIfOfflineOrUnavailable: true,
-					.addTemporaryClaimForPurpose: OCCoreClaimPurpose.view.rawValue
-				], resultHandler: { error, _, _, _ in
-					inFlightDownloadKeys.remove(key)
-					if let error = error {
-						ZipDebugLogging.log(error: error, context: "downloadArchiveEntries.download(\(Log.mask(entry.archiveRelativePath)))")
-					} else {
-						ZipDebugLogging.log("downloadArchiveEntries: download finished for \(Log.mask(entry.archiveRelativePath))")
+			finishLock.lock()
+			inFlightDownloads.removeValue(forKey: key)
+			if !didFinish {
+				if let error {
+					if firstError == nil {
+						firstError = error
 					}
-				})
+				} else if let entry {
+					localEntriesByKey[key] = entry
+					progressTracker.markFinished(key: key)
+					shouldNotifyMaterialized = true
+				}
+
+				pendingKeys.remove(key)
+				if pendingKeys.isEmpty {
+					if token.isCancelled {
+						resultToFinish = .failure(NSError(ocError: .cancelled))
+					} else if let firstError {
+						resultToFinish = .failure(firstError)
+					} else {
+						let ordered = plan.fileEntries.compactMap { localEntriesByKey[$0.archiveRelativePath] }
+						progressTracker.markAllFinished()
+						ZipDebugLogging.log(localEntries: ordered, context: "materializeArchiveEntries.completed")
+						resultToFinish = .success(ordered)
+					}
+				}
+			}
+			finishLock.unlock()
+
+			if shouldNotifyMaterialized {
+				onEntryMaterialized?(key)
+			}
+			if let resultToFinish {
+				finish(resultToFinish)
+			}
+		}
+
+		func attachProgress(for item: OCItem, key: String, fallback: Progress?) {
+			guard let best = bestDownloadProgress(for: item, core: core, fallback: fallback) else {
+				return
+			}
+			token.track(best)
+			let newObservations = progressTracker.observe(best, key: key)
+			if !newObservations.isEmpty {
+				observationBox.observations.append(contentsOf: newObservations)
+			}
+		}
+
+		func scheduleProgressPollIfNeeded() {
+			finishLock.lock()
+			let shouldStart = !progressPollActive && !didFinish && !inFlightDownloads.isEmpty
+			if shouldStart {
+				progressPollActive = true
+			}
+			finishLock.unlock()
+			guard shouldStart else { return }
+
+			func poll() {
+				if token.isCancelled {
+					return
+				}
+
+				finishLock.lock()
+				let inflight = inFlightDownloads
+				let finished = didFinish
+				finishLock.unlock()
+
+				if finished || inflight.isEmpty {
+					finishLock.lock()
+					progressPollActive = false
+					finishLock.unlock()
+					return
+				}
+
+				for (key, item) in inflight {
+					attachProgress(for: item, key: key, fallback: nil)
+				}
+
+				DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 0.2) {
+					poll()
+				}
 			}
 
-			DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+			DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 0.2) {
 				poll()
 			}
 		}
 
-		ZipDebugLogging.log("downloadArchiveEntries: polling for local copies (timeout 600s)")
-		poll()
+		DispatchQueue.global(qos: .userInitiated).async {
+			for entry in plan.fileEntries {
+				if token.isCancelled {
+					finish(.failure(NSError(ocError: .cancelled)))
+					return
+				}
+
+				let key = entry.archiveRelativePath
+				let item = resolvedItem(entry.item, core: core)
+				guard item.type == .file else {
+					ZipDebugLogging.log("materializeArchiveEntries: skipping non-file \(Log.mask(key))")
+					markDone(key: key, entry: nil, error: nil)
+					continue
+				}
+
+				let destinationURL = destinationURL(forRelativePath: key, in: downloadsDirectory)
+
+				if alreadyMaterializedRelativePaths.contains(key) || fileExistsNonEmpty(at: destinationURL) {
+					ZipDebugLogging.log("materializeArchiveEntries: resume hit \(Log.mask(key))")
+					markDone(key: key, entry: ZipLocalEntry(archiveRelativePath: key, localURL: destinationURL), error: nil)
+					continue
+				}
+
+				if let localURL = localFileURL(for: item, core: core) {
+					do {
+						try prepareDestination(destinationURL)
+						if FileManager.default.fileExists(atPath: destinationURL.path) {
+							try FileManager.default.removeItem(at: destinationURL)
+						}
+						try FileManager.default.copyItem(at: localURL, to: destinationURL)
+						core.registerUsage(of: item, completionHandler: nil)
+						ZipDebugLogging.log("materializeArchiveEntries: copied local \(Log.mask(key))")
+						markDone(key: key, entry: ZipLocalEntry(archiveRelativePath: key, localURL: destinationURL), error: nil)
+					} catch {
+						ZipDebugLogging.log(error: error, context: "materializeArchiveEntries.copy(\(Log.mask(key)))")
+						markDone(key: key, entry: nil, error: error)
+					}
+					continue
+				}
+
+				do {
+					try prepareDestination(destinationURL)
+					if FileManager.default.fileExists(atPath: destinationURL.path) {
+						try FileManager.default.removeItem(at: destinationURL)
+					}
+				} catch {
+					markDone(key: key, entry: nil, error: error)
+					continue
+				}
+
+				ZipDebugLogging.log("materializeArchiveEntries: connection download \(Log.mask(key)) → \(Log.mask(destinationURL.path))")
+
+				let eventTarget = OCEventTarget(ephermalEventHandlerBlock: { event, _ in
+					if token.isCancelled {
+						markDone(key: key, entry: nil, error: NSError(ocError: .cancelled))
+						return
+					}
+					if let error = event.error {
+						ZipDebugLogging.log(error: error, context: "materializeArchiveEntries.download(\(Log.mask(key)))")
+						markDone(key: key, entry: nil, error: error)
+						return
+					}
+					guard fileExistsNonEmpty(at: destinationURL) || event.file?.url != nil else {
+						markDone(key: key, entry: nil, error: NSError(ocError: .internal))
+						return
+					}
+					// Connection may leave the file at destinationURL or at event.file.url.
+					if let downloadedURL = event.file?.url,
+					   downloadedURL.standardizedFileURL != destinationURL.standardizedFileURL,
+					   FileManager.default.fileExists(atPath: downloadedURL.path) {
+						do {
+							if FileManager.default.fileExists(atPath: destinationURL.path) {
+								try FileManager.default.removeItem(at: destinationURL)
+							}
+							try FileManager.default.moveItem(at: downloadedURL, to: destinationURL)
+						} catch {
+							markDone(key: key, entry: nil, error: error)
+							return
+						}
+					}
+					guard fileExistsNonEmpty(at: destinationURL) else {
+						markDone(key: key, entry: nil, error: NSError(ocError: .internal))
+						return
+					}
+					ZipDebugLogging.log("materializeArchiveEntries: download finished \(Log.mask(key))")
+					markDone(key: key, entry: ZipLocalEntry(archiveRelativePath: key, localURL: destinationURL), error: nil)
+				}, userInfo: nil, ephermalUserInfo: nil)
+
+				guard let ocProgress = core.connection.downloadItem(item, to: destinationURL, options: nil, resultTarget: eventTarget) else {
+					ZipDebugLogging.log("materializeArchiveEntries: downloadItem returned nil for \(Log.mask(key))")
+					markDone(key: key, entry: nil, error: NSError(ocError: .internal))
+					continue
+				}
+
+				finishLock.lock()
+				inFlightDownloads[key] = item
+				finishLock.unlock()
+
+				// Request progress is often indeterminate; sized bytes live on the pipeline progress.
+				let fallback = ocProgress.progress
+				if let fallback {
+					token.track(fallback)
+				}
+				attachProgress(for: item, key: key, fallback: fallback)
+			}
+
+			scheduleProgressPollIfNeeded()
+		}
+
+		return token
+	}
+
+	/// Prefers sized HTTP pipeline progress (same source file cells use), then the request Progress stub.
+	static func bestDownloadProgress(for item: OCItem, core: OCCore, fallback: Progress? = nil) -> Progress? {
+		guard let localID = item.localID else {
+			return fallback
+		}
+
+		if let live = core.connection.liveDownloadTransferProgress(forItemLocalID: localID) as Progress?,
+		   !live.isFinished,
+		   !live.isCancelled {
+			return live
+		}
+
+		if let fallback, !fallback.isFinished, !fallback.isCancelled {
+			return fallback
+		}
+		return nil
+	}
+
+	/// Materializes a single item (e.g. zip for decompress) into `destinationURL`.
+	@discardableResult
+	static func materializeItem(
+		_ item: OCItem,
+		core: OCCore,
+		to destinationURL: URL,
+		alreadyMaterializedRelativePaths: Set<String> = [],
+		publishProgress: ((Progress) -> Void)? = nil,
+		cancellationToken: ZipDownloadCancellationToken? = nil,
+		completion: @escaping (Result<URL, Error>) -> Void
+	) -> ZipDownloadCancellationToken {
+		let token = cancellationToken ?? ZipDownloadCancellationToken()
+		let resolved = resolvedItem(item, core: core)
+		let relativePath = destinationURL.lastPathComponent
+		let plan = ZipArchivePlan(
+			fileEntries: [ZipArchiveEntry(item: resolved, archiveRelativePath: relativePath)],
+			emptyFolderPaths: []
+		)
+		let downloadsDir = destinationURL.deletingLastPathComponent()
+		var already = alreadyMaterializedRelativePaths
+		if fileExistsNonEmpty(at: destinationURL) {
+			already.insert(relativePath)
+		}
+
+		_ = materializeArchiveEntries(
+			plan,
+			core: core,
+			into: downloadsDir,
+			alreadyMaterializedRelativePaths: already,
+			publishProgress: publishProgress,
+			cancellationToken: token
+		) { result in
+			switch result {
+			case .failure(let error):
+				completion(.failure(error))
+			case .success(let entries):
+				if let url = entries.first?.localURL {
+					completion(.success(url))
+				} else {
+					completion(.failure(NSError(ocError: .internal)))
+				}
+			}
+		}
+		return token
+	}
+
+	private static func destinationURL(forRelativePath relativePath: String, in downloadsDirectory: URL) -> URL {
+		let parts = relativePath.split(separator: "/").map(String.init)
+		guard !parts.isEmpty else {
+			return downloadsDirectory
+		}
+		var url = downloadsDirectory
+		for (index, part) in parts.enumerated() {
+			let isLast = index == parts.count - 1
+			url = url.appendingPathComponent(part, isDirectory: !isLast)
+		}
+		return url
+	}
+
+	private static func prepareDestination(_ destinationURL: URL) throws {
+		let parent = destinationURL.deletingLastPathComponent()
+		try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
+	}
+
+	private static func fileExistsNonEmpty(at url: URL) -> Bool {
+		guard let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
+		      let size = attrs[.size] as? NSNumber else {
+			return false
+		}
+		return size.int64Value > 0
+	}
+
+	/// LocalIDs of plan file entries that already have a local copy (diagnostics / logging).
+	static func alreadyLocalItemLocalIDs(in plan: ZipArchivePlan, core: OCCore) -> [String] {
+		var ids: [String] = []
+		for entry in plan.fileEntries {
+			let item = resolvedItem(entry.item, core: core)
+			guard let localID = item.localID as String?,
+			      localFileURL(for: item, core: core) != nil else {
+				continue
+			}
+			ids.append(localID)
+		}
+		return ids
+	}
+
+	/// Aggregates per-file download Progress into one size-weighted Progress for UI.
+	private final class ZipDownloadProgressTracker {
+		let progress: Progress
+		private let weightsByKey: [String: Int64]
+		private var fractionsByKey: [String: Double] = [:]
+		private var observedProgressIDs = Set<ObjectIdentifier>()
+		private let lock = NSLock()
+
+		init(entries: [ZipArchiveEntry]) {
+			var weights: [String: Int64] = [:]
+			for entry in entries {
+				weights[entry.archiveRelativePath] = max(Int64(entry.item.size), 1)
+			}
+			self.weightsByKey = weights
+			let total = max(weights.values.reduce(Int64(0), +), 1)
+			self.progress = Progress(totalUnitCount: total)
+		}
+
+		func observe(_ source: Progress, key: String) -> [NSKeyValueObservation] {
+			lock.lock()
+			let id = ObjectIdentifier(source)
+			guard !observedProgressIDs.contains(id) else {
+				lock.unlock()
+				return []
+			}
+			observedProgressIDs.insert(id)
+			lock.unlock()
+
+			let publish: (Progress) -> Void = { [weak self] observed in
+				self?.update(key: key, fraction: Self.fraction(of: observed))
+			}
+			return [
+				source.observe(\.fractionCompleted, options: [.initial, .new]) { progress, _ in publish(progress) },
+				source.observe(\.completedUnitCount, options: [.new]) { progress, _ in publish(progress) },
+				source.observe(\.totalUnitCount, options: [.new]) { progress, _ in publish(progress) }
+			]
+		}
+
+		func markFinished(key: String) {
+			update(key: key, fraction: 1)
+		}
+
+		func markAllFinished() {
+			progress.completedUnitCount = progress.totalUnitCount
+		}
+
+		private static func fraction(of observed: Progress) -> Double {
+			if observed.totalUnitCount > 0 {
+				return min(1, max(0, Double(observed.completedUnitCount) / Double(observed.totalUnitCount)))
+			}
+			return min(1, max(0, observed.fractionCompleted))
+		}
+
+		private func update(key: String, fraction: Double) {
+			lock.lock()
+			let clamped = min(1, max(0, fraction))
+			if let existing = fractionsByKey[key], existing >= clamped, clamped < 1 {
+				lock.unlock()
+				return
+			}
+			fractionsByKey[key] = clamped
+			let completed = weightsByKey.reduce(Int64(0)) { partial, pair in
+				let fraction = fractionsByKey[pair.key] ?? 0
+				return partial + Int64(Double(pair.value) * fraction)
+			}
+			lock.unlock()
+			progress.completedUnitCount = min(progress.totalUnitCount, max(0, completed))
+		}
 	}
 
 	static func resolvedItemForDownload(_ item: OCItem, core: OCCore) -> OCItem {
@@ -362,6 +762,9 @@ enum ZipArchiveService {
 		ZipDebugLogging.log("stageArchive: staging \(localEntries.count) file(s) and \(plan.emptyFolderPaths.count) empty folder(s)")
 
 		for emptyFolderPath in plan.emptyFolderPaths {
+			if progress.isCancelled {
+				throw NSError(ocError: .cancelled)
+			}
 			let destinationURL = stagingURL.appendingPathComponent(emptyFolderPath, isDirectory: true)
 			try fileManager.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: [
 				.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication
@@ -371,6 +774,9 @@ enum ZipArchiveService {
 		}
 
 		for entry in localEntries {
+			if progress.isCancelled {
+				throw NSError(ocError: .cancelled)
+			}
 			let destinationURL = stagingURL.appendingPathComponent(entry.archiveRelativePath, isDirectory: false)
 			try fileManager.createDirectory(at: destinationURL.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: [
 				.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication
@@ -408,19 +814,31 @@ enum ZipArchiveService {
 		ZipDebugLogging.log(url: archiveURL, context: "extractArchive.archiveURL")
 		ZipDebugLogging.log(url: destinationURL, context: "extractArchive.destinationURL(before)")
 
+		if containsEncryptedEntries(at: archiveURL) {
+			ZipDebugLogging.log("extractArchive: encrypted entries detected")
+			throw ZipArchiveError.encryptedArchive
+		}
+
 		let fileManager = FileManager.default
 		if fileManager.fileExists(atPath: destinationURL.path) {
 			ZipDebugLogging.log("extractArchive: removing existing destination at \(Log.mask(destinationURL.path))")
 			try fileManager.removeItem(at: destinationURL)
 		}
-		try fileManager.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: [
-			.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication
-		])
+		do {
+			try fileManager.createDirectory(at: destinationURL, withIntermediateDirectories: true, attributes: [
+				.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication
+			])
+		} catch {
+			if isInsufficientStorageError(error) {
+				throw ZipArchiveError.insufficientStorage
+			}
+			throw error
+		}
 		ZipDebugLogging.log(url: destinationURL, context: "extractArchive.destinationURL(afterCreate)")
 
 		guard let archive = Archive(url: archiveURL, accessMode: .read) else {
 			ZipDebugLogging.log("extractArchive: failed to open archive at \(Log.mask(archiveURL.path))")
-			throw NSError(ocError: .internal)
+			throw ZipArchiveError.corruptedArchive
 		}
 
 		let rawEntries = Array(archive)
@@ -437,6 +855,16 @@ enum ZipArchiveService {
 		let skippedCount = rawEntries.count - entries.count
 		if skippedCount > 0 {
 			ZipDebugLogging.log("extractArchive: skipped \(skippedCount) unsafe/empty entr\(skippedCount == 1 ? "y" : "ies")")
+		}
+
+		if rawEntries.isEmpty {
+			ZipDebugLogging.log("extractArchive: archive contains no readable entries")
+			throw ZipArchiveError.corruptedArchive
+		}
+
+		if entries.isEmpty {
+			ZipDebugLogging.log("extractArchive: no entries with supported names remain after filtering")
+			throw ZipArchiveError.unsupportedEntryNames
 		}
 
 		// Directories first, then by depth so parents always exist before children
@@ -483,7 +911,10 @@ enum ZipArchiveService {
 				_ = try archive.extract(entry, to: entryURL)
 			} catch {
 				ZipDebugLogging.log(error: error, context: "extractArchive.extract(\(Log.mask(relativePath)))")
-				throw error
+				if isInsufficientStorageError(error) {
+					throw ZipArchiveError.insufficientStorage
+				}
+				throw ZipArchiveError.corruptedArchive
 			}
 			extractedCount += 1
 			ZipDebugLogging.log("extractArchive: extracted[\(extractedCount)] path=\(Log.mask(relativePath))")
@@ -495,8 +926,41 @@ enum ZipArchiveService {
 
 		if extractedCount == 0, entries.isEmpty == false {
 			ZipDebugLogging.log("extractArchive: no entries were extracted")
-			throw NSError(ocError: .internal)
+			throw ZipArchiveError.unsupportedEntryNames
 		}
+	}
+
+	static func containsEncryptedEntries(at archiveURL: URL) -> Bool {
+		guard let data = try? Data(contentsOf: archiveURL, options: [.mappedIfSafe]), !data.isEmpty else {
+			return false
+		}
+		return zipDataContainsEncryptedEntries(data)
+	}
+
+	private static func zipDataContainsEncryptedEntries(_ data: Data) -> Bool {
+		let bytes = [UInt8](data)
+		var index = 0
+		while index + 4 <= bytes.count {
+			if bytes[index] == 0x50, bytes[index + 1] == 0x4b {
+				if bytes[index + 2] == 0x01, bytes[index + 3] == 0x02, index + 10 <= bytes.count {
+					let flag = UInt16(bytes[index + 8]) | (UInt16(bytes[index + 9]) << 8)
+					if flag & 0x1 != 0 {
+						return true
+					}
+				} else if bytes[index + 2] == 0x03, bytes[index + 3] == 0x04, index + 8 <= bytes.count {
+					let flag = UInt16(bytes[index + 6]) | (UInt16(bytes[index + 7]) << 8)
+					if flag & 0x1 != 0 {
+						return true
+					}
+				}
+			}
+			index += 1
+		}
+		return false
+	}
+
+	private static func isInsufficientStorageError(_ error: Error) -> Bool {
+		ZipArchiveError.classify(error, for: .decompress) == .insufficientStorage
 	}
 
 	private static func sanitizedArchiveEntryPath(_ path: String) -> String? {
@@ -522,47 +986,130 @@ enum ZipArchiveService {
 		try fileManager.removeItem(at: url)
 	}
 
-	static func uploadExtractedContents(at localDirectory: URL, to parentItem: OCItem, core: OCCore, publishProgress: @escaping (Progress) -> Void, completion: @escaping (Error?) -> Void) {
-		ZipDebugLogging.log(url: localDirectory, context: "uploadExtractedContents.localDirectory")
-		ZipDebugLogging.log(item: parentItem, context: "uploadExtractedContents.parentItem")
+	struct ZipUploadItemEvent {
+		enum Kind {
+			case folder
+			case file
+		}
+		let kind: Kind
+		let localID: String
+		let relativePath: String
+	}
 
-		let fileEntries = collectLocalFileEntries(at: localDirectory)
+	static func uploadExtractedContents(
+		at localDirectory: URL,
+		to parentItem: OCItem,
+		core: OCCore,
+		skipRelativePaths: Set<String> = [],
+		publishProgress: @escaping (Progress) -> Void,
+		onProgressCreated: ((Progress) -> Void)? = nil,
+		onItemCreated: ((ZipUploadItemEvent) -> Void)? = nil,
+		completion: @escaping (Error?) -> Void
+	) {
+		importExtractedContents(
+			at: localDirectory,
+			to: parentItem,
+			core: core,
+			skipRelativePaths: skipRelativePaths,
+			publishProgress: publishProgress,
+			onProgressCreated: onProgressCreated,
+			onItemCreated: onItemCreated,
+			completion: completion
+		)
+	}
+
+	/// Imports extracted files/folders into the vault as placeholders; sync uploads separately.
+	static func importExtractedContents(
+		at localDirectory: URL,
+		to parentItem: OCItem,
+		core: OCCore,
+		skipRelativePaths: Set<String> = [],
+		publishProgress: @escaping (Progress) -> Void,
+		onProgressCreated: ((Progress) -> Void)? = nil,
+		onItemCreated: ((ZipUploadItemEvent) -> Void)? = nil,
+		completion: @escaping (Error?) -> Void
+	) {
+		ZipDebugLogging.log(url: localDirectory, context: "importExtractedContents.localDirectory")
+		ZipDebugLogging.log(item: parentItem, context: "importExtractedContents.parentItem")
+
+		let fileEntries = collectLocalFileEntries(at: localDirectory).filter { !skipRelativePaths.contains($0.archiveRelativePath) }
 		var directoryPaths = directoryPaths(for: fileEntries)
 		directoryPaths.append(contentsOf: collectEmptyDirectoryPaths(at: localDirectory))
 		directoryPaths = Array(Set(directoryPaths)).sorted { lhs, rhs in
 			lhs.split(separator: "/").count < rhs.split(separator: "/").count
 		}
+		directoryPaths = directoryPaths.filter { !skipRelativePaths.contains($0) }
 
-		ZipDebugLogging.log("uploadExtractedContents: found \(fileEntries.count) file(s), \(directoryPaths.count) director\(directoryPaths.count == 1 ? "y" : "ies") to create")
+		ZipDebugLogging.log("importExtractedContents: found \(fileEntries.count) file(s), \(directoryPaths.count) director\(directoryPaths.count == 1 ? "y" : "ies") to create")
 		for (index, entry) in fileEntries.enumerated() {
-			ZipDebugLogging.log("uploadExtractedContents.file[\(index)]: relativePath=\(Log.mask(entry.archiveRelativePath)) localURL=\(Log.mask(entry.localURL.path))")
+			ZipDebugLogging.log("importExtractedContents.file[\(index)]: relativePath=\(Log.mask(entry.archiveRelativePath)) localURL=\(Log.mask(entry.localURL.path))")
 		}
 		for (index, directoryPath) in directoryPaths.enumerated() {
-			ZipDebugLogging.log("uploadExtractedContents.directory[\(index)]: path=\(Log.mask(directoryPath))")
+			ZipDebugLogging.log("importExtractedContents.directory[\(index)]: path=\(Log.mask(directoryPath))")
 		}
 
 		guard fileEntries.count > 0 || directoryPaths.count > 0 else {
-			ZipDebugLogging.log("uploadExtractedContents: aborting — extract directory has no files or folders")
+			ZipDebugLogging.log("importExtractedContents: aborting — extract directory has no files or folders")
 			completion(NSError(ocError: .internal))
 			return
 		}
 
-		buildFolderMap(directoryPaths: directoryPaths, parentItem: parentItem, core: core) { result in
+		let overallUploadProgress = Progress(totalUnitCount: Int64(max(fileEntries.count + directoryPaths.count, 1)))
+		publishProgress(overallUploadProgress)
+
+		buildFolderMap(
+			directoryPaths: directoryPaths,
+			parentItem: parentItem,
+			core: core,
+			cancelProgress: overallUploadProgress,
+			onProgressCreated: onProgressCreated,
+			onFolderCreated: { localID, relativePath in
+				onItemCreated?(ZipUploadItemEvent(kind: .folder, localID: localID, relativePath: relativePath))
+				overallUploadProgress.completedUnitCount = min(overallUploadProgress.totalUnitCount, overallUploadProgress.completedUnitCount + 1)
+			}
+		) { result in
+			if overallUploadProgress.isCancelled {
+				completion(NSError(ocError: .cancelled))
+				return
+			}
 			switch result {
 			case .failure(let error):
-				ZipDebugLogging.log(error: error, context: "uploadExtractedContents.buildFolderMap")
+				ZipDebugLogging.log(error: error, context: "importExtractedContents.buildFolderMap")
 				completion(error)
 			case .success(let folderItems):
-				ZipDebugLogging.log("uploadExtractedContents: folder map ready with \(folderItems.count) item(s)")
-				uploadFileEntries(fileEntries, folderItems: folderItems, core: core, publishProgress: publishProgress, completion: completion)
+				ZipDebugLogging.log("importExtractedContents: folder map ready with \(folderItems.count) item(s)")
+				uploadFileEntries(
+					fileEntries,
+					folderItems: folderItems,
+					core: core,
+					overallUploadProgress: overallUploadProgress,
+					onProgressCreated: onProgressCreated,
+					onFileCreated: { localID, relativePath in
+						onItemCreated?(ZipUploadItemEvent(kind: .file, localID: localID, relativePath: relativePath))
+					},
+					completion: completion
+				)
 			}
 		}
 	}
 
-	private static func buildFolderMap(directoryPaths: [String], parentItem: OCItem, core: OCCore, completion: @escaping (Result<[String: OCItem], Error>) -> Void) {
+	private static func buildFolderMap(
+		directoryPaths: [String],
+		parentItem: OCItem,
+		core: OCCore,
+		cancelProgress: Progress,
+		onProgressCreated: ((Progress) -> Void)?,
+		onFolderCreated: ((String, String) -> Void)?,
+		completion: @escaping (Result<[String: OCItem], Error>) -> Void
+	) {
 		var folderItems: [String: OCItem] = ["": parentItem]
 
 		func createNext(startingAt index: Int) {
+			if cancelProgress.isCancelled {
+				completion(.failure(NSError(ocError: .cancelled)))
+				return
+			}
+
 			if index >= directoryPaths.count {
 				ZipDebugLogging.log("buildFolderMap: created \(folderItems.count - 1) folder(s)")
 				completion(.success(folderItems))
@@ -580,52 +1127,80 @@ enum ZipArchiveService {
 			}
 
 			core.suggestUnusedNameBased(on: folderName, at: parentLocation, isDirectory: true, using: .bracketed, filteredBy: nil, resultHandler: { suggestedName, _ in
+				if cancelProgress.isCancelled {
+					completion(.failure(NSError(ocError: .cancelled)))
+					return
+				}
+
 				guard let suggestedName = suggestedName else {
 					ZipDebugLogging.log("buildFolderMap: no suggested name for folder=\(Log.mask(folderName)) at path=\(Log.mask(directoryPath))")
 					completion(.failure(NSError(ocError: .internal)))
 					return
 				}
 
-			ZipDebugLogging.log("buildFolderMap: creating folder suggestedName=\(Log.mask(suggestedName)) path=\(Log.mask(directoryPath)) parentPath=\(Log.mask(parentPath))")
+				ZipDebugLogging.log("buildFolderMap: creating folder suggestedName=\(Log.mask(suggestedName)) path=\(Log.mask(directoryPath)) parentPath=\(Log.mask(parentPath))")
 
-			// Use placeholderCompletionHandler so the placeholder OCItem (which is live in
-			// the local database) is available immediately for child imports. resultHandler
-			// only fires after the server round-trip and returns a snapshot that may not
-			// match the current DB entry — passing that snapshot to importFileNamed can
-			// cause the import to fail silently.
-			_ = core.createFolder(suggestedName, inside: parentFolderItem, options: nil, placeholderCompletionHandler: { error, folderItem in
-				if let error = error {
-					ZipDebugLogging.log(error: error, context: "buildFolderMap.createFolder(\(Log.mask(directoryPath)))")
-					completion(.failure(error))
-					return
-				}
+				// Use placeholderCompletionHandler so the placeholder OCItem (which is live in
+				// the local database) is available immediately for child imports. resultHandler
+				// only fires after the server round-trip and returns a snapshot that may not
+				// match the current DB entry — passing that snapshot to importFileNamed can
+				// cause the import to fail silently.
+				let createProgress = core.createFolder(suggestedName, inside: parentFolderItem, options: nil, placeholderCompletionHandler: { error, folderItem in
+					if cancelProgress.isCancelled {
+						completion(.failure(NSError(ocError: .cancelled)))
+						return
+					}
+					if let error = error {
+						ZipDebugLogging.log(error: error, context: "buildFolderMap.createFolder(\(Log.mask(directoryPath)))")
+						completion(.failure(error))
+						return
+					}
 
-				guard let folderItem = folderItem else {
-					ZipDebugLogging.log("buildFolderMap: createFolder placeholder nil for path=\(Log.mask(directoryPath))")
-					completion(.failure(NSError(ocError: .internal)))
-					return
-				}
+					guard let folderItem = folderItem else {
+						ZipDebugLogging.log("buildFolderMap: createFolder placeholder nil for path=\(Log.mask(directoryPath))")
+						completion(.failure(NSError(ocError: .internal)))
+						return
+					}
 
-				ZipDebugLogging.log("buildFolderMap: placeholder ready localID=\(Log.mask(folderItem.localID ?? "nil")) path=\(Log.mask(directoryPath))")
-				folderItems[directoryPath] = folderItem
-				createNext(startingAt: index + 1)
-			}, resultHandler: { error, _, _, _ in
-				if let error = error {
-					ZipDebugLogging.log(error: error, context: "buildFolderMap.createFolder.server(\(Log.mask(directoryPath)))")
-				} else {
-					ZipDebugLogging.log("buildFolderMap: server confirmed folder path=\(Log.mask(directoryPath))")
+					ZipDebugLogging.log("buildFolderMap: placeholder ready localID=\(Log.mask(folderItem.localID ?? "nil")) path=\(Log.mask(directoryPath))")
+					folderItems[directoryPath] = folderItem
+					if let localID = folderItem.localID as String? {
+						onFolderCreated?(localID, directoryPath)
+					}
+					createNext(startingAt: index + 1)
+				}, resultHandler: { error, _, _, _ in
+					if let error = error {
+						ZipDebugLogging.log(error: error, context: "buildFolderMap.createFolder.server(\(Log.mask(directoryPath)))")
+					} else {
+						ZipDebugLogging.log("buildFolderMap: server confirmed folder path=\(Log.mask(directoryPath))")
+					}
+				})
+				if let createProgress {
+					onProgressCreated?(createProgress)
 				}
-			})
 			})
 		}
 
 		createNext(startingAt: 0)
 	}
 
-	private static func uploadFileEntries(_ fileEntries: [ZipLocalEntry], folderItems: [String: OCItem], core: OCCore, publishProgress: @escaping (Progress) -> Void, completion: @escaping (Error?) -> Void) {
+	private static func uploadFileEntries(
+		_ fileEntries: [ZipLocalEntry],
+		folderItems: [String: OCItem],
+		core: OCCore,
+		overallUploadProgress: Progress,
+		onProgressCreated: ((Progress) -> Void)?,
+		onFileCreated: ((String, String) -> Void)?,
+		completion: @escaping (Error?) -> Void
+	) {
 		guard fileEntries.count > 0 else {
 			ZipDebugLogging.log("uploadFileEntries: no files to import — done")
 			completion(nil)
+			return
+		}
+
+		if overallUploadProgress.isCancelled {
+			completion(NSError(ocError: .cancelled))
 			return
 		}
 
@@ -646,12 +1221,20 @@ enum ZipArchiveService {
 		]
 
 		for entry in fileEntries {
+			if overallUploadProgress.isCancelled {
+				errorLock.lock()
+				if firstError == nil { firstError = NSError(ocError: .cancelled) }
+				errorLock.unlock()
+				break
+			}
+
 			let parentPath = (entry.archiveRelativePath as NSString).deletingLastPathComponent
 			guard let parentFolderItem = folderItems[parentPath] ?? folderItems[""] else {
 				ZipDebugLogging.log("uploadFileEntries: missing parent folder for relativePath=\(Log.mask(entry.archiveRelativePath)) parentPath=\(Log.mask(parentPath))")
 				errorLock.lock()
 				if firstError == nil { firstError = NSError(ocError: .itemNotFound) }
 				errorLock.unlock()
+				overallUploadProgress.completedUnitCount = min(overallUploadProgress.totalUnitCount, overallUploadProgress.completedUnitCount + 1)
 				continue
 			}
 
@@ -662,7 +1245,7 @@ enum ZipArchiveService {
 
 			// placeholderCompletionHandler fires after the file is moved into OCCore vault
 			// and the placeholder is created in the local database.
-			if core.importFileNamed(fileName, at: parentFolderItem, from: entry.localURL, isSecurityScoped: false, options: importOptions, placeholderCompletionHandler: { error, item in
+			if let importProgress = core.importFileNamed(fileName, at: parentFolderItem, from: entry.localURL, isSecurityScoped: false, options: importOptions, placeholderCompletionHandler: { error, item in
 				if let error = error {
 					ZipDebugLogging.log(error: error, context: "uploadFileEntries.placeholder(\(Log.mask(fileName)))")
 					errorLock.lock()
@@ -670,7 +1253,11 @@ enum ZipArchiveService {
 					errorLock.unlock()
 				} else {
 					ZipDebugLogging.log("uploadFileEntries: queued \(Log.mask(fileName)) localID=\(Log.mask(item?.localID ?? "nil"))")
+					if let localID = item?.localID as String? {
+						onFileCreated?(localID, entry.archiveRelativePath)
+					}
 				}
+				overallUploadProgress.completedUnitCount = min(overallUploadProgress.totalUnitCount, overallUploadProgress.completedUnitCount + 1)
 				uploadGroup.leave()
 			}, resultHandler: { error, _, _, _ in
 				if let error = error {
@@ -678,13 +1265,15 @@ enum ZipArchiveService {
 				} else {
 					ZipDebugLogging.log("uploadFileEntries: server upload done \(Log.mask(fileName))")
 				}
-			}) != nil {
+			}) {
+				onProgressCreated?(importProgress)
 				ZipDebugLogging.log("uploadFileEntries: import progress started for \(Log.mask(fileName))")
 			} else {
 				ZipDebugLogging.log("uploadFileEntries: importFileNamed returned nil for \(Log.mask(fileName))")
 				errorLock.lock()
 				if firstError == nil { firstError = NSError(ocError: .internal) }
 				errorLock.unlock()
+				overallUploadProgress.completedUnitCount = min(overallUploadProgress.totalUnitCount, overallUploadProgress.completedUnitCount + 1)
 				uploadGroup.leave()
 			}
 		}
@@ -692,6 +1281,11 @@ enum ZipArchiveService {
 		ZipDebugLogging.log("uploadFileEntries: all \(fileEntries.count) import(s) dispatched — waiting for placeholders")
 
 		uploadGroup.notify(queue: .main) {
+			if overallUploadProgress.isCancelled {
+				completion(NSError(ocError: .cancelled))
+				return
+			}
+			overallUploadProgress.completedUnitCount = overallUploadProgress.totalUnitCount
 			if let firstError = firstError {
 				ZipDebugLogging.log(error: firstError, context: "uploadFileEntries.allQueued")
 			} else {

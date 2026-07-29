@@ -38,8 +38,8 @@ public class SortBar: ThemeCSSView {
 	let rightPadding: CGFloat = 20.0
 	let rightSelectButtonPadding: CGFloat = 8.0
 	let rightDisplayModeButtonPadding: CGFloat = 8.0
-	let topPadding: CGFloat = 10.0
-	let bottomPadding: CGFloat = 10.0
+	let topPadding: CGFloat = 1.0
+	let bottomPadding: CGFloat = 1.0
 
 	// MARK: - Instance variables.
 	public var sortButton: UIButton?
@@ -108,6 +108,13 @@ public class SortBar: ThemeCSSView {
 	public var usesSearchScreenAppearance: Bool = false {
 		didSet {
 			updateSearchScreenAppearance()
+		}
+	}
+
+	/// When false, the bar does not draw an elevation shadow.
+	public var showsElevationShadow: Bool = true {
+		didSet {
+			updateElevationShadow()
 		}
 	}
 
@@ -264,12 +271,15 @@ public class SortBar: ThemeCSSView {
 
 	private func updateSearchScreenAppearance() {
 		if usesSearchScreenAppearance {
-			layer.shadowOpacity = 0
 			backgroundColor = HCColor.Structure.appBackground(Theme.shared.activeCollection.isDark)
 		} else {
-			layer.shadowOpacity = 0.15
 			apply(css: Theme.shared.activeCollection.css, properties: [.fill])
 		}
+		updateElevationShadow()
+	}
+
+	private func updateElevationShadow() {
+		layer.shadowOpacity = (usesSearchScreenAppearance || !showsElevationShadow) ? 0 : 0.15
 	}
 
 	// MARK: - Theme support

@@ -22,24 +22,41 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	enum Layout {
 		case list
 		case grid
+		case gridLowDetail
+		case gridNoDetail
+
+		var isGrid: Bool {
+			switch self {
+			case .list: return false
+			case .grid, .gridLowDetail, .gridNoDetail: return true
+			}
+		}
 	}
 
 	private static let listIconSize: CGFloat = 40
 	private static let selectionIndicatorSize: CGFloat = 24
+	private static let accessorySize: CGFloat = 32
 
 	private let iconImageView = UIImageView()
 	private let titleLabel = UILabel()
 	private let detailLabel = UILabel()
+	private let detailSegmentView = SegmentView(with: [], truncationMode: .truncateTail, limitVerticalSpaceUsage: true)
 	private let selectionIndicator = FileListSelectionIndicator()
+	private let moreButton = UIButton(type: .system)
+	private let progressView = ProgressView()
 
 	private var layoutConstraints: [NSLayoutConstraint] = []
 	private var currentLayout: Layout = .list
 	private var showsSelection = false
+	private var showsMoreButton = false
 	private var themeRegistered = false
 	private var isDark = false
 	private var iconRequest: OCResourceRequest?
 	private var configuredItemKey: String?
 	private var configuredItem: OCItem?
+	private weak var clientContext: ClientContext?
+	private var observedLocalID: OCLocalID?
+	private var activityObserver: NSObjectProtocol?
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -48,7 +65,10 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		iconImageView.contentMode = .scaleAspectFit
 		titleLabel.translatesAutoresizingMaskIntoConstraints = false
 		detailLabel.translatesAutoresizingMaskIntoConstraints = false
+		detailSegmentView.translatesAutoresizingMaskIntoConstraints = false
 		selectionIndicator.translatesAutoresizingMaskIntoConstraints = false
+		moreButton.translatesAutoresizingMaskIntoConstraints = false
+		progressView.translatesAutoresizingMaskIntoConstraints = false
 
 		titleLabel.numberOfLines = 1
 		titleLabel.lineBreakMode = .byTruncatingMiddle
@@ -58,12 +78,34 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		detailLabel.lineBreakMode = .byTruncatingTail
 		detailLabel.font = UIFont.preferredFont(forTextStyle: .footnote)
 
+		detailSegmentView.insets = .zero
+		detailSegmentView.itemSpacing = 5
+		detailSegmentView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+		moreButton.setImage(UIImage(named: "more-dots")?.withRenderingMode(.alwaysTemplate), for: .normal)
+		moreButton.contentMode = .center
+		moreButton.isPointerInteractionEnabled = true
+		moreButton.accessibilityLabel = OCLocalizedString("More", nil)
+		moreButton.addTarget(self, action: #selector(moreButtonTapped), for: .primaryActionTriggered)
+		moreButton.isHidden = true
+
+		progressView.isHidden = true
+		progressView.cssSelectors = [.accessory, .progress]
+
 		contentView.addSubview(iconImageView)
 		contentView.addSubview(titleLabel)
 		contentView.addSubview(detailLabel)
+		contentView.addSubview(detailSegmentView)
 		contentView.addSubview(selectionIndicator)
+		contentView.addSubview(moreButton)
+		contentView.addSubview(progressView)
 
-		applyLayout(.list, showsSelection: false)
+		NSLayoutConstraint.activate([
+			moreButton.widthAnchor.constraint(equalToConstant: Self.accessorySize),
+			moreButton.heightAnchor.constraint(equalToConstant: 42)
+		])
+
+		applyLayout(.list, showsSelection: false, showsAccessory: false)
 	}
 
 	required init?(coder: NSCoder) {
@@ -71,6 +113,7 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	}
 
 	deinit {
+		stopObservingProgress()
 		if themeRegistered {
 			Theme.shared.unregister(client: self)
 		}
@@ -78,9 +121,17 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 
 	override func prepareForReuse() {
 		super.prepareForReuse()
+		stopObservingProgress()
 		iconRequest = nil
 		configuredItem = nil
 		configuredItemKey = nil
+		clientContext = nil
+		progressView.progress = nil
+		moreButton.isHidden = true
+		progressView.isHidden = true
+		detailSegmentView.items = []
+		detailSegmentView.isHidden = true
+		detailLabel.isHidden = true
 	}
 
 	override func didMoveToWindow() {
@@ -94,39 +145,80 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	func configure(
 		item: OCItem,
 		core: OCCore?,
+		clientContext: ClientContext?,
 		layout: Layout,
 		showsSelection: Bool,
 		isSelected: Bool
 	) {
+		self.clientContext = clientContext
+
 		let itemKey = item.localID ?? item.fileID ?? item.path ?? item.name ?? ""
-		let itemConfigurationKey = "\(itemKey)|\(layout)|\(showsSelection)|\(isSelected)|\(item.sizeLocalized)|\(item.lastModifiedLocalizedCompact)"
+		let statusKey = item.fileListStatusKey(core: core)
+		let syncKey = "\(item.syncActivity.rawValue)"
+		let itemConfigurationKey = "\(itemKey)|\(layout)|\(showsSelection)|\(isSelected)|\(item.sizeLocalized)|\(item.lastModifiedLocalizedCompact)|\(syncKey)|\(statusKey)"
 		let shouldReloadIcon = itemConfigurationKey != configuredItemKey
 		configuredItemKey = itemConfigurationKey
-
-		let needsLayoutUpdate = layout != currentLayout || showsSelection != self.showsSelection
-		self.showsSelection = showsSelection
-		selectionIndicator.isHidden = !showsSelection
-		selectionIndicator.layout = layout
-		selectionIndicator.isSelected = isSelected
-
-		if needsLayoutUpdate {
-			applyLayout(layout, showsSelection: showsSelection)
-		}
 
 		configuredItem = item
 		titleLabel.text = item.name ?? ""
 		detailLabel.text = item.fileListDetailText
-		detailLabel.isHidden = false
+		detailSegmentView.items = item.fileListDetailSegments(core: core)
+		titleLabel.isHidden = layout == .gridNoDetail
+		let showsListDetail = layout == .list
+		let showsGridDetail = layout == .grid
+		detailLabel.isHidden = !showsGridDetail
+		detailSegmentView.isHidden = !showsListDetail
+		moreButton.accessibilityLabel = OCLocalizedFormat("More for {{title}}", ["title": item.name ?? ""])
+
+		let transferProgress = item.fileListTransferProgress(for: clientContext)
+		let canShowMore = layout == .list
+			&& transferProgress == nil
+			&& clientContext?.moreItemHandler != nil
+			&& clientContext?.hasPermission(for: .moreOptions) != false
+		let showsProgress = !showsSelection && transferProgress != nil && layout == .list
+
+		let needsLayoutUpdate = layout != currentLayout
+			|| showsSelection != self.showsSelection
+			|| canShowMore != showsMoreButton
+			|| showsProgress != !progressView.isHidden
+		self.showsSelection = showsSelection
+		self.showsMoreButton = canShowMore
+
+		selectionIndicator.isHidden = !showsSelection
+		selectionIndicator.layout = layout
+		selectionIndicator.isSelected = isSelected
+
+		moreButton.isHidden = !canShowMore
+		progressView.isHidden = !showsProgress
+		progressView.progress = showsProgress ? transferProgress : nil
+		if showsProgress {
+			contentView.bringSubviewToFront(progressView)
+		}
+		if canShowMore {
+			contentView.bringSubviewToFront(moreButton)
+		}
+
+		if needsLayoutUpdate {
+			applyLayout(layout, showsSelection: showsSelection, showsAccessory: canShowMore || showsProgress)
+		}
 
 		loadIcon(for: item, core: core, layout: layout, reloadPlaceholder: shouldReloadIcon)
 		updateSelectionAppearance(isSelected: isSelected)
-		accessibilityLabel = [titleLabel.text, detailLabel.text].compactMap { $0 }.joined(separator: ", ")
+		startObservingProgress(for: item)
+		let statusAccessibility = detailSegmentView.items.compactMap(\.accessibilityLabel).joined(separator: ", ")
+		accessibilityLabel = layout == .gridNoDetail
+			? titleLabel.text
+			: [titleLabel.text, showsListDetail ? statusAccessibility : (detailLabel.isHidden ? nil : detailLabel.text)]
+				.compactMap { $0 }
+				.filter { !$0.isEmpty }
+				.joined(separator: ", ")
 	}
 
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		isDark = collection.isDark
 		titleLabel.textColor = HCColor.Content.textPrimary(collection.isDark)
 		detailLabel.textColor = HCColor.Content.textSecondary(collection.isDark)
+		moreButton.tintColor = HCColor.Interaction.buttonsPrimarySolidOutlined(collection.isDark)
 		contentView.backgroundColor = .clear
 		backgroundColor = .clear
 		updateSelectionAppearance(isSelected: selectionIndicator.isSelected)
@@ -135,10 +227,15 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		}
 	}
 
+	@objc private func moreButtonTapped() {
+		guard let item = configuredItem, let clientContext else { return }
+		clientContext.moreItemHandler?.moreOptions(for: item, at: .moreItem, context: clientContext, sender: moreButton)
+	}
+
 	private func iconSize(for layout: Layout) -> CGSize {
-		layout == .list
-			? CGSize(width: Self.listIconSize, height: Self.listIconSize)
-			: CGSize(width: 120, height: 120)
+		layout.isGrid
+			? CGSize(width: 120, height: 120)
+			: CGSize(width: Self.listIconSize, height: Self.listIconSize)
 	}
 
 	private func updateSelectionAppearance(isSelected: Bool) {
@@ -147,6 +244,79 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		} else {
 			contentView.backgroundColor = .clear
 		}
+	}
+
+	private func startObservingProgress(for item: OCItem) {
+		let localID = item.localID as OCLocalID?
+		if observedLocalID == localID {
+			return
+		}
+
+		stopObservingProgress()
+		observedLocalID = localID
+
+		if let localID {
+			NotificationCenter.default.addObserver(
+				self,
+				selector: #selector(progressChangedForItem(_:)),
+				name: .OCCoreItemChangedProgress,
+				object: localID
+			)
+		}
+
+		if let activityUpdateNotificationName = clientContext?.core?.activityManager.activityUpdateNotificationName {
+			activityObserver = NotificationCenter.default.addObserver(
+				forName: activityUpdateNotificationName,
+				object: nil,
+				queue: .main
+			) { [weak self] notification in
+				self?.handleActivityUpdate(notification)
+			}
+		}
+	}
+
+	private func stopObservingProgress() {
+		if let observedLocalID {
+			NotificationCenter.default.removeObserver(self, name: .OCCoreItemChangedProgress, object: observedLocalID)
+		}
+		observedLocalID = nil
+		if let activityObserver {
+			NotificationCenter.default.removeObserver(activityObserver)
+			self.activityObserver = nil
+		}
+	}
+
+	@objc private func progressChangedForItem(_ notification: Notification) {
+		refreshAccessoryState()
+	}
+
+	private func handleActivityUpdate(_ notification: Notification) {
+		guard let item = configuredItem,
+		      let updates = notification.userInfo?[OCActivityManagerNotificationUserInfoUpdatesKey] as? [[String: Any]] else {
+			return
+		}
+
+		for update in updates {
+			guard let activity = update[OCActivityManagerUpdateActivityKey] as? OCSyncRecordActivity,
+			      activity.type == .download || activity.type == .upload,
+			      let name = item.name, activity.localizedDescription.contains(name) else {
+				continue
+			}
+			refreshAccessoryState()
+			return
+		}
+	}
+
+	private func refreshAccessoryState() {
+		guard let item = configuredItem else { return }
+		configure(
+			item: item,
+			core: clientContext?.core,
+			clientContext: clientContext,
+			layout: currentLayout,
+			showsSelection: showsSelection,
+			isSelected: selectionIndicator.isSelected
+		)
 	}
 
 	private func loadIcon(for item: OCItem, core: OCCore?, layout: Layout, reloadPlaceholder: Bool) {
@@ -191,7 +361,7 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		resourceManager.start(request)
 	}
 
-	private func applyLayout(_ layout: Layout, showsSelection: Bool) {
+	private func applyLayout(_ layout: Layout, showsSelection: Bool, showsAccessory: Bool) {
 		currentLayout = layout
 		NSLayoutConstraint.deactivate(layoutConstraints)
 		layoutConstraints.removeAll()
@@ -199,59 +369,107 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		let horizontalMargin: CGFloat = 16
 		let spacing: CGFloat = 12
 		let selectionSize = Self.selectionIndicatorSize
-		let trailingAnchor = showsSelection
-			? selectionIndicator.leadingAnchor
-			: contentView.trailingAnchor
-		let trailingConstant: CGFloat = showsSelection ? -spacing : -horizontalMargin
+
+		let trailingContentAnchor: NSLayoutXAxisAnchor
+		let trailingContentConstant: CGFloat
+		if showsAccessory, layout == .list {
+			trailingContentAnchor = moreButton.isHidden ? progressView.leadingAnchor : moreButton.leadingAnchor
+			trailingContentConstant = -spacing
+		} else {
+			trailingContentAnchor = contentView.trailingAnchor
+			trailingContentConstant = -horizontalMargin
+		}
 
 		switch layout {
 			case .list:
+				titleLabel.isHidden = false
 				titleLabel.numberOfLines = 1
 				titleLabel.textAlignment = .left
 				titleLabel.font = UIFont.boldSystemFont(ofSize: UIFont.labelFontSize)
-				detailLabel.textAlignment = .left
-				detailLabel.isHidden = false
+				detailLabel.isHidden = true
+				detailSegmentView.isHidden = false
+
+				let iconLeadingAnchor: NSLayoutXAxisAnchor
+				let iconLeadingConstant: CGFloat
+				if showsSelection {
+					iconLeadingAnchor = selectionIndicator.trailingAnchor
+					iconLeadingConstant = spacing
+				} else {
+					iconLeadingAnchor = contentView.leadingAnchor
+					iconLeadingConstant = horizontalMargin
+				}
 
 				layoutConstraints = [
-					iconImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: horizontalMargin),
+					iconImageView.leadingAnchor.constraint(equalTo: iconLeadingAnchor, constant: iconLeadingConstant),
 					iconImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 					iconImageView.widthAnchor.constraint(equalToConstant: Self.listIconSize),
 					iconImageView.heightAnchor.constraint(equalToConstant: Self.listIconSize),
 
 					titleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: spacing),
-					titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: trailingConstant),
+					titleLabel.trailingAnchor.constraint(equalTo: trailingContentAnchor, constant: trailingContentConstant),
 					titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
 
-					detailLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-					detailLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-					detailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 2),
-					detailLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -10)
+					detailSegmentView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+					detailSegmentView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+					detailSegmentView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 2),
+					detailSegmentView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -10),
+					detailSegmentView.heightAnchor.constraint(greaterThanOrEqualToConstant: 16)
 				]
 
-			case .grid:
-				titleLabel.numberOfLines = 2
-				titleLabel.textAlignment = .center
-				titleLabel.font = UIFont.boldSystemFont(ofSize: UIFont.labelFontSize * 0.8)
-				detailLabel.textAlignment = .center
-				detailLabel.isHidden = false
+			case .grid, .gridLowDetail, .gridNoDetail:
+				let showsTitle = layout != .gridNoDetail
+				let showsDetail = layout == .grid
+				let textAreaHeight = FileListLayoutMetrics.gridTextAreaHeight(for: layout)
+
+				titleLabel.isHidden = !showsTitle
+				detailLabel.isHidden = !showsDetail
+				detailSegmentView.isHidden = true
+
+				if showsTitle {
+					titleLabel.numberOfLines = 2
+					titleLabel.textAlignment = .center
+					titleLabel.font = UIFont.boldSystemFont(ofSize: UIFont.labelFontSize * 0.8)
+				}
+
+				if showsDetail {
+					detailLabel.textAlignment = .center
+				}
 
 				layoutConstraints = [
 					iconImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: FileListLayoutMetrics.gridIconHorizontalInset),
 					iconImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -FileListLayoutMetrics.gridIconHorizontalInset),
 					iconImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: FileListLayoutMetrics.gridIconTopInset),
-					iconImageView.heightAnchor.constraint(equalTo: iconImageView.widthAnchor, multiplier: FileListLayoutMetrics.gridIconAspect),
-
-					titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: FileListLayoutMetrics.gridIconHorizontalInset),
-					titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -FileListLayoutMetrics.gridIconHorizontalInset),
-					titleLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: FileListLayoutMetrics.gridTitleSpacing),
-					titleLabel.heightAnchor.constraint(lessThanOrEqualToConstant: FileListLayoutMetrics.gridTitleMaxHeight),
-
-					detailLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-					detailLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-					detailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: FileListLayoutMetrics.gridDetailSpacing),
-					detailLabel.heightAnchor.constraint(lessThanOrEqualToConstant: FileListLayoutMetrics.gridDetailHeight),
-					detailLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -FileListLayoutMetrics.gridBottomInset)
+					iconImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -textAreaHeight)
 				]
+
+				if layout != .gridNoDetail {
+					layoutConstraints.append(
+						iconImageView.heightAnchor.constraint(equalTo: iconImageView.widthAnchor, multiplier: FileListLayoutMetrics.gridIconAspect)
+					)
+				}
+
+				if showsTitle {
+					layoutConstraints.append(contentsOf: [
+						titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: FileListLayoutMetrics.gridIconHorizontalInset),
+						titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -FileListLayoutMetrics.gridIconHorizontalInset),
+						titleLabel.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: FileListLayoutMetrics.gridTitleSpacing),
+						titleLabel.heightAnchor.constraint(lessThanOrEqualToConstant: FileListLayoutMetrics.gridTitleMaxHeight)
+					])
+
+					if showsDetail {
+						layoutConstraints.append(contentsOf: [
+							detailLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+							detailLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+							detailLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: FileListLayoutMetrics.gridDetailSpacing),
+							detailLabel.heightAnchor.constraint(lessThanOrEqualToConstant: FileListLayoutMetrics.gridDetailHeight),
+							detailLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -FileListLayoutMetrics.gridBottomInset)
+						])
+					} else {
+						layoutConstraints.append(
+							titleLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -FileListLayoutMetrics.gridBottomInset)
+						)
+					}
+				}
 		}
 
 		if showsSelection {
@@ -262,7 +480,7 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 
 			if layout == .list {
 				layoutConstraints.append(contentsOf: [
-					selectionIndicator.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -horizontalMargin),
+					selectionIndicator.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: horizontalMargin),
 					selectionIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
 				])
 			} else {
@@ -271,6 +489,17 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 					selectionIndicator.centerYAnchor.constraint(equalTo: iconImageView.centerYAnchor)
 				])
 			}
+		}
+
+		if showsAccessory, layout == .list {
+			layoutConstraints.append(contentsOf: [
+				moreButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -horizontalMargin),
+				moreButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+				progressView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+				progressView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+				progressView.widthAnchor.constraint(equalToConstant: 40),
+				progressView.heightAnchor.constraint(equalToConstant: 40)
+			])
 		}
 
 		NSLayoutConstraint.activate(layoutConstraints)
@@ -299,6 +528,140 @@ private extension OCItem {
 			return lastModifiedLocalizedCompact
 		}
 		return "\(sizeLocalized) · \(lastModifiedLocalizedCompact)"
+	}
+
+	func fileListStatusKey(core: OCCore?) -> String {
+		let (icon, alpha, _) = cloudStatus(in: core)
+		let coverage = core?.availableOfflinePolicyCoverage(of: self) ?? .none
+		return "\(cloudStatus.rawValue)|\(coverage.rawValue)|\(icon != nil)|\(alpha)|\(isSharedWithUser)|\(sharedByUserOrGroup)|\(sharedByPublicLink)|\(state.rawValue)"
+	}
+
+	func fileListDetailSegments(core: OCCore?) -> [SegmentViewItem] {
+		var detailItems: [SegmentViewItem] = []
+
+		let (cloudStatusIcon, cloudStatusIconAlpha, accessibilityLabel) = cloudStatus(in: core)
+		if let cloudStatusIcon {
+			let segmentItem = SegmentViewItem(
+				with: cloudStatusIcon.scaledImageFitting(in: CGSize(width: 32, height: 16)),
+				style: .plain,
+				lines: [.singleLine],
+				accessibilityLabel: accessibilityLabel
+			)
+			segmentItem.insets = .zero
+			segmentItem.alpha = cloudStatusIconAlpha
+			detailItems.append(segmentItem)
+		}
+
+		if isSharedWithUser || sharedByUserOrGroup {
+			let segmentItem = SegmentViewItem(
+				with: OCItem.groupIcon?.scaledImageFitting(in: CGSize(width: 32, height: 16)),
+				style: .plain,
+				lines: [.singleLine],
+				accessibilityLabel: OCLocalizedString("Shared", nil)
+			)
+			segmentItem.insets = .zero
+			detailItems.append(segmentItem)
+		}
+
+		if sharedByPublicLink {
+			let segmentItem = SegmentViewItem(
+				with: OCItem.linkIcon?.scaledImageFitting(in: CGSize(width: 32, height: 16)),
+				style: .plain,
+				lines: [.singleLine],
+				accessibilityLabel: OCLocalizedString("Shared by link", nil)
+			)
+			segmentItem.insets = .zero
+			detailItems.append(segmentItem)
+		}
+
+		var detailString = sizeLocalized
+		if location?.type == .drive, let core {
+			detailString = driveQuotaLocalized(core: core)
+		}
+		if size < 0 {
+			detailString = OCLocalizedString("Pending", nil)
+		}
+		if state == .serverSideProcessing {
+			detailString = OCLocalizedString("Processing on server", nil)
+		}
+
+		detailString += " - " + lastModifiedLocalized
+
+		let detailSegment = SegmentViewItem(
+			with: nil,
+			title: detailString,
+			style: .plain,
+			titleTextStyle: .footnote,
+			lines: [.singleLine],
+			accessibilityLabel: detailString
+		)
+		detailSegment.insets = .zero
+		detailItems.append(detailSegment)
+
+		return detailItems
+	}
+
+	func fileListTransferProgress(for context: ClientContext?) -> Progress? {
+		let hasMessage = context?.inlineMessageCenter?.hasInlineMessage(for: self) ?? false
+		if hasMessage {
+			return nil
+		}
+
+		let hasSyncTransfer = syncActivity.rawValue & (OCItemSyncActivity.downloading.rawValue | OCItemSyncActivity.uploading.rawValue) != 0
+
+		// Only cells whose item is actually transferring should show a ring.
+		guard hasSyncTransfer else {
+			return nil
+		}
+
+		guard let core = context?.core, let localID = self.localID else {
+			return Progress(totalUnitCount: size > 0 ? Int64(size) : 1)
+		}
+
+		// Prefer progress registered for this item's localID.
+		if let registeredProgresses = core.progressForItem(withLocalID: localID, matching: .none) {
+			if let determinateProgress = registeredProgresses.first(where: { $0.totalUnitCount > 0 && !$0.isFinished && !$0.isCancelled }) {
+				return determinateProgress
+			}
+			if let anyProgress = registeredProgresses.first(where: { !$0.isFinished && !$0.isCancelled }) {
+				return anyProgress
+			}
+		}
+
+		if let pipelineProgress = core.connection.liveDownloadTransferProgress(forItemLocalID: localID) as Progress?,
+		   !pipelineProgress.isFinished,
+		   !pipelineProgress.isCancelled {
+			return pipelineProgress
+		}
+
+		// Activity manager match is name-based and ambiguous; only use it for this item
+		// when the description clearly refers to this item's name.
+		if let itemName = name, !itemName.isEmpty,
+		   let activityProgress = fileListMatchingTransferActivityProgress(in: core, requiringNameMatch: true),
+		   !(activityProgress.isFinished || activityProgress.isCancelled) {
+			return activityProgress
+		}
+
+		// Placeholder ring while syncActivity says transfer is active but progress has not connected yet.
+		return Progress(totalUnitCount: size > 0 ? Int64(size) : 1)
+	}
+
+	func fileListMatchingTransferActivityProgress(in core: OCCore, requiringNameMatch: Bool) -> Progress? {
+		let activities = core.activityManager.activities
+		let transferActivities = activities.compactMap { $0 as? OCSyncRecordActivity }.filter { $0.type == .upload || $0.type == .download }
+		guard let itemName = name, !itemName.isEmpty else {
+			return nil
+		}
+
+		let matchedActivity = transferActivities.first { $0.localizedDescription.contains(itemName) }
+		if requiringNameMatch {
+			return matchedActivity?.progress
+		}
+
+		if transferActivities.count == 1 {
+			return transferActivities.first?.progress
+		}
+		return matchedActivity?.progress
 	}
 }
 
@@ -370,7 +733,7 @@ private final class FileListSelectionIndicator: UIImageView, Themeable {
 
 	private func updateImage() {
 		let isDark = Theme.shared.activeCollection.isDark
-		let style: FileListSelectionCheckbox.Style = layout == .grid ? .grid : .list
+		let style: FileListSelectionCheckbox.Style = layout.isGrid ? .grid : .list
 		image = FileListSelectionCheckbox.image(isSelected: isSelected, isDark: isDark, style: style)
 	}
 }

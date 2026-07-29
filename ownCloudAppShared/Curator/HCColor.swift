@@ -110,6 +110,10 @@ public enum HCColor {
 		public static func errorBackgroundTransparent(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#F28F8C3D") : UIColor(hexString: "#F443361F")
 		}
+		// Symbolic/Error Background Opaque
+		public static func errorBackgroundOpaque(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#3B100DFF") : UIColor(hexString: "#FEE8E7FF")
+		}
     }
 
 	public enum Interaction {
@@ -145,6 +149,11 @@ public enum HCColor {
 		// Interaction/Destructive Solid Normal
 		public static func destructiveSolidNormal(_ isDark: Bool) -> UIColor {
 			isDark ? UIColor(hexString: "#F2918AFF") : UIColor(hexString: "#A02A21FF")
+		}
+
+		// Interaction/Buttons Primary Solid Outlined
+		public static func buttonsPrimarySolidOutlined(_ isDark: Bool) -> UIColor {
+			isDark ? UIColor(hexString: "#64B5F6FF") : UIColor(hexString: "#1976D2FF")
 		}
 	}
 

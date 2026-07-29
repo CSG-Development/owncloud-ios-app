@@ -23,6 +23,16 @@ private enum FileListSupplementaryKind {
 	static let statisticsFooter = "file-list-statistics-footer"
 }
 
+private enum FileListSection: Int, CaseIterable {
+	case zipOperations = 0
+	case files = 1
+}
+
+private enum FileListItemID {
+	static let activity = "activity"
+	static func isActivity(_ id: String) -> Bool { id == activity }
+}
+
 private enum FileListContentState {
 	case loading
 	case empty
@@ -121,8 +131,15 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	private let viewControllerUUID = UUID()
 	private var items: [OCItem] = []
 	private var itemsByID: [String: OCItem] = [:]
+	private var zipOperations: [ZipOperationRecord] = []
+	private var isActivitySectionExpanded = false
+	private var shouldInvalidateActivityLayoutAfterSnapshot = false
 	private var selectedItemIDs = Set<String>()
+	private var isApplyingSnapshot = false
+	private var isRestoringMultiSelection = false
 	private var isMultiSelecting = false
+	/// Sort changes should reorder without diffable animations.
+	private var suppressNextSnapshotAnimation = false
 	private var itemLayout: ItemLayout
 	private var sortDescriptor: SortDescriptor
 	private var themeRegistered = false
@@ -131,6 +148,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	private var queryStateObservation: NSKeyValueObservation?
 	private var queryRootItemObservation: NSKeyValueObservation?
 	private var coreConnectionStatusObservation: NSKeyValueObservation?
+	private var zipOperationsObserver: NSObjectProtocol?
 	private var contentState: FileListContentState = .loading
 	private var folderStatistics: OCStatistic?
 	private var driveQuota: GAQuota?
@@ -138,6 +156,24 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	private var spaceHeaderTitle: String?
 	private var showsSpaceHeader = false
 	private var multiSelectionActionContext: ActionContext?
+	private var multiSelectionActionsDatasource: OCDataSourceArray?
+	private var dropTargetsDataSource: OCDataSourceArray?
+	private var noActionsTextItem: OCDataItemPresentable?
+	private weak var actionsBarViewControllerSection: CollectionViewSection?
+	private var actionsBarViewController: CollectionViewController? {
+		willSet {
+			if let actionsBarViewController {
+				removeActionsBarChild(actionsBarViewController)
+			}
+		}
+		didSet {
+			if let actionsBarViewController {
+				addActionsBarChild(actionsBarViewController)
+			}
+			updateActionsBarVisibility()
+		}
+	}
+	private var actionsBarContainerHeightConstraint: NSLayoutConstraint?
 	private var highlightItemReference: OCDataItemReference?
 	private var dropTargetsActionContext: ActionContext?
 	private var lastDropProposalDestinationIndexPath: IndexPath?
@@ -148,6 +184,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		bar.delegate = self
 		bar.itemLayout = itemLayout
 		bar.showSelectButton = true
+		bar.showsElevationShadow = false
 		return bar
 	}()
 
@@ -210,32 +247,13 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		return indicator
 	}()
 
-	private lazy var multiSelectActionBar: UIScrollView = {
-		let scrollView = UIScrollView()
-		scrollView.translatesAutoresizingMaskIntoConstraints = false
-		scrollView.showsHorizontalScrollIndicator = false
-		scrollView.isHidden = true
-		scrollView.addSubview(multiSelectActionStack)
-		NSLayoutConstraint.activate([
-			multiSelectActionStack.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 12),
-			multiSelectActionStack.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -12),
-			multiSelectActionStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 12),
-			multiSelectActionStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -12),
-			multiSelectActionStack.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor, constant: -24)
-		])
-		return scrollView
+	private lazy var actionsBarContainer: UIView = {
+		let container = UIView()
+		container.translatesAutoresizingMaskIntoConstraints = false
+		container.clipsToBounds = true
+		container.isHidden = true
+		return container
 	}()
-
-	private lazy var multiSelectActionStack: UIStackView = {
-		let stack = UIStackView()
-		stack.translatesAutoresizingMaskIntoConstraints = false
-		stack.axis = .horizontal
-		stack.spacing = 12
-		stack.alignment = .center
-		return stack
-	}()
-
-	private var multiSelectActionBarHeightConstraint: NSLayoutConstraint?
 
 	private lazy var collectionView: UICollectionView = {
 		let collectionView = UICollectionView(frame: .zero, collectionViewLayout: makeCollectionViewLayout())
@@ -251,15 +269,27 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	}()
 
 	private lazy var dataSource: UICollectionViewDiffableDataSource<Int, String> = {
-		let cellRegistration = UICollectionView.CellRegistration<FileListItemCell, String> { [weak self] cell, _, itemID in
+		let fileCellRegistration = UICollectionView.CellRegistration<FileListItemCell, String> { [weak self] cell, _, itemID in
 			guard let self, let item = self.itemsByID[itemID] else { return }
 			cell.configure(
 				item: item,
 				core: self.clientContext?.core,
-				layout: self.itemLayout == .list ? .list : .grid,
+				clientContext: self.clientContext,
+				layout: FileListLayoutMetrics.cellLayout(for: self.itemLayout),
 				showsSelection: self.isMultiSelecting,
 				isSelected: self.selectedItemIDs.contains(itemID)
 			)
+		}
+
+		let zipCellRegistration = UICollectionView.CellRegistration<FileListZipOperationCell, String> { [weak self] cell, _, _ in
+			guard let self else { return }
+			cell.configure(records: self.zipOperations, expanded: self.isActivitySectionExpanded)
+			cell.onToggleExpanded = { [weak self] in
+				self?.toggleActivitySectionExpanded()
+			}
+			cell.onCancelRecord = { record in
+				record.cancel()
+			}
 		}
 
 		let spaceRegistration = UICollectionView.SupplementaryRegistration<FileListSpaceHeaderView>(elementKind: FileListSupplementaryKind.spaceHeader) { [weak self] view, _, _ in
@@ -271,9 +301,13 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		}
 
 		let dataSource = UICollectionViewDiffableDataSource<Int, String>(collectionView: collectionView) { collectionView, indexPath, itemID in
-			collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemID)
+			if FileListItemID.isActivity(itemID) {
+				return collectionView.dequeueConfiguredReusableCell(using: zipCellRegistration, for: indexPath, item: itemID)
+			}
+			return collectionView.dequeueConfiguredReusableCell(using: fileCellRegistration, for: indexPath, item: itemID)
 		}
 		dataSource.supplementaryViewProvider = { collectionView, elementKind, indexPath in
+			guard indexPath.section == FileListSection.files.rawValue else { return nil }
 			switch elementKind {
 				case FileListSupplementaryKind.spaceHeader:
 					return collectionView.dequeueConfiguredReusableSupplementary(using: spaceRegistration, for: indexPath)
@@ -354,6 +388,9 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		queryStateObservation?.invalidate()
 		queryRootItemObservation?.invalidate()
 		coreConnectionStatusObservation?.invalidate()
+		if let zipOperationsObserver {
+			NotificationCenter.default.removeObserver(zipOperationsObserver)
+		}
 		if themeRegistered {
 			Theme.shared.unregister(client: self)
 		}
@@ -364,17 +401,22 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	open override func viewDidLoad() {
 		super.viewDidLoad()
 
+		view.addSubview(actionsBarContainer)
 		view.addSubview(sortBar)
 		view.addSubview(collectionView)
 		view.addSubview(emptyOverlayView)
 		view.addSubview(loadingOverlayView)
-		view.addSubview(multiSelectActionBar)
 
-		let actionBarHeight = multiSelectActionBar.heightAnchor.constraint(equalToConstant: 0)
-		multiSelectActionBarHeightConstraint = actionBarHeight
+		let actionsBarHeight = actionsBarContainer.heightAnchor.constraint(equalToConstant: 0)
+		actionsBarContainerHeightConstraint = actionsBarHeight
 
 		NSLayoutConstraint.activate([
-			sortBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+			actionsBarContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+			actionsBarContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			actionsBarContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			actionsBarHeight,
+
+			sortBar.topAnchor.constraint(equalTo: actionsBarContainer.bottomAnchor),
 			sortBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 			sortBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 			sortBar.heightAnchor.constraint(equalToConstant: FileListLayoutMetrics.sortBarHeight),
@@ -382,17 +424,12 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 			collectionView.topAnchor.constraint(equalTo: sortBar.bottomAnchor),
 			collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 			collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			collectionView.bottomAnchor.constraint(equalTo: multiSelectActionBar.topAnchor),
-
-			multiSelectActionBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-			multiSelectActionBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			multiSelectActionBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-			actionBarHeight,
+			collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
 			emptyOverlayView.topAnchor.constraint(equalTo: sortBar.bottomAnchor),
 			emptyOverlayView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 			emptyOverlayView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			emptyOverlayView.bottomAnchor.constraint(equalTo: multiSelectActionBar.topAnchor),
+			emptyOverlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
 			loadingOverlayView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 			loadingOverlayView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
@@ -406,6 +443,8 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		_ = dataSource
 		subscribeToQueryDataSource()
 		observeQueryState()
+		observeZipOperations()
+		reloadZipOperations(applySnapshot: true)
 		updateNavigationBarButtonItems()
 		updateNavigationTitleFromContext()
 		applyContentStateUI()
@@ -446,10 +485,10 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	}
 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		view.backgroundColor = .systemBackground
+		view.backgroundColor = HCColor.Structure.appBackground(collection.isDark)
 		emptyTitleLabel.textColor = HCColor.Content.textPrimary(collection.isDark)
 		emptyMessageLabel.textColor = HCColor.Content.textSecondary(collection.isDark)
-		multiSelectActionBar.backgroundColor = .secondarySystemBackground
+		actionsBarContainer.backgroundColor = collection.css.getColor(.fill, for: actionsBarContainer)
 	}
 
 	// MARK: - Query bridge
@@ -482,6 +521,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 				self?.updateNavigationTitleFromContext()
 				self?.configureSpaceHeader()
 				self?.updateNavigationBarButtonItems()
+				self?.reloadZipOperations(applySnapshot: true)
 				self?.recomputeContentState()
 			}
 		}
@@ -494,23 +534,32 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	}
 
 	private func handleDataSourceUpdate(from subscription: OCDataSourceSubscription) {
-		let snapshot = subscription.snapshotResettingChangeTracking(true)
+		let datasourceSnapshot = subscription.snapshotResettingChangeTracking(true)
 		var nextItems: [OCItem] = []
 		var nextByID: [String: OCItem] = [:]
+		var itemIDByDataRef: [OCDataItemReference: String] = [:]
 
-		for itemRef in snapshot.items {
+		for itemRef in datasourceSnapshot.items {
 			guard let record = try? subscription.source?.record(forItemRef: itemRef),
 			      let item = record.item as? OCItem else { continue }
 			let id = itemIdentifier(for: item)
 			nextItems.append(item)
 			nextByID[id] = item
+			itemIDByDataRef[itemRef] = id
 		}
+
+		let updatedItemIDs: [String] = {
+			guard let updatedItems = datasourceSnapshot.updatedItems, !updatedItems.isEmpty else { return [] }
+			return updatedItems.compactMap { itemIDByDataRef[$0] }
+		}()
 
 		items = nextItems
 		itemsByID = nextByID
-		folderStatistics = snapshot.specialItems?[.folderStatistics] as? OCStatistic
+		folderStatistics = datasourceSnapshot.specialItems?[.folderStatistics] as? OCStatistic
 		updateStatisticsText()
-		applySnapshot(animated: true)
+		let animated = !suppressNextSnapshotAnimation
+		suppressNextSnapshotAnimation = false
+		applySnapshot(animated: animated, reconfigureItemIDs: updatedItemIDs)
 		recomputeContentState()
 		highlightItemIfNeeded()
 	}
@@ -525,11 +574,125 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		return item.path ?? item.name ?? UUID().uuidString
 	}
 
-	private func applySnapshot(animated: Bool) {
+	private func applySnapshot(animated: Bool, reconfigureItemIDs: [String] = [], reloadItemIDs: [String] = []) {
 		var snapshot = NSDiffableDataSourceSnapshot<Int, String>()
-		snapshot.appendSections([0])
-		snapshot.appendItems(items.map { itemIdentifier(for: $0) }, toSection: 0)
-		dataSource.apply(snapshot, animatingDifferences: animated)
+		snapshot.appendSections([FileListSection.zipOperations.rawValue, FileListSection.files.rawValue])
+		let activityIDs = zipOperations.isEmpty ? [String]() : [FileListItemID.activity]
+		let fileIDs = items.map { itemIdentifier(for: $0) }
+		snapshot.appendItems(activityIDs, toSection: FileListSection.zipOperations.rawValue)
+		snapshot.appendItems(fileIDs, toSection: FileListSection.files.rawValue)
+
+		let existingIDs = Set(activityIDs).union(fileIDs)
+		let idsToReload = reloadItemIDs.filter { existingIDs.contains($0) }
+		if !idsToReload.isEmpty {
+			snapshot.reloadItems(idsToReload)
+		}
+		let idsToReconfigure = reconfigureItemIDs.filter { existingIDs.contains($0) && !idsToReload.contains($0) }
+		if !idsToReconfigure.isEmpty {
+			snapshot.reconfigureItems(idsToReconfigure)
+		}
+
+		isApplyingSnapshot = true
+		dataSource.apply(snapshot, animatingDifferences: animated) { [weak self] in
+			guard let self else { return }
+			self.isApplyingSnapshot = false
+			self.restoreMultiSelectionIfNeeded()
+			self.refreshVisibleZipOperationCells()
+			if self.shouldInvalidateActivityLayoutAfterSnapshot {
+				self.shouldInvalidateActivityLayoutAfterSnapshot = false
+				self.invalidateActivitySectionLayout(animated: self.isActivitySectionExpanded && !self.zipOperations.isEmpty)
+			}
+		}
+	}
+
+	private func restoreMultiSelectionIfNeeded() {
+		guard isMultiSelecting, !selectedItemIDs.isEmpty else { return }
+		isRestoringMultiSelection = true
+		defer { isRestoringMultiSelection = false }
+		for itemID in selectedItemIDs {
+			guard let indexPath = dataSource.indexPath(for: itemID) else { continue }
+			collectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+		}
+	}
+
+	private func observeZipOperations() {
+		zipOperationsObserver = NotificationCenter.default.addObserver(
+			forName: ZipOperationCenter.didChangeNotification,
+			object: nil,
+			queue: .main
+		) { [weak self] _ in
+			self?.reloadZipOperations(applySnapshot: true)
+		}
+	}
+
+	private func reloadZipOperations(applySnapshot shouldApply: Bool) {
+		let bookmarkUUID = clientContext?.core?.bookmark.uuid
+			?? location?.bookmarkUUID
+			?? query?.queryLocation?.bookmarkUUID
+
+		let previousIDs = Set(zipOperations.map(\.id))
+		zipOperations = ZipOperationCenter.shared.operations(forBookmarkUUID: bookmarkUUID)
+		let nextIDs = Set(zipOperations.map(\.id))
+		if zipOperations.isEmpty {
+			isActivitySectionExpanded = false
+		}
+
+		if shouldApply {
+			if previousIDs != nextIDs {
+				// Membership changed — rebuild sections. Progress-only updates skip this path.
+				shouldInvalidateActivityLayoutAfterSnapshot = true
+				applySnapshot(animated: false)
+			} else {
+				refreshVisibleZipOperationCells()
+			}
+			if contentState == .empty || contentState == .hasContent || !zipOperations.isEmpty {
+				recomputeContentState()
+			}
+		} else {
+			refreshVisibleZipOperationCells()
+		}
+	}
+
+	private func refreshVisibleZipOperationCells(animatedExpansion: Bool = false) {
+		guard collectionView.numberOfSections > FileListSection.zipOperations.rawValue,
+		      collectionView.numberOfItems(inSection: FileListSection.zipOperations.rawValue) > 0 else {
+			return
+		}
+		let indexPath = IndexPath(item: 0, section: FileListSection.zipOperations.rawValue)
+		guard let cell = collectionView.cellForItem(at: indexPath) as? FileListZipOperationCell else {
+			return
+		}
+		cell.configure(records: zipOperations, expanded: isActivitySectionExpanded, animated: animatedExpansion)
+		cell.onToggleExpanded = { [weak self] in
+			self?.toggleActivitySectionExpanded()
+		}
+		cell.onCancelRecord = { record in
+			record.cancel()
+		}
+	}
+
+	private func toggleActivitySectionExpanded() {
+		isActivitySectionExpanded.toggle()
+		// Swap card contents instantly (no subview frame animation), then animate section height.
+		refreshVisibleZipOperationCells(animatedExpansion: true)
+		invalidateActivitySectionLayout(animated: true)
+	}
+
+	private func invalidateActivitySectionLayout(animated: Bool) {
+		collectionView.collectionViewLayout.invalidateLayout()
+		guard animated else {
+			UIView.performWithoutAnimation {
+				self.collectionView.layoutIfNeeded()
+			}
+			return
+		}
+		UIView.animate(
+			withDuration: 0.28,
+			delay: 0,
+			options: [.curveEaseInOut, .allowUserInteraction, .beginFromCurrentState]
+		) {
+			self.collectionView.layoutIfNeeded()
+		}
 	}
 
 	private func recomputeContentState() {
@@ -541,11 +704,11 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 
 		switch dataSource.state {
 			case .loading:
-				contentState = .loading
+				contentState = zipOperations.isEmpty ? .loading : .hasContent
 			case .idle:
 				if query?.state == .targetRemoved {
 					contentState = .removed
-				} else if !items.isEmpty {
+				} else if !items.isEmpty || !zipOperations.isEmpty {
 					contentState = .hasContent
 				} else if query?.state == .started || query?.state == .waitingForServerReply,
 				          clientContext?.core?.connectionStatus == .online {
@@ -602,8 +765,31 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	// MARK: - Layout
 
 	private func makeCollectionViewLayout() -> UICollectionViewLayout {
-		UICollectionViewCompositionalLayout { [weak self] _, environment in
+		UICollectionViewCompositionalLayout { [weak self] sectionIndex, environment in
 			guard let self else { return nil }
+
+			if sectionIndex == FileListSection.zipOperations.rawValue {
+				guard !self.zipOperations.isEmpty else {
+					// Empty section — zero height.
+					let empty = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(0.01))
+					let item = NSCollectionLayoutItem(layoutSize: empty)
+					let group = NSCollectionLayoutGroup.vertical(layoutSize: empty, subitems: [item])
+					return NSCollectionLayoutSection(group: group)
+				}
+				let height = FileListZipOperationCell.preferredHeight(
+					expanded: self.isActivitySectionExpanded,
+					operationCount: self.zipOperations.count
+				)
+				let itemSize = NSCollectionLayoutSize(
+					widthDimension: .fractionalWidth(1.0),
+					heightDimension: .absolute(height)
+				)
+				let item = NSCollectionLayoutItem(layoutSize: itemSize)
+				let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
+				let section = NSCollectionLayoutSection(group: group)
+				section.contentInsets = .zero
+				return section
+			}
 
 			let section: NSCollectionLayoutSection
 			if self.itemLayout == .list {
@@ -621,48 +807,28 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 				}
 				section = NSCollectionLayoutSection.list(using: listConfig, layoutEnvironment: environment)
 			} else {
-				section = FileListLayoutMetrics.makeGridSection(layoutEnvironment: environment)
-				var boundaryItems: [NSCollectionLayoutBoundarySupplementaryItem] = []
-				if self.showsSpaceHeader {
-					let header = NSCollectionLayoutBoundarySupplementaryItem(
-						layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(FileListLayoutMetrics.spaceHeaderHeight)),
-						elementKind: FileListSupplementaryKind.spaceHeader,
-						alignment: .top
-					)
-					boundaryItems.append(header)
-				}
-				if self.statisticsText != nil, self.contentState == .hasContent {
-					let footer = NSCollectionLayoutBoundarySupplementaryItem(
-						layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(FileListLayoutMetrics.statisticsFooterHeight)),
-						elementKind: FileListSupplementaryKind.statisticsFooter,
-						alignment: .bottom
-					)
-					boundaryItems.append(footer)
-				}
-				section.boundarySupplementaryItems = boundaryItems
+				section = FileListLayoutMetrics.makeGridSection(itemLayout: self.itemLayout, layoutEnvironment: environment)
 			}
 
-			if self.itemLayout == .list {
-				var boundaryItems: [NSCollectionLayoutBoundarySupplementaryItem] = []
-				if self.showsSpaceHeader {
-					let header = NSCollectionLayoutBoundarySupplementaryItem(
-						layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(FileListLayoutMetrics.spaceHeaderHeight)),
-						elementKind: FileListSupplementaryKind.spaceHeader,
-						alignment: .top
-					)
-					boundaryItems.append(header)
-				}
-				if self.statisticsText != nil, self.contentState == .hasContent {
-					let footer = NSCollectionLayoutBoundarySupplementaryItem(
-						layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(FileListLayoutMetrics.statisticsFooterHeight)),
-						elementKind: FileListSupplementaryKind.statisticsFooter,
-						alignment: .bottom
-					)
-					boundaryItems.append(footer)
-				}
-				if !boundaryItems.isEmpty {
-					section.boundarySupplementaryItems = boundaryItems
-				}
+			var boundaryItems: [NSCollectionLayoutBoundarySupplementaryItem] = []
+			if self.showsSpaceHeader {
+				let header = NSCollectionLayoutBoundarySupplementaryItem(
+					layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(FileListLayoutMetrics.spaceHeaderHeight)),
+					elementKind: FileListSupplementaryKind.spaceHeader,
+					alignment: .top
+				)
+				boundaryItems.append(header)
+			}
+			if self.statisticsText != nil, self.contentState == .hasContent {
+				let footer = NSCollectionLayoutBoundarySupplementaryItem(
+					layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(FileListLayoutMetrics.statisticsFooterHeight)),
+					elementKind: FileListSupplementaryKind.statisticsFooter,
+					alignment: .bottom
+				)
+				boundaryItems.append(footer)
+			}
+			if !boundaryItems.isEmpty {
+				section.boundarySupplementaryItems = boundaryItems
 			}
 
 			return section
@@ -676,11 +842,30 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	}
 
 	private func reconfigureVisibleCells() {
-		var snapshot = dataSource.snapshot()
-		let ids = snapshot.itemIdentifiers
-		guard !ids.isEmpty else { return }
-		snapshot.reconfigureItems(ids)
-		dataSource.apply(snapshot, animatingDifferences: false)
+		let cellLayout = FileListLayoutMetrics.cellLayout(for: itemLayout)
+		for indexPath in collectionView.indexPathsForVisibleItems {
+			guard let itemID = dataSource.itemIdentifier(for: indexPath) else { continue }
+
+			if FileListItemID.isActivity(itemID),
+			   let cell = collectionView.cellForItem(at: indexPath) as? FileListZipOperationCell {
+				cell.configure(records: zipOperations, expanded: isActivitySectionExpanded)
+				continue
+			}
+
+			guard let item = itemsByID[itemID],
+			      let cell = collectionView.cellForItem(at: indexPath) as? FileListItemCell else {
+				continue
+			}
+
+			cell.configure(
+				item: item,
+				core: clientContext?.core,
+				clientContext: clientContext,
+				layout: cellLayout,
+				showsSelection: isMultiSelecting,
+				isSelected: selectedItemIDs.contains(itemID)
+			)
+		}
 	}
 
 	// MARK: - Space header / statistics
@@ -835,6 +1020,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		sortDescriptor = newSortDescriptor
 		clientContext?.sortDescriptor = newSortDescriptor
 		SortDescriptor.defaultSortDescriptor = newSortDescriptor
+		suppressNextSnapshotAnimation = true
 		applySortDescriptor()
 	}
 
@@ -851,7 +1037,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 			parent.itemLayout = itemLayout
 			ancestorContext = parent
 		}
-		reloadLayout(animated: true)
+		reloadLayout(animated: false)
 	}
 
 	public func sortBarToggleSelectMode(_ sortBar: SortBar) {
@@ -870,62 +1056,130 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		collectionView.indexPathsForSelectedItems?.forEach { collectionView.deselectItem(at: $0, animated: false) }
 
 		if selecting {
+			closeActionsBar()
+			dropTargetsDataSource = nil
 			if let core = clientContext?.core {
 				let actionsLocation = OCExtensionLocation(ofType: .action, identifier: .multiSelection)
 				multiSelectionActionContext = ActionContext(viewController: self, clientContext: clientContext, core: core, query: query, items: [], location: actionsLocation)
 			}
-			showMultiSelectActionBar(true)
+			multiSelectionActionsDatasource = OCDataSourceArray()
+			multiSelectionActionsDatasource?.trackItemVersions = true
 			refreshMultiselectActions()
+			showActionsBar(with: multiSelectionActionsDatasource!, context: clientContext)
 		} else {
+			closeActionsBar()
+			multiSelectionActionsDatasource = nil
 			multiSelectionActionContext = nil
-			showMultiSelectActionBar(false)
+			dropTargetsDataSource = nil
 		}
 
 		updateNavigationBarButtonItems()
 		reconfigureVisibleCells()
 	}
 
-	private func showMultiSelectActionBar(_ show: Bool) {
-		multiSelectActionBar.isHidden = !show
-		multiSelectActionBarHeightConstraint?.constant = show ? 72 : 0
-		UIView.animate(withDuration: 0.2) {
-			self.view.layoutIfNeeded()
+	private func refreshMultiselectActions() {
+		guard let multiSelectionActionContext else { return }
+
+		var actionItems: [OCDataItem & OCDataItemVersioning] = []
+		let actionCompletionHandler: ActionCompletionHandler = { [weak self] _, _ in
+			OnMainThread {
+				self?.setMultiSelecting(false)
+			}
+		}
+
+		if multiSelectionActionContext.items.isEmpty {
+			if noActionsTextItem == nil {
+				noActionsTextItem = OCDataItemPresentable(reference: "_emptyActionList" as NSString, originalDataItemType: nil, version: nil)
+				noActionsTextItem?.title = OCLocalizedString("Select one or more items.", nil)
+				noActionsTextItem?.childrenDataSourceProvider = nil
+			}
+
+			if let noActionsTextItem {
+				noActionsTextItem.dataItemVersion = "empty" as NSString
+				actionItems = [noActionsTextItem]
+			}
+		} else {
+			let selectionVersion = multiSelectionActionContext.items
+				.compactMap { $0.localID as String? }
+				.sorted()
+				.joined(separator: ",")
+			let actions = Action.sortedApplicableActions(for: multiSelectionActionContext)
+			for action in actions {
+				action.completionHandler = actionCompletionHandler
+				let ocAction = action.provideOCAction(singleVersion: true)
+				// Include selection fingerprint so the actions bar refreshes when
+				// the selected set changes even if action identifiers stay the same.
+				ocAction.version = "\(ocAction.identifier ?? "")|\(selectionVersion)"
+				actionItems.append(ocAction)
+			}
+		}
+
+		if multiSelectionActionsDatasource?.trackItemVersions != true {
+			multiSelectionActionsDatasource?.trackItemVersions = true
+		}
+		multiSelectionActionsDatasource?.setVersionedItems(actionItems)
+	}
+
+	private func showActionsBar(with datasource: OCDataSource, context: ClientContext? = nil) {
+		if actionsBarViewController == nil {
+			let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(48), heightDimension: .fractionalHeight(1))
+			let item = NSCollectionLayoutItem(layoutSize: itemSize)
+			let actionSection = CollectionViewSection(
+				identifier: "actions",
+				dataSource: datasource,
+				cellStyle: .init(with: .gridCell),
+				cellLayout: .sideways(
+					item: item,
+					groupSize: itemSize,
+					edgeSpacing: NSCollectionLayoutEdgeSpacing(leading: .fixed(10), top: .fixed(0), trailing: .fixed(10), bottom: .fixed(0)),
+					contentInsets: NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0),
+					orthogonalScrollingBehaviour: .continuous
+				),
+				clientContext: context ?? clientContext
+			)
+			actionSection.animateDifferences = false
+			let actionsViewController = CollectionViewController(context: context ?? clientContext, sections: [actionSection])
+			actionsBarViewControllerSection = actionSection
+			actionsViewController.view.translatesAutoresizingMaskIntoConstraints = false
+			if let actionsCollectionView = actionsViewController.view as? UICollectionView {
+				actionsCollectionView.showsVerticalScrollIndicator = false
+				actionsCollectionView.alwaysBounceVertical = false
+				actionsCollectionView.isScrollEnabled = false
+			}
+			actionsBarViewController = actionsViewController
 		}
 	}
 
-	private func refreshMultiselectActions() {
-		multiSelectActionStack.arrangedSubviews.forEach {
-			multiSelectActionStack.removeArrangedSubview($0)
-			$0.removeFromSuperview()
-		}
+	private func closeActionsBar() {
+		actionsBarViewControllerSection = nil
+		actionsBarViewController = nil
+	}
 
-		guard let multiSelectionActionContext else { return }
+	private func addActionsBarChild(_ viewController: CollectionViewController) {
+		addChild(viewController)
+		actionsBarContainer.addSubview(viewController.view)
+		NSLayoutConstraint.activate([
+			viewController.view.topAnchor.constraint(equalTo: actionsBarContainer.topAnchor),
+			viewController.view.leadingAnchor.constraint(equalTo: actionsBarContainer.leadingAnchor),
+			viewController.view.trailingAnchor.constraint(equalTo: actionsBarContainer.trailingAnchor),
+			viewController.view.bottomAnchor.constraint(equalTo: actionsBarContainer.bottomAnchor),
+			viewController.view.heightAnchor.constraint(equalToConstant: 72)
+		])
+		viewController.didMove(toParent: self)
+	}
 
-		if multiSelectionActionContext.items.isEmpty {
-			let label = UILabel()
-			label.text = OCLocalizedString("Select one or more items.", nil)
-			label.font = UIFont.preferredFont(forTextStyle: .footnote)
-			label.textColor = .secondaryLabel
-			multiSelectActionStack.addArrangedSubview(label)
-			return
-		}
+	private func removeActionsBarChild(_ viewController: CollectionViewController) {
+		viewController.willMove(toParent: nil)
+		viewController.view.removeFromSuperview()
+		viewController.removeFromParent()
+	}
 
-		let actions = Action.sortedApplicableActions(for: multiSelectionActionContext)
-		for action in actions {
-			action.completionHandler = { [weak self] _, _ in
-				OnMainThread {
-					self?.setMultiSelecting(false)
-				}
-			}
-			let button = UIButton(type: .system)
-			button.setTitle(action.actionExtension.name, for: .normal)
-			button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .footnote)
-			button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
-			let capturedAction = action
-			button.addAction(UIAction { _ in
-				capturedAction.run()
-			}, for: .touchUpInside)
-			multiSelectActionStack.addArrangedSubview(button)
+	private func updateActionsBarVisibility() {
+		let show = actionsBarViewController != nil
+		actionsBarContainer.isHidden = !show
+		actionsBarContainerHeightConstraint?.constant = show ? 72 : 0
+		UIView.animate(withDuration: 0.2) {
+			self.view.layoutIfNeeded()
 		}
 	}
 
@@ -937,8 +1191,8 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		} else {
 			selectedItemIDs = Set(items.map { itemIdentifier(for: $0) })
 			multiSelectionActionContext?.replace(items: items)
-			for index in items.indices {
-				collectionView.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [])
+			for (index, _) in items.enumerated() {
+				collectionView.selectItem(at: IndexPath(item: index, section: FileListSection.files.rawValue), animated: false, scrollPosition: [])
 			}
 		}
 		refreshMultiselectActions()
@@ -949,11 +1203,13 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	// MARK: - Selection / open
 
 	public func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-		true
+		guard let itemID = dataSource.itemIdentifier(for: indexPath) else { return false }
+		return !FileListItemID.isActivity(itemID)
 	}
 
 	public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		guard let itemID = dataSource.itemIdentifier(for: indexPath),
+		      !FileListItemID.isActivity(itemID),
 		      let item = itemsByID[itemID] else { return }
 
 		if isMultiSelecting {
@@ -971,7 +1227,10 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 
 	public func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
 		guard isMultiSelecting,
+		      !isApplyingSnapshot,
+		      !isRestoringMultiSelection,
 		      let itemID = dataSource.itemIdentifier(for: indexPath),
+		      !FileListItemID.isActivity(itemID),
 		      let item = itemsByID[itemID] else { return }
 		selectedItemIDs.remove(itemID)
 		multiSelectionActionContext?.remove(item: item)
@@ -983,6 +1242,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	public func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
 		guard !isMultiSelecting,
 		      let itemID = dataSource.itemIdentifier(for: indexPath),
+		      !FileListItemID.isActivity(itemID),
 		      let item = itemsByID[itemID],
 		      let clientContext else { return nil }
 
@@ -1012,6 +1272,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	private func swipeActions(for indexPath: IndexPath) -> UISwipeActionsConfiguration? {
 		guard !isMultiSelecting,
 		      let itemID = dataSource.itemIdentifier(for: indexPath),
+		      !FileListItemID.isActivity(itemID),
 		      let item = itemsByID[itemID] as? DataItemSwipeInteraction else { return nil }
 		return item.provideTrailingSwipeActions?(with: clientContext)
 	}
@@ -1021,6 +1282,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	public func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
 		guard !isMultiSelecting,
 		      let itemID = dataSource.itemIdentifier(for: indexPath),
+		      !FileListItemID.isActivity(itemID),
 		      let item = itemsByID[itemID] as? DataItemDragInteraction else { return [] }
 		return item.provideDragItems(with: clientContext) ?? []
 	}
@@ -1035,6 +1297,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 
 		if let destinationIndexPath,
 		   let itemID = dataSource.itemIdentifier(for: destinationIndexPath),
+		   !FileListItemID.isActivity(itemID),
 		   let item = itemsByID[itemID] as? DataItemDropInteraction,
 		   let proposal = item.allowDropOperation?(for: session, with: clientContext) {
 			return proposal
@@ -1054,6 +1317,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 
 		if let destinationIndexPath,
 		   let itemID = dataSource.itemIdentifier(for: destinationIndexPath),
+		   !FileListItemID.isActivity(itemID),
 		   let item = itemsByID[itemID] as? DataItemDropInteraction {
 			dropInteraction = item
 		} else {
@@ -1096,11 +1360,8 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	public func cleanupDropTargets(for dropSession: UIDropSession, target view: UIView) {
 		dropTargetsActionContext = nil
 		if !isMultiSelecting {
-			showMultiSelectActionBar(false)
-			multiSelectActionStack.arrangedSubviews.forEach {
-				multiSelectActionStack.removeArrangedSubview($0)
-				$0.removeFromSuperview()
-			}
+			closeActionsBar()
+			dropTargetsDataSource = nil
 		}
 	}
 
@@ -1132,31 +1393,24 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		      let targets = provideDropTargets(for: session, target: collectionView),
 		      !targets.isEmpty else { return }
 
-		multiSelectActionStack.arrangedSubviews.forEach {
-			multiSelectActionStack.removeArrangedSubview($0)
-			$0.removeFromSuperview()
+		if dropTargetsDataSource == nil, actionsBarViewController == nil {
+			let targetsDataSource = OCDataSourceArray()
+			targetsDataSource.setVersionedItems(targets)
+			dropTargetsDataSource = targetsDataSource
+			showActionsBar(with: targetsDataSource, context: ClientContext(with: clientContext, modifier: { context in
+				context.dropTargetsProvider = nil
+			}))
+		} else if let targetsDataSource = dropTargetsDataSource {
+			targetsDataSource.setVersionedItems(targets)
 		}
-
-		if let dropTargetsActionContext {
-			let actions = Action.sortedApplicableActions(for: dropTargetsActionContext)
-			for action in actions {
-				let button = UIButton(type: .system)
-				button.setTitle(action.actionExtension.name, for: .normal)
-				button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .footnote)
-				button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
-				let capturedAction = action
-				button.addAction(UIAction { _ in
-					capturedAction.run()
-				}, for: .touchUpInside)
-				multiSelectActionStack.addArrangedSubview(button)
-			}
-		}
-
-		showMultiSelectActionBar(true)
-		_ = targets
 	}
 
 	// MARK: - Highlight
+
+	public func highlightItem(withReference reference: OCDataItemReference) {
+		highlightItemReference = reference
+		highlightItemIfNeeded()
+	}
 
 	private func highlightItemIfNeeded() {
 		guard let highlightItemReference else { return }

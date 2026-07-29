@@ -19,16 +19,6 @@ class DecompressAction: Action {
 	override class var keyCommand: String? { return "Y" }
 	override class var keyModifierFlags: UIKeyModifierFlags? { return [.command, .alternate] }
 
-	private static var activeActions: [DecompressAction] = []
-
-	private func retainSelf() {
-		DecompressAction.activeActions.append(self)
-	}
-
-	private func releaseSelf() {
-		DecompressAction.activeActions.removeAll { $0 === self }
-	}
-
 	override class func applicablePosition(forContext: ActionContext) -> ActionPosition {
 		guard forContext.items.count == 1, let item = forContext.items.first else {
 			return .none
@@ -64,67 +54,14 @@ class DecompressAction: Action {
 
 		ZipDebugLogging.log(item: zipItem, context: "DecompressAction.run.zipItem")
 		ZipDebugLogging.log(item: parentItem, context: "DecompressAction.run.parentItem")
-		retainSelf()
 
-		let hudViewController = ZipOperationHUDViewController(core: core, operation: .decompress(zipItem: zipItem, parentItem: parentItem)) { [weak self, weak hostViewController] error, result in
-			guard let self = self else { return }
-
-			if let error = error {
-				if (error as NSError).isOCError(withCode: .cancelled) {
-					ZipDebugLogging.log("DecompressAction: cancelled by user")
-					self.releaseSelf()
-					return
-				}
-
-				ZipDebugLogging.log(error: error, context: "DecompressAction.HUD")
-				OnMainThread {
-					let appName = VendorServices.shared.appName
-					let alertController = ThemedAlertController(with: OCLocalizedString("Cannot connect to ", nil) + appName, message: error.localizedDescription, okLabel: HCL10n.Common.ok, action: nil)
-					hostViewController?.present(alertController, animated: true)
-					self.completed(with: error)
-					self.releaseSelf()
-				}
-				return
-			}
-
-			guard case .decompress(let extractURL, let parentItem) = result?.kind else {
-				ZipDebugLogging.log("DecompressAction: HUD finished without decompress result")
-				OnMainThread {
-					self.completed(with: NSError(ocError: .internal))
-					self.releaseSelf()
-				}
-				return
-			}
-
-			ZipDebugLogging.log(url: extractURL, context: "DecompressAction.beginUpload")
-			OnMainThread {
-				ZipArchiveService.uploadExtractedContents(at: extractURL, to: parentItem, core: core, publishProgress: { uploadProgress in
-					self.publish(progress: uploadProgress)
-				}, completion: { error in
-					try? FileManager.default.removeItem(at: extractURL)
-					ZipDebugLogging.log(url: extractURL, context: "DecompressAction.extractURL(afterUploadCleanup)")
-
-					if let error = error {
-						ZipDebugLogging.log(error: error, context: "DecompressAction.uploadExtractedContents")
-						OnMainThread {
-							let appName = VendorServices.shared.appName
-							let alertController = ThemedAlertController(with: OCLocalizedString("Cannot connect to ", nil) + appName, message: error.localizedDescription, okLabel: HCL10n.Common.ok, action: nil)
-							hostViewController?.present(alertController, animated: true)
-							self.completed(with: error)
-							self.releaseSelf()
-						}
-						return
-					}
-
-					ZipDebugLogging.log("DecompressAction: upload completed successfully")
-					self.completed()
-					self.releaseSelf()
-				})
-			}
-		}
-
-		hudViewController.presentHUDOn(viewController: hostViewController)
-		ZipDebugLogging.log("DecompressAction: HUD presented")
+		ZipOperationCoordinator.shared.startDecompress(
+			zipItem: zipItem,
+			parentItem: parentItem,
+			core: core,
+			hostViewController: hostViewController
+		)
+		completed()
 	}
 
 	override class func iconForLocation(_ location: OCExtensionLocationIdentifier) -> UIImage? {

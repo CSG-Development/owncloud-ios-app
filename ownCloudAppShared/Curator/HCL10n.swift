@@ -96,6 +96,40 @@ public enum HCL10n {
 			public static var downloading: String { OCLocalizedString("ZipAction.Progress.downloading", nil) }
 			public static var compressing: String { OCLocalizedString("ZipAction.Progress.compressing", nil) }
 			public static var decompressing: String { OCLocalizedString("ZipAction.Progress.decompressing", nil) }
+			/// Vault import / placeholder creation (not server upload).
+			public static var importing: String { OCLocalizedString("Saving", nil) }
+			public static var uploading: String { OCLocalizedString("ZipAction.Progress.uploading", nil) }
+		}
+
+		public enum Activity {
+			public static var title: String { OCLocalizedString("ZipAction.Activity.title", nil) }
+			/// Format string with one `%d` for the operation count.
+			public static var operationsInProgressFormat: String { OCLocalizedString("ZipAction.Activity.operationsInProgressFormat", nil) }
+		}
+
+		public enum Success {
+			public static func itemsCompressed(_ count: Int) -> String {
+				String(format: OCLocalizedString("ZipAction.Success.itemsCompressed", nil), count)
+			}
+			public static var archiveExtracted: String { OCLocalizedString("ZipAction.Success.archiveExtracted", nil) }
+			public static var viewButton: String { OCLocalizedString("ZipAction.Success.viewButton", nil) }
+		}
+
+		public enum Error {
+			public static var corruptedArchive: String { OCLocalizedString("ZipAction.Error.corruptedArchive", nil) }
+			public static var insufficientStorage: String { OCLocalizedString("ZipAction.Error.insufficientStorage", nil) }
+			public static var insufficientStorageCompress: String { OCLocalizedString("ZipAction.Error.insufficientStorageCompress", nil) }
+			public static var unsupportedEntryNames: String { OCLocalizedString("ZipAction.Error.unsupportedEntryNames", nil) }
+			public static var unexpectedExtraction: String { OCLocalizedString("ZipAction.Error.unexpectedExtraction", nil) }
+			public static var unexpectedOperation: String { OCLocalizedString("ZipAction.Error.unexpectedOperation", nil) }
+			public static var networkInterrupted: String { OCLocalizedString("ZipAction.Error.networkInterrupted", nil) }
+		}
+
+		public enum Alert {
+			public enum UnsupportedArchive {
+				public static var title: String { OCLocalizedString("ZipAction.Alert.UnsupportedArchive.title", nil) }
+				public static var message: String { OCLocalizedString("ZipAction.Alert.UnsupportedArchive.message", nil) }
+			}
 		}
 
 		public static var defaultArchiveName: String { OCLocalizedString("ZipAction.defaultArchiveName", nil) }
