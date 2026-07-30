@@ -47,6 +47,13 @@ final class FileListActivityActionsView: UIView {
 	}
 
 	func configure(records: [ZipOperationRecord], expanded: Bool, animated: Bool = false) {
+		guard records.count != 1 else {
+			if let record = records.first {
+				configureSingle(record, animated: animated)
+			}
+			return
+		}
+
 		self.records = records
 		let expansionChanged = isExpanded != expanded
 		isExpanded = expanded
@@ -100,6 +107,31 @@ final class FileListActivityActionsView: UIView {
 		}
 	}
 
+	/// Single in-flight operation: show the row directly (no collapsible header wrapper).
+	func configureSingle(_ record: ZipOperationRecord, animated: Bool = false) {
+		isExpanded = false
+		records = [record]
+
+		let apply = {
+			self.rebuildOperationRowsIfNeeded()
+			self.operationsStack.isHidden = false
+			self.operationsStack.alpha = 1
+			self.setNeedsLayout()
+			self.layoutIfNeeded()
+		}
+
+		if animated {
+			UIView.animate(
+				withDuration: 0.28,
+				delay: 0,
+				options: [.curveEaseInOut, .beginFromCurrentState, .allowUserInteraction],
+				animations: apply
+			)
+		} else {
+			UIView.performWithoutAnimation(apply)
+		}
+	}
+
 	func applyColors(isDark: Bool) {
 		self.isDark = isDark
 
@@ -109,6 +141,9 @@ final class FileListActivityActionsView: UIView {
 	}
 
 	static func preferredHeight(expanded: Bool, operationCount: Int) -> CGFloat {
+		if operationCount == 1 {
+			return FileListActivityActionRowView.preferredHeight
+		}
 		guard expanded else { return 0 }
 		let count = max(operationCount, 0)
 		let stack = CGFloat(count) * FileListActivityActionRowView.preferredHeight

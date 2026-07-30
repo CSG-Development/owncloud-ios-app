@@ -194,7 +194,7 @@ public class SortBar: ThemeCSSView {
 			NSLayoutConstraint.activate([
 				sortButton.topAnchor.constraint(equalTo: self.topAnchor, constant: topPadding),
 				sortButton.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -bottomPadding),
-				sortButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: leftPadding),
+				sortButton.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor, constant: leftPadding),
 				sortButton.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -rightPadding)
 			])
 
@@ -207,7 +207,7 @@ public class SortBar: ThemeCSSView {
 
 			NSLayoutConstraint.activate([
 				selectButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-				selectButton.trailingAnchor.constraint(lessThanOrEqualTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -rightSelectButtonPadding),
+				selectButton.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -rightSelectButtonPadding),
 				selectButton.heightAnchor.constraint(equalToConstant: sideButtonsSize.height),
 				selectButton.widthAnchor.constraint(equalToConstant: sideButtonsSize.width)
 			])
@@ -237,7 +237,7 @@ public class SortBar: ThemeCSSView {
 
 			NSLayoutConstraint.activate([
 				changeItemLayoutButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-				changeItemLayoutButton.trailingAnchor.constraint(lessThanOrEqualTo: selectButton.leadingAnchor, constant: -rightDisplayModeButtonPadding),
+				changeItemLayoutButton.trailingAnchor.constraint(equalTo: selectButton.leadingAnchor, constant: -rightDisplayModeButtonPadding),
 				changeItemLayoutButton.heightAnchor.constraint(equalToConstant: sideButtonsSize.height),
 				changeItemLayoutButton.widthAnchor.constraint(equalToConstant: sideButtonsSize.width)
 			])

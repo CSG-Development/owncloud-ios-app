@@ -849,7 +849,7 @@ public class ThemeCollection : NSObject {
 			// - Location Picker
 			ThemeCSSRecord(selectors: [.locationPicker, .collection, .accountList], 		property: .fill, value: groupedCollectionBackgroundColor),
 			ThemeCSSRecord(selectors: [.locationPicker, .collection, .accountList, .cell], 		property: .fill, value: accountCellSet.backgroundColor),
-			ThemeCSSRecord(selectors: [.locationPicker, .navigationBar], 				property: .fill, value: groupedCollectionBackgroundColor),
+			ThemeCSSRecord(selectors: [.locationPicker, .navigationBar], 				property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 
 			// - More card header
 			ThemeCSSRecord(selectors: [.more, .header], 					property: .fill,   value: moreHeaderBackgroundColor),

@@ -122,7 +122,7 @@ private final class FileListStatisticsFooterView: UICollectionReusableView, Them
 	}
 }
 
-open class FileListViewController: UIViewController, Themeable, FileBrowserContent, SortBarDelegate, UICollectionViewDelegate, UICollectionViewDragDelegate, UICollectionViewDropDelegate, DropTargetsProvider {
+open class FileListViewController: UIViewController, Themeable, FileBrowserContent, SortBarDelegate, UICollectionViewDelegate, UICollectionViewDragDelegate, UICollectionViewDropDelegate, DropTargetsProvider, ScrollViewProviding {
 
 	public private(set) var clientContext: ClientContext?
 	public var location: OCLocation?
@@ -150,7 +150,9 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	private var coreConnectionStatusObservation: NSKeyValueObservation?
 	private var zipOperationsObserver: NSObjectProtocol?
 	private var contentState: FileListContentState = .loading
+	private var lastAppliedContentState: FileListContentState?
 	private var folderStatistics: OCStatistic?
+	private let scrollDirectionProcessor = HCScrollDirectionProcessor()
 	private var driveQuota: GAQuota?
 	private var statisticsText: String?
 	private var spaceHeaderTitle: String?
@@ -377,6 +379,10 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		itemControllerContext.postInitialize(owner: self)
 		applySortDescriptor()
 		configureSpaceHeader()
+
+		scrollDirectionProcessor.onDirectionChange = { [weak self] direction in
+			self?.clientContext?.browserController?.notifyScroll(direction)
+		}
 	}
 
 	required public init?(coder: NSCoder) {
@@ -412,8 +418,8 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 
 		NSLayoutConstraint.activate([
 			actionsBarContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-			actionsBarContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-			actionsBarContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			actionsBarContainer.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+			actionsBarContainer.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 			actionsBarHeight,
 
 			sortBar.topAnchor.constraint(equalTo: actionsBarContainer.bottomAnchor),
@@ -422,16 +428,16 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 			sortBar.heightAnchor.constraint(equalToConstant: FileListLayoutMetrics.sortBarHeight),
 
 			collectionView.topAnchor.constraint(equalTo: sortBar.bottomAnchor),
-			collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-			collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+			collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 			collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
 			emptyOverlayView.topAnchor.constraint(equalTo: sortBar.bottomAnchor),
-			emptyOverlayView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-			emptyOverlayView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			emptyOverlayView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+			emptyOverlayView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 			emptyOverlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-			loadingOverlayView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			loadingOverlayView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
 			loadingOverlayView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
 		])
 
@@ -448,6 +454,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		updateNavigationBarButtonItems()
 		updateNavigationTitleFromContext()
 		applyContentStateUI()
+		view.backgroundColor = HCColor.Structure.appBackground(Theme.shared.activeCollection.isDark)
 	}
 
 	open override func viewWillAppear(_ animated: Bool) {
@@ -633,19 +640,21 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		let previousIDs = Set(zipOperations.map(\.id))
 		zipOperations = ZipOperationCenter.shared.operations(forBookmarkUUID: bookmarkUUID)
 		let nextIDs = Set(zipOperations.map(\.id))
-		if zipOperations.isEmpty {
+		let membershipChanged = previousIDs != nextIDs
+		if zipOperations.isEmpty || zipOperations.count == 1 {
 			isActivitySectionExpanded = false
 		}
 
 		if shouldApply {
-			if previousIDs != nextIDs {
+			if membershipChanged {
 				// Membership changed — rebuild sections. Progress-only updates skip this path.
 				shouldInvalidateActivityLayoutAfterSnapshot = true
 				applySnapshot(animated: false)
 			} else {
 				refreshVisibleZipOperationCells()
 			}
-			if contentState == .empty || contentState == .hasContent || !zipOperations.isEmpty {
+			// Avoid recomputing content/nav on every progress tick — that recreates the + menu and dismisses it.
+			if membershipChanged || contentState == .empty || contentState == .loading {
 				recomputeContentState()
 			}
 		} else {
@@ -664,7 +673,8 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		}
 		cell.configure(records: zipOperations, expanded: isActivitySectionExpanded, animated: animatedExpansion)
 		cell.onToggleExpanded = { [weak self] in
-			self?.toggleActivitySectionExpanded()
+			guard let self, self.zipOperations.count > 1 else { return }
+			self.toggleActivitySectionExpanded()
 		}
 		cell.onCancelRecord = { record in
 			record.cancel()
@@ -672,6 +682,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	}
 
 	private func toggleActivitySectionExpanded() {
+		guard zipOperations.count > 1 else { return }
 		isActivitySectionExpanded.toggle()
 		// Swap card contents instantly (no subview frame animation), then animate section height.
 		refreshVisibleZipOperationCells(animatedExpansion: true)
@@ -725,6 +736,9 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	}
 
 	private func applyContentStateUI() {
+		let contentStateChanged = lastAppliedContentState != contentState
+		lastAppliedContentState = contentState
+
 		switch contentState {
 			case .loading:
 				sortBar.isHidden = true
@@ -751,7 +765,11 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 				loadingOverlayView.stopAnimating()
 				collectionView.isHidden = false
 		}
-		updateNavigationBarButtonItems()
+		// Recreating the + UIBarButtonItem dismisses an open menu — only do it when state changes.
+		if contentStateChanged {
+			updateNavigationBarButtonItems()
+			clientContext?.browserController?.applyScrollabilityCheckForCurrentContent()
+		}
 	}
 
 	private func performDragToRefresh() {
@@ -1425,6 +1443,22 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 			self?.collectionView.deselectItem(at: indexPath, animated: true)
 		}
 		self.highlightItemReference = nil
+	}
+
+	// MARK: - Scroll / landscape chrome
+
+	public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+		guard presentedViewController == nil else { return }
+		guard scrollView.isDragging || scrollView.isDecelerating else { return }
+		scrollDirectionProcessor.scrollViewDidScroll(scrollView)
+	}
+
+	public var providedScrollView: UIScrollView? {
+		collectionView.isHidden ? nil : collectionView
+	}
+
+	public var allowsLandscapeChromeAutoHide: Bool {
+		contentState == .hasContent
 	}
 }
 

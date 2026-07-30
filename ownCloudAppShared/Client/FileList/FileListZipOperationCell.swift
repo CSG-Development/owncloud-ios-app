@@ -15,6 +15,14 @@ final class FileListZipOperationCell: UICollectionViewCell, Themeable {
 	private let headerView = FileListActivityHeaderView()
 	private let actionsView = FileListActivityActionsView()
 	private var themeRegistered = false
+	private var actionsTopToHeaderConstraint: Constraint?
+	private var actionsTopToCardConstraint: Constraint?
+	private var headerHeightConstraint: Constraint?
+	private var cardTopConstraint: Constraint?
+	private var cardBottomConstraint: Constraint?
+	private var cardLeadingConstraint: Constraint?
+	private var cardTrailingConstraint: Constraint?
+	private var showsCardChrome = true
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -31,17 +39,21 @@ final class FileListZipOperationCell: UICollectionViewCell, Themeable {
 		cardView.addSubview(actionsView)
 
 		cardView.snp.makeConstraints {
-			$0.top.bottom.equalToSuperview().inset(8)
-			$0.leading.trailing.equalToSuperview().inset(16)
+			cardTopConstraint = $0.top.equalToSuperview().offset(8).constraint
+			cardBottomConstraint = $0.bottom.equalToSuperview().offset(-8).constraint
+			cardLeadingConstraint = $0.leading.equalToSuperview().offset(16).constraint
+			cardTrailingConstraint = $0.trailing.equalToSuperview().offset(-16).constraint
 		}
 
 		headerView.snp.makeConstraints {
 			$0.top.leading.trailing.equalToSuperview()
-			$0.height.equalTo(FileListActivityHeaderView.preferredHeight())
+			headerHeightConstraint = $0.height.equalTo(FileListActivityHeaderView.preferredHeight()).constraint
 		}
 
 		actionsView.snp.makeConstraints {
-			$0.top.equalTo(headerView.snp.bottom)
+			actionsTopToHeaderConstraint = $0.top.equalTo(headerView.snp.bottom).constraint
+			actionsTopToCardConstraint = $0.top.equalToSuperview().constraint
+			actionsTopToCardConstraint?.deactivate()
 			$0.leading.trailing.bottom.equalToSuperview()
 		}
 	}
@@ -68,24 +80,79 @@ final class FileListZipOperationCell: UICollectionViewCell, Themeable {
 		headerView.onToggleExpanded = onToggleExpanded
 		actionsView.onCancelRecord = onCancelRecord
 
-		let combined = records.isEmpty ? Float(0) : Float(records.map(\.fractionCompleted).reduce(0, +) / Double(records.count))
-		headerView.configure(
-			operationCount: records.count,
-			combinedProgress: combined,
-			expanded: expanded,
-			animated: animated
-		)
-		actionsView.configure(records: records, expanded: expanded, animated: animated)
+		let showsCollapsibleHeader = records.count > 1
+		showsCardChrome = showsCollapsibleHeader
+
+		headerView.isHidden = !showsCollapsibleHeader
+		headerView.isUserInteractionEnabled = showsCollapsibleHeader
+		headerHeightConstraint?.update(offset: showsCollapsibleHeader ? FileListActivityHeaderView.preferredHeight() : 0)
+		if showsCollapsibleHeader {
+			actionsTopToCardConstraint?.deactivate()
+			actionsTopToHeaderConstraint?.activate()
+		} else {
+			actionsTopToHeaderConstraint?.deactivate()
+			actionsTopToCardConstraint?.activate()
+		}
+
+		if showsCollapsibleHeader {
+			let combined = records.isEmpty ? Float(0) : Float(records.map(\.fractionCompleted).reduce(0, +) / Double(records.count))
+			headerView.configure(
+				operationCount: records.count,
+				combinedProgress: combined,
+				expanded: expanded,
+				animated: animated
+			)
+			actionsView.configure(records: records, expanded: expanded, animated: animated)
+		} else if let record = records.first {
+			actionsView.configureSingle(record, animated: animated)
+		} else {
+			actionsView.configure(records: [], expanded: false, animated: false)
+		}
+
+		// Always use the app theme (not traitCollection) — ownCloud dark mode can diverge from system style at launch.
+		applyThemeColors(isDark: Theme.shared.activeCollection.isDark)
 	}
 
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		cardView.backgroundColor = HCColor.Structure.cardBackground(collection.isDark)
-		cardView.layer.borderColor = HCColor.Content.border2(collection.isDark).cgColor
-		headerView.applyColors(isDark: collection.isDark)
-		actionsView.applyColors(isDark: collection.isDark)
+		applyThemeColors(isDark: collection.isDark)
+	}
+
+	private func applyThemeColors(isDark: Bool) {
+		applyCardChromeAppearance(isDark: isDark)
+		headerView.applyColors(isDark: isDark)
+		actionsView.applyColors(isDark: isDark)
+	}
+
+	private func applyCardChromeAppearance(isDark: Bool) {
+		if showsCardChrome {
+			cardView.backgroundColor = HCColor.Structure.cardBackground(isDark)
+			cardView.layer.borderWidth = 1
+			cardView.layer.borderColor = HCColor.Content.border2(isDark).cgColor
+			cardView.layer.cornerRadius = 12
+			cardView.clipsToBounds = true
+			cardTopConstraint?.update(offset: 8)
+			cardBottomConstraint?.update(offset: -8)
+			cardLeadingConstraint?.update(offset: 16)
+			cardTrailingConstraint?.update(offset: -16)
+		} else {
+			// Single activity: same row layout; 16pt gaps come from top inset + row horizontalInset.
+			cardView.backgroundColor = .clear
+			cardView.layer.borderWidth = 0
+			cardView.layer.borderColor = UIColor.clear.cgColor
+			cardView.layer.cornerRadius = 0
+			cardView.clipsToBounds = false
+			cardTopConstraint?.update(offset: 16)
+			cardBottomConstraint?.update(offset: 0)
+			cardLeadingConstraint?.update(offset: 0)
+			cardTrailingConstraint?.update(offset: 0)
+		}
 	}
 
 	static func preferredHeight(expanded: Bool, operationCount: Int) -> CGFloat {
+		if operationCount == 1 {
+			// 16pt top gap + row; bottom flush with list content.
+			return 16 + FileListActivityActionRowView.preferredHeight
+		}
 		let outerPadding: CGFloat = 16
 		return outerPadding
 			+ FileListActivityHeaderView.preferredHeight()

@@ -36,6 +36,10 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 	var emptyCellRegistration: ReconfigureSafeCellRegistration<UICollectionViewCell, CollectionViewController.ItemRef>?
 	private var scrollDirectionProcessor = HCScrollDirectionProcessor()
 
+	open var allowsLandscapeChromeAutoHide: Bool { true }
+
+	public var providedScrollView: UIScrollView? { collectionView }
+
 	public init(context inContext: ClientContext?, sections inSections: [CollectionViewSection]?, useStackViewRoot: Bool = false, hierarchic: Bool = false, compressForKeyboard: Bool = false, useWrappedIdentifiers: Bool = false, highlightItemReference: OCDataItemReference? = nil) {
 		supportsHierarchicContent = hierarchic
 		usesStackViewRoot = useStackViewRoot
@@ -1337,10 +1341,9 @@ public class CollectionViewFallbackCell : UICollectionViewCell {
 extension CollectionViewController: UIScrollViewDelegate {
 	public func scrollViewDidScroll(_ scrollView: UIScrollView) {
 		guard type(of: self) != ClientSidebarViewController.self else { return }
+		guard presentedViewController == nil else { return }
+		// Ignore layout/content-size adjustments (e.g. delete) that aren't user-driven.
+		guard scrollView.isDragging || scrollView.isDecelerating else { return }
 		scrollDirectionProcessor.scrollViewDidScroll(scrollView)
 	}
-}
-
-extension CollectionViewController {
-	public var providedScrollView: UIScrollView? { collectionView }
 }

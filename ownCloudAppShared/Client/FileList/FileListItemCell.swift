@@ -122,7 +122,7 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		stopObservingProgress()
-		iconRequest = nil
+		cancelIconRequest(core: clientContext?.core)
 		configuredItem = nil
 		configuredItemKey = nil
 		clientContext = nil
@@ -319,12 +319,19 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		)
 	}
 
+	private func cancelIconRequest(core: OCCore?) {
+		// Clear the property before stop() so a synchronous changeHandler cannot
+		// read iconRequest while it is being mutated (Swift exclusivity crash).
+		let previousRequest = iconRequest
+		iconRequest = nil
+		if let previousRequest {
+			core?.vault.resourceManager?.stop(previousRequest)
+		}
+	}
+
 	private func loadIcon(for item: OCItem, core: OCCore?, layout: Layout, reloadPlaceholder: Bool) {
 		if reloadPlaceholder {
-			if let previousRequest = iconRequest {
-				core?.vault.resourceManager?.stop(previousRequest)
-			}
-			iconRequest = nil
+			cancelIconRequest(core: core)
 			iconImageView.image = item.fileListIconImage(fitIn: iconSize(for: layout))
 		}
 
@@ -343,15 +350,17 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 			scale: UIScreen.main.scale,
 			waitForConnectivity: true,
 			changeHandler: { [weak self] request, _, _, _, newResource in
-				guard let self,
-				      self.iconRequest === request,
+				guard let self else { return }
+				// Compare by identifier to avoid exclusive-access clash on iconRequest === request.
+				guard self.iconRequest?.identifier == request.identifier,
 				      let resource = newResource as? OCResourceImage,
 				      resource.quality == .normal,
 				      let ocImage = resource.image else { return }
 
+				let requestID = request.identifier
 				_ = ocImage.request(for: iconSize, scale: UIScreen.main.scale) { _, _, _, image in
 					OnMainThread {
-						guard self.iconRequest === request, let image else { return }
+						guard self.iconRequest?.identifier == requestID, let image else { return }
 						self.iconImageView.image = image
 					}
 				}

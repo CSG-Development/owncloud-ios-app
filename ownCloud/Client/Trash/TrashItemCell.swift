@@ -158,10 +158,11 @@ final class TrashItemCell: UICollectionViewCell, Themeable {
 
 	private func loadIcon(for item: OCItem, core: OCCore?, layout: Layout, reloadPlaceholder: Bool) {
 		if reloadPlaceholder {
-			if let previousRequest = iconRequest {
+			let previousRequest = iconRequest
+			iconRequest = nil
+			if let previousRequest {
 				core?.vault.resourceManager?.stop(previousRequest)
 			}
-			iconRequest = nil
 
 			let iconSize = iconSize(for: layout)
 			item.trashApplyPresentationMimeType()
@@ -209,12 +210,13 @@ final class TrashItemCell: UICollectionViewCell, Themeable {
 				requestEnded=\(request.ended)
 				""")
 
-				guard let self,
-				      self.iconRequest === request,
+				guard let self else { return }
+				guard self.iconRequest?.identifier == request.identifier,
 				      let resource,
 				      resource.quality == .normal,
 				      let ocImage = resource.image else { return }
 
+				let requestID = request.identifier
 				_ = ocImage.request(for: iconSize, scale: UIScreen.main.scale) { _, imageError, _, image in
 					TrashDebugLogging.log("""
 					TrashItemCell.thumbnailDecode: \
@@ -223,7 +225,7 @@ final class TrashItemCell: UICollectionViewCell, Themeable {
 					""")
 
 					OnMainThread {
-						guard self.iconRequest === request, let image else { return }
+						guard self.iconRequest?.identifier == requestID, let image else { return }
 						self.iconImageView.image = image
 						TrashDebugLogging.log("TrashItemCell.thumbnailDecode: applied UIImage to iconImageView")
 					}
