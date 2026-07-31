@@ -16,6 +16,11 @@ public final class ZipOperationRecord: NSObject {
 	public private(set) var statusText: String
 	public private(set) var fractionCompleted: Double
 
+	/// Status text shown in the activity UI (respects `ZipOperationProgressStatus.showsDetailedPhaseStatus`).
+	public var displayStatusText: String {
+		ZipOperationProgressStatus.displayText(for: kind, detailedStatus: statusText)
+	}
+
 	public var cancelHandler: (() -> Void)?
 
 	public init(

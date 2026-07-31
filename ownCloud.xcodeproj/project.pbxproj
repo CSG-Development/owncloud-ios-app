@@ -492,6 +492,7 @@
 		802C012242F44289AE2EFF34 /* ZipArchiveError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00613217D804489EB5BC99F1 /* ZipArchiveError.swift */; };
 		802C012242F44289AE2EFF35 /* ZipOperationToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00613217D804489EB5BC99F2 /* ZipOperationToastView.swift */; };
 		802C012242F44289AE2EFF36 /* ZipOperationToastPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00613217D804489EB5BC99F3 /* ZipOperationToastPresenter.swift */; };
+		802C012242F44289AE2EFF37 /* ZipOperationProgressStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00613217D804489EB5BC99F4 /* ZipOperationProgressStatus.swift */; };
 		C11543DCD0E640A6A6DF75C5 /* FileListZipOperationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 129A34EFEE5D46679765CD2C /* FileListZipOperationCell.swift */; };
 		A1B2C3D4E5F60718293A4B5C /* FileListActivityHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F60718293A4B5C6D /* FileListActivityHeaderView.swift */; };
 		A1B2C3D4E5F60718293A4B5D /* FileListActivityActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F60718293A4B5C6E /* FileListActivityActionsView.swift */; };
@@ -1672,6 +1673,7 @@
 		00613217D804489EB5BC99F1 /* ZipArchiveError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipArchiveError.swift; sourceTree = "<group>"; };
 		00613217D804489EB5BC99F2 /* ZipOperationToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipOperationToastView.swift; sourceTree = "<group>"; };
 		00613217D804489EB5BC99F3 /* ZipOperationToastPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipOperationToastPresenter.swift; sourceTree = "<group>"; };
+		00613217D804489EB5BC99F4 /* ZipOperationProgressStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipOperationProgressStatus.swift; sourceTree = "<group>"; };
 		129A34EFEE5D46679765CD2C /* FileListZipOperationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListZipOperationCell.swift; sourceTree = "<group>"; };
 		B2C3D4E5F60718293A4B5C6D /* FileListActivityHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListActivityHeaderView.swift; sourceTree = "<group>"; };
 		B2C3D4E5F60718293A4B5C6E /* FileListActivityActionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListActivityActionsView.swift; sourceTree = "<group>"; };
@@ -3928,6 +3930,7 @@
 				00613217D804489EB5BC99F1 /* ZipArchiveError.swift */,
 				00613217D804489EB5BC99F2 /* ZipOperationToastView.swift */,
 				00613217D804489EB5BC99F3 /* ZipOperationToastPresenter.swift */,
+				00613217D804489EB5BC99F4 /* ZipOperationProgressStatus.swift */,
 			);
 			path = Zip;
 			sourceTree = "<group>";
@@ -5981,6 +5984,7 @@
 				802C012242F44289AE2EFF34 /* ZipArchiveError.swift in Sources */,
 				802C012242F44289AE2EFF35 /* ZipOperationToastView.swift in Sources */,
 				802C012242F44289AE2EFF36 /* ZipOperationToastPresenter.swift in Sources */,
+				802C012242F44289AE2EFF37 /* ZipOperationProgressStatus.swift in Sources */,
 				C11543DCD0E640A6A6DF75C5 /* FileListZipOperationCell.swift in Sources */,
 				A1B2C3D4E5F60718293A4B5C /* FileListActivityHeaderView.swift in Sources */,
 				A1B2C3D4E5F60718293A4B5D /* FileListActivityActionsView.swift in Sources */,

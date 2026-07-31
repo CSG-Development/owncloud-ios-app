@@ -47,6 +47,7 @@ final class ZipOperationSession {
 	private var isImporting = false
 	private var statusMessage: String = HCL10n.ZipAction.Progress.preparing
 	private var displayTimer: Timer?
+	private var downloadWatchdog: DispatchSourceTimer?
 	private weak var trackedDownloadProgress: Progress?
 	private var downloadCancellationToken: ZipArchiveService.ZipDownloadCancellationToken?
 	private var lastPublishedFraction: Double = -1
@@ -72,6 +73,7 @@ final class ZipOperationSession {
 
 	deinit {
 		displayTimer?.invalidate()
+		downloadWatchdog?.cancel()
 		progressObservations.removeAll()
 	}
 
@@ -186,6 +188,7 @@ final class ZipOperationSession {
 
 		let token = ZipArchiveService.ZipDownloadCancellationToken()
 		downloadCancellationToken = token
+		startDownloadWatchdog()
 
 		_ = ZipArchiveService.materializeItem(
 			zipItem,
@@ -204,6 +207,7 @@ final class ZipOperationSession {
 		) { [weak self] result in
 			OnMainThread {
 				guard let self else { return }
+				self.stopDownloadWatchdog()
 				self.downloadCancellationToken = nil
 				self.trackedDownloadProgress = nil
 				guard !self.cancelled else { return }
@@ -239,6 +243,7 @@ final class ZipOperationSession {
 		let token = ZipArchiveService.ZipDownloadCancellationToken()
 		downloadCancellationToken = token
 		let already = coordinator?.sessionMaterializedRelativePaths(self) ?? []
+		startDownloadWatchdog()
 
 		_ = ZipArchiveService.materializeArchiveEntries(
 			plan,
@@ -261,6 +266,7 @@ final class ZipOperationSession {
 		) { [weak self] result in
 			OnMainThread {
 				guard let self = self else { return }
+				self.stopDownloadWatchdog()
 				self.downloadCancellationToken = nil
 				self.trackedDownloadProgress = nil
 				guard !self.cancelled else { return }
@@ -317,9 +323,20 @@ final class ZipOperationSession {
 			self?.setArchiveFraction(fraction)
 		}
 
-		// userInitiated — not .background — so zip work stays responsive and doesn't starve.
-		DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+		DispatchQueue.global(qos: .background).async { [weak self] in
 			guard let self = self else { return }
+
+			// Log fraction every 10 s so the console shows the operation is alive
+			// even when ZIPFoundation's zipItem call holds the thread without callbacks.
+			let jobID = self.jobID
+			let watchdog = DispatchSource.makeTimerSource(queue: .global(qos: .background))
+			watchdog.schedule(deadline: .now() + 10, repeating: 10)
+			watchdog.setEventHandler { [weak archiveProgress] in
+				let frac = archiveProgress?.fractionCompleted ?? 0
+				ZipDebugLogging.log("compress[\(jobID)] still running: \(String(format: "%.1f%%", frac * 100))")
+			}
+			watchdog.resume()
+			defer { watchdog.cancel() }
 
 			do {
 				if self.cancelled || archiveProgress.isCancelled {
@@ -363,8 +380,20 @@ final class ZipOperationSession {
 			self?.setArchiveFraction(fraction)
 		}
 
-		DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+		DispatchQueue.global(qos: .background).async { [weak self] in
 			guard let self = self else { return }
+
+			// Log fraction every 10 s so the console shows the operation is alive
+			// even when a single large entry dominates extraction time.
+			let jobID = self.jobID
+			let watchdog = DispatchSource.makeTimerSource(queue: .global(qos: .background))
+			watchdog.schedule(deadline: .now() + 10, repeating: 10)
+			watchdog.setEventHandler { [weak archiveProgress] in
+				let frac = archiveProgress?.fractionCompleted ?? 0
+				ZipDebugLogging.log("decompress[\(jobID)] still running: \(String(format: "%.1f%%", frac * 100))")
+			}
+			watchdog.resume()
+			defer { watchdog.cancel() }
 
 			do {
 				try ZipArchiveService.extractArchive(at: archiveURL, to: extractURL, progress: archiveProgress)
@@ -399,7 +428,10 @@ final class ZipOperationSession {
 	private func bridge(_ source: Progress, onFraction: @escaping (Double) -> Void) {
 		let publish = { [weak source] in
 			guard let source else { return }
-			onFraction(Self.fraction(of: source))
+			let fraction = Self.fraction(of: source)
+			// KVO can fire on any thread. Ensure the fraction handler (which mutates
+			// stored properties) always runs on the main thread to eliminate data races.
+			OnMainThread(inline: true) { onFraction(fraction) }
 		}
 		progressObservations.append(source.observe(\.fractionCompleted, options: [.initial, .new]) { _, _ in publish() })
 		progressObservations.append(source.observe(\.completedUnitCount, options: [.new]) { _, _ in publish() })
@@ -420,6 +452,28 @@ final class ZipOperationSession {
 		statusMessage = message
 		overallProgress.localizedDescription = message
 		publishDisplayProgress(phase: phase)
+	}
+
+	private func startDownloadWatchdog() {
+		let watchdog = DispatchSource.makeTimerSource(queue: .global(qos: .background))
+		watchdog.schedule(deadline: .now() + 10, repeating: 10)
+		let jobID = self.jobID
+		watchdog.setEventHandler { [weak self] in
+			guard let self else { return }
+			// completedUnitCount / totalUnitCount are Int64 written only on the main
+			// thread; reading them here is safe on ARM64 (aligned 64-bit loads are atomic).
+			let completed = self.trackedDownloadProgress?.completedUnitCount ?? 0
+			let total = self.trackedDownloadProgress?.totalUnitCount ?? 0
+			let totalStr = total > 0 ? "\(total)" : "?"
+			ZipDebugLogging.log("download[\(jobID)] still running: \(completed) / \(totalStr) bytes")
+		}
+		watchdog.resume()
+		downloadWatchdog = watchdog
+	}
+
+	private func stopDownloadWatchdog() {
+		downloadWatchdog?.cancel()
+		downloadWatchdog = nil
 	}
 
 	private func startDisplayTimer() {

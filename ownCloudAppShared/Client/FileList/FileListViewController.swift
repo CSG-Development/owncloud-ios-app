@@ -604,6 +604,10 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 			guard let self else { return }
 			self.isApplyingSnapshot = false
 			self.restoreMultiSelectionIfNeeded()
+			// Cells animated in while isMultiSelecting changed may have been configured with
+			// the wrong showsSelection value by cell registration before the toggle fired.
+			// Reconfigure now so every visible cell reflects the current select-mode state.
+			self.reconfigureVisibleCells()
 			self.refreshVisibleZipOperationCells()
 			if self.shouldInvalidateActivityLayoutAfterSnapshot {
 				self.shouldInvalidateActivityLayoutAfterSnapshot = false
@@ -1231,11 +1235,15 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		      let item = itemsByID[itemID] else { return }
 
 		if isMultiSelecting {
-			selectedItemIDs.insert(itemID)
-			multiSelectionActionContext?.add(item: item)
-			refreshMultiselectActions()
-			updateNavigationBarButtonItems()
-			reconfigureVisibleCells()
+			// Skip side-effects when selectItem is being called programmatically during
+			// multi-selection restoration after a snapshot (items are already tracked).
+			if !isRestoringMultiSelection {
+				selectedItemIDs.insert(itemID)
+				multiSelectionActionContext?.add(item: item)
+				refreshMultiselectActions()
+				updateNavigationBarButtonItems()
+				reconfigureVisibleCells()
+			}
 			return
 		}
 

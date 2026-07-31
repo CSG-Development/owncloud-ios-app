@@ -30,6 +30,12 @@ final class ZipOperationCoordinator {
 	private let lock = NSLock()
 	private var activeRunsByID: [String: ActiveRun] = [:]
 
+	/// Serial queue that owns all OCKeyValueStore writes for zip jobs.
+	/// OCKeyValueStore.updateObject(forKey:usingModifier:) blocks its caller via
+	/// OCWaitForCompletion until the NSFileCoordinator write on _coordinationQueue
+	/// finishes. Dispatching those writes here keeps them off the main thread entirely.
+	private let persistenceQueue = DispatchQueue(label: "com.owncloud.zip-coordinator.persist", qos: .background)
+
 	private init() {}
 
 	// MARK: - Start
@@ -88,7 +94,7 @@ final class ZipOperationCoordinator {
 
 			OCCoreManager.shared.requestCore(for: bookmark, setup: nil) { [weak self] core, error in
 				guard let self, let core, error == nil else { return }
-				DispatchQueue.global(qos: .userInitiated).async {
+				DispatchQueue.global(qos: .background).async {
 					for job in resumable {
 						let operation = self.operation(for: job, core: core)
 						OnMainThread {
@@ -107,7 +113,8 @@ final class ZipOperationCoordinator {
 				if job.phase == .failed {
 					// Failed jobs are not shown until the user retries; drop stale ones across launches.
 					job.removeWorkingDirectory()
-					bookmark.removeZipJob(id: job.id)
+					let jobID = job.id
+					persistenceQueue.async { bookmark.removeZipJob(id: jobID) }
 					ZipOperationCenter.shared.remove(id: job.id)
 					continue
 				}
@@ -157,11 +164,14 @@ final class ZipOperationCoordinator {
 
 		ZipDebugLogging.log("ZipOperationCoordinator.resume: id=\(job.id) phase=\(job.phase.rawValue) attempt=\(job.attemptCount)")
 
-		guard let operation = preresolvedOperation ?? operation(for: job, core: core) else {
+		// All callers pre-resolve the operation on a background queue to avoid blocking
+		// the main thread. If pre-resolution returned nil the items are gone — fail fast.
+		guard let operation = preresolvedOperation else {
 			job.phase = .failed
 			job.lastErrorDescription = "Missing items"
 			job.statusText = job.lastErrorDescription ?? HCL10n.ZipAction.Progress.preparing
-			core.bookmark.saveZipJob(job)
+			let bookmark = core.bookmark
+			persistenceQueue.async { bookmark.saveZipJob(job) }
 			ZipOperationCenter.shared.remove(id: job.id)
 			ZipDebugLogging.log("ZipOperationCoordinator.resume: missing items for \(job.id)")
 			return
@@ -194,8 +204,14 @@ final class ZipOperationCoordinator {
 		session?.cancelFromCoordinator()
 
 		if let core {
-			deleteUploadPlaceholderIfNeeded(job: job, core: core)
-			deleteDecompressImportOrphans(job: job, core: core)
+			// Both helpers call item(forLocalID:core:) which blocks on a semaphore —
+			// always dispatch off the main thread.
+			let jobCapture = job
+			let coreCapture = core
+			DispatchQueue.global(qos: .background).async { [weak self] in
+				self?.deleteUploadPlaceholderIfNeeded(job: jobCapture, core: coreCapture)
+				self?.deleteDecompressImportOrphans(job: jobCapture, core: coreCapture)
+			}
 		}
 
 		tearDown(jobID: jobID, purgeWorkingDirectory: true)
@@ -224,8 +240,13 @@ final class ZipOperationCoordinator {
 			guard let job = bookmark.zipOperationStore.jobsByID[jobID], job.phase == .failed else { continue }
 			OCCoreManager.shared.requestCore(for: bookmark, setup: nil) { [weak self] core, error in
 				guard let self, let core, error == nil else { return }
-				OnMainThread {
-					self.resume(job: job, core: core)
+				// Pre-resolve OCItems off the main thread (blocking DB semaphore),
+				// matching the pattern used in resumePendingJobs().
+				DispatchQueue.global(qos: .background).async {
+					let operation = self.operation(for: job, core: core)
+					OnMainThread {
+						self.resume(job: job, core: core, preresolvedOperation: operation)
+					}
 				}
 			}
 			return
@@ -432,39 +453,51 @@ final class ZipOperationCoordinator {
 
 	private func resumeImport(job: ZipOperationJob, session: ZipOperationSession, core: OCCore, hostViewController: UIViewController?) {
 		session.beginImportPhase()
-		guard let parent = item(forLocalID: job.parentItemLocalID, core: core) else {
-			session.start()
-			return
-		}
-
-		switch job.kind {
-		case .compress:
-			if let placeholderID = job.uploadPlaceholderLocalID,
-			   item(forLocalID: placeholderID, core: core) != nil {
-				ZipDebugLogging.log("ZipOperationCoordinator.resumeImport: compress placeholder already exists \(placeholderID)")
-				if let run = activeRunsByID[job.id] {
-					completeSuccessfully(run: run)
-				}
+		// Item lookups use a blocking DB semaphore — run them off the main thread.
+		DispatchQueue.global(qos: .background).async { [weak self] in
+			guard let self else { return }
+			guard let parent = self.item(forLocalID: job.parentItemLocalID, core: core) else {
+				OnMainThread { session.start() }
 				return
 			}
-			guard let archiveURL = job.archiveURL,
-			      FileManager.default.fileExists(atPath: archiveURL.path),
-			      let fileName = job.suggestedUploadName ?? job.archiveFileName else {
-				session.start()
-				return
-			}
-			startCompressImport(archiveURL: archiveURL, fileName: fileName, parentItem: parent, session: session, core: core, hostViewController: hostViewController)
 
-		case .decompress:
-			let extractURL = job.extractDirectoryURL
-			if FileManager.default.fileExists(atPath: extractURL.path) {
-				startDecompressImport(extractURL: extractURL, parentItem: parent, session: session, core: core, hostViewController: hostViewController)
-			} else if !job.uploadedFileLocalIDs.isEmpty || !job.createdFolderLocalIDs.isEmpty {
-				if let run = activeRunsByID[job.id] {
-					completeSuccessfully(run: run)
+			switch job.kind {
+			case .compress:
+				let placeholder: OCItem? = job.uploadPlaceholderLocalID != nil
+					? self.item(forLocalID: job.uploadPlaceholderLocalID, core: core)
+					: nil
+				OnMainThread {
+					if let placeholderID = job.uploadPlaceholderLocalID, placeholder != nil {
+						ZipDebugLogging.log("ZipOperationCoordinator.resumeImport: compress placeholder already exists \(placeholderID)")
+						self.lock.lock()
+						let run = self.activeRunsByID[job.id]
+						self.lock.unlock()
+						if let run { self.completeSuccessfully(run: run) }
+						return
+					}
+					guard let archiveURL = job.archiveURL,
+					      FileManager.default.fileExists(atPath: archiveURL.path),
+					      let fileName = job.suggestedUploadName ?? job.archiveFileName else {
+						session.start()
+						return
+					}
+					self.startCompressImport(archiveURL: archiveURL, fileName: fileName, parentItem: parent, session: session, core: core, hostViewController: hostViewController)
 				}
-			} else {
-				session.start()
+
+			case .decompress:
+				OnMainThread {
+					let extractURL = job.extractDirectoryURL
+					if FileManager.default.fileExists(atPath: extractURL.path) {
+						self.startDecompressImport(extractURL: extractURL, parentItem: parent, session: session, core: core, hostViewController: hostViewController)
+					} else if !job.uploadedFileLocalIDs.isEmpty || !job.createdFolderLocalIDs.isEmpty {
+						self.lock.lock()
+						let run = self.activeRunsByID[job.id]
+						self.lock.unlock()
+						if let run { self.completeSuccessfully(run: run) }
+					} else {
+						session.start()
+					}
+				}
 			}
 		}
 	}
@@ -564,7 +597,10 @@ final class ZipOperationCoordinator {
 		let observation = progress.observe(\.fractionCompleted, options: [.initial, .new]) { [weak self, weak session] progress, _ in
 			guard let self, let session else { return }
 			session.updateImportProgress(progress)
-			self.sessionDidUpdate(session, status: HCL10n.ZipAction.Progress.importing, fraction: 0.9 + progress.fractionCompleted * 0.1, phase: .importing)
+			// sessionDidUpdate accesses job properties and updates UI — must run on main thread.
+			OnMainThread(inline: true) {
+				self.sessionDidUpdate(session, status: HCL10n.ZipAction.Progress.importing, fraction: 0.9 + progress.fractionCompleted * 0.1, phase: .importing)
+			}
 		}
 		run.importObservations.append(observation)
 	}
@@ -586,17 +622,20 @@ final class ZipOperationCoordinator {
 				itemCount: compressedItemCount,
 				on: hostViewController
 			) {
-				guard let self, let core, let revealLocalID,
-				      let item = self.item(forLocalID: revealLocalID, core: core) else {
-					return
+				// item(forLocalID:core:) blocks — resolve on background then reveal on main.
+				guard let self, let core, let revealLocalID else { return }
+				DispatchQueue.global(qos: .background).async {
+					guard let item = self.item(forLocalID: revealLocalID, core: core) else { return }
+					OnMainThread {
+						ZipOperationToastPresenter.revealItem(
+							item,
+							parentLocationKey: parentLocationKey,
+							from: hostViewController,
+							clientContext: nil,
+							core: core
+						)
+					}
 				}
-				ZipOperationToastPresenter.revealItem(
-					item,
-					parentLocationKey: parentLocationKey,
-					from: hostViewController,
-					clientContext: nil,
-					core: core
-				)
 			}
 		}
 	}
@@ -748,20 +787,32 @@ final class ZipOperationCoordinator {
 
 		if let job = run?.job {
 			if purgeWorkingDirectory {
+				// Remove temp files on the calling thread (fast filesystem op) before
+				// the async store update so they don't linger if the queue is busy.
 				job.removeWorkingDirectory()
 			}
-			if let bookmark = OCBookmarkManager.shared.bookmark(forUUIDString: job.bookmarkUUID.uuidString) {
-				bookmark.removeZipJob(id: jobID)
-			} else {
-				run?.core?.bookmark.removeZipJob(id: jobID)
-			}
+			let bookmark = OCBookmarkManager.shared.bookmark(forUUIDString: job.bookmarkUUID.uuidString)
+				?? run?.core?.bookmark
+			// Dispatch the blocking OCKeyValueStore write off the main thread.
+			// persistenceQueue is serial so any in-flight persist for this job
+			// will complete before the remove runs.
+			persistenceQueue.async { bookmark?.removeZipJob(id: jobID) }
 		}
 
 		ZipOperationCenter.shared.remove(id: jobID)
 	}
 
 	private func persist(_ job: ZipOperationJob, core: OCCore?) {
-		(core?.bookmark ?? OCBookmarkManager.shared.bookmark(forUUIDString: job.bookmarkUUID.uuidString))?.saveZipJob(job)
+		// OCKeyValueStore.updateObject(forKey:usingModifier:) blocks its caller with
+		// OCWaitForCompletion until the NSFileCoordinator disk write finishes (10–100 ms).
+		// With N concurrent zip operations producing N progress ticks per second, calling
+		// this on the main thread causes compounding stalls that freeze the UI entirely.
+		// All job mutations happen on the main thread, so the background encode always
+		// sees the latest-or-more-recent state — ideal for crash-recovery durability.
+		guard let bookmark = core?.bookmark
+			?? OCBookmarkManager.shared.bookmark(forUUIDString: job.bookmarkUUID.uuidString)
+		else { return }
+		persistenceQueue.async { bookmark.saveZipJob(job) }
 	}
 
 	private func run(for session: ZipOperationSession) -> ActiveRun? {
@@ -795,7 +846,10 @@ final class ZipOperationCoordinator {
 		}
 	}
 
+	/// Blocking version — **must never be called from the main thread**.
+	/// Use `item(forLocalID:core:completion:)` when on the main thread.
 	private func item(forLocalID localID: String?, core: OCCore) -> OCItem? {
+		assert(!Thread.isMainThread, "item(forLocalID:core:) blocks on a semaphore — do not call from the main thread")
 		guard let localID, let database = core.vault.database else { return nil }
 		var found: OCItem?
 		let semaphore = DispatchSemaphore(value: 0)
@@ -805,5 +859,16 @@ final class ZipOperationCoordinator {
 		})
 		_ = semaphore.wait(timeout: .now() + 5)
 		return found
+	}
+
+	/// Non-blocking async item lookup. `completion` is called on an arbitrary queue.
+	private func item(forLocalID localID: String?, core: OCCore, completion: @escaping (OCItem?) -> Void) {
+		guard let localID, let database = core.vault.database else {
+			completion(nil)
+			return
+		}
+		database.retrieveCacheItem(forLocalID: localID, completionHandler: { _, _, _, item in
+			completion(item)
+		})
 	}
 }

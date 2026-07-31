@@ -96,7 +96,7 @@ final class FileListActivityActionRowView: UIView {
 		configuredDocumentName = record.documentName
 		configuredKind = record.kind
 		titleLabel.text = record.documentName
-		statusLabel.text = record.statusText
+		statusLabel.text = record.displayStatusText
 		iconImageView.image = Self.fileTypeIcon(for: record.documentName, kind: record.kind)
 
 		let progress = Float(record.fractionCompleted)

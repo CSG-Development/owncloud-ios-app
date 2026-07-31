@@ -28,7 +28,7 @@ struct ZipArchivePlan {
 enum ZipArchiveService {
 	static func suggestedArchiveName(for items: [OCItem]) -> String {
 		guard items.count == 1, let item = items.first, let name = item.name else {
-			return HCL10n.ZipAction.defaultArchiveName
+			return dateBasedArchiveName()
 		}
 
 		if item.type == .collection {
@@ -41,6 +41,13 @@ enum ZipArchiveService {
 		}
 
 		return "\(baseName).zip"
+	}
+
+	private static func dateBasedArchiveName() -> String {
+		let formatter = DateFormatter()
+		formatter.locale = Locale(identifier: "en_US_POSIX")
+		formatter.dateFormat = "yyyy-MM-dd"
+		return "Archive_\(formatter.string(from: Date())).zip"
 	}
 
 	static func isZipArchive(_ item: OCItem) -> Bool {
@@ -804,13 +811,19 @@ enum ZipArchiveService {
 		progress.localizedDescription = HCL10n.ZipAction.Progress.compressing
 
 		let zipProgress = Progress(totalUnitCount: 1, parent: progress, pendingUnitCount: 1)
-		ZipDebugLogging.log("createArchive: zipping staging directory")
+		let startTime = Date()
+		ZipDebugLogging.log("createArchive: starting zip of staging directory (this may take a while for large archives)")
 		try fileManager.zipItem(at: stagingURL, to: archiveURL, shouldKeepParent: false, compressionMethod: .deflate, progress: zipProgress)
 		progress.completedUnitCount = progress.totalUnitCount
+		let elapsed = Date().timeIntervalSince(startTime)
+		let archiveSize = (try? fileManager.attributesOfItem(atPath: archiveURL.path)[.size] as? NSNumber)?.int64Value ?? 0
+		ZipDebugLogging.log("createArchive: done elapsed=\(String(format: "%.1f", elapsed))s outputSize=\(ZipDebugLogging.formattedBytes(archiveSize))")
 		ZipDebugLogging.log(url: archiveURL, context: "createArchive.archiveURL(after)")
 	}
 
 	static func extractArchive(at archiveURL: URL, to destinationURL: URL, progress: Progress) throws {
+		let archiveFileSize = (try? FileManager.default.attributesOfItem(atPath: archiveURL.path)[.size] as? NSNumber)?.int64Value ?? 0
+		ZipDebugLogging.log("extractArchive: archiveSize=\(ZipDebugLogging.formattedBytes(archiveFileSize)) path=\(Log.mask(archiveURL.lastPathComponent))")
 		ZipDebugLogging.log(url: archiveURL, context: "extractArchive.archiveURL")
 		ZipDebugLogging.log(url: destinationURL, context: "extractArchive.destinationURL(before)")
 
@@ -845,13 +858,14 @@ enum ZipArchiveService {
 		ZipDebugLogging.log("extractArchive: archive contains \(rawEntries.count) raw entr\(rawEntries.count == 1 ? "y" : "ies")")
 
 		for (index, entry) in rawEntries.enumerated() {
-			ZipDebugLogging.log("extractArchive.rawEntry[\(index)]: path=\(Log.mask(entry.path)) type=\(entry.type)")
+			let decoded = decodedEntryPath(entry)
+			ZipDebugLogging.log("extractArchive.rawEntry[\(index)]: path=\(Log.mask(decoded)) flaggedPath=\(Log.mask(entry.path)) type=\(entry.type)")
 		}
 
 		// sanitizedArchiveEntryPath rejects any path with "..", ".", leading/trailing slashes
 		// or empty components, so appending to destinationURL is always safe — no further
 		// containment check is needed or reliable across iOS symlink aliases (/var vs /private/var).
-		var entries = rawEntries.filter { sanitizedArchiveEntryPath($0.path) != nil }
+		var entries = rawEntries.filter { sanitizedArchiveEntryPath(decodedEntryPath($0)) != nil }
 		let skippedCount = rawEntries.count - entries.count
 		if skippedCount > 0 {
 			ZipDebugLogging.log("extractArchive: skipped \(skippedCount) unsafe/empty entr\(skippedCount == 1 ? "y" : "ies")")
@@ -870,7 +884,7 @@ enum ZipArchiveService {
 		// Directories first, then by depth so parents always exist before children
 		entries.sort { lhs, rhs in
 			if lhs.type != rhs.type { return lhs.type == .directory }
-			return lhs.path.split(separator: "/").count < rhs.path.split(separator: "/").count
+			return decodedEntryPath(lhs).split(separator: "/").count < decodedEntryPath(rhs).split(separator: "/").count
 		}
 
 		progress.localizedDescription = HCL10n.ZipAction.Progress.decompressing
@@ -890,9 +904,9 @@ enum ZipArchiveService {
 				throw NSError(ocError: .cancelled)
 			}
 
-			guard let relativePath = sanitizedArchiveEntryPath(entry.path) else {
+			guard let relativePath = sanitizedArchiveEntryPath(decodedEntryPath(entry)) else {
 				skippedDuringExtractCount += 1
-				ZipDebugLogging.log("extractArchive: skipping entry[\(index)] path=\(Log.mask(entry.path)) reason=invalidSanitizedPath")
+				ZipDebugLogging.log("extractArchive: skipping entry[\(index)] path=\(Log.mask(decodedEntryPath(entry))) reason=invalidSanitizedPath")
 				continue
 			}
 
@@ -907,6 +921,9 @@ enum ZipArchiveService {
 			ZipDebugLogging.log("extractArchive: entry[\(index)] relativePath=\(Log.mask(relativePath)) type=\(entry.type) -> \(Log.mask(entryURL.path))")
 
 			try removeItemIfExists(at: entryURL)
+			let entryUncompressedSize = entry.uncompressedSize
+			ZipDebugLogging.log("extractArchive: [\(index + 1)/\(entries.count)] extracting \(Log.mask(relativePath)) uncompressedSize=\(ZipDebugLogging.formattedBytes(Int64(entryUncompressedSize)))")
+			let entryStart = Date()
 			do {
 				_ = try archive.extract(entry, to: entryURL)
 			} catch {
@@ -917,7 +934,8 @@ enum ZipArchiveService {
 				throw ZipArchiveError.corruptedArchive
 			}
 			extractedCount += 1
-			ZipDebugLogging.log("extractArchive: extracted[\(extractedCount)] path=\(Log.mask(relativePath))")
+			let entryElapsed = Date().timeIntervalSince(entryStart)
+			ZipDebugLogging.log("extractArchive: [\(index + 1)/\(entries.count)] done elapsed=\(String(format: "%.2f", entryElapsed))s path=\(Log.mask(relativePath))")
 
 			progress.completedUnitCount = Int64(index + 1)
 		}
@@ -961,6 +979,23 @@ enum ZipArchiveService {
 
 	private static func isInsufficientStorageError(_ error: Error) -> Bool {
 		ZipArchiveError.classify(error, for: .decompress) == .insufficientStorage
+	}
+
+	/// Decode a ZIP entry path the way macOS Archive Utility does: prefer UTF-8 when the
+	/// raw filename bytes are valid UTF-8, even if the Language Encoding Flag (bit 11) is
+	/// unset. ZIPFoundation's `entry.path` falls back to CP437 without that flag, which
+	/// turns UTF-8 names into mojibake (e.g. NFD `Hình` → `Hi╠Çnh`).
+	private static func decodedEntryPath(_ entry: Entry) -> String {
+		let utf8Path = entry.path(using: .utf8)
+		let flaggedPath = entry.path
+		if utf8Path.isEmpty, !flaggedPath.isEmpty {
+			// Bytes were not valid UTF-8 — keep the flag-based (typically CP437) decode.
+			return flaggedPath
+		}
+		if utf8Path != flaggedPath {
+			ZipDebugLogging.log("decodedEntryPath: preferring UTF-8 over flagged decode utf8=\(Log.mask(utf8Path)) flagged=\(Log.mask(flaggedPath))")
+		}
+		return utf8Path.isEmpty ? flaggedPath : utf8Path
 	}
 
 	private static func sanitizedArchiveEntryPath(_ path: String) -> String? {
