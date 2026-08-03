@@ -30,6 +30,13 @@ public enum HCIcon {
 	public static var checkboxShadowEmptyDark: UIImage? { sharedIcon("checkbox_shadow_empty_dark") }
 	public static var checkboxShadowFilledDark: UIImage? { sharedIcon("checkbox_shadow_filled_dark") }
 
+	public static var info: UIImage? { sharedIcon("info-icon") }
+
+	public static var chevronUpLarge: UIImage? { sharedIcon("chevron-up-large") }
+	public static var chevronDownLarge: UIImage? { sharedIcon("chevron-down-large") }
+
+	public static var cross: UIImage? { sharedIcon("cross-icon") }
+
 	private static func sharedIcon(_ name: String) -> UIImage? {
 		UIImage(named: name, in: Bundle.sharedAppBundle, with: nil)
 	}

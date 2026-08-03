@@ -41,6 +41,15 @@ public enum ZipDebugLogging {
 		}
 	}
 
+	/// Human-readable byte count: "1.45 GB", "234 KB", "512 B".
+	public static func formattedBytes(_ bytes: Int64) -> String {
+		let units: [(Double, String)] = [(1_073_741_824, "GB"), (1_048_576, "MB"), (1_024, "KB")]
+		for (factor, label) in units where bytes >= Int64(factor) {
+			return String(format: "%.2f %@", Double(bytes) / factor, label)
+		}
+		return "\(bytes) B"
+	}
+
 	public static func log(url: URL, context: String) {
 		let fileManager = FileManager.default
 		var isDirectory: ObjCBool = false

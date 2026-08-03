@@ -254,15 +254,16 @@ public class ClientLocationPicker : NSObject {
 		return sectionDataSource
 	}
 
-	func provideViewController(for location: OCLocation, maximumLevel: LocationLevel, context: ClientContext) -> CollectionViewController? {
+	func provideViewController(for location: OCLocation, maximumLevel: LocationLevel, context: ClientContext) -> UIViewController? {
 		let sectionDataSource = provideDataSource(for: location, maximumLevel: maximumLevel, context: context)
-		var viewController: CollectionViewController?
+		var viewController: UIViewController?
 
 		if let sectionDataSource = sectionDataSource {
-			viewController = CollectionViewController(context: context, sections: nil, useStackViewRoot: true, hierarchic: true)
-			viewController?.sectionsDataSource = sectionDataSource
+			let collectionViewController = CollectionViewController(context: context, sections: nil, useStackViewRoot: true, hierarchic: true)
+			collectionViewController.sectionsDataSource = sectionDataSource
+			viewController = collectionViewController
 		} else {
-			viewController = location.openItem(from: nil, with: context, animated: true, pushViewController: false, completion: nil) as? CollectionViewController
+			viewController = location.openItem(from: nil, with: context, animated: true, pushViewController: false, completion: nil)
 		}
 
 		if let viewController {
@@ -279,7 +280,7 @@ public class ClientLocationPicker : NSObject {
 					if let bookmarkUUID = location.bookmarkUUID {
 						title = OCBookmarkManager.shared.bookmark(for: bookmarkUUID)?.displayName
 					}
-					viewController.hideNavigationBar = true
+					(viewController as? CollectionViewController)?.hideNavigationBar = true
 
 				case .drive:
 					if let driveID = location.driveID {
@@ -301,11 +302,12 @@ public class ClientLocationPicker : NSObject {
 
 	// MARK: - Presentation & Choice
 	var rootNavigationController: UINavigationController?
-	var rootViewController: CollectionViewController?
+	var rootViewController: UIViewController?
 	var rootContext: ClientContext?
 
 	public func pickerViewControllerForPresentation(with baseContext: ClientContext? = nil) -> UIViewController? {
 		let navigationController = ThemeNavigationController()
+		navigationController.cssSelector = .locationPicker
 
 		// Set up navigation controller and context
 		rootNavigationController = navigationController

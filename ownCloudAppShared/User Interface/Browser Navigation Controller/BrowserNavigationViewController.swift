@@ -28,6 +28,12 @@ public protocol BrowserNavigationViewControllerDelegate: AnyObject {
 
 public protocol ScrollViewProviding: AnyObject {
 	var providedScrollView: UIScrollView? { get }
+	/// When false, landscape mode keeps the tab bar visible (e.g. empty states with no real content to scroll).
+	var allowsLandscapeChromeAutoHide: Bool { get }
+}
+
+public extension ScrollViewProviding {
+	var allowsLandscapeChromeAutoHide: Bool { true }
 }
 
 public protocol BrowserNavigationSidebarToggleControlling: AnyObject {
@@ -756,15 +762,15 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	private func effectiveFilesLocation(for contentViewController: UIViewController?) -> OCLocation? {
-		guard let itemVC = contentViewController as? ClientItemViewController,
-		      let clientContext = itemVC.clientContext,
-		      itemVC.query?.queryLocation != nil
+		guard let fileBrowser = contentViewController as? FileBrowserContent,
+		      let clientContext = fileBrowser.clientContext,
+		      fileBrowser.query?.queryLocation != nil
 		else { return nil }
 
-		if let loc = itemVC.location {
+		if let loc = fileBrowser.location {
 			return loc
 		}
-		if let queryLoc = itemVC.query?.queryLocation {
+		if let queryLoc = fileBrowser.query?.queryLocation {
 			return queryLoc
 		}
 		if let rootItem = clientContext.rootItem as? OCItem {
@@ -782,10 +788,10 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	private func isBreadcrumbNavigationAvailable(for contentViewController: UIViewController?) -> Bool {
 		guard let contentViewController else { return false }
 
-		if let itemVC = contentViewController as? ClientItemViewController, itemVC.clientContext != nil {
+		if let fileBrowser = contentViewController as? FileBrowserContent, fileBrowser.clientContext != nil {
 			guard
 				!isCurrentContentSpecialTabBarItem,
-				itemVC.query?.queryLocation != nil
+				fileBrowser.query?.queryLocation != nil
 			else { return false }
 
 			guard let effectiveLocation = effectiveFilesLocation(for: contentViewController) else {
@@ -799,9 +805,9 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	private func isDetachedFileList(_ contentViewController: UIViewController?) -> Bool {
-		guard let itemVC = contentViewController as? ClientItemViewController else { return false }
+		guard let fileBrowser = contentViewController as? FileBrowserContent else { return false }
 		guard !isCurrentContentSpecialTabBarItem else { return false }
-		return itemVC.query?.queryLocation == nil
+		return fileBrowser.query?.queryLocation == nil
 	}
 
 	func updateContentNavigationItems() {
@@ -880,12 +886,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			return
 		}
 
-		// Install a location bar when the content is a ClientItemViewController with a non-root location
-		if let itemVC = contentViewController as? ClientItemViewController, let clientContext = itemVC.clientContext {
+		// Install a location bar when the content is a file browser with a non-root location
+		if let fileBrowser = contentViewController as? FileBrowserContent, let clientContext = fileBrowser.clientContext {
 			var effectiveLocation: OCLocation?
-			if let loc = itemVC.location {
+			if let loc = fileBrowser.location {
 				effectiveLocation = loc
-			} else if let queryLoc = itemVC.query?.queryLocation {
+			} else if let queryLoc = fileBrowser.query?.queryLocation {
 				effectiveLocation = queryLoc
 			} else if let rootItem = clientContext.rootItem as? OCItem {
 				effectiveLocation = rootItem.location
@@ -1167,10 +1173,26 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+		super.traitCollectionDidChange(previousTraitCollection)
+
+		// Only react to size-class changes. Presenting alerts/modals also triggers
+		// traitCollectionDidChange (e.g. userInterfaceLevel) and must not hide chrome.
+		let sizeClassChanged = previousTraitCollection == nil
+			|| previousTraitCollection?.verticalSizeClass != traitCollection.verticalSizeClass
+			|| previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass
+		guard sizeClassChanged else { return }
+
 		let isPhone = traitCollection.userInterfaceIdiom == .phone
 		let isLandscape = traitCollection.verticalSizeClass == .compact
 
 		if isLandscape && isPhone {
+			let allowsAutoHide = (contentViewController as? ScrollViewProviding)?.allowsLandscapeChromeAutoHide ?? true
+			if !allowsAutoHide {
+				setTabBarHidden(false, animated: hasCompletedInitialLayout)
+				setNavigationBarHidden(false, animated: hasCompletedInitialLayout)
+				return
+			}
+
 			setTabBarHidden(true, animated: hasCompletedInitialLayout)
 			setNavigationBarHidden(true, animated: hasCompletedInitialLayout)
 
@@ -1195,6 +1217,7 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	func applyScrollabilityCheckForCurrentContent() {
 		guard traitCollection.userInterfaceIdiom == .phone,
 		      traitCollection.verticalSizeClass == .compact else { return }
+		guard !hasContentModalPresentation else { return }
 
 		view.layoutIfNeeded()
 		if isContentScrollable {
@@ -1207,8 +1230,22 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 	}
 
 	private var isContentScrollable: Bool {
-		guard let scrollView = contentScrollView() else { return false }
-		return scrollView.contentSize.height > scrollView.bounds.height
+		guard let provider = contentViewController as? ScrollViewProviding else {
+			return false
+		}
+		guard provider.allowsLandscapeChromeAutoHide else {
+			return false
+		}
+		guard let scrollView = provider.providedScrollView,
+		      !scrollView.isHidden,
+		      scrollView.bounds.height > 1 else {
+			return false
+		}
+		let visibleHeight = scrollView.bounds.height
+			- scrollView.adjustedContentInset.top
+			- scrollView.adjustedContentInset.bottom
+		guard visibleHeight > 1 else { return false }
+		return scrollView.contentSize.height > visibleHeight + 1
 	}
 
 	private func contentScrollView() -> UIScrollView? {
@@ -1220,6 +1257,14 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		let isLandscape = traitCollection.verticalSizeClass == .compact
 
 		guard isPhone && isLandscape else { return }
+		// Keep chrome stable while delete confirmation / other modals are up.
+		guard !hasContentModalPresentation else { return }
+
+		if let provider = contentViewController as? ScrollViewProviding, !provider.allowsLandscapeChromeAutoHide {
+			setTabBarHidden(false)
+			setNavigationBarHidden(false, animated: true)
+			return
+		}
 
 		switch direction {
 			case .down:
@@ -1231,6 +1276,11 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			case .none:
 				break
 		}
+	}
+
+	private var hasContentModalPresentation: Bool {
+		presentedViewController != nil
+			|| contentViewController?.presentedViewController != nil
 	}
 }
 

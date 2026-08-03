@@ -29,7 +29,7 @@ class ClientLocationPickerViewController: EmbeddingViewController, CustomViewCon
 
 		self.cssSelector = .locationPicker
 
-		currentLocation = (self.locationPicker.rootNavigationController?.topViewController as? ClientItemViewController)?.location
+		currentLocation = (self.locationPicker.rootNavigationController?.topViewController as? FileBrowserContent)?.location
 	}
 
 	required init?(coder: NSCoder) {
@@ -105,10 +105,10 @@ class ClientLocationPickerViewController: EmbeddingViewController, CustomViewCon
 			})))
 		}
 
-		if let itemViewController = viewController as? ClientItemViewController, let location = itemViewController.location {
-			currentLocationContext = itemViewController.clientContext
+		if let fileBrowser = viewController as? FileBrowserContent, let location = fileBrowser.location {
+			currentLocationContext = fileBrowser.clientContext
 
-			if let bookmark = itemViewController.clientContext?.core?.bookmark, location.bookmarkUUID == nil {
+			if let bookmark = fileBrowser.clientContext?.core?.bookmark, location.bookmarkUUID == nil {
 				// Add bookmark UUID to location
 				currentLocation = OCLocation(bookmarkUUID: bookmark.uuid, driveID: location.driveID, path: location.path)
 			} else {
@@ -124,7 +124,7 @@ class ClientLocationPickerViewController: EmbeddingViewController, CustomViewCon
 
 				if let rootItem, let core = currentLocationContext.core {
 					let actionsLocation = OCExtensionLocation(ofType: .action, identifier: .locationPickerBar)
-					let actionContext = ActionContext(viewController: itemViewController, clientContext: currentLocationContext, core: core, query: currentLocationContext.query, items: [rootItem], location: actionsLocation, sender: self)
+					let actionContext = ActionContext(viewController: viewController, clientContext: currentLocationContext, core: core, query: currentLocationContext.query, items: [rootItem], location: actionsLocation, sender: self)
 					let actions = Action.sortedApplicableActions(for: actionContext)
 
 					for action in actions {

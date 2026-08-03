@@ -70,6 +70,10 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 	public var location: OCLocation?
 
+	open override var allowsLandscapeChromeAutoHide: Bool {
+		contentState == .hasContent
+	}
+
 	private var stateObservation: NSKeyValueObservation?
 	private var queryStateObservation: NSKeyValueObservation?
 	private var queryRootItemObservation: NSKeyValueObservation?
@@ -660,6 +664,10 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 					self.itemSection?.hidden = itemSectionHiddenNew
 					self.emptySection?.hidden = emptySectionHiddenNew
 				}, animated: false)
+			}
+
+			if oldValue != contentState {
+				clientContext?.browserController?.applyScrollabilityCheckForCurrentContent()
 			}
 		}
 	}

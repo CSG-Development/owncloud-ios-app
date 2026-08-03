@@ -144,6 +144,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		OCExtensionManager.shared.addExtension(BackgroundFetchUpdateTaskAction.taskExtension)
 		OCExtensionManager.shared.addExtension(InstantMediaUploadTaskExtension.taskExtension)
 		OCExtensionManager.shared.addExtension(PendingMediaUploadTaskExtension.taskExtension)
+		OCExtensionManager.shared.addExtension(PendingZipOperationTaskExtension.taskExtension)
 		OCExtensionManager.shared.addExtension(TagSearchSyncTaskAction.taskExtension)
 
 		// Theming

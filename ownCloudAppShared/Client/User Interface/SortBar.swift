@@ -38,8 +38,8 @@ public class SortBar: ThemeCSSView {
 	let rightPadding: CGFloat = 20.0
 	let rightSelectButtonPadding: CGFloat = 8.0
 	let rightDisplayModeButtonPadding: CGFloat = 8.0
-	let topPadding: CGFloat = 10.0
-	let bottomPadding: CGFloat = 10.0
+	let topPadding: CGFloat = 1.0
+	let bottomPadding: CGFloat = 1.0
 
 	// MARK: - Instance variables.
 	public var sortButton: UIButton?
@@ -108,6 +108,13 @@ public class SortBar: ThemeCSSView {
 	public var usesSearchScreenAppearance: Bool = false {
 		didSet {
 			updateSearchScreenAppearance()
+		}
+	}
+
+	/// When false, the bar does not draw an elevation shadow.
+	public var showsElevationShadow: Bool = true {
+		didSet {
+			updateElevationShadow()
 		}
 	}
 
@@ -187,7 +194,7 @@ public class SortBar: ThemeCSSView {
 			NSLayoutConstraint.activate([
 				sortButton.topAnchor.constraint(equalTo: self.topAnchor, constant: topPadding),
 				sortButton.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -bottomPadding),
-				sortButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: leftPadding),
+				sortButton.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor, constant: leftPadding),
 				sortButton.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -rightPadding)
 			])
 
@@ -200,7 +207,7 @@ public class SortBar: ThemeCSSView {
 
 			NSLayoutConstraint.activate([
 				selectButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-				selectButton.trailingAnchor.constraint(lessThanOrEqualTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -rightSelectButtonPadding),
+				selectButton.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -rightSelectButtonPadding),
 				selectButton.heightAnchor.constraint(equalToConstant: sideButtonsSize.height),
 				selectButton.widthAnchor.constraint(equalToConstant: sideButtonsSize.width)
 			])
@@ -230,7 +237,7 @@ public class SortBar: ThemeCSSView {
 
 			NSLayoutConstraint.activate([
 				changeItemLayoutButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-				changeItemLayoutButton.trailingAnchor.constraint(lessThanOrEqualTo: selectButton.leadingAnchor, constant: -rightDisplayModeButtonPadding),
+				changeItemLayoutButton.trailingAnchor.constraint(equalTo: selectButton.leadingAnchor, constant: -rightDisplayModeButtonPadding),
 				changeItemLayoutButton.heightAnchor.constraint(equalToConstant: sideButtonsSize.height),
 				changeItemLayoutButton.widthAnchor.constraint(equalToConstant: sideButtonsSize.width)
 			])
@@ -264,12 +271,15 @@ public class SortBar: ThemeCSSView {
 
 	private func updateSearchScreenAppearance() {
 		if usesSearchScreenAppearance {
-			layer.shadowOpacity = 0
 			backgroundColor = HCColor.Structure.appBackground(Theme.shared.activeCollection.isDark)
 		} else {
-			layer.shadowOpacity = 0.15
 			apply(css: Theme.shared.activeCollection.css, properties: [.fill])
 		}
+		updateElevationShadow()
+	}
+
+	private func updateElevationShadow() {
+		layer.shadowOpacity = (usesSearchScreenAppearance || !showsElevationShadow) ? 0 : 0.15
 	}
 
 	// MARK: - Theme support
