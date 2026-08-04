@@ -1096,7 +1096,12 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		}
 
 		updateNavigationBarButtonItems()
-		reconfigureVisibleCells()
+		let fileIDs = items.map { itemIdentifier(for: $0) }
+		if fileIDs.isEmpty {
+			reconfigureVisibleCells()
+		} else {
+			applySnapshot(animated: false, reconfigureItemIDs: fileIDs)
+		}
 	}
 
 	private func refreshMultiselectActions() {

@@ -126,12 +126,18 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		configuredItem = nil
 		configuredItemKey = nil
 		clientContext = nil
+		currentLayout = .list
+		showsMoreButton = false
 		progressView.progress = nil
 		moreButton.isHidden = true
 		progressView.isHidden = true
 		detailSegmentView.items = []
 		detailSegmentView.isHidden = true
 		detailLabel.isHidden = true
+		showsSelection = false
+		selectionIndicator.isHidden = true
+		selectionIndicator.isSelected = false
+		contentView.backgroundColor = .clear
 	}
 
 	override func didMoveToWindow() {
@@ -177,10 +183,6 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 			&& clientContext?.hasPermission(for: .moreOptions) != false
 		let showsProgress = !showsSelection && transferProgress != nil && layout == .list
 
-		let needsLayoutUpdate = layout != currentLayout
-			|| showsSelection != self.showsSelection
-			|| canShowMore != showsMoreButton
-			|| showsProgress != !progressView.isHidden
 		self.showsSelection = showsSelection
 		self.showsMoreButton = canShowMore
 
@@ -197,10 +199,11 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		if canShowMore {
 			contentView.bringSubviewToFront(moreButton)
 		}
-
-		if needsLayoutUpdate {
-			applyLayout(layout, showsSelection: showsSelection, showsAccessory: canShowMore || showsProgress)
+		if showsSelection {
+			contentView.bringSubviewToFront(selectionIndicator)
 		}
+
+		applyLayout(layout, showsSelection: showsSelection, showsAccessory: canShowMore || showsProgress)
 
 		loadIcon(for: item, core: core, layout: layout, reloadPlaceholder: shouldReloadIcon)
 		updateSelectionAppearance(isSelected: isSelected)
