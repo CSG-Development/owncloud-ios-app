@@ -1,19 +1,3 @@
-//
-//  FileListLayoutMetrics.swift
-//  ownCloudAppShared
-//
-//  Copyright © 2026 ownCloud GmbH. All rights reserved.
-//
-
-/*
- * Copyright (C) 2026, ownCloud GmbH.
- *
- * This code is covered by the GNU Public License Version 3.
- *
- * For distribution utilizing Apple mechanisms please see https://owncloud.org/contribute/iOS-license-exception/
- * You should have received a copy of this license along with this program. If not, see <http://www.gnu.org/licenses/gpl-3.0.en.html>.
- */
-
 import UIKit
 
 enum FileListLayoutMetrics {
@@ -132,5 +116,78 @@ enum FileListLayoutMetrics {
 		section.contentInsets = sectionInsets
 		section.interGroupSpacing = 0
 		return section
+	}
+
+	struct CompositionalConfiguration {
+		var itemLayout: ItemLayout
+		var showsSpaceHeader: Bool
+		var showsStatisticsFooter: Bool
+		/// `nil` means the activity section is empty (near-zero height).
+		var activitySectionHeight: CGFloat?
+		var swipeActionsProvider: ((IndexPath) -> UISwipeActionsConfiguration?)?
+	}
+
+	static func makeCompositionalLayout(configuration: @escaping () -> CompositionalConfiguration) -> UICollectionViewLayout {
+		UICollectionViewCompositionalLayout { sectionIndex, environment in
+			let config = configuration()
+
+			if sectionIndex == FileListSection.zipOperations.rawValue {
+				guard let height = config.activitySectionHeight else {
+					let empty = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(0.01))
+					let item = NSCollectionLayoutItem(layoutSize: empty)
+					let group = NSCollectionLayoutGroup.vertical(layoutSize: empty, subitems: [item])
+					return NSCollectionLayoutSection(group: group)
+				}
+				let itemSize = NSCollectionLayoutSize(
+					widthDimension: .fractionalWidth(1.0),
+					heightDimension: .absolute(height)
+				)
+				let item = NSCollectionLayoutItem(layoutSize: itemSize)
+				let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
+				let section = NSCollectionLayoutSection(group: group)
+				section.contentInsets = .zero
+				return section
+			}
+
+			let section: NSCollectionLayoutSection
+			if config.itemLayout == .list {
+				var listConfig = UICollectionLayoutListConfiguration(appearance: .plain)
+				listConfig.backgroundColor = .clear
+				listConfig.showsSeparators = true
+				if config.showsSpaceHeader {
+					listConfig.headerMode = .supplementary
+				}
+				if config.showsStatisticsFooter {
+					listConfig.footerMode = .supplementary
+				}
+				listConfig.trailingSwipeActionsConfigurationProvider = { indexPath in
+					config.swipeActionsProvider?(indexPath)
+				}
+				section = NSCollectionLayoutSection.list(using: listConfig, layoutEnvironment: environment)
+			} else {
+				section = makeGridSection(itemLayout: config.itemLayout, layoutEnvironment: environment)
+			}
+
+			var boundaryItems: [NSCollectionLayoutBoundarySupplementaryItem] = []
+			if config.showsSpaceHeader {
+				boundaryItems.append(NSCollectionLayoutBoundarySupplementaryItem(
+					layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(spaceHeaderHeight)),
+					elementKind: FileListSupplementaryKind.spaceHeader,
+					alignment: .top
+				))
+			}
+			if config.showsStatisticsFooter {
+				boundaryItems.append(NSCollectionLayoutBoundarySupplementaryItem(
+					layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(statisticsFooterHeight)),
+					elementKind: FileListSupplementaryKind.statisticsFooter,
+					alignment: .bottom
+				))
+			}
+			if !boundaryItems.isEmpty {
+				section.boundarySupplementaryItems = boundaryItems
+			}
+
+			return section
+		}
 	}
 }

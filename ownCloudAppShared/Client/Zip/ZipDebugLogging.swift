@@ -1,10 +1,3 @@
-//
-//  ZipDebugLogging.swift
-//  ownCloudAppShared
-//
-//  Copyright © 2026 ownCloud GmbH. All rights reserved.
-//
-
 import Foundation
 import ownCloudSDK
 
