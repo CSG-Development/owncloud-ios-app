@@ -108080,115 +108080,234 @@
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "eu" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "mk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "nb-NO" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "nn-NO" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "sq" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "th-TH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Decompressing…"
+            "value" : "Extracting…"
+          }
+        }
+      }
+    },
+    "ZipAction.Progress.waiting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "mk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "nb-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "nn-NO" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "sq" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "th-TH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting…"
           }
         }
       }
@@ -108199,7 +108318,7 @@
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Archive.zip"
+            "value" : "Archive_%@.zip"
           }
         },
         "cs" : {

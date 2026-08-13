@@ -216,7 +216,16 @@ enum ZipArchiveService {
 
 		do {
 			try FileManager.default.createDirectory(at: downloadsDirectory, withIntermediateDirectories: true)
+			// Gate all compress downloads/copies — including folder expansions — here so the
+			// check cannot be skipped by session/resume call-site differences.
+			let required = requiredFreeSpaceForCompress(
+				plan: plan,
+				downloadsDirectory: downloadsDirectory,
+				alreadyMaterializedRelativePaths: alreadyMaterializedRelativePaths
+			)
+			try ensureEnoughDiskSpace(requiredBytes: required, at: downloadsDirectory)
 		} catch {
+			ZipDebugLogging.log(error: error, context: "materializeArchiveEntries.diskSpace")
 			completion(.failure(error))
 			return token
 		}
@@ -542,7 +551,7 @@ enum ZipArchiveService {
 		try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
 	}
 
-	private static func fileExistsNonEmpty(at url: URL) -> Bool {
+	static func fileExistsNonEmpty(at url: URL) -> Bool {
 		guard let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
 		      let size = attrs[.size] as? NSNumber else {
 			return false
@@ -752,6 +761,126 @@ enum ZipArchiveService {
 		return max(totalSize, 1)
 	}
 
+	// MARK: - Disk space
+
+	/// FS overhead reserved beyond payload estimates (temp files, zip metadata, directory entries).
+	private static let diskSpaceOverheadBytes: Int64 = 32 * 1024 * 1024
+
+	/// Prefer Important Usage capacity (Apple’s guidance for downloads); fall back to general available /
+	/// `attributesOfFileSystem` free size (more reliable on some device paths).
+	static func availableDiskSpace(at url: URL) -> Int64? {
+		func capacity(from probeURL: URL) -> Int64? {
+			if let values = try? probeURL.resourceValues(forKeys: [
+				.volumeAvailableCapacityForImportantUsageKey,
+				.volumeAvailableCapacityKey
+			]) {
+				if let important = values.volumeAvailableCapacityForImportantUsage, important >= 0 {
+					return important
+				}
+				if let available = values.volumeAvailableCapacity {
+					return Int64(available)
+				}
+			}
+
+			let path = probeURL.path.isEmpty ? "/" : probeURL.path
+			if let attrs = try? FileManager.default.attributesOfFileSystem(forPath: path),
+			   let free = attrs[.systemFreeSize] as? NSNumber {
+				return free.int64Value
+			}
+			return nil
+		}
+
+		if let value = capacity(from: url) {
+			return value
+		}
+
+		var parent = url
+		for _ in 0..<4 {
+			let next = parent.deletingLastPathComponent()
+			if next.path == parent.path { break }
+			parent = next
+			if let value = capacity(from: parent) {
+				return value
+			}
+		}
+
+		if let home = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first,
+		   let value = capacity(from: home) {
+			return value
+		}
+		return nil
+	}
+
+	/// Sum of PROPFIND file sizes in the plan (folders are already expanded into file entries).
+	static func contentByteSize(for plan: ZipArchivePlan) -> Int64 {
+		plan.fileEntries.reduce(Int64(0)) { partial, entry in
+			partial + max(Int64(entry.item.size), 0)
+		}
+	}
+
+	/// Bytes still needed in `downloadsDirectory` before materialize finishes.
+	static func remainingMaterializeBytes(
+		for plan: ZipArchivePlan,
+		downloadsDirectory: URL,
+		alreadyMaterializedRelativePaths: Set<String> = []
+	) -> Int64 {
+		var total: Int64 = 0
+		for entry in plan.fileEntries {
+			let key = entry.archiveRelativePath
+			let destination = destinationURL(forRelativePath: key, in: downloadsDirectory)
+			if alreadyMaterializedRelativePaths.contains(key) || fileExistsNonEmpty(at: destination) {
+				continue
+			}
+			total += max(Int64(entry.item.size), 0)
+		}
+		return total
+	}
+
+	/// Free space required before compress materialize.
+	/// Pipeline keeps downloads, then copies into staging, then writes the zip → peak ≈ remaining + 2×content.
+	static func requiredFreeSpaceForCompress(
+		plan: ZipArchivePlan,
+		downloadsDirectory: URL,
+		alreadyMaterializedRelativePaths: Set<String> = []
+	) -> Int64 {
+		let contentBytes = contentByteSize(for: plan)
+		let remainingBytes = remainingMaterializeBytes(
+			for: plan,
+			downloadsDirectory: downloadsDirectory,
+			alreadyMaterializedRelativePaths: alreadyMaterializedRelativePaths
+		)
+		// Unknown remote sizes (all zeros) — still reserve overhead so tiny free space fails early.
+		let required = remainingBytes + (contentBytes * 2) + diskSpaceOverheadBytes
+		return max(required, diskSpaceOverheadBytes)
+	}
+
+	/// Free space before downloading/copying a zip for decompress (extract size unknown → ~2× zip).
+	static func requiredFreeSpaceForDecompressDownload(zipByteSize: Int64, zipAlreadyOnDisk: Bool) -> Int64 {
+		let zipSize = max(zipByteSize, 0)
+		let downloadBytes = zipAlreadyOnDisk ? Int64(0) : zipSize
+		let extractEstimate = max(zipSize * 2, zipSize)
+		return downloadBytes + extractEstimate + diskSpaceOverheadBytes
+	}
+
+	static func ensureEnoughDiskSpace(requiredBytes: Int64, at url: URL) throws {
+		ZipDebugLogging.log(
+			"ensureEnoughDiskSpace: checking required=\(ZipDebugLogging.formattedBytes(requiredBytes)) at \(Log.mask(url.path))"
+		)
+		guard let available = availableDiskSpace(at: url) else {
+			ZipDebugLogging.log("ensureEnoughDiskSpace: capacity unknown — treating as insufficient")
+			throw ZipArchiveError.insufficientStorage
+		}
+		ZipDebugLogging.log(
+			"ensureEnoughDiskSpace: available=\(ZipDebugLogging.formattedBytes(available))"
+		)
+		if available < requiredBytes {
+			ZipDebugLogging.log(
+				"ensureEnoughDiskSpace: REJECTED required=\(ZipDebugLogging.formattedBytes(requiredBytes)) available=\(ZipDebugLogging.formattedBytes(available))"
+			)
+			throw ZipArchiveError.insufficientStorage
+		}
+	}
+
 	static func stageArchive(plan: ZipArchivePlan, localEntries: [ZipLocalEntry], at stagingURL: URL, progress: Progress) throws {
 		ZipDebugLogging.log(plan: plan, context: "stageArchive")
 		ZipDebugLogging.log(localEntries: localEntries, context: "stageArchive")
@@ -794,7 +923,14 @@ enum ZipArchiveService {
 			}
 
 			ZipDebugLogging.log("stageArchive: copying \(Log.mask(entry.archiveRelativePath)) from \(Log.mask(entry.localURL.path))")
-			try fileManager.copyItem(at: entry.localURL, to: destinationURL)
+			do {
+				try fileManager.copyItem(at: entry.localURL, to: destinationURL)
+			} catch {
+				if isInsufficientStorageError(error) {
+					throw ZipArchiveError.insufficientStorage
+				}
+				throw error
+			}
 			progress.completedUnitCount += 1
 		}
 
@@ -813,7 +949,14 @@ enum ZipArchiveService {
 		let zipProgress = Progress(totalUnitCount: 1, parent: progress, pendingUnitCount: 1)
 		let startTime = Date()
 		ZipDebugLogging.log("createArchive: starting zip of staging directory (this may take a while for large archives)")
-		try fileManager.zipItem(at: stagingURL, to: archiveURL, shouldKeepParent: false, compressionMethod: .deflate, progress: zipProgress)
+		do {
+			try fileManager.zipItem(at: stagingURL, to: archiveURL, shouldKeepParent: false, compressionMethod: .deflate, progress: zipProgress)
+		} catch {
+			if isInsufficientStorageError(error) {
+				throw ZipArchiveError.insufficientStorage
+			}
+			throw error
+		}
 		progress.completedUnitCount = progress.totalUnitCount
 		let elapsed = Date().timeIntervalSince(startTime)
 		let archiveSize = (try? fileManager.attributesOfItem(atPath: archiveURL.path)[.size] as? NSNumber)?.int64Value ?? 0

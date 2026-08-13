@@ -10,6 +10,10 @@ public enum ZipOperationProgressStatus {
 	public static var showsDetailedPhaseStatus = false
 
 	public static func displayText(for kind: ZipOperationRecord.Kind, detailedStatus: String) -> String {
+		// Queued behind another zip job — keep Waiting… even in single-label mode.
+		if detailedStatus == HCL10n.ZipAction.Progress.waiting {
+			return detailedStatus
+		}
 		guard !showsDetailedPhaseStatus else {
 			return detailedStatus
 		}

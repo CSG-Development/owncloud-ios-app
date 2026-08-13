@@ -4,8 +4,11 @@ import ownCloudAppShared
 
 /// Owns zip job persistence, background execution, cancel cleanup, and resume across launches.
 /// Job completes when vault placeholders are created; server upload is handled by normal sync.
+/// At most one compress/decompress run executes at a time; additional jobs wait in FIFO order.
 final class ZipOperationCoordinator {
 	static let shared = ZipOperationCoordinator()
+
+	private static let maxConcurrentActiveRuns = 1
 
 	private final class ActiveRun {
 		let job: ZipOperationJob
@@ -27,8 +30,17 @@ final class ZipOperationCoordinator {
 		}
 	}
 
+	private struct PendingStart {
+		let job: ZipOperationJob
+		let core: OCCore
+		weak var hostViewController: UIViewController?
+		let operation: ZipOperationSession.Operation
+		let isResume: Bool
+	}
+
 	private let lock = NSLock()
 	private var activeRunsByID: [String: ActiveRun] = [:]
+	private var pendingStarts: [PendingStart] = []
 
 	/// Serial queue that owns all OCKeyValueStore writes for zip jobs.
 	/// OCKeyValueStore.updateObject(forKey:usingModifier:) blocks its caller via
@@ -126,8 +138,9 @@ final class ZipOperationCoordinator {
 	private func resume(job: ZipOperationJob, core: OCCore, preresolvedOperation: ZipOperationSession.Operation? = nil) {
 		lock.lock()
 		let alreadyActive = activeRunsByID[job.id] != nil
+		let alreadyPending = pendingStarts.contains { $0.job.id == job.id }
 		lock.unlock()
-		guard !alreadyActive, job.phase != .completed else { return }
+		guard !alreadyActive, !alreadyPending, job.phase != .completed else { return }
 
 		job.attemptCount += 1
 		if job.phase == .failed {
@@ -184,6 +197,17 @@ final class ZipOperationCoordinator {
 
 	func cancel(jobID: String) {
 		lock.lock()
+		if let pendingIndex = pendingStarts.firstIndex(where: { $0.job.id == jobID }) {
+			let pending = pendingStarts.remove(at: pendingIndex)
+			lock.unlock()
+			ZipDebugLogging.log("ZipOperationCoordinator.cancel: queued id=\(jobID)")
+			pending.job.removeWorkingDirectory()
+			let bookmark = pending.core.bookmark
+			persistenceQueue.async { bookmark.removeZipJob(id: jobID) }
+			ZipOperationCenter.shared.remove(id: jobID)
+			return
+		}
+
 		guard let run = activeRunsByID[jobID] else {
 			lock.unlock()
 			cancelPersistedOnly(jobID: jobID)
@@ -218,6 +242,10 @@ final class ZipOperationCoordinator {
 	}
 
 	private func cancelPersistedOnly(jobID: String) {
+		lock.lock()
+		pendingStarts.removeAll { $0.job.id == jobID }
+		lock.unlock()
+
 		for bookmark in OCBookmarkManager.shared.bookmarks {
 			guard let job = bookmark.zipOperationStore.jobsByID[jobID] else { continue }
 			OCCoreManager.shared.requestCore(for: bookmark, setup: nil) { [weak self] core, _ in
@@ -314,6 +342,88 @@ final class ZipOperationCoordinator {
 	) {
 		try? job.ensureWorkingDirectory()
 		persist(job, core: core)
+		_ = publishRecord(for: job)
+
+		lock.lock()
+		if activeRunsByID[job.id] != nil {
+			lock.unlock()
+			return
+		}
+		if pendingStarts.contains(where: { $0.job.id == job.id }) {
+			lock.unlock()
+			return
+		}
+		if activeRunsByID.count >= Self.maxConcurrentActiveRuns {
+			pendingStarts.append(PendingStart(
+				job: job,
+				core: core,
+				hostViewController: hostViewController,
+				operation: operation,
+				isResume: isResume
+			))
+			lock.unlock()
+			markJobWaiting(job, core: core)
+			ZipDebugLogging.log("ZipOperationCoordinator.begin: queued id=\(job.id)")
+			return
+		}
+		lock.unlock()
+
+		startActiveRun(job: job, core: core, hostViewController: hostViewController, operation: operation, isResume: isResume)
+	}
+
+	private func markJobWaiting(_ job: ZipOperationJob, core: OCCore) {
+		job.statusText = HCL10n.ZipAction.Progress.waiting
+		persist(job, core: core)
+		if let existing = ZipOperationCenter.shared.operations.first(where: { $0.id == job.id }) {
+			ZipOperationCenter.shared.update(existing, statusText: job.statusText, fractionCompleted: job.fractionCompleted)
+		} else {
+			_ = publishRecord(for: job)
+		}
+	}
+
+	private func startNextQueuedIfNeeded() {
+		lock.lock()
+		guard activeRunsByID.count < Self.maxConcurrentActiveRuns, !pendingStarts.isEmpty else {
+			lock.unlock()
+			return
+		}
+		let next = pendingStarts.removeFirst()
+		let remaining = pendingStarts.count
+		lock.unlock()
+
+		ZipDebugLogging.log("ZipOperationCoordinator.startNextQueued: id=\(next.job.id) remainingPending=\(remaining)")
+		startActiveRun(
+			job: next.job,
+			core: next.core,
+			hostViewController: next.hostViewController,
+			operation: next.operation,
+			isResume: next.isResume
+		)
+	}
+
+	private func startActiveRun(
+		job: ZipOperationJob,
+		core: OCCore,
+		hostViewController: UIViewController?,
+		operation: ZipOperationSession.Operation,
+		isResume: Bool
+	) {
+		if job.statusText == HCL10n.ZipAction.Progress.waiting {
+			switch job.phase {
+			case .downloading:
+				job.statusText = HCL10n.ZipAction.Progress.downloading
+			case .archiving:
+				job.statusText = job.kind == .compress
+					? HCL10n.ZipAction.Progress.compressing
+					: HCL10n.ZipAction.Progress.decompressing
+			case .importing:
+				job.statusText = HCL10n.ZipAction.Progress.importing
+			case .preparing, .failed, .completed:
+				job.statusText = HCL10n.ZipAction.Progress.preparing
+			}
+			persist(job, core: core)
+			_ = publishRecord(for: job)
+		}
 
 		let record = publishRecord(for: job)
 
@@ -322,6 +432,8 @@ final class ZipOperationCoordinator {
 		run.hostViewController = hostViewController
 		run.backgroundTask = OCBackgroundTask(name: "com.owncloud.zip-operation-\(job.id)", expirationHandler: { [weak self] bgTask in
 			ZipDebugLogging.log("ZipOperationCoordinator: background task expired for \(job.id)")
+			var sessionToCancel: ZipOperationSession?
+			var shouldStartNext = false
 			self?.lock.lock()
 			if let active = self?.activeRunsByID[job.id] {
 				active.job.lastErrorDescription = "Interrupted"
@@ -331,12 +443,20 @@ final class ZipOperationCoordinator {
 						self?.persist(active.job, core: core)
 					}
 					ZipOperationCenter.shared.remove(id: active.job.id)
+					sessionToCancel = active.session
+					active.session = nil
+					self?.activeRunsByID.removeValue(forKey: job.id)
+					shouldStartNext = true
 				} else if let core = active.core {
 					self?.persist(active.job, core: core)
 				}
 			}
 			self?.lock.unlock()
+			sessionToCancel?.cancelFromCoordinator()
 			bgTask.end()
+			if shouldStartNext {
+				self?.startNextQueuedIfNeeded()
+			}
 		}).start()
 
 		let jobID = job.id
@@ -356,6 +476,20 @@ final class ZipOperationCoordinator {
 		}
 
 		lock.lock()
+		// Another start may have raced in; if the slot is taken, re-queue.
+		if activeRunsByID.count >= Self.maxConcurrentActiveRuns, activeRunsByID[jobID] == nil {
+			run.backgroundTask?.end()
+			pendingStarts.insert(PendingStart(
+				job: job,
+				core: core,
+				hostViewController: hostViewController,
+				operation: operation,
+				isResume: isResume
+			), at: 0)
+			lock.unlock()
+			markJobWaiting(job, core: core)
+			return
+		}
 		run.session = session
 		activeRunsByID[jobID] = run
 		lock.unlock()
@@ -658,6 +792,8 @@ final class ZipOperationCoordinator {
 		activeRunsByID.removeValue(forKey: run.job.id)
 		lock.unlock()
 
+		startNextQueuedIfNeeded()
+
 		let jobID = run.job.id
 		let preferredAnchor = hostViewController ?? run.hostViewController
 		let canRetry = zipError.showsRetry
@@ -800,6 +936,10 @@ final class ZipOperationCoordinator {
 		}
 
 		ZipOperationCenter.shared.remove(id: jobID)
+
+		if run != nil {
+			startNextQueuedIfNeeded()
+		}
 	}
 
 	private func persist(_ job: ZipOperationJob, core: OCCore?) {

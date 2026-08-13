@@ -157,13 +157,27 @@ final class ZipOperationSession {
 		switch operation {
 		case .compress(let selectedItems, _):
 			ZipArchiveService.collectArchivePlan(for: selectedItems, core: core) { [weak self] result in
-				OnMainThread {
-					guard let self = self, !self.cancelled else { return }
-					switch result {
-					case .failure(let error):
-						self.finish(error: error)
-					case .success(let plan):
-						self.archivePlan = plan
+				// Run space check on whatever queue plan completion uses, then hop to main for UI.
+				guard let self = self, !self.cancelled else { return }
+				switch result {
+				case .failure(let error):
+					OnMainThread { self.finish(error: error) }
+				case .success(let plan):
+					self.archivePlan = plan
+					let already = self.coordinator?.sessionMaterializedRelativePaths(self) ?? []
+					do {
+						let required = ZipArchiveService.requiredFreeSpaceForCompress(
+							plan: plan,
+							downloadsDirectory: self.downloadsDirectoryURL,
+							alreadyMaterializedRelativePaths: already
+						)
+						try ZipArchiveService.ensureEnoughDiskSpace(requiredBytes: required, at: self.workingDirectoryURL)
+					} catch {
+						OnMainThread { self.finish(error: error) }
+						return
+					}
+					OnMainThread {
+						guard !self.cancelled else { return }
 						self.materializeArchivePlan(plan)
 					}
 				}
@@ -183,6 +197,20 @@ final class ZipOperationSession {
 		let fileName = zipItem.name ?? "archive.zip"
 		let destinationURL = downloadsDirectoryURL.appendingPathComponent(fileName, isDirectory: false)
 		let already = coordinator?.sessionMaterializedRelativePaths(self) ?? []
+		// Only skip download budget when the zip is already in the job downloads dir.
+		// Vault-local copies still need space to copy into downloads.
+		let zipAlreadyOnDisk = already.contains(fileName) || ZipArchiveService.fileExistsNonEmpty(at: destinationURL)
+
+		do {
+			let required = ZipArchiveService.requiredFreeSpaceForDecompressDownload(
+				zipByteSize: Int64(max(zipItem.size, 0)),
+				zipAlreadyOnDisk: zipAlreadyOnDisk
+			)
+			try ZipArchiveService.ensureEnoughDiskSpace(requiredBytes: required, at: workingDirectoryURL)
+		} catch {
+			finish(error: error)
+			return
+		}
 
 		updatePhaseMessage(HCL10n.ZipAction.Progress.downloading, phase: .downloading)
 
