@@ -9,10 +9,6 @@ public enum ZipArchiveError: Int, Error {
 	case networkInterrupted = 5
 	case encryptedArchive = 6
 
-	public var localizedMessage: String {
-		localizedMessage(for: .decompress)
-	}
-
 	public func localizedMessage(for kind: ZipOperationRecord.Kind) -> String {
 		switch self {
 		case .corruptedArchive:
@@ -160,11 +156,3 @@ public enum ZipArchiveError: Int, Error {
 }
 
 public let ZipArchiveErrorDomain = "com.owncloud.ziparchive"
-
-extension ZipArchiveError {
-	public var nsError: NSError {
-		NSError(domain: ZipArchiveErrorDomain, code: rawValue, userInfo: [
-			NSLocalizedDescriptionKey: localizedMessage
-		])
-	}
-}

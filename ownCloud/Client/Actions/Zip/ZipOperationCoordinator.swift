@@ -22,6 +22,7 @@ final class ZipOperationCoordinator {
 		var isCancelling = false
 		var lastPersistedAt: Date = .distantPast
 		var lastPersistedPhase: ZipOperationPhase?
+		var claims: ZipOperationClaims?
 
 		init(job: ZipOperationJob, record: ZipOperationRecord) {
 			self.job = job
@@ -54,11 +55,6 @@ final class ZipOperationCoordinator {
 
 	func startCompress(items: [OCItem], parentItem: OCItem, core: OCCore, hostViewController: UIViewController?) {
 		let bookmarkUUID = core.bookmark.uuid
-		let alreadyLocal = Set(items.compactMap { item -> String? in
-			guard let localID = item.localID as String? else { return nil }
-			return ZipArchiveService.localFileURL(for: item, core: core) != nil ? localID : nil
-		})
-
 		let parentLocation = location(for: parentItem, bookmarkUUID: bookmarkUUID)
 		let job = ZipOperationJob(
 			kind: .compress,
@@ -66,8 +62,7 @@ final class ZipOperationCoordinator {
 			documentName: ZipArchiveService.suggestedArchiveName(for: items),
 			parentLocationKey: ZipOperationRecord.locationKey(for: parentLocation) ?? "",
 			parentItemLocalID: parentItem.localID as String?,
-			sourceItemLocalIDs: items.compactMap { $0.localID as String? },
-			alreadyLocalItemLocalIDs: Array(alreadyLocal)
+			sourceItemLocalIDs: items.compactMap { $0.localID as String? }
 		)
 
 		begin(job: job, core: core, hostViewController: hostViewController, operation: .compress(items: items, parentItem: parentItem))
@@ -75,12 +70,6 @@ final class ZipOperationCoordinator {
 
 	func startDecompress(zipItem: OCItem, parentItem: OCItem, core: OCCore, hostViewController: UIViewController?) {
 		let bookmarkUUID = core.bookmark.uuid
-		let alreadyLocal: [String] = {
-			guard let localID = zipItem.localID as String?,
-			      ZipArchiveService.localFileURL(for: zipItem, core: core) != nil else { return [] }
-			return [localID]
-		}()
-
 		let parentLocation = location(for: parentItem, bookmarkUUID: bookmarkUUID)
 		let job = ZipOperationJob(
 			kind: .decompress,
@@ -88,8 +77,8 @@ final class ZipOperationCoordinator {
 			documentName: zipItem.name ?? HCL10n.ZipAction.defaultArchiveName,
 			parentLocationKey: ZipOperationRecord.locationKey(for: parentLocation) ?? "",
 			parentItemLocalID: parentItem.localID as String?,
-			zipItemLocalID: zipItem.localID as String?,
-			alreadyLocalItemLocalIDs: alreadyLocal
+			sourceItemLocalIDs: [],
+			zipItemLocalID: zipItem.localID as String?
 		)
 
 		begin(job: job, core: core, hostViewController: hostViewController, operation: .decompress(zipItem: zipItem, parentItem: parentItem))
@@ -142,7 +131,6 @@ final class ZipOperationCoordinator {
 		lock.unlock()
 		guard !alreadyActive, !alreadyPending, job.phase != .completed else { return }
 
-		job.attemptCount += 1
 		if job.phase == .failed {
 			if job.kind == .compress {
 				if job.uploadPlaceholderLocalID != nil {
@@ -175,7 +163,7 @@ final class ZipOperationCoordinator {
 		persist(job, core: core)
 		publishRecord(for: job)
 
-		ZipDebugLogging.log("ZipOperationCoordinator.resume: id=\(job.id) phase=\(job.phase.rawValue) attempt=\(job.attemptCount)")
+		ZipDebugLogging.log("ZipOperationCoordinator.resume: id=\(job.id) phase=\(job.phase.rawValue)")
 
 		// All callers pre-resolve the operation on a background queue to avoid blocking
 		// the main thread. If pre-resolution returned nil the items are gone — fail fast.
@@ -297,14 +285,12 @@ final class ZipOperationCoordinator {
 		ZipOperationCenter.shared.update(run.record, statusText: status, fractionCompleted: fraction)
 	}
 
-	func sessionDidPreparePlan(_ session: ZipOperationSession, alreadyLocalItemLocalIDs: [String]) {
-		guard let run = run(for: session) else { return }
-		var merged = Set(run.job.alreadyLocalItemLocalIDs)
-		merged.formUnion(alreadyLocalItemLocalIDs)
-		run.job.alreadyLocalItemLocalIDs = Array(merged)
-		persist(run.job, core: run.core)
-		run.lastPersistedAt = Date()
-		run.lastPersistedPhase = run.job.phase
+	func sessionClaimItems(_ session: ZipOperationSession, items: [OCItem], completion: (() -> Void)? = nil) {
+		guard let run = run(for: session), let claims = run.claims else {
+			completion?()
+			return
+		}
+		claims.claim(items, completion: completion)
 	}
 
 	func sessionMaterializedRelativePaths(_ session: ZipOperationSession) -> Set<String> {
@@ -430,9 +416,12 @@ final class ZipOperationCoordinator {
 		let run = ActiveRun(job: job, record: record)
 		run.core = core
 		run.hostViewController = hostViewController
+		run.claims = ZipOperationClaims(jobID: job.id, core: core)
+		run.claims?.claim(Self.initialClaimItems(for: operation), completion: nil)
 		run.backgroundTask = OCBackgroundTask(name: "com.owncloud.zip-operation-\(job.id)", expirationHandler: { [weak self] bgTask in
 			ZipDebugLogging.log("ZipOperationCoordinator: background task expired for \(job.id)")
 			var sessionToCancel: ZipOperationSession?
+			var claimsToRelease: ZipOperationClaims?
 			var shouldStartNext = false
 			self?.lock.lock()
 			if let active = self?.activeRunsByID[job.id] {
@@ -444,6 +433,8 @@ final class ZipOperationCoordinator {
 					}
 					ZipOperationCenter.shared.remove(id: active.job.id)
 					sessionToCancel = active.session
+					claimsToRelease = active.claims
+					active.claims = nil
 					active.session = nil
 					self?.activeRunsByID.removeValue(forKey: job.id)
 					shouldStartNext = true
@@ -452,6 +443,7 @@ final class ZipOperationCoordinator {
 				}
 			}
 			self?.lock.unlock()
+			claimsToRelease?.releaseAll()
 			sessionToCancel?.cancelFromCoordinator()
 			bgTask.end()
 			if shouldStartNext {
@@ -521,7 +513,6 @@ final class ZipOperationCoordinator {
 			kind: job.kind == .compress ? .compress : .decompress,
 			documentName: job.documentName,
 			parentLocationKey: job.parentLocationKey,
-			parentItemLocalID: job.parentItemLocalID,
 			statusText: job.statusText,
 			fractionCompleted: job.fractionCompleted
 		)
@@ -568,6 +559,10 @@ final class ZipOperationCoordinator {
 			startCompressImport(archiveURL: durableURL, fileName: fileName, parentItem: parentItem, session: session, core: core, hostViewController: hostViewController)
 
 		case .decompress(let extractURL, let parentItem):
+			let durableProfile = ZipDebugLogging.ProfileScope(
+				"decompress.durableMove",
+				extra: "job=\(run.job.id)"
+			)
 			let durableExtract = run.job.extractDirectoryURL
 			if extractURL.standardizedFileURL != durableExtract.standardizedFileURL {
 				try? FileManager.default.removeItem(at: durableExtract)
@@ -578,6 +573,7 @@ final class ZipOperationCoordinator {
 					try? FileManager.default.removeItem(at: extractURL)
 				}
 			}
+			durableProfile.end()
 			run.job.phase = .importing
 			persist(run.job, core: core)
 			session.beginImportPhase()
@@ -651,6 +647,9 @@ final class ZipOperationCoordinator {
 			}
 
 			run.job.uploadPlaceholderLocalID = item?.localID as String?
+			if let item {
+				run.claims?.claim([item])
+			}
 			self.persist(run.job, core: core)
 			// Job completes on placeholder creation; sync engine uploads in the background.
 			self.completeSuccessfully(run: run)
@@ -674,6 +673,10 @@ final class ZipOperationCoordinator {
 	private func startDecompressImport(extractURL: URL, parentItem: OCItem, session: ZipOperationSession, core: OCCore, hostViewController: UIViewController?) {
 		guard let run = run(for: session) else { return }
 		let skipPaths = Set(run.job.uploadedRelativePaths)
+		let importProfile = ZipDebugLogging.ProfileScope(
+			"decompress.import",
+			extra: "job=\(run.job.id) skip=\(skipPaths.count)"
+		)
 
 		ZipArchiveService.importExtractedContents(
 			at: extractURL,
@@ -704,19 +707,32 @@ final class ZipOperationCoordinator {
 				if !run.job.uploadedRelativePaths.contains(event.relativePath) {
 					run.job.uploadedRelativePaths.append(event.relativePath)
 				}
-				self.persist(run.job, core: core)
+				// Do not claim each imported placeholder — that mutates the item DB and
+				// refreshes ItemList queries once per file (very expensive on large extracts).
+				// Source zip + parent are already claimed for the operation lifetime.
+				// Throttle persistence; in-memory job state is used for cancel cleanup.
+				self.persistProgressIfNeeded(run: run, force: false)
 			},
 			completion: { [weak self] error in
-				guard let self, let run = self.run(for: session), !run.isCancelling else { return }
+				guard let self, let run = self.run(for: session), !run.isCancelling else {
+					importProfile.end(extra: "cancelledOrGone")
+					return
+				}
 
 				if let error {
 					if (error as NSError).isOCError(withCode: .cancelled) {
+						importProfile.end(extra: "cancelled")
 						return
 					}
+					importProfile.end(extra: "failed")
+					self.persist(run.job, core: core)
 					self.markFailed(run: run, error: error, hostViewController: hostViewController)
 					return
 				}
 
+				importProfile.end(
+					extra: "ok files=\(run.job.uploadedFileLocalIDs.count) folders=\(run.job.createdFolderLocalIDs.count)"
+				)
 				self.completeSuccessfully(run: run)
 			}
 		)
@@ -781,6 +797,8 @@ final class ZipOperationCoordinator {
 		run.job.lastErrorDescription = zipError.localizedMessage(for: recordKind)
 		run.job.statusText = run.job.lastErrorDescription ?? HCL10n.ZipAction.Progress.preparing
 		persist(run.job, core: run.core)
+		run.claims?.releaseAll()
+		run.claims = nil
 		// Drop from the activity queue immediately; Retry re-publishes via resume().
 		ZipOperationCenter.shared.remove(id: run.job.id)
 		run.backgroundTask?.end()
@@ -918,6 +936,8 @@ final class ZipOperationCoordinator {
 		let run = activeRunsByID.removeValue(forKey: jobID)
 		lock.unlock()
 
+		run?.claims?.releaseAll()
+		run?.claims = nil
 		run?.importObservations.removeAll()
 		run?.backgroundTask?.end()
 
@@ -1010,5 +1030,100 @@ final class ZipOperationCoordinator {
 		database.retrieveCacheItem(forLocalID: localID, completionHandler: { _, _, _, item in
 			completion(item)
 		})
+	}
+
+	private static func initialClaimItems(for operation: ZipOperationSession.Operation) -> [OCItem] {
+		switch operation {
+		case .compress(let items, let parentItem):
+			return items + [parentItem]
+		case .decompress(let zipItem, let parentItem):
+			return [zipItem, parentItem]
+		}
+	}
+}
+
+/// Holds read claims on every file/folder touched by a zip job until the run finishes.
+/// Uses an explicit identifier per job so claims can be removed reliably without retaining claim objects.
+final class ZipOperationClaims {
+	private let explicitIdentifier: String
+	private weak var core: OCCore?
+	private let lock = NSLock()
+	private var claimedItemsByLocalID: [String: OCItem] = [:]
+	private var released = false
+
+	init(jobID: String, core: OCCore) {
+		self.explicitIdentifier = "com.owncloud.zip-operation.\(jobID)"
+		self.core = core
+	}
+
+	func claim(_ items: [OCItem], completion: (() -> Void)? = nil) {
+		guard let core = core else {
+			completion?()
+			return
+		}
+
+		var toClaim: [OCItem] = []
+		lock.lock()
+		guard !released else {
+			lock.unlock()
+			completion?()
+			return
+		}
+		for item in items {
+			guard let localID = item.localID as String? else { continue }
+			if claimedItemsByLocalID[localID] == nil {
+				claimedItemsByLocalID[localID] = item
+				toClaim.append(item)
+			}
+		}
+		lock.unlock()
+
+		guard !toClaim.isEmpty else {
+			completion?()
+			return
+		}
+		ZipDebugLogging.log("ZipOperationClaims.claim: adding \(toClaim.count) claim(s) id=\(explicitIdentifier)")
+
+		let explicitIdentifier = self.explicitIdentifier
+		DispatchQueue.global(qos: .utility).async { [weak self] in
+			defer { completion?() }
+			guard let self else { return }
+			for item in toClaim {
+				self.lock.lock()
+				let shouldSkip = self.released
+				self.lock.unlock()
+				if shouldSkip { return }
+
+				let claim = OCClaim(
+					forLifetimeOf: core,
+					explicitIdentifier: explicitIdentifier,
+					with: .read
+				)
+				core.add(claim, on: item, refreshItem: false, completionHandler: nil)
+			}
+		}
+	}
+
+	func releaseAll() {
+		lock.lock()
+		guard !released else {
+			lock.unlock()
+			return
+		}
+		released = true
+		let items = Array(claimedItemsByLocalID.values)
+		claimedItemsByLocalID.removeAll()
+		let core = self.core
+		let explicitIdentifier = self.explicitIdentifier
+		lock.unlock()
+
+		guard let core, !items.isEmpty else { return }
+		ZipDebugLogging.log("ZipOperationClaims.releaseAll: removing \(items.count) claim(s) id=\(explicitIdentifier)")
+
+		DispatchQueue.global(qos: .utility).async {
+			for item in items {
+				core.removeClaims(withExplicitIdentifier: explicitIdentifier, on: item, refreshItem: false, completionHandler: nil)
+			}
+		}
 	}
 }
