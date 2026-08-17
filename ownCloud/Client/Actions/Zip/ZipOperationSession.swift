@@ -35,10 +35,8 @@ final class ZipOperationSession {
 	private let workingDirectoryURL: URL
 	private let downloadsDirectoryURL: URL
 
-	private let overallProgress = Progress(totalUnitCount: 1000)
 	private var progressObservations: [NSKeyValueObservation] = []
 	private var activeProgresses: [Progress] = []
-	private var importProgresses: [Progress] = []
 	private var cancelled = false
 	private var archivePlan: ZipArchivePlan?
 
@@ -47,7 +45,6 @@ final class ZipOperationSession {
 	private var isImporting = false
 	private var statusMessage: String = HCL10n.ZipAction.Progress.preparing
 	private var displayTimer: Timer?
-	private var downloadWatchdog: DispatchSourceTimer?
 	private weak var trackedDownloadProgress: Progress?
 	private var downloadCancellationToken: ZipArchiveService.ZipDownloadCancellationToken?
 	private var lastPublishedFraction: Double = -1
@@ -73,7 +70,6 @@ final class ZipOperationSession {
 
 	deinit {
 		displayTimer?.invalidate()
-		downloadWatchdog?.cancel()
 		progressObservations.removeAll()
 	}
 
@@ -115,15 +111,10 @@ final class ZipOperationSession {
 		for progress in activeProgresses {
 			progress.cancel()
 		}
-		for progress in importProgresses {
-			progress.cancel()
-		}
-		overallProgress.cancel()
-		finish(error: NSError(ocError: .cancelled), notifyCoordinator: false)
+		finish(error: NSError(ocError: .cancelled))
 	}
 
 	func registerImportProgress(_ progress: Progress) {
-		importProgresses.append(progress)
 		activeProgresses.append(progress)
 	}
 
@@ -178,7 +169,12 @@ final class ZipOperationSession {
 					}
 					OnMainThread {
 						guard !self.cancelled else { return }
-						self.materializeArchivePlan(plan)
+						self.coordinator?.sessionClaimItems(self, items: plan.affectedItems) { [weak self] in
+							OnMainThread {
+								guard let self, !self.cancelled else { return }
+								self.materializeArchivePlan(plan)
+							}
+						}
 					}
 				}
 			}
@@ -199,7 +195,12 @@ final class ZipOperationSession {
 		let already = coordinator?.sessionMaterializedRelativePaths(self) ?? []
 		// Only skip download budget when the zip is already in the job downloads dir.
 		// Vault-local copies still need space to copy into downloads.
-		let zipAlreadyOnDisk = already.contains(fileName) || ZipArchiveService.fileExistsNonEmpty(at: destinationURL)
+		let expectedZipSize = Int64(max(zipItem.size, 0))
+		let zipAlreadyOnDisk = ZipArchiveService.fileIsComplete(at: destinationURL, expectedSize: expectedZipSize)
+		ZipArchiveService.removeItemIfExists(at: ZipArchiveService.partURL(for: destinationURL))
+		if !zipAlreadyOnDisk {
+			ZipArchiveService.removeItemIfExists(at: destinationURL)
+		}
 
 		do {
 			let required = ZipArchiveService.requiredFreeSpaceForDecompressDownload(
@@ -214,9 +215,28 @@ final class ZipOperationSession {
 
 		updatePhaseMessage(HCL10n.ZipAction.Progress.downloading, phase: .downloading)
 
+		let claimProfile = ZipDebugLogging.ProfileScope("decompress.claim", extra: "job=\(jobID)")
+		coordinator?.sessionClaimItems(self, items: [zipItem, parentItem]) { [weak self] in
+			claimProfile.end()
+			OnMainThread {
+				guard let self, !self.cancelled else { return }
+				self.startZipDownload(zipItem: zipItem, parentItem: parentItem, destinationURL: destinationURL, fileName: fileName, already: already)
+			}
+		}
+	}
+
+	private func startZipDownload(zipItem: OCItem, parentItem: OCItem, destinationURL: URL, fileName: String, already: Set<String>) {
+		guard let core = core, !cancelled else {
+			finish(error: NSError(ocError: .internal))
+			return
+		}
+
 		let token = ZipArchiveService.ZipDownloadCancellationToken()
 		downloadCancellationToken = token
-		startDownloadWatchdog()
+		let downloadProfile = ZipDebugLogging.ProfileScope(
+			"decompress.download",
+			extra: "job=\(jobID) size=\(ZipDebugLogging.formattedBytes(Int64(max(zipItem.size, 0))))"
+		)
 
 		_ = ZipArchiveService.materializeItem(
 			zipItem,
@@ -235,15 +255,19 @@ final class ZipOperationSession {
 		) { [weak self] result in
 			OnMainThread {
 				guard let self else { return }
-				self.stopDownloadWatchdog()
 				self.downloadCancellationToken = nil
 				self.trackedDownloadProgress = nil
-				guard !self.cancelled else { return }
+				guard !self.cancelled else {
+					downloadProfile.end(extra: "cancelled")
+					return
+				}
 
 				switch result {
 				case .failure(let error):
+					downloadProfile.end(extra: "failed")
 					self.finish(error: error)
 				case .success(let archiveURL):
+					downloadProfile.end(extra: "ok")
 					self.coordinator?.sessionDidMaterialize(self, relativePath: fileName)
 					self.setDownloadFraction(1)
 					self.performDecompress(archiveURL: archiveURL, parentItem: parentItem)
@@ -264,14 +288,11 @@ final class ZipOperationSession {
 			return
 		}
 
-		coordinator?.sessionDidPreparePlan(self, alreadyLocalItemLocalIDs: ZipArchiveService.alreadyLocalItemLocalIDs(in: plan, core: core))
-
 		updatePhaseMessage(HCL10n.ZipAction.Progress.downloading, phase: .downloading)
 
 		let token = ZipArchiveService.ZipDownloadCancellationToken()
 		downloadCancellationToken = token
 		let already = coordinator?.sessionMaterializedRelativePaths(self) ?? []
-		startDownloadWatchdog()
 
 		_ = ZipArchiveService.materializeArchiveEntries(
 			plan,
@@ -294,7 +315,6 @@ final class ZipOperationSession {
 		) { [weak self] result in
 			OnMainThread {
 				guard let self = self else { return }
-				self.stopDownloadWatchdog()
 				self.downloadCancellationToken = nil
 				self.trackedDownloadProgress = nil
 				guard !self.cancelled else { return }
@@ -344,7 +364,6 @@ final class ZipOperationSession {
 		updatePhaseMessage(HCL10n.ZipAction.Progress.compressing, phase: .archiving)
 
 		let archiveURL = workingDirectoryURL.appendingPathComponent("compress-\(UUID().uuidString).zip", isDirectory: false)
-		let stagingURL = workingDirectoryURL.appendingPathComponent("zip-staging-\(UUID().uuidString)", isDirectory: true)
 		let archiveProgress = Progress(totalUnitCount: 1)
 		activeProgresses.append(archiveProgress)
 		bridge(archiveProgress) { [weak self] fraction in
@@ -354,28 +373,24 @@ final class ZipOperationSession {
 		DispatchQueue.global(qos: .background).async { [weak self] in
 			guard let self = self else { return }
 
-			// Log fraction every 10 s so the console shows the operation is alive
-			// even when ZIPFoundation's zipItem call holds the thread without callbacks.
-			let jobID = self.jobID
-			let watchdog = DispatchSource.makeTimerSource(queue: .global(qos: .background))
-			watchdog.schedule(deadline: .now() + 10, repeating: 10)
-			watchdog.setEventHandler { [weak archiveProgress] in
-				let frac = archiveProgress?.fractionCompleted ?? 0
-				ZipDebugLogging.log("compress[\(jobID)] still running: \(String(format: "%.1f%%", frac * 100))")
-			}
-			watchdog.resume()
-			defer { watchdog.cancel() }
-
 			do {
 				if self.cancelled || archiveProgress.isCancelled {
 					throw NSError(ocError: .cancelled)
 				}
-				try ZipArchiveService.stageArchive(plan: plan, localEntries: localEntries, at: stagingURL, progress: archiveProgress)
+				try ZipArchiveService.prepareZipRoot(
+					plan: plan,
+					localEntries: localEntries,
+					at: self.downloadsDirectoryURL,
+					progress: archiveProgress
+				)
 				if self.cancelled || archiveProgress.isCancelled {
 					throw NSError(ocError: .cancelled)
 				}
-				try ZipArchiveService.createArchive(at: archiveURL, fromStagingDirectory: stagingURL, progress: archiveProgress)
-				try? FileManager.default.removeItem(at: stagingURL)
+				try ZipArchiveService.createArchive(
+					at: archiveURL,
+					fromDirectory: self.downloadsDirectoryURL,
+					progress: archiveProgress
+				)
 
 				OnMainThread {
 					guard !self.cancelled else {
@@ -387,7 +402,6 @@ final class ZipOperationSession {
 					self.finish(error: nil, result: result)
 				}
 			} catch {
-				try? FileManager.default.removeItem(at: stagingURL)
 				try? FileManager.default.removeItem(at: archiveURL)
 				OnMainThread { [weak self] in
 					self?.finish(error: error)
@@ -411,20 +425,14 @@ final class ZipOperationSession {
 		DispatchQueue.global(qos: .background).async { [weak self] in
 			guard let self = self else { return }
 
-			// Log fraction every 10 s so the console shows the operation is alive
-			// even when a single large entry dominates extraction time.
-			let jobID = self.jobID
-			let watchdog = DispatchSource.makeTimerSource(queue: .global(qos: .background))
-			watchdog.schedule(deadline: .now() + 10, repeating: 10)
-			watchdog.setEventHandler { [weak archiveProgress] in
-				let frac = archiveProgress?.fractionCompleted ?? 0
-				ZipDebugLogging.log("decompress[\(jobID)] still running: \(String(format: "%.1f%%", frac * 100))")
-			}
-			watchdog.resume()
-			defer { watchdog.cancel() }
+			let extractProfile = ZipDebugLogging.ProfileScope(
+				"decompress.extract",
+				extra: "job=\(self.jobID) archive=\(Log.mask(archiveURL.lastPathComponent))"
+			)
 
 			do {
 				try ZipArchiveService.extractArchive(at: archiveURL, to: extractURL, progress: archiveProgress)
+				extractProfile.end(extra: "ok")
 
 				OnMainThread {
 					guard !self.cancelled else {
@@ -436,6 +444,7 @@ final class ZipOperationSession {
 					self.finish(error: nil, result: result)
 				}
 			} catch {
+				extractProfile.end(extra: "failed")
 				try? FileManager.default.removeItem(at: extractURL)
 				OnMainThread { [weak self] in
 					self?.finish(error: error)
@@ -478,30 +487,7 @@ final class ZipOperationSession {
 
 	private func updatePhaseMessage(_ message: String, phase: ZipOperationPhase) {
 		statusMessage = message
-		overallProgress.localizedDescription = message
 		publishDisplayProgress(phase: phase)
-	}
-
-	private func startDownloadWatchdog() {
-		let watchdog = DispatchSource.makeTimerSource(queue: .global(qos: .background))
-		watchdog.schedule(deadline: .now() + 10, repeating: 10)
-		let jobID = self.jobID
-		watchdog.setEventHandler { [weak self] in
-			guard let self else { return }
-			// completedUnitCount / totalUnitCount are Int64 written only on the main
-			// thread; reading them here is safe on ARM64 (aligned 64-bit loads are atomic).
-			let completed = self.trackedDownloadProgress?.completedUnitCount ?? 0
-			let total = self.trackedDownloadProgress?.totalUnitCount ?? 0
-			let totalStr = total > 0 ? "\(total)" : "?"
-			ZipDebugLogging.log("download[\(jobID)] still running: \(completed) / \(totalStr) bytes")
-		}
-		watchdog.resume()
-		downloadWatchdog = watchdog
-	}
-
-	private func stopDownloadWatchdog() {
-		downloadWatchdog?.cancel()
-		downloadWatchdog = nil
 	}
 
 	private func startDisplayTimer() {
@@ -556,7 +542,7 @@ final class ZipOperationSession {
 		}
 	}
 
-	private func finish(error: Error?, result: ZipOperationResult? = nil, notifyCoordinator: Bool = true) {
+	private func finish(error: Error?, result: ZipOperationResult? = nil) {
 		stopDisplayTimer()
 
 		let completion = self.completion

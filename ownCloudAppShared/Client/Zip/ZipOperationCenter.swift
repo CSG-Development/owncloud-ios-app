@@ -11,12 +11,11 @@ public final class ZipOperationRecord: NSObject {
 	public let kind: Kind
 	public let documentName: String
 	public let parentLocationKey: String
-	public let parentItemLocalID: String?
 
 	public private(set) var statusText: String
 	public private(set) var fractionCompleted: Double
 
-	/// Status text shown in the activity UI (respects `ZipOperationProgressStatus.showsDetailedPhaseStatus`).
+	/// Status text shown in the activity UI.
 	public var displayStatusText: String {
 		ZipOperationProgressStatus.displayText(for: kind, detailedStatus: statusText)
 	}
@@ -28,7 +27,6 @@ public final class ZipOperationRecord: NSObject {
 		kind: Kind,
 		documentName: String,
 		parentLocationKey: String,
-		parentItemLocalID: String? = nil,
 		statusText: String = HCL10n.ZipAction.Progress.preparing,
 		fractionCompleted: Double = 0
 	) {
@@ -36,7 +34,6 @@ public final class ZipOperationRecord: NSObject {
 		self.kind = kind
 		self.documentName = documentName
 		self.parentLocationKey = parentLocationKey
-		self.parentItemLocalID = parentItemLocalID
 		self.statusText = statusText
 		self.fractionCompleted = fractionCompleted
 		super.init()
@@ -87,10 +84,6 @@ public final class ZipOperationRecord: NSObject {
 			&& leftParts[2] == rightParts[2]
 			&& (leftParts[0].isEmpty || rightParts[0].isEmpty || leftParts[0] == rightParts[0])
 	}
-
-	public static func locationKey(for item: OCItem) -> String? {
-		locationKey(for: item.location)
-	}
 }
 
 public final class ZipOperationCenter {
@@ -107,19 +100,6 @@ public final class ZipOperationCenter {
 		lock.lock()
 		defer { lock.unlock() }
 		return orderedIDs.compactMap { recordsByID[$0] }
-	}
-
-	public func operations(for location: OCLocation?, parentItemLocalID: String? = nil) -> [ZipOperationRecord] {
-		let key = ZipOperationRecord.locationKey(for: location)
-		return operations.filter { record in
-			if let parentItemLocalID, let recordParentID = record.parentItemLocalID, parentItemLocalID == recordParentID {
-				return true
-			}
-			if let key {
-				return ZipOperationRecord.locationKeysLooselyMatch(record.parentLocationKey, key)
-			}
-			return false
-		}
 	}
 
 	/// All in-progress operations for a bookmark (shown on every file list in that account).
