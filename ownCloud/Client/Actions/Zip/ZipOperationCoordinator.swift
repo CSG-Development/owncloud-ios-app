@@ -14,8 +14,9 @@ final class ZipOperationCoordinator {
 		let job: ZipOperationJob
 		let record: ZipOperationRecord
 		var session: ZipOperationSession?
-		var importProgresses: [Progress] = []
-		var importObservations: [NSKeyValueObservation] = []
+		private var importProgresses: [Progress] = []
+		private var importObservations: [NSKeyValueObservation] = []
+		private let stateQueue = DispatchQueue(label: "com.owncloud.zip-coordinator.active-run-state")
 		var backgroundTask: OCBackgroundTask?
 		weak var core: OCCore?
 		weak var hostViewController: UIViewController?
@@ -29,6 +30,28 @@ final class ZipOperationCoordinator {
 			self.record = record
 			self.lastPersistedPhase = job.phase
 		}
+
+		func appendImportProgress(_ progress: Progress) {
+			stateQueue.sync {
+				importProgresses.append(progress)
+			}
+		}
+
+		func snapshotImportProgresses() -> [Progress] {
+			stateQueue.sync { importProgresses }
+		}
+
+		func appendImportObservation(_ observation: NSKeyValueObservation) {
+			stateQueue.sync {
+				importObservations.append(observation)
+			}
+		}
+
+		func clearImportObservations() {
+			stateQueue.sync {
+				importObservations.removeAll()
+			}
+		}
 	}
 
 	private struct PendingStart {
@@ -39,7 +62,7 @@ final class ZipOperationCoordinator {
 		let isResume: Bool
 	}
 
-	private let lock = NSLock()
+	private let stateQueue = DispatchQueue(label: "com.owncloud.zip-coordinator.state")
 	private var activeRunsByID: [String: ActiveRun] = [:]
 	private var pendingStarts: [PendingStart] = []
 
@@ -125,10 +148,9 @@ final class ZipOperationCoordinator {
 	}
 
 	private func resume(job: ZipOperationJob, core: OCCore, preresolvedOperation: ZipOperationSession.Operation? = nil) {
-		lock.lock()
-		let alreadyActive = activeRunsByID[job.id] != nil
-		let alreadyPending = pendingStarts.contains { $0.job.id == job.id }
-		lock.unlock()
+		let (alreadyActive, alreadyPending) = stateQueue.sync {
+			(activeRunsByID[job.id] != nil, pendingStarts.contains { $0.job.id == job.id })
+		}
 		guard !alreadyActive, !alreadyPending, job.phase != .completed else { return }
 
 		if job.phase == .failed {
@@ -184,10 +206,10 @@ final class ZipOperationCoordinator {
 	// MARK: - Cancel
 
 	func cancel(jobID: String) {
-		lock.lock()
-		if let pendingIndex = pendingStarts.firstIndex(where: { $0.job.id == jobID }) {
-			let pending = pendingStarts.remove(at: pendingIndex)
-			lock.unlock()
+		if let pending = stateQueue.sync(execute: { () -> PendingStart? in
+			guard let pendingIndex = pendingStarts.firstIndex(where: { $0.job.id == jobID }) else { return nil }
+			return pendingStarts.remove(at: pendingIndex)
+		}) {
 			ZipDebugLogging.log("ZipOperationCoordinator.cancel: queued id=\(jobID)")
 			pending.job.removeWorkingDirectory()
 			let bookmark = pending.core.bookmark
@@ -196,17 +218,17 @@ final class ZipOperationCoordinator {
 			return
 		}
 
-		guard let run = activeRunsByID[jobID] else {
-			lock.unlock()
+		guard let run = stateQueue.sync(execute: { activeRunsByID[jobID] }) else {
 			cancelPersistedOnly(jobID: jobID)
 			return
 		}
-		run.isCancelling = true
-		let importProgresses = run.importProgresses
+		stateQueue.sync {
+			run.isCancelling = true
+		}
+		let importProgresses = run.snapshotImportProgresses()
 		let session = run.session
 		let core = run.core
 		let job = run.job
-		lock.unlock()
 
 		ZipDebugLogging.log("ZipOperationCoordinator.cancel: id=\(jobID)")
 
@@ -230,9 +252,9 @@ final class ZipOperationCoordinator {
 	}
 
 	private func cancelPersistedOnly(jobID: String) {
-		lock.lock()
-		pendingStarts.removeAll { $0.job.id == jobID }
-		lock.unlock()
+		stateQueue.sync {
+			pendingStarts.removeAll { $0.job.id == jobID }
+		}
 
 		for bookmark in OCBookmarkManager.shared.bookmarks {
 			guard let job = bookmark.zipOperationStore.jobsByID[jobID] else { continue }
@@ -330,29 +352,37 @@ final class ZipOperationCoordinator {
 		persist(job, core: core)
 		_ = publishRecord(for: job)
 
-		lock.lock()
-		if activeRunsByID[job.id] != nil {
-			lock.unlock()
-			return
+		let shouldQueue = stateQueue.sync { () -> Bool in
+			if activeRunsByID[job.id] != nil {
+				return false
+			}
+			if pendingStarts.contains(where: { $0.job.id == job.id }) {
+				return false
+			}
+			if activeRunsByID.count >= Self.maxConcurrentActiveRuns {
+				pendingStarts.append(PendingStart(
+					job: job,
+					core: core,
+					hostViewController: hostViewController,
+					operation: operation,
+					isResume: isResume
+				))
+				return true
+			}
+			return false
 		}
-		if pendingStarts.contains(where: { $0.job.id == job.id }) {
-			lock.unlock()
-			return
-		}
-		if activeRunsByID.count >= Self.maxConcurrentActiveRuns {
-			pendingStarts.append(PendingStart(
-				job: job,
-				core: core,
-				hostViewController: hostViewController,
-				operation: operation,
-				isResume: isResume
-			))
-			lock.unlock()
+		if shouldQueue {
 			markJobWaiting(job, core: core)
 			ZipDebugLogging.log("ZipOperationCoordinator.begin: queued id=\(job.id)")
 			return
 		}
-		lock.unlock()
+
+		let isAlreadyPresent = stateQueue.sync {
+			activeRunsByID[job.id] != nil || pendingStarts.contains(where: { $0.job.id == job.id })
+		}
+		if isAlreadyPresent {
+			return
+		}
 
 		startActiveRun(job: job, core: core, hostViewController: hostViewController, operation: operation, isResume: isResume)
 	}
@@ -368,14 +398,15 @@ final class ZipOperationCoordinator {
 	}
 
 	private func startNextQueuedIfNeeded() {
-		lock.lock()
-		guard activeRunsByID.count < Self.maxConcurrentActiveRuns, !pendingStarts.isEmpty else {
-			lock.unlock()
-			return
+		let nextAndRemaining = stateQueue.sync { () -> (PendingStart?, Int) in
+			guard activeRunsByID.count < Self.maxConcurrentActiveRuns, !pendingStarts.isEmpty else {
+				return (nil, pendingStarts.count)
+			}
+			let next = pendingStarts.removeFirst()
+			return (next, pendingStarts.count)
 		}
-		let next = pendingStarts.removeFirst()
-		let remaining = pendingStarts.count
-		lock.unlock()
+		guard let next = nextAndRemaining.0 else { return }
+		let remaining = nextAndRemaining.1
 
 		ZipDebugLogging.log("ZipOperationCoordinator.startNextQueued: id=\(next.job.id) remainingPending=\(remaining)")
 		startActiveRun(
@@ -423,26 +454,26 @@ final class ZipOperationCoordinator {
 			var sessionToCancel: ZipOperationSession?
 			var claimsToRelease: ZipOperationClaims?
 			var shouldStartNext = false
-			self?.lock.lock()
-			if let active = self?.activeRunsByID[job.id] {
-				active.job.lastErrorDescription = "Interrupted"
-				if active.job.phase != .importing {
-					active.job.phase = .failed
-					if let core = active.core {
+			self?.stateQueue.sync {
+				if let active = self?.activeRunsByID[job.id] {
+					active.job.lastErrorDescription = "Interrupted"
+					if active.job.phase != .importing {
+						active.job.phase = .failed
+						if let core = active.core {
+							self?.persist(active.job, core: core)
+						}
+						ZipOperationCenter.shared.remove(id: active.job.id)
+						sessionToCancel = active.session
+						claimsToRelease = active.claims
+						active.claims = nil
+						active.session = nil
+						self?.activeRunsByID.removeValue(forKey: job.id)
+						shouldStartNext = true
+					} else if let core = active.core {
 						self?.persist(active.job, core: core)
 					}
-					ZipOperationCenter.shared.remove(id: active.job.id)
-					sessionToCancel = active.session
-					claimsToRelease = active.claims
-					active.claims = nil
-					active.session = nil
-					self?.activeRunsByID.removeValue(forKey: job.id)
-					shouldStartNext = true
-				} else if let core = active.core {
-					self?.persist(active.job, core: core)
 				}
 			}
-			self?.lock.unlock()
 			claimsToRelease?.releaseAll()
 			sessionToCancel?.cancelFromCoordinator()
 			bgTask.end()
@@ -460,31 +491,32 @@ final class ZipOperationCoordinator {
 			coordinator: self
 		) { [weak self, weak hostViewController] error, result in
 			guard let self else { return }
-			self.lock.lock()
-			let session = self.activeRunsByID[jobID]?.session
-			self.lock.unlock()
+			let session = self.stateQueue.sync { self.activeRunsByID[jobID]?.session }
 			guard let session else { return }
 			self.handleSessionCompletion(error: error, result: result, session: session, core: core, hostViewController: hostViewController)
 		}
 
-		lock.lock()
-		// Another start may have raced in; if the slot is taken, re-queue.
-		if activeRunsByID.count >= Self.maxConcurrentActiveRuns, activeRunsByID[jobID] == nil {
+		let shouldRequeue = stateQueue.sync { () -> Bool in
+			// Another start may have raced in; if the slot is taken, re-queue.
+			if activeRunsByID.count >= Self.maxConcurrentActiveRuns, activeRunsByID[jobID] == nil {
+				pendingStarts.insert(PendingStart(
+					job: job,
+					core: core,
+					hostViewController: hostViewController,
+					operation: operation,
+					isResume: isResume
+				), at: 0)
+				return true
+			}
+			run.session = session
+			activeRunsByID[jobID] = run
+			return false
+		}
+		if shouldRequeue {
 			run.backgroundTask?.end()
-			pendingStarts.insert(PendingStart(
-				job: job,
-				core: core,
-				hostViewController: hostViewController,
-				operation: operation,
-				isResume: isResume
-			), at: 0)
-			lock.unlock()
 			markJobWaiting(job, core: core)
 			return
 		}
-		run.session = session
-		activeRunsByID[jobID] = run
-		lock.unlock()
 
 		if isResume, job.phase == .importing {
 			session.restore(status: job.statusText, fractionCompleted: job.fractionCompleted, phase: .importing)
@@ -599,9 +631,7 @@ final class ZipOperationCoordinator {
 				OnMainThread {
 					if let placeholderID = job.uploadPlaceholderLocalID, placeholder != nil {
 						ZipDebugLogging.log("ZipOperationCoordinator.resumeImport: compress placeholder already exists \(placeholderID)")
-						self.lock.lock()
-						let run = self.activeRunsByID[job.id]
-						self.lock.unlock()
+						let run = self.stateQueue.sync { self.activeRunsByID[job.id] }
 						if let run { self.completeSuccessfully(run: run) }
 						return
 					}
@@ -620,9 +650,7 @@ final class ZipOperationCoordinator {
 					if FileManager.default.fileExists(atPath: extractURL.path) {
 						self.startDecompressImport(extractURL: extractURL, parentItem: parent, session: session, core: core, hostViewController: hostViewController)
 					} else if !job.uploadedFileLocalIDs.isEmpty || !job.createdFolderLocalIDs.isEmpty {
-						self.lock.lock()
-						let run = self.activeRunsByID[job.id]
-						self.lock.unlock()
+						let run = self.stateQueue.sync { self.activeRunsByID[job.id] }
 						if let run { self.completeSuccessfully(run: run) }
 					} else {
 						session.start()
@@ -684,16 +712,21 @@ final class ZipOperationCoordinator {
 			core: core,
 			skipRelativePaths: skipPaths,
 			publishProgress: { [weak self] importProgress in
-				guard let self, let run = self.run(for: session) else { return }
-				self.trackImport(importProgress, for: run, session: session)
+				OnMainThread(inline: true) {
+					guard let self, let run = self.run(for: session) else { return }
+					self.trackImport(importProgress, for: run, session: session)
+				}
 			},
 			onProgressCreated: { [weak self] progress in
-				guard let self, let run = self.run(for: session) else { return }
-				run.importProgresses.append(progress)
-				session.registerImportProgress(progress)
+				OnMainThread(inline: true) {
+					guard let self, let run = self.run(for: session) else { return }
+					run.appendImportProgress(progress)
+					session.registerImportProgress(progress)
+				}
 			},
 			onItemCreated: { [weak self] event in
-				guard let self, let run = self.run(for: session) else { return }
+				OnMainThread(inline: true) {
+					guard let self, let run = self.run(for: session) else { return }
 				switch event.kind {
 				case .folder:
 					if !run.job.createdFolderLocalIDs.contains(event.localID) {
@@ -712,12 +745,14 @@ final class ZipOperationCoordinator {
 				// Source zip + parent are already claimed for the operation lifetime.
 				// Throttle persistence; in-memory job state is used for cancel cleanup.
 				self.persistProgressIfNeeded(run: run, force: false)
+				}
 			},
 			completion: { [weak self] error in
-				guard let self, let run = self.run(for: session), !run.isCancelling else {
-					importProfile.end(extra: "cancelledOrGone")
-					return
-				}
+				OnMainThread(inline: true) {
+					guard let self, let run = self.run(for: session), !run.isCancelling else {
+						importProfile.end(extra: "cancelledOrGone")
+						return
+					}
 
 				if let error {
 					if (error as NSError).isOCError(withCode: .cancelled) {
@@ -734,12 +769,13 @@ final class ZipOperationCoordinator {
 					extra: "ok files=\(run.job.uploadedFileLocalIDs.count) folders=\(run.job.createdFolderLocalIDs.count)"
 				)
 				self.completeSuccessfully(run: run)
+				}
 			}
 		)
 	}
 
 	private func trackImport(_ progress: Progress, for run: ActiveRun, session: ZipOperationSession) {
-		run.importProgresses.append(progress)
+		run.appendImportProgress(progress)
 		session.registerImportProgress(progress)
 		run.job.phase = .importing
 		persist(run.job, core: run.core)
@@ -752,7 +788,7 @@ final class ZipOperationCoordinator {
 				self.sessionDidUpdate(session, status: HCL10n.ZipAction.Progress.importing, fraction: 0.9 + progress.fractionCompleted * 0.1, phase: .importing)
 			}
 		}
-		run.importObservations.append(observation)
+		run.appendImportObservation(observation)
 	}
 
 	private func completeSuccessfully(run: ActiveRun) {
@@ -803,12 +839,12 @@ final class ZipOperationCoordinator {
 		ZipOperationCenter.shared.remove(id: run.job.id)
 		run.backgroundTask?.end()
 		run.backgroundTask = nil
-		run.importObservations.removeAll()
+		run.clearImportObservations()
 		run.session = nil
 
-		lock.lock()
-		activeRunsByID.removeValue(forKey: run.job.id)
-		lock.unlock()
+		_ = stateQueue.sync {
+			activeRunsByID.removeValue(forKey: run.job.id)
+		}
 
 		startNextQueuedIfNeeded()
 
@@ -857,9 +893,7 @@ final class ZipOperationCoordinator {
 
 	/// Clears a failed job that will not be retried (toast dismissed / non-retryable alert).
 	private func abandonFailedJob(jobID: String) {
-		lock.lock()
-		let isActive = activeRunsByID[jobID] != nil
-		lock.unlock()
+		let isActive = stateQueue.sync { activeRunsByID[jobID] != nil }
 		guard !isActive else { return }
 
 		for bookmark in OCBookmarkManager.shared.bookmarks {
@@ -932,13 +966,11 @@ final class ZipOperationCoordinator {
 	}
 
 	private func tearDown(jobID: String, purgeWorkingDirectory: Bool) {
-		lock.lock()
-		let run = activeRunsByID.removeValue(forKey: jobID)
-		lock.unlock()
+		let run = stateQueue.sync { activeRunsByID.removeValue(forKey: jobID) }
 
 		run?.claims?.releaseAll()
 		run?.claims = nil
-		run?.importObservations.removeAll()
+		run?.clearImportObservations()
 		run?.backgroundTask?.end()
 
 		if let job = run?.job {
@@ -976,9 +1008,9 @@ final class ZipOperationCoordinator {
 	}
 
 	private func run(for session: ZipOperationSession) -> ActiveRun? {
-		lock.lock()
-		defer { lock.unlock() }
-		return activeRunsByID.values.first { $0.session === session }
+		stateQueue.sync {
+			activeRunsByID.values.first { $0.session === session }
+		}
 	}
 
 	private func location(for item: OCItem, bookmarkUUID: UUID) -> OCLocation? {
@@ -1047,7 +1079,7 @@ final class ZipOperationCoordinator {
 final class ZipOperationClaims {
 	private let explicitIdentifier: String
 	private weak var core: OCCore?
-	private let lock = NSLock()
+	private let stateQueue = DispatchQueue(label: "com.owncloud.zip-coordinator.claims-state")
 	private var claimedItemsByLocalID: [String: OCItem] = [:]
 	private var released = false
 
@@ -1063,20 +1095,21 @@ final class ZipOperationClaims {
 		}
 
 		var toClaim: [OCItem] = []
-		lock.lock()
-		guard !released else {
-			lock.unlock()
+		let shouldContinue = stateQueue.sync { () -> Bool in
+			guard !released else { return false }
+			for item in items {
+				guard let localID = item.localID as String? else { continue }
+				if claimedItemsByLocalID[localID] == nil {
+					claimedItemsByLocalID[localID] = item
+					toClaim.append(item)
+				}
+			}
+			return true
+		}
+		guard shouldContinue else {
 			completion?()
 			return
 		}
-		for item in items {
-			guard let localID = item.localID as String? else { continue }
-			if claimedItemsByLocalID[localID] == nil {
-				claimedItemsByLocalID[localID] = item
-				toClaim.append(item)
-			}
-		}
-		lock.unlock()
 
 		guard !toClaim.isEmpty else {
 			completion?()
@@ -1089,9 +1122,7 @@ final class ZipOperationClaims {
 			defer { completion?() }
 			guard let self else { return }
 			for item in toClaim {
-				self.lock.lock()
-				let shouldSkip = self.released
-				self.lock.unlock()
+				let shouldSkip = self.stateQueue.sync { self.released }
 				if shouldSkip { return }
 
 				let claim = OCClaim(
@@ -1105,24 +1136,26 @@ final class ZipOperationClaims {
 	}
 
 	func releaseAll() {
-		lock.lock()
-		guard !released else {
-			lock.unlock()
+		let releaseContext = stateQueue.sync { () -> (Bool, [OCItem], OCCore?, String) in
+			guard !released else { return (false, [], nil, self.explicitIdentifier) }
+			released = true
+			let items = Array(claimedItemsByLocalID.values)
+			claimedItemsByLocalID.removeAll()
+			return (true, items, self.core, self.explicitIdentifier)
+		}
+		guard releaseContext.0 else {
 			return
 		}
-		released = true
-		let items = Array(claimedItemsByLocalID.values)
-		claimedItemsByLocalID.removeAll()
-		let core = self.core
-		let explicitIdentifier = self.explicitIdentifier
-		lock.unlock()
+		let items = releaseContext.1
+		let releaseCore = releaseContext.2
+		let releaseExplicitIdentifier = releaseContext.3
 
-		guard let core, !items.isEmpty else { return }
-		ZipDebugLogging.log("ZipOperationClaims.releaseAll: removing \(items.count) claim(s) id=\(explicitIdentifier)")
+		guard let releaseCore, !items.isEmpty else { return }
+		ZipDebugLogging.log("ZipOperationClaims.releaseAll: removing \(items.count) claim(s) id=\(releaseExplicitIdentifier)")
 
 		DispatchQueue.global(qos: .utility).async {
 			for item in items {
-				core.removeClaims(withExplicitIdentifier: explicitIdentifier, on: item, refreshItem: false, completionHandler: nil)
+				releaseCore.removeClaims(withExplicitIdentifier: releaseExplicitIdentifier, on: item, refreshItem: false, completionHandler: nil)
 			}
 		}
 	}
