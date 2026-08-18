@@ -362,8 +362,20 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 		sortBar?.showSelectButton = true
 
 		if let sortBar {
+			let spacing = FileListLayoutMetrics.sortBarBottomSpacing
+			let headerHeight = FileListLayoutMetrics.sortBarHeight + spacing
+			let headerContainer = UIView()
+			headerContainer.translatesAutoresizingMaskIntoConstraints = false
+			headerContainer.addSubview(sortBar)
+			NSLayoutConstraint.activate([
+				sortBar.topAnchor.constraint(equalTo: headerContainer.topAnchor),
+				sortBar.leadingAnchor.constraint(equalTo: headerContainer.leadingAnchor),
+				sortBar.trailingAnchor.constraint(equalTo: headerContainer.trailingAnchor),
+				sortBar.heightAnchor.constraint(equalToConstant: FileListLayoutMetrics.sortBarHeight),
+				sortBar.bottomAnchor.constraint(equalTo: headerContainer.bottomAnchor, constant: -spacing)
+			])
 			itemSection?.boundarySupplementaryItems = [
-				.view(sortBar, pinned: true)
+				.view(headerContainer, pinned: true, estimatedHeight: headerHeight)
 			]
 		}
 

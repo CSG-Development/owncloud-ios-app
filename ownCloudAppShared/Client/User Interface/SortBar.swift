@@ -265,6 +265,10 @@ public class SortBar: ThemeCSSView {
 		selectButton?.isHidden = !showSelectButton
 	}
 
+	public override var intrinsicContentSize: CGSize {
+		CGSize(width: UIView.noIntrinsicMetric, height: sideButtonsSize.height + topPadding + bottomPadding)
+	}
+
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
