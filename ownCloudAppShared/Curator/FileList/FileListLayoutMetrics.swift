@@ -3,6 +3,8 @@ import UIKit
 enum FileListLayoutMetrics {
 	static let listItemHeight: CGFloat = 68
 	static let sortBarHeight: CGFloat = 42
+	/// Space between the sort bar and the file list below it.
+	static let sortBarBottomSpacing: CGFloat = 8
 	static let statisticsFooterHeight: CGFloat = 54
 	static let spaceHeaderHeight: CGFloat = 48
 	static let gridSpacing: CGFloat = 4

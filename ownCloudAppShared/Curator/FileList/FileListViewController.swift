@@ -214,12 +214,12 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 			sortBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 			sortBar.heightAnchor.constraint(equalToConstant: FileListLayoutMetrics.sortBarHeight),
 
-			collectionView.topAnchor.constraint(equalTo: sortBar.bottomAnchor),
+			collectionView.topAnchor.constraint(equalTo: sortBar.bottomAnchor, constant: FileListLayoutMetrics.sortBarBottomSpacing),
 			collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
 			collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 			collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-			emptyOverlayView.topAnchor.constraint(equalTo: sortBar.bottomAnchor),
+			emptyOverlayView.topAnchor.constraint(equalTo: sortBar.bottomAnchor, constant: FileListLayoutMetrics.sortBarBottomSpacing),
 			emptyOverlayView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
 			emptyOverlayView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 			emptyOverlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor),

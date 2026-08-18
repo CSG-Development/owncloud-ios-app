@@ -62,8 +62,11 @@ class ViewSupplementaryCell: UICollectionReusableView {
 }
 
 public extension CollectionViewSupplementaryItem {
-	static func view(_ view: UIView, pinned: Bool = false, elementKind: CollectionViewSupplementaryItem.ElementKind = .view, alignment: NSRectAlignment = .top) -> CollectionViewSupplementaryItem {
-	        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(view.frame.size.height))
+	static func view(_ view: UIView, pinned: Bool = false, elementKind: CollectionViewSupplementaryItem.ElementKind = .view, alignment: NSRectAlignment = .top, estimatedHeight: CGFloat? = nil) -> CollectionViewSupplementaryItem {
+		let fittingHeight = view.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
+		let resolvedHeight = estimatedHeight ?? (view.bounds.height > 0 ? view.bounds.height : fittingHeight)
+		let height = resolvedHeight > 0 ? resolvedHeight : 44
+		let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(height))
 		let supplementaryItem = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: elementKind, alignment: alignment)
 
 		if pinned {
