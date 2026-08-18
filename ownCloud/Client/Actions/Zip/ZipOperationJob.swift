@@ -26,8 +26,6 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 		case decompress
 	}
 
-	static let maxAutoRetryAttempts = 3
-
 	let id: String
 	let kind: Kind
 	let bookmarkUUID: UUID
@@ -36,10 +34,6 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 	var parentItemLocalID: String?
 	var sourceItemLocalIDs: [String]
 	var zipItemLocalID: String?
-	/// Items that already had a local copy when the job started (logging / diagnostics).
-	var alreadyLocalItemLocalIDs: [String]
-	/// Legacy: vault locals downloaded for older job paths (ignored by new temp-download pipeline).
-	var downloadedForJobLocalIDs: [String]
 	/// Relative paths already copied/downloaded into `downloads/` (resume skip list).
 	var materializedRelativePaths: [String]
 	/// Folders created during decompress import (delete deepest-first on cancel).
@@ -56,7 +50,6 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 	var suggestedUploadName: String?
 	var uploadPlaceholderLocalID: String?
 	var lastErrorDescription: String?
-	var attemptCount: Int
 	var updatedAt: Date
 
 	static var supportsSecureCoding: Bool { true }
@@ -70,8 +63,6 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 		parentItemLocalID: String?,
 		sourceItemLocalIDs: [String] = [],
 		zipItemLocalID: String? = nil,
-		alreadyLocalItemLocalIDs: [String] = [],
-		downloadedForJobLocalIDs: [String] = [],
 		materializedRelativePaths: [String] = [],
 		createdFolderLocalIDs: [String] = [],
 		uploadedFileLocalIDs: [String] = [],
@@ -84,7 +75,6 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 		suggestedUploadName: String? = nil,
 		uploadPlaceholderLocalID: String? = nil,
 		lastErrorDescription: String? = nil,
-		attemptCount: Int = 0,
 		updatedAt: Date = Date()
 	) {
 		self.id = id
@@ -95,8 +85,6 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 		self.parentItemLocalID = parentItemLocalID
 		self.sourceItemLocalIDs = sourceItemLocalIDs
 		self.zipItemLocalID = zipItemLocalID
-		self.alreadyLocalItemLocalIDs = alreadyLocalItemLocalIDs
-		self.downloadedForJobLocalIDs = downloadedForJobLocalIDs
 		self.materializedRelativePaths = materializedRelativePaths
 		self.createdFolderLocalIDs = createdFolderLocalIDs
 		self.uploadedFileLocalIDs = uploadedFileLocalIDs
@@ -109,7 +97,6 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 		self.suggestedUploadName = suggestedUploadName
 		self.uploadPlaceholderLocalID = uploadPlaceholderLocalID
 		self.lastErrorDescription = lastErrorDescription
-		self.attemptCount = attemptCount
 		self.updatedAt = updatedAt
 		super.init()
 	}
@@ -123,8 +110,6 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 		coder.encode(parentItemLocalID, forKey: "parentItemLocalID")
 		coder.encode(sourceItemLocalIDs, forKey: "sourceItemLocalIDs")
 		coder.encode(zipItemLocalID, forKey: "zipItemLocalID")
-		coder.encode(alreadyLocalItemLocalIDs, forKey: "alreadyLocalItemLocalIDs")
-		coder.encode(downloadedForJobLocalIDs, forKey: "downloadedForJobLocalIDs")
 		coder.encode(materializedRelativePaths, forKey: "materializedRelativePaths")
 		coder.encode(createdFolderLocalIDs, forKey: "createdFolderLocalIDs")
 		coder.encode(uploadedFileLocalIDs, forKey: "uploadedFileLocalIDs")
@@ -137,7 +122,6 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 		coder.encode(suggestedUploadName, forKey: "suggestedUploadName")
 		coder.encode(uploadPlaceholderLocalID, forKey: "uploadPlaceholderLocalID")
 		coder.encode(lastErrorDescription, forKey: "lastErrorDescription")
-		coder.encode(NSNumber(value: attemptCount), forKey: "attemptCount")
 		coder.encode(updatedAt, forKey: "updatedAt")
 	}
 
@@ -163,8 +147,6 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 		self.parentItemLocalID = coder.decodeObject(of: NSString.self, forKey: "parentItemLocalID") as String?
 		self.sourceItemLocalIDs = (coder.decodeObject(of: [NSArray.self, NSString.self], forKey: "sourceItemLocalIDs") as? [String]) ?? []
 		self.zipItemLocalID = coder.decodeObject(of: NSString.self, forKey: "zipItemLocalID") as String?
-		self.alreadyLocalItemLocalIDs = (coder.decodeObject(of: [NSArray.self, NSString.self], forKey: "alreadyLocalItemLocalIDs") as? [String]) ?? []
-		self.downloadedForJobLocalIDs = (coder.decodeObject(of: [NSArray.self, NSString.self], forKey: "downloadedForJobLocalIDs") as? [String]) ?? []
 		self.materializedRelativePaths = (coder.decodeObject(of: [NSArray.self, NSString.self], forKey: "materializedRelativePaths") as? [String]) ?? []
 		self.createdFolderLocalIDs = (coder.decodeObject(of: [NSArray.self, NSString.self], forKey: "createdFolderLocalIDs") as? [String]) ?? []
 		self.uploadedFileLocalIDs = (coder.decodeObject(of: [NSArray.self, NSString.self], forKey: "uploadedFileLocalIDs") as? [String]) ?? []
@@ -177,17 +159,12 @@ final class ZipOperationJob: NSObject, NSSecureCoding {
 		self.suggestedUploadName = coder.decodeObject(of: NSString.self, forKey: "suggestedUploadName") as String?
 		self.uploadPlaceholderLocalID = coder.decodeObject(of: NSString.self, forKey: "uploadPlaceholderLocalID") as String?
 		self.lastErrorDescription = coder.decodeObject(of: NSString.self, forKey: "lastErrorDescription") as String?
-		self.attemptCount = (coder.decodeObject(of: NSNumber.self, forKey: "attemptCount") as NSNumber?)?.intValue ?? 0
 		self.updatedAt = coder.decodeObject(of: NSDate.self, forKey: "updatedAt") as Date? ?? Date()
 		super.init()
 	}
 
 	func touch() {
 		updatedAt = Date()
-	}
-
-	var canAutoRetry: Bool {
-		attemptCount < Self.maxAutoRetryAttempts
 	}
 
 	var workingDirectoryURL: URL {
