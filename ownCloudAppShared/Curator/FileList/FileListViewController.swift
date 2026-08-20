@@ -24,6 +24,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	private var refreshControl: UIRefreshControl?
 	private var contentState: FileListContentState = .loading
 	private var lastAppliedContentState: FileListContentState?
+	private var lastLaidOutCollectionViewSize: CGSize = .zero
 	private let scrollDirectionProcessor = HCScrollDirectionProcessor()
 	private var driveQuota: GAQuota?
 	private var statisticsText: String?
@@ -238,6 +239,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 		_ = dataSource
 		queryBridge.subscribe(to: query)
 		queryBridge.observe(query: query, clientContext: clientContext)
+		startQueryIfNeeded()
 		reloadZipOperations(applySnapshot: true)
 		updateNavigationBarButtonItems()
 		updateNavigationTitleFromContext()
@@ -248,9 +250,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	open override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 
-		if let query {
-			clientContext?.core?.start(query)
-		}
+		startQueryIfNeeded()
 
 		let latestLayout = ItemLayoutPreference.preferred
 		if latestLayout != itemLayout {
@@ -277,6 +277,20 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 			Theme.shared.register(client: self, applyImmediately: true)
 		}
 		highlightItemIfNeeded()
+	}
+
+	open override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		let size = collectionView.bounds.size
+		if size.width > 1, lastLaidOutCollectionViewSize.width <= 1 {
+			collectionView.collectionViewLayout.invalidateLayout()
+		}
+		lastLaidOutCollectionViewSize = size
+	}
+
+	private func startQueryIfNeeded() {
+		guard let query, query.state == .stopped else { return }
+		clientContext?.core?.start(query)
 	}
 
 	public func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
@@ -473,8 +487,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 					contentState = .removed
 				} else if !queryBridge.items.isEmpty || zipActivity.hasOperations {
 					contentState = .hasContent
-				} else if query?.state == .started || query?.state == .waitingForServerReply,
-				          clientContext?.core?.connectionStatus == .online {
+				} else if isQueryStillLoading {
 					contentState = .loading
 				} else if query?.rootItem == nil, query?.isCustom != true {
 					contentState = .loading
@@ -485,6 +498,18 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 				break
 		}
 		applyContentStateUI()
+	}
+
+	/// Stopped/started queries have not produced a final empty listing yet.
+	private var isQueryStillLoading: Bool {
+		switch query?.state {
+			case .stopped, .started:
+				return true
+			case .waitingForServerReply:
+				return clientContext?.core?.connectionStatus == .online
+			default:
+				return false
+		}
 	}
 
 	private func applyContentStateUI() {
@@ -505,7 +530,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 					title: OCLocalizedString("No contents", nil),
 					message: OCLocalizedString("This folder has no contents.", nil)
 				)
-				collectionView.isHidden = true
+				collectionView.isHidden = false
 			case .removed:
 				sortBar.isHidden = true
 				emptyOverlayView.isHidden = false

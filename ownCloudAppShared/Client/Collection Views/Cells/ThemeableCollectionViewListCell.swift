@@ -24,6 +24,8 @@ open class ThemeableCollectionViewListCell: UICollectionViewListCell, Themeable 
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
+		automaticallyUpdatesBackgroundConfiguration = false
+		automaticallyUpdatesContentConfiguration = false
 	}
 
 	required public init?(coder aDecoder: NSCoder) {
@@ -41,8 +43,6 @@ open class ThemeableCollectionViewListCell: UICollectionViewListCell, Themeable 
 
 		if !themeRegistered, window != nil {
 			// Postpone registration with theme until we actually need to. Makes sure self.applyThemeCollection() can take all properties into account
-			automaticallyUpdatesBackgroundConfiguration = false
-			automaticallyUpdatesContentConfiguration = false
 			Theme.shared.register(client: self, applyImmediately: true)
 			themeRegistered = true
 		}
@@ -73,6 +73,30 @@ open class ThemeableCollectionViewListCell: UICollectionViewListCell, Themeable 
 		self.applyThemeCollection(collection, cellState: configurationState)
 
 		self.applyThemeCollectionToCellContents(theme: theme, collection: collection, state: ThemeItemState(selected: self.isSelected))
+	}
+
+	static func clearListBackgroundConfiguration() -> UIBackgroundConfiguration {
+		var background = UIBackgroundConfiguration.listPlainCell()
+		background.backgroundColor = .clear
+		return background
+	}
+
+	func applyListBackgroundFill(_ fillColor: UIColor?, highlighted: Bool = false) {
+		automaticallyUpdatesBackgroundConfiguration = false
+
+		let inLocationPicker = cascadingStyleSelectors.contains(.locationPicker)
+		let shouldClear = !highlighted && (inLocationPicker || fillColor == nil || (fillColor?.cgColor.alpha ?? 0) == 0)
+
+		if shouldClear {
+			backgroundConfiguration = Self.clearListBackgroundConfiguration()
+			backgroundColor = .clear
+			contentView.backgroundColor = .clear
+			backgroundView = nil
+		} else if let fillColor {
+			var background = (backgroundConfiguration ?? Self.clearListBackgroundConfiguration())
+			background.backgroundColor = fillColor
+			backgroundConfiguration = background
+		}
 	}
 
 	var hostingCollectionView: UICollectionView? {

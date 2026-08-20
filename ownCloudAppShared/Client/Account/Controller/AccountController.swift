@@ -41,6 +41,7 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 	public var showFavorites: Bool
 		public var showAvailableOffline: Bool
 		public var showActivity: Bool
+		public var showDrives: Bool
 		public var autoSelectPersonalFolder: Bool
 
 		public var sectionAppearance: UICollectionLayoutListConfiguration.Appearance = .sidebar
@@ -55,6 +56,13 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 			config.showSearch = false
 			config.showActivity = false
 			config.showAvailableOffline = false
+			config.showShared = false
+			config.showRecents = false
+			config.showFavorites = false
+			config.showTags = false
+			config.showSavedSearches = false
+			config.showUserSidebarItems = false
+			config.showDrives = true
 
 			config.sectionAppearance = .insetGrouped
 
@@ -74,6 +82,7 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 			showTags = true
 			showAvailableOffline = true
 			showActivity = true
+			showDrives = false
 
 			autoSelectPersonalFolder = true
 		}
@@ -367,10 +376,14 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 					accountControllerSection.expandedItemRefs = expandedItemRefs
 				}
 
-				sources = [
-					//core.personalDriveDataSource,
-					//spacesDataSource
-				]
+				if configuration.showDrives {
+					sources = [
+						core.personalDriveDataSource,
+						spacesDataSource
+					]
+				} else {
+					sources = []
+				}
 			} else {
 				// OC10 Root folder
 				sources = [
@@ -446,12 +459,14 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 			}
 
 			// Recents
-			addSidebarItem(.recents) {
-				return OCSavedSearch(scope: .account, location: nil, name: OCLocalizedString("Recents", nil), isTemplate: false, searchTerm: ":recent :file").withCustomIcon(name: "clock.arrow.circlepath").useNameAsTitle(true).useSortDescriptor(SortDescriptor(method: .lastUsed, direction: .ascending))
+			if configuration.showRecents {
+				addSidebarItem(.recents) {
+					return OCSavedSearch(scope: .account, location: nil, name: OCLocalizedString("Recents", nil), isTemplate: false, searchTerm: ":recent :file").withCustomIcon(name: "clock.arrow.circlepath").useNameAsTitle(true).useSortDescriptor(SortDescriptor(method: .lastUsed, direction: .ascending))
+				}
 			}
 
 			// Favorites
-			if bookmark?.hasCapability(.favorites) == true {
+			if configuration.showFavorites, bookmark?.hasCapability(.favorites) == true {
 				addSidebarItem(.favoriteItems) {
 					return buildSidebarSpecialItem(with: OCLocalizedString("Favorites", nil), icon: OCSymbol.icon(forSymbolName: "star"), for: .favoriteItems)
 				}
@@ -465,8 +480,10 @@ public class AccountController: NSObject, OCDataItem, OCDataItemVersioning, Acco
 			}
 
 			// Trash
-			addSidebarItem(.trash) {
-				return buildSidebarSpecialItem(with: HCL10n.Trash.title, icon: OCSymbol.icon(forSymbolName: "trash"), for: .trash)
+			if configuration.showActivity || configuration.showAvailableOffline {
+				addSidebarItem(.trash) {
+					return buildSidebarSpecialItem(with: HCL10n.Trash.title, icon: OCSymbol.icon(forSymbolName: "trash"), for: .trash)
+				}
 			}
 
 			if otherItems.count > 0 {

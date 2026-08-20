@@ -37,9 +37,11 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	private var isDark = false
 	private var iconRequest: OCResourceRequest?
 	private var configuredItemKey: String?
+	private var configuredSegmentsKey: String?
 	private var configuredItem: OCItem?
 	private weak var clientContext: ClientContext?
 	private var observedLocalID: OCLocalID?
+	private var progressObserver: NSObjectProtocol?
 	private var activityObserver: NSObjectProtocol?
 
 	override init(frame: CGRect) {
@@ -75,6 +77,10 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 
 		progressView.isHidden = true
 		progressView.cssSelectors = [.accessory, .progress]
+		isOpaque = false
+		contentView.isOpaque = false
+		backgroundColor = .clear
+		contentView.backgroundColor = .clear
 
 		contentView.addSubview(iconImageView)
 		contentView.addSubview(titleLabel)
@@ -109,6 +115,7 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		cancelIconRequest(core: clientContext?.core)
 		configuredItem = nil
 		configuredItemKey = nil
+		configuredSegmentsKey = nil
 		clientContext = nil
 		currentLayout = .list
 		showsMoreButton = false
@@ -140,6 +147,20 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		showsSelection: Bool,
 		isSelected: Bool
 	) {
+		guard Thread.isMainThread else {
+			OnMainThread(inline: true) { [weak self] in
+				self?.configure(
+					item: item,
+					core: core,
+					clientContext: clientContext,
+					layout: layout,
+					showsSelection: showsSelection,
+					isSelected: isSelected
+				)
+			}
+			return
+		}
+
 		self.clientContext = clientContext
 
 		let itemKey = item.localID ?? item.fileID ?? item.path ?? item.name ?? ""
@@ -152,7 +173,6 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		configuredItem = item
 		titleLabel.text = item.name ?? ""
 		detailLabel.text = item.fileListDetailText
-		detailSegmentView.items = item.fileListDetailSegments(core: core)
 		titleLabel.isHidden = layout == .gridNoDetail
 		let showsListDetail = layout == .list
 		let showsGridDetail = layout == .grid
@@ -160,45 +180,12 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		detailSegmentView.isHidden = !showsListDetail
 		moreButton.accessibilityLabel = OCLocalizedFormat("More for {{title}}", ["title": item.name ?? ""])
 
-		let transferProgress = item.fileListTransferProgress(for: clientContext)
-		let canShowMore = layout == .list
-			&& transferProgress == nil
-			&& clientContext?.moreItemHandler != nil
-			&& clientContext?.hasPermission(for: .moreOptions) != false
-		let showsProgress = !showsSelection && transferProgress != nil && layout == .list
-
-		self.showsSelection = showsSelection
-		self.showsMoreButton = canShowMore
-
-		selectionIndicator.isHidden = !showsSelection
-		selectionIndicator.layout = layout
-		selectionIndicator.isSelected = isSelected
-
-		moreButton.isHidden = !canShowMore
-		progressView.isHidden = !showsProgress
-		progressView.progress = showsProgress ? transferProgress : nil
-		if showsProgress {
-			contentView.bringSubviewToFront(progressView)
-		}
-		if canShowMore {
-			contentView.bringSubviewToFront(moreButton)
-		}
-		if showsSelection {
-			contentView.bringSubviewToFront(selectionIndicator)
-		}
-
-		applyLayout(layout, showsSelection: showsSelection, showsAccessory: canShowMore || showsProgress)
+		updateDetailSegmentsIfNeeded(for: item, core: core)
+		updateAccessoryAndProgress(for: item, layout: layout, showsSelection: showsSelection, isSelected: isSelected, forceLayout: true)
 
 		loadIcon(for: item, core: core, layout: layout, reloadPlaceholder: shouldReloadIcon)
-		updateSelectionAppearance(isSelected: isSelected)
 		startObservingProgress(for: item)
-		let statusAccessibility = detailSegmentView.items.compactMap(\.accessibilityLabel).joined(separator: ", ")
-		accessibilityLabel = layout == .gridNoDetail
-			? titleLabel.text
-			: [titleLabel.text, showsListDetail ? statusAccessibility : (detailLabel.isHidden ? nil : detailLabel.text)]
-				.compactMap { $0 }
-				.filter { !$0.isEmpty }
-				.joined(separator: ", ")
+		updateAccessibility(layout: layout, showsListDetail: showsListDetail)
 	}
 
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
@@ -208,6 +195,8 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		moreButton.tintColor = HCColor.Interaction.buttonsPrimarySolidOutlined(collection.isDark)
 		contentView.backgroundColor = .clear
 		backgroundColor = .clear
+		isOpaque = false
+		contentView.isOpaque = false
 		updateSelectionAppearance(isSelected: selectionIndicator.isSelected)
 		if event != .initial, let item = configuredItem {
 			iconImageView.image = item.fileListIconImage(fitIn: iconSize(for: currentLayout))
@@ -243,12 +232,13 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		observedLocalID = localID
 
 		if let localID {
-			NotificationCenter.default.addObserver(
-				self,
-				selector: #selector(progressChangedForItem(_:)),
-				name: .OCCoreItemChangedProgress,
-				object: localID
-			)
+			progressObserver = NotificationCenter.default.addObserver(
+				forName: .OCCoreItemChangedProgress,
+				object: localID,
+				queue: .main
+			) { [weak self] _ in
+				self?.refreshAccessoryState()
+			}
 		}
 
 		if let activityUpdateNotificationName = clientContext?.core?.activityManager.activityUpdateNotificationName {
@@ -263,18 +253,15 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	}
 
 	private func stopObservingProgress() {
-		if let observedLocalID {
-			NotificationCenter.default.removeObserver(self, name: .OCCoreItemChangedProgress, object: observedLocalID)
+		if let progressObserver {
+			NotificationCenter.default.removeObserver(progressObserver)
+			self.progressObserver = nil
 		}
 		observedLocalID = nil
 		if let activityObserver {
 			NotificationCenter.default.removeObserver(activityObserver)
 			self.activityObserver = nil
 		}
-	}
-
-	@objc private func progressChangedForItem(_ notification: Notification) {
-		refreshAccessoryState()
 	}
 
 	private func handleActivityUpdate(_ notification: Notification) {
@@ -295,15 +282,78 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	}
 
 	private func refreshAccessoryState() {
-		guard let item = configuredItem else { return }
-		configure(
-			item: item,
-			core: clientContext?.core,
-			clientContext: clientContext,
-			layout: currentLayout,
-			showsSelection: showsSelection,
-			isSelected: selectionIndicator.isSelected
-		)
+		// OCCore posts OCCoreItemChangedProgress from its background queue. Mutating
+		// Auto Layout off the main thread crashes NSISEngine. Hop asynchronously so
+		// this cannot re-enter configure/layoutIfNeeded on the current run loop turn.
+		OnMainThread { [weak self] in
+			guard let self, let item = self.configuredItem else { return }
+			self.updateDetailSegmentsIfNeeded(for: item, core: self.clientContext?.core)
+			self.updateAccessoryAndProgress(
+				for: item,
+				layout: self.currentLayout,
+				showsSelection: self.showsSelection,
+				isSelected: self.selectionIndicator.isSelected,
+				forceLayout: false
+			)
+			self.updateAccessibility(layout: self.currentLayout, showsListDetail: self.currentLayout == .list)
+		}
+	}
+
+	private func updateDetailSegmentsIfNeeded(for item: OCItem, core: OCCore?) {
+		let segmentsKey = "\(item.fileListStatusKey(core: core))|\(item.sizeLocalized)|\(item.lastModifiedLocalized)"
+		guard configuredSegmentsKey != segmentsKey else { return }
+		configuredSegmentsKey = segmentsKey
+		detailSegmentView.items = item.fileListDetailSegments(core: core)
+	}
+
+	private func updateAccessoryAndProgress(for item: OCItem, layout: Layout, showsSelection: Bool, isSelected: Bool, forceLayout: Bool) {
+		let transferProgress = item.fileListTransferProgress(for: clientContext)
+		let canShowMore = layout == .list
+			&& transferProgress == nil
+			&& clientContext?.moreItemHandler != nil
+			&& clientContext?.hasPermission(for: .moreOptions) != false
+		let showsProgress = !showsSelection && transferProgress != nil && layout == .list
+		let showsAccessory = canShowMore || showsProgress
+		let needsLayout = currentLayout != layout
+			|| self.showsSelection != showsSelection
+			|| moreButton.isHidden == canShowMore
+			|| progressView.isHidden == showsProgress
+
+		self.showsSelection = showsSelection
+		self.showsMoreButton = canShowMore
+
+		selectionIndicator.isHidden = !showsSelection
+		selectionIndicator.layout = layout
+		selectionIndicator.isSelected = isSelected
+
+		moreButton.isHidden = !canShowMore
+		progressView.isHidden = !showsProgress
+		progressView.progress = showsProgress ? transferProgress : nil
+		if showsProgress {
+			contentView.bringSubviewToFront(progressView)
+		}
+		if canShowMore {
+			contentView.bringSubviewToFront(moreButton)
+		}
+		if showsSelection {
+			contentView.bringSubviewToFront(selectionIndicator)
+		}
+
+		if forceLayout || needsLayout {
+			applyLayout(layout, showsSelection: showsSelection, showsAccessory: showsAccessory)
+		}
+
+		updateSelectionAppearance(isSelected: isSelected)
+	}
+
+	private func updateAccessibility(layout: Layout, showsListDetail: Bool) {
+		let statusAccessibility = detailSegmentView.items.compactMap(\.accessibilityLabel).joined(separator: ", ")
+		accessibilityLabel = layout == .gridNoDetail
+			? titleLabel.text
+			: [titleLabel.text, showsListDetail ? statusAccessibility : (detailLabel.isHidden ? nil : detailLabel.text)]
+				.compactMap { $0 }
+				.filter { !$0.isEmpty }
+				.joined(separator: ", ")
 	}
 
 	private func cancelIconRequest(core: OCCore?) {

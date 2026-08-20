@@ -32,6 +32,7 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 	var hideNavigationBar: Bool?
 
 	var compressForKeyboard: Bool
+	private var lastLaidOutCollectionViewSize: CGSize = .zero
 
 	var emptyCellRegistration: ReconfigureSafeCellRegistration<UICollectionViewCell, CollectionViewController.ItemRef>?
 	private var scrollDirectionProcessor = HCScrollDirectionProcessor()
@@ -97,11 +98,13 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 		collectionView.translatesAutoresizingMaskIntoConstraints = false
 
 		if usesStackViewRoot, let stackView = stackView {
-			let safeAreaView = ThemeCSSView(frame: view.bounds)
-			safeAreaView.translatesAutoresizingMaskIntoConstraints = false
-			safeAreaView.embed(toFillWith: collectionView.withScreenshotProtection, enclosingAnchors: safeAreaView.safeAreaAnchorSet)
-
-			stackView.addArrangedSubview(safeAreaView)
+			let containerView = ThemeCSSView(frame: view.bounds)
+			containerView.translatesAutoresizingMaskIntoConstraints = false
+			// The stack already lives in the view controller's safe area. Pinning the
+			// collection view to this wrapper's safe area insets it again and can collapse
+			// the list to zero height (blank move/copy picker).
+			containerView.embed(toFillWith: collectionView.withScreenshotProtection)
+			stackView.addArrangedSubview(containerView)
 		} else {
 			view.embed(toFillWith: collectionView.withScreenshotProtection, enclosingAnchors: view.safeAreaAnchorSet)
 		}
@@ -188,6 +191,17 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 		super.viewDidLoad()
 		configureViews()
 		configureDataSource()
+	}
+
+	open override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		guard collectionView != nil else { return }
+		let size = collectionView.bounds.size
+		if size.width > 1, lastLaidOutCollectionViewSize.width <= 1 {
+			collectionView.collectionViewLayout.invalidateLayout()
+			updateSource(animatingDifferences: false)
+		}
+		lastLaidOutCollectionViewSize = size
 	}
 
 	open func createCollectionViewLayout() -> UICollectionViewLayout {
@@ -1295,8 +1309,10 @@ open class CollectionViewController: UIViewController, UICollectionViewDelegate,
 			updateCellLayout(animated: false)
 		}
 
-		collectionView.backgroundColor = collection.css.getColor(.fill, for: collectionView)
-		coverRootView?.backgroundColor = collection.css.getColor(.fill, for: collectionView)
+		let fillColor = collection.css.getColor(.fill, for: collectionView)
+		view.backgroundColor = fillColor
+		collectionView.backgroundColor = fillColor
+		coverRootView?.backgroundColor = fillColor
 	}
 
 	open var cssAutoSelectors: [ThemeCSSSelector] {
