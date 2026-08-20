@@ -184,6 +184,8 @@ public class SegmentViewItemView: ThemeView, ThemeCSSAutoSelector {
 			iconView.tintColor = collection.css.getColor(.stroke, for: iconView)
 		}
 
-		backgroundColor = collection.css.getColor(.fill, for: self)
+		let fillColor = collection.css.getColor(.fill, for: self)
+		backgroundColor = (fillColor?.cgColor.alpha ?? 0) > 0 ? fillColor : .clear
+		isOpaque = false
 	}
 }

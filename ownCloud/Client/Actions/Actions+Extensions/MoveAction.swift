@@ -49,15 +49,13 @@ class MoveAction : Action {
 
 		let items = context.items
 		let driveID = items.first?.driveID
+			?? clientContext.drive?.identifier
+			?? clientContext.core?.personalDrive?.identifier
 		var startLocation: OCLocation
-		var baseContext: ClientContext?
 
 		if let driveID {
-			// Limit to same drive
 			startLocation = .drive(driveID, bookmark: bookmark)
-			baseContext = clientContext
 		} else {
-			// Limit to account
 			startLocation = .account(bookmark)
 		}
 
@@ -92,7 +90,7 @@ class MoveAction : Action {
 			self.completed()
 		})
 
-		locationPicker.present(in: clientContext, baseContext: baseContext)
+		locationPicker.present(in: clientContext, baseContext: clientContext)
 	}
 
 	override class func iconForLocation(_ location: OCExtensionLocationIdentifier) -> UIImage? {

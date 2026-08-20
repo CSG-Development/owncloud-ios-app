@@ -168,10 +168,10 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 			context.originatingViewController = owner as? UIViewController
 		}
 
-		if let contentsDataSource = query?.queryResultsDataSource ?? _itemsDatasource, let core = itemControllerContext.core {
+		if let contentsDataSource = query?.queryResultsDataSource ?? _itemsDatasource {
 			itemsListDataSource = contentsDataSource
 
-			if query?.queryLocation?.isRoot == true, core.useDrives {
+			if let core = itemControllerContext.core, query?.queryLocation?.isRoot == true, core.useDrives {
 				// Create data source from one drive
 				singleDriveDatasource = OCDataSourceComposition(sources: [core.drivesDataSource])
 				singleDriveDatasource?.filter = OCDataSourceComposition.itemFilter(withItemRetrieval: false, fromRecordFilter: { itemRecord in
@@ -223,7 +223,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 		emptySection = CollectionViewSection(identifier: "empty", dataSource: emptySectionDataSource, cellStyle: .init(with: .fillSpace), cellLayout: .fullWidth(itemHeightDimension: .estimated(54), groupHeightDimension: .estimated(54), edgeSpacing: NSCollectionLayoutEdgeSpacing(leading: .fixed(0), top: .fixed(10), trailing: .fixed(0), bottom: .fixed(10)), contentInsets: NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)), clientContext: itemControllerContext)
 		sections.append(emptySection!)
 
-		super.init(context: itemControllerContext, sections: sections, useStackViewRoot: true, compressForKeyboard: true, highlightItemReference: highlightItemReference)
+		super.init(context: itemControllerContext, sections: sections, useStackViewRoot: true, compressForKeyboard: inContext?.browserController != nil, highlightItemReference: highlightItemReference)
 
 		// Track query state and recompute content state when it changes
 		stateObservation = itemsListDataSource?.observe(\OCDataSource.state, options: [], changeHandler: { [weak self] query, change in
@@ -295,7 +295,7 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 				.subtitle(OCLocalizedString("This folder no longer exists on the server.", nil), alignment: .centered)
 			])
 
-			footerItem = UIView()
+			footerItem = ThemeCSSView(withSelectors: [.sectionFooter])
 			footerItem?.translatesAutoresizingMaskIntoConstraints = false
 
 			footerFolderStatisticsLabel = ThemeCSSLabel(withSelectors: [.sectionFooter, .statistics])
@@ -335,6 +335,8 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 				}
 			}
 		}
+
+		startQueryIfNeeded()
 	}
 
 	required public init?(coder: NSCoder) {
@@ -350,6 +352,8 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
+
+		startQueryIfNeeded()
 
 		// Add navigation bar button items
 		updateNavigationBarButtonItems()
@@ -448,36 +452,46 @@ open class ClientItemViewController: CollectionViewController, SortBarDelegate, 
 	public override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 
-		if let query {
-			clientContext?.core?.start(query)
-		}
+		startQueryIfNeeded()
 
-		let latestLayout = ItemLayoutPreference.preferred
-		if latestLayout != itemSection?.clientContext?.itemLayout {
-			clientContext?.itemLayout = latestLayout
-			var ancestorContext = clientContext
-			while let parent = ancestorContext?.parent {
-				parent.itemLayout = latestLayout
-				ancestorContext = parent
+		if clientContext?.browserController != nil {
+			let latestLayout = ItemLayoutPreference.preferred
+			if latestLayout != itemSection?.clientContext?.itemLayout {
+				clientContext?.itemLayout = latestLayout
+				var ancestorContext = clientContext
+				while let parent = ancestorContext?.parent {
+					parent.itemLayout = latestLayout
+					ancestorContext = parent
+				}
+
+				itemSection?.clientContext?.itemLayout = latestLayout
+				itemSection?.adopt(itemLayout: latestLayout)
+				sortBar?.itemLayout = latestLayout
+				collectionView.collectionViewLayout.invalidateLayout()
 			}
-
-			itemSection?.clientContext?.itemLayout = latestLayout
-			itemSection?.adopt(itemLayout: latestLayout)
-			sortBar?.itemLayout = latestLayout
-			collectionView.collectionViewLayout.invalidateLayout()
 		}
 
-		if locationBarViewController == nil {
+		if locationBarViewController == nil, !(clientContext?.viewControllerPusher is ClientLocationPicker) {
 			updateLocationBarViewController()
 		}
+	}
+
+	public override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+		startQueryIfNeeded()
 	}
 
 	open override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
 
-		if let query {
+		if isMovingFromParent || isBeingDismissed, let query {
 			clientContext?.core?.stop(query)
 		}
+	}
+
+	private func startQueryIfNeeded() {
+		guard let query, query.state == .stopped else { return }
+		clientContext?.core?.start(query)
 	}
 
 	public func updateAdditionalDriveItems(from subscription: OCDataSourceSubscription) {

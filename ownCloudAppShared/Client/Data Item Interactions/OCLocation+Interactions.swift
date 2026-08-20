@@ -38,11 +38,16 @@ extension OCLocation : DataItemSelectionInteraction {
 				location.bookmarkUUID = driveContext.core?.bookmark.uuid
 			}
 
-			let viewController = FileListViewController(context: context, query: query, location: location)
+			let viewController: UIViewController
+			if let customizeViewController {
+				let fileListViewController = FileListViewController(context: context, query: query, location: location)
+				customizeViewController(fileListViewController)
+				viewController = fileListViewController
+			} else {
+				viewController = FileBrowserFactory.makeViewController(context: context, query: query, location: location)
+			}
 			viewController.navigationBookmark = BrowserNavigationBookmark.from(dataItem: location, clientContext: context, restoreAction: .open)
 			viewController.revoke(in: context, when: [ .connectionClosed, .driveRemoved ])
-
-			customizeViewController?(viewController)
 
 			return viewController
 		}, push: pushViewController, animated: animated)

@@ -38,6 +38,7 @@ class ClientLocationPickerViewController: EmbeddingViewController, CustomViewCon
 
 	var bottomButtonBar: BottomButtonBar?
 	var topSeparatorLine: UIView = ThemeCSSView(withSelectors: [.separator])
+	private let contentContainerView = UIView()
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -51,38 +52,56 @@ class ClientLocationPickerViewController: EmbeddingViewController, CustomViewCon
 		}))
 
 		topSeparatorLine.translatesAutoresizingMaskIntoConstraints = false
+		contentContainerView.translatesAutoresizingMaskIntoConstraints = false
+		contentContainerView.setContentHuggingPriority(.defaultLow, for: .vertical)
+		contentContainerView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
 		guard let bottomButtonBar else { return }
 
+		view.addSubview(contentContainerView)
 		view.addSubview(bottomButtonBar)
 
-		var constraints: [NSLayoutConstraint] = []
+		var constraints: [NSLayoutConstraint] = [
+			contentContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			contentContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			contentContainerView.bottomAnchor.constraint(equalTo: bottomButtonBar.topAnchor),
+			contentContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 160).with(priority: .defaultHigh),
+
+			bottomButtonBar.leftAnchor.constraint(equalTo: view.leftAnchor),
+			bottomButtonBar.rightAnchor.constraint(equalTo: view.rightAnchor),
+			bottomButtonBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+		]
 
 		if let headerView = locationPicker.headerView {
 			headerView.translatesAutoresizingMaskIntoConstraints = false
+			headerView.setContentHuggingPriority(.required, for: .vertical)
+			headerView.setContentCompressionResistancePriority(.required, for: .vertical)
+			headerView.cssSelectors = [.header]
 			view.addSubview(headerView)
-
 			headerView.addSubview(topSeparatorLine)
 
 			constraints.append(contentsOf: [
 				headerView.leftAnchor.constraint(equalTo: view.leftAnchor),
 				headerView.rightAnchor.constraint(equalTo: view.rightAnchor),
 				headerView.topAnchor.constraint(equalTo: view.topAnchor),
+				contentContainerView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
 
 				topSeparatorLine.leftAnchor.constraint(equalTo: headerView.leftAnchor),
 				topSeparatorLine.rightAnchor.constraint(equalTo: headerView.rightAnchor),
 				topSeparatorLine.bottomAnchor.constraint(equalTo: headerView.bottomAnchor),
 				topSeparatorLine.heightAnchor.constraint(equalToConstant: 1)
 			])
+		} else {
+			constraints.append(contentContainerView.topAnchor.constraint(equalTo: view.topAnchor))
 		}
 
-		constraints.append(contentsOf: [
-			bottomButtonBar.leftAnchor.constraint(equalTo: view.leftAnchor),
-			bottomButtonBar.rightAnchor.constraint(equalTo: view.rightAnchor),
-			bottomButtonBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-		])
-
 		NSLayoutConstraint.activate(constraints)
+
+		contentViewController = locationPicker.rootNavigationController
+	}
+
+	override func addContentViewControllerSubview(_ contentViewControllerView: UIView) {
+		contentContainerView.addSubview(contentViewControllerView)
 	}
 
 	private var registered = false
@@ -92,6 +111,19 @@ class ClientLocationPickerViewController: EmbeddingViewController, CustomViewCon
 			registered = true
 			Theme.shared.register(client: self, applyImmediately: true)
 		}
+		startVisibleQueryIfNeeded()
+	}
+
+	override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+		startVisibleQueryIfNeeded()
+	}
+
+	private func startVisibleQueryIfNeeded() {
+		guard let fileBrowser = locationPicker.rootNavigationController?.topViewController as? FileBrowserContent,
+		      let query = fileBrowser.query,
+		      query.state == .stopped else { return }
+		fileBrowser.clientContext?.core?.start(query)
 	}
 
 	// MARK: - UINavigationControllerDelegate
@@ -107,6 +139,9 @@ class ClientLocationPickerViewController: EmbeddingViewController, CustomViewCon
 
 		if let fileBrowser = viewController as? FileBrowserContent, let location = fileBrowser.location {
 			currentLocationContext = fileBrowser.clientContext
+			if let query = fileBrowser.query, query.state == .stopped {
+				fileBrowser.clientContext?.core?.start(query)
+			}
 
 			if let bookmark = fileBrowser.clientContext?.core?.bookmark, location.bookmarkUUID == nil {
 				// Add bookmark UUID to location
@@ -175,22 +210,18 @@ class ClientLocationPickerViewController: EmbeddingViewController, CustomViewCon
 
 	// MARK: - CustomViewControllerEmbedding
 	func constraintsForEmbedding(contentView: UIView) -> [NSLayoutConstraint] {
-		var defaultAnchorSet = view.defaultAnchorSet
-
-		if let bottomButtonBar {
-			defaultAnchorSet.bottomAnchor = bottomButtonBar.topAnchor
-		}
-
-		if let headerView = locationPicker.headerView {
-			defaultAnchorSet.topAnchor = headerView.bottomAnchor
-		}
-
-		return view.embed(toFillWith: contentView, enclosingAnchors: defaultAnchorSet)
+		return contentContainerView.embed(toFillWith: contentView)
 	}
 
 	// MARK: - Themeable
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		view.backgroundColor = collection.css.getColor(.fill, for:view)
+		let collectionBackground = collection.css.getColor(.fill, selectors: [.locationPicker, .collection], for: contentContainerView) ?? HCColor.Structure.appBackground(collection.isDark)
+		let chromeBackground = collection.css.getColor(.fill, selectors: [.locationPicker, .header], for: locationPicker.headerView) ?? HCColor.Structure.menuBackground(collection.isDark)
+
+		view.backgroundColor = collectionBackground
+		contentContainerView.backgroundColor = collectionBackground
+		locationPicker.headerView?.backgroundColor = chromeBackground
+		bottomButtonBar?.backgroundColor = collection.css.getColor(.fill, selectors: [.locationPicker, .bottomButtonBar], for: bottomButtonBar) ?? chromeBackground
 	}
 }
 

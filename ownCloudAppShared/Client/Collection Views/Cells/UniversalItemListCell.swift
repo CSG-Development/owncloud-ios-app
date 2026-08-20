@@ -983,18 +983,17 @@ open class UniversalItemListCell: ThemeableCollectionViewListCell {
 
 	open override func updateConfiguration(using state: UICellConfigurationState) {
 		let collection = Theme.shared.activeCollection
-		var backgroundConfig = backgroundConfiguration?.updated(for: state)
-
-		if state.isHighlighted || state.isSelected || (state.cellDropState == .targeted) || revealHighlight {
-			backgroundConfig?.backgroundColor = collection.css.getColor(.fill, state: [.highlighted], for: self)?.withAlphaComponent(0.5)
+		let isHighlighted = state.isHighlighted || state.isSelected || (state.cellDropState == .targeted) || revealHighlight
+		let fillColor: UIColor?
+		if isHighlighted {
+			fillColor = collection.css.getColor(.fill, state: [.highlighted], for: self)?.withAlphaComponent(0.5)
 		} else {
-			backgroundConfig?.backgroundColor = collection.css.getColor(.fill, for: self)
+			fillColor = collection.css.getColor(.fill, for: self)
 		}
+		applyListBackgroundFill(fillColor, highlighted: isHighlighted)
 
 		detailSegmentPrimaryView.cssSelectors = state.isFocused ? [.focused] : []
 		detailSegmentSecondaryView?.cssSelectors = state.isFocused ? [.focused] : []
-
-		backgroundConfiguration = backgroundConfig
 
 		// Multiselection in grid cell layout
 		if state.isEditing, cellStyle.isGrid {

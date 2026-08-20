@@ -614,9 +614,29 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 					}
 
 					if lastItemsToAddCount == itemsToAdd.count {
-						// Couldn't insert any item, quit loop
-						Log.warning("Could not insert items \(itemsToAdd). Quitting loop without inserting.")
-						break
+						// Neighbor-based insert needs items already in the snapshot. The first
+						// update of a location picker / sidebar often arrives against an empty
+						// snapshot, so rebuild from the full item list instead of dropping them.
+						let wrappedAllItems = collectionViewController.wrap(references: allItems, forSection: self.identifier)
+
+						if parentItemRef == nil {
+							var rebuilt = NSDiffableDataSourceSectionSnapshot<CollectionViewController.ItemRef>()
+							rebuilt.append(wrappedAllItems)
+							let expanded = sectionSnapshot.items.filter { sectionSnapshot.isExpanded($0) && rebuilt.contains($0) }
+							if !expanded.isEmpty {
+								rebuilt.expand(expanded)
+							}
+							sectionSnapshot = rebuilt
+							itemsToAdd.removeAll()
+						} else if let parentItemRef, sectionSnapshot.contains(parentItemRef) {
+							var childSnapshot = NSDiffableDataSourceSectionSnapshot<CollectionViewController.ItemRef>()
+							childSnapshot.append(wrappedAllItems)
+							sectionSnapshot.replace(childrenOf: parentItemRef, using: childSnapshot)
+							itemsToAdd.removeAll()
+						} else {
+							Log.warning("Could not insert items \(itemsToAdd). Quitting loop without inserting.")
+							break
+						}
 					}
 				}
 

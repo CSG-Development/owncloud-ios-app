@@ -114,7 +114,16 @@ class CopyAction : Action {
 		}
 
 		let items = context.items
-		let startLocation: OCLocation = .account(bookmark)
+		let driveID = items.first?.driveID
+			?? clientContext.drive?.identifier
+			?? clientContext.core?.personalDrive?.identifier
+		let startLocation: OCLocation
+
+		if let driveID {
+			startLocation = .drive(driveID, bookmark: bookmark)
+		} else {
+			startLocation = .account(bookmark)
+		}
 
 		var titleText: String
 
@@ -147,7 +156,7 @@ class CopyAction : Action {
 			self.completed()
 		})
 
-		locationPicker.present(in: clientContext)
+		locationPicker.present(in: clientContext, baseContext: clientContext)
 	}
 
 	func copyToPasteboard() {

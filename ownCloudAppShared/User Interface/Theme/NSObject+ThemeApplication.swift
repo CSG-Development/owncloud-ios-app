@@ -257,9 +257,20 @@ public extension NSObject {
 				}
 
 				if let fillColor = css.getColor(.fill, selectors: stateSelectors, for: cell) {
-					var backgroundConfig = (cellState != nil) ? cell.backgroundConfiguration?.updated(for: cellState!) : cell.backgroundConfiguration
-					backgroundConfig?.backgroundColor = fillColor
-					cell.backgroundConfiguration = backgroundConfig
+					if let listCell = cell as? ThemeableCollectionViewListCell {
+						let highlighted = stateSelectors.contains(.highlighted) || stateSelectors.contains(.selected)
+						listCell.applyListBackgroundFill(fillColor, highlighted: highlighted)
+					} else if fillColor.cgColor.alpha > 0 {
+						var backgroundConfig = (cellState != nil) ? cell.backgroundConfiguration?.updated(for: cellState!) : cell.backgroundConfiguration
+						backgroundConfig?.backgroundColor = fillColor
+						cell.backgroundConfiguration = backgroundConfig
+					} else {
+						var background = UIBackgroundConfiguration.listPlainCell()
+						background.backgroundColor = .clear
+						cell.backgroundConfiguration = background
+						cell.backgroundColor = .clear
+						cell.contentView.backgroundColor = .clear
+					}
 				}
 
 				if var cellListConfiguration = cell.contentConfiguration as? UIListContentConfiguration {

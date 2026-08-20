@@ -847,9 +847,20 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.account, .disconnect],		property: .fill,   value: accountCellSet.labelColor),
 
 			// - Location Picker
-			ThemeCSSRecord(selectors: [.locationPicker, .collection, .accountList], 		property: .fill, value: groupedCollectionBackgroundColor),
+			ThemeCSSRecord(selectors: [.locationPicker], 					property: .fill, value: HCColor.Structure.appBackground(isDark)),
+			ThemeCSSRecord(selectors: [.locationPicker, .collection], 			property: .fill, value: HCColor.Structure.appBackground(isDark)),
+			ThemeCSSRecord(selectors: [.locationPicker, .cell], 				property: .fill, value: UIColor.clear),
+			ThemeCSSRecord(selectors: [.locationPicker, .collection, .cell], 			property: .fill, value: UIColor.clear),
+			ThemeCSSRecord(selectors: [.locationPicker, .segments], 				property: .fill, value: UIColor.clear),
+			ThemeCSSRecord(selectors: [.locationPicker, .item], 				property: .fill, value: UIColor.clear),
+			ThemeCSSRecord(selectors: [.locationPicker, .item, .plain], 			property: .fill, value: UIColor.clear),
+			ThemeCSSRecord(selectors: [.locationPicker, .collection, .accountList], 		property: .fill, value: HCColor.Structure.appBackground(isDark)),
 			ThemeCSSRecord(selectors: [.locationPicker, .collection, .accountList, .cell], 		property: .fill, value: accountCellSet.backgroundColor),
 			ThemeCSSRecord(selectors: [.locationPicker, .navigationBar], 				property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.locationPicker, .header], 				property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.locationPicker, .sortBar], 				property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.locationPicker, .sectionFooter], 			property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.locationPicker, .bottomButtonBar], 			property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 
 			// - More card header
 			ThemeCSSRecord(selectors: [.more, .header], 					property: .fill,   value: moreHeaderBackgroundColor),

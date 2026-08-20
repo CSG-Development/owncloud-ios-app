@@ -18,6 +18,7 @@
 
 import UIKit
 import ownCloudSDK
+import ownCloudApp
 
 // MARK: - OCLocation additions
 extension OCLocation {
@@ -139,7 +140,9 @@ public class ClientLocationPicker : NSObject {
 				elements.append(headerViewSubtitleElement!)
 			}
 
-			self.headerView = ComposedMessageView(elements: elements)
+			let composedHeaderView = ComposedMessageView(elements: elements)
+			composedHeaderView.cssSelectors = [.header]
+			self.headerView = composedHeaderView
 		}
 
 		// Create allowedLocationFilter and navigationLocationFilter from conflictItems
@@ -236,6 +239,7 @@ public class ClientLocationPicker : NSObject {
 						}
 
 						let controller = AccountController(bookmark: bookmark, context: rootContext, configuration: accountControllerConfiguration)
+						controller.connect(completion: nil)
 
 						return AccountControllerSection(with: controller)
 					}
@@ -254,22 +258,67 @@ public class ClientLocationPicker : NSObject {
 		return sectionDataSource
 	}
 
-	func provideViewController(for location: OCLocation, maximumLevel: LocationLevel, context: ClientContext) -> UIViewController? {
-		let sectionDataSource = provideDataSource(for: location, maximumLevel: maximumLevel, context: context)
-		var viewController: UIViewController?
+	private func folderLocationForListing(from location: OCLocation, context: ClientContext) -> OCLocation? {
+		switch location.clientLocationLevel {
+			case .drive, .folder:
+				return location
 
-		if let sectionDataSource = sectionDataSource {
+			case .account:
+				guard let core = context.core else { return nil }
+				if core.useDrives {
+					guard let driveID = location.driveID ?? context.drive?.identifier ?? core.personalDrive?.identifier else {
+						return nil
+					}
+					return .drive(driveID, bookmark: core.bookmark)
+				}
+				let root = OCLocation.legacyRoot
+				root.bookmarkUUID = location.bookmarkUUID ?? core.bookmark.uuid
+				return root
+
+			case .accounts:
+				return nil
+		}
+	}
+
+	private func makeFolderListViewController(for location: OCLocation, context: ClientContext) -> UIViewController {
+		let query = OCQuery(for: location)
+		DisplaySettings.shared.updateQuery(withDisplaySettings: query)
+
+		let openLocation = OCLocation(bookmarkUUID: location.bookmarkUUID ?? context.core?.bookmark.uuid, driveID: location.driveID, path: location.path ?? "/")
+		let folderContext = ClientContext(with: context, modifier: { context in
+			context.itemLayout = .list
+			if let driveID = openLocation.driveID, let core = context.core {
+				context.drive = core.drive(withIdentifier: driveID, attachedOnly: false)
+			}
+		})
+
+		let itemViewController = ClientItemViewController(context: folderContext, query: query, location: openLocation)
+		itemViewController.cssSelectors = [.locationPicker, .collection]
+		itemViewController.compressForKeyboard = false
+		if let core = folderContext.core {
+			core.start(query)
+		}
+		return itemViewController
+	}
+
+	func provideViewController(for location: OCLocation, maximumLevel: LocationLevel, context: ClientContext) -> UIViewController? {
+		var viewController: UIViewController?
+		var presentedLocation = location
+
+		if let folderLocation = folderLocationForListing(from: location, context: context) {
+			presentedLocation = folderLocation
+			viewController = makeFolderListViewController(for: folderLocation, context: context)
+		} else if let sectionDataSource = provideDataSource(for: location, maximumLevel: maximumLevel, context: context) {
 			let collectionViewController = CollectionViewController(context: context, sections: nil, useStackViewRoot: true, hierarchic: true)
+			collectionViewController.compressForKeyboard = false
 			collectionViewController.sectionsDataSource = sectionDataSource
 			viewController = collectionViewController
-		} else {
-			viewController = location.openItem(from: nil, with: context, animated: true, pushViewController: false, completion: nil)
 		}
 
 		if let viewController {
 			var title: String?
 
-			switch location.clientLocationLevel {
+			switch presentedLocation.clientLocationLevel {
 				case .accounts:
 					title = OCLocalizedString("Accounts", nil)
 					viewController.cssSelector = .accountList
@@ -277,13 +326,15 @@ public class ClientLocationPicker : NSObject {
 				case .account:
 					title = OCLocalizedString("Account", nil)
 					viewController.cssSelector = .accountList
-					if let bookmarkUUID = location.bookmarkUUID {
+					if let bookmarkUUID = presentedLocation.bookmarkUUID {
 						title = OCBookmarkManager.shared.bookmark(for: bookmarkUUID)?.displayName
 					}
-					(viewController as? CollectionViewController)?.hideNavigationBar = true
+					if !(viewController is ClientItemViewController) {
+						(viewController as? CollectionViewController)?.hideNavigationBar = true
+					}
 
 				case .drive:
-					if let driveID = location.driveID {
+					if let driveID = presentedLocation.driveID {
 						title = context.core?.drive(withIdentifier: driveID, attachedOnly: false)?.name
 					}
 
@@ -311,14 +362,19 @@ public class ClientLocationPicker : NSObject {
 
 		// Set up navigation controller and context
 		rootNavigationController = navigationController
-		rootContext = ClientContext(with: baseContext, modifier: { context in
+		rootContext = ClientContext(with: baseContext, accountConnection: baseContext?.accountConnection, core: baseContext?.core, modifier: { context in
+			if context.core == nil {
+				context.core = baseContext?.accountConnection?.core
+			}
 			context.add(permissionHandler: { [weak self] context, dataItemRecord, checkInteraction, viewController in
 				return self?.checkPermission(context: context, dataItemRecord: dataItemRecord, interaction: checkInteraction, viewController: viewController) ?? false
 			})
 			context.viewControllerPusher = self
 			context.browserController = nil
+			context.navigationRevocationHandler = nil
 			context.navigationController = navigationController
 			context.permissions = [ .selection ]
+			context.itemLayout = .list
 			context.itemStyler = { [weak self] (context, _, item) in
 				if let item = item as? OCItem {
 					if self?.allowFileSelection == false, item.type == .file {
@@ -342,7 +398,6 @@ public class ClientLocationPicker : NSObject {
 				navigationController.pushViewController(rootViewController, animated: false)
 
 				let pickerViewController = ClientLocationPickerViewController(with: self)
-				pickerViewController.contentViewController = navigationController
 				pickerViewController.isModalInPresentation = true
 
 				return pickerViewController
