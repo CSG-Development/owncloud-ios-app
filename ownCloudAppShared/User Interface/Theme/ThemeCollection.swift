@@ -285,8 +285,6 @@ public class ThemeCollection : NSObject {
 		var groupedSectionHeaderColor: UIColor
 		var groupedSectionFooterColor: UIColor
 
-		var moreHeaderBackgroundColor: UIColor
-
 		var modalBackgroundColor: UIColor
 
 		let lightBrandColors = ThemeColorCollection(
@@ -355,8 +353,6 @@ public class ThemeCollection : NSObject {
 				groupedSectionHeaderColor = .lightGray
 				groupedSectionFooterColor = .lightGray
 
-				moreHeaderBackgroundColor = darkBrandColor.lighter(0.05)
-
 				modalBackgroundColor = darkBrandColor
 
 				inlineActionBackgroundColor = UIColor(white: 1, alpha: 0.10)
@@ -411,8 +407,6 @@ public class ThemeCollection : NSObject {
 				sectionFooterColor = .secondaryLabel.resolvedColor(with: styleTraitCollection).withHighContrastAlternative(sectionHeaderColor) // aka "resolved system .label color" in this case
 				groupedSectionHeaderColor = .secondaryLabel.resolvedColor(with: styleTraitCollection).withHighContrastAlternative(sectionHeaderColor)
 				groupedSectionFooterColor = .secondaryLabel.resolvedColor(with: styleTraitCollection).withHighContrastAlternative(sectionHeaderColor)
-
-				moreHeaderBackgroundColor = cellSet.backgroundColor
 
 				modalBackgroundColor = collectionBackgroundColor
 
@@ -862,9 +856,15 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.locationPicker, .sectionFooter], 			property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 			ThemeCSSRecord(selectors: [.locationPicker, .bottomButtonBar], 			property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 
-			// - More card header
-			ThemeCSSRecord(selectors: [.more, .header], 					property: .fill,   value: moreHeaderBackgroundColor),
-			ThemeCSSRecord(selectors: [.more, .collection], 				property: .fill,   value: groupedCellStateSet),
+			// - More card (item action sheet from cell overflow)
+			ThemeCSSRecord(selectors: [.more], 						property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.more, .header], 					property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.more, .table], 					property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.more, .grouped, .table], 				property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.more, .insetGrouped, .table], 			property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.more, .collection], 				property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.more, .grouped, .table, .cell], 			property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.more, .insetGrouped, .table, .cell], 		property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
 			ThemeCSSRecord(selectors: [.more, .insetGrouped, .table, .cell, .proceed],	property: .stroke, value: UIColor.white),
 
 			ThemeCSSRecord(selectors: [.more, .favorite],			property: .stroke, value: favoriteEnabledColor),

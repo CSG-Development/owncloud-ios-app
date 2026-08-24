@@ -30,6 +30,7 @@ extension Action {
 		let tableViewController = MoreStaticTableViewController(style: .insetGrouped)
 		let header = MoreViewHeader(for: item, with: core)
 		let moreViewController = FrameViewController(header: header, viewController: tableViewController)
+		moreViewController.cssSelectors = [.more]
 		let actions = Action.sortedApplicableActions(for: context)
 
 		actions.forEach({
