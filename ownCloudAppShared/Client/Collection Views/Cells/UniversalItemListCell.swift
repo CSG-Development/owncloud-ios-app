@@ -1132,6 +1132,5 @@ extension SegmentViewItem {
 }
 
 extension ThemeCSSSelector {
-	static let more = ThemeCSSSelector(rawValue: "more")
 	static let reveal = ThemeCSSSelector(rawValue: "reveal")
 }

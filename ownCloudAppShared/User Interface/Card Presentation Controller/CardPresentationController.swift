@@ -148,7 +148,7 @@ final class CardPresentationController: UIPresentationController, Themeable {
 	}
 
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		overStretchView.backgroundColor = collection.css.getColor(.fill, selectors: [.grouped, .table], for:overStretchView)
+		overStretchView.backgroundColor = collection.css.getColor(.fill, selectors: [.grouped, .table], for: presentedViewController.view)
 		dragHandleView.backgroundColor = collection.css.getColor(.fill, selectors: [.separator], for:dragHandleView)
 	}
 

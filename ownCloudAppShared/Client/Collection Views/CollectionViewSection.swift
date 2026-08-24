@@ -390,6 +390,22 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 	}
 
 	// MARK: - Item provider
+	/// Diffable snapshots require unique identifiers. Query results can briefly list the same
+	/// item twice (placeholder + resolved item after import/decompress), and the same item can
+	/// also appear in more than one section when identifiers are not wrapped.
+	private func uniquedItemRefs(_ items: [CollectionViewController.ItemRef], skipping alreadyPresent: Set<CollectionViewController.ItemRef> = []) -> [CollectionViewController.ItemRef] {
+		var seen = alreadyPresent
+		let uniqueItems = items.filter { item in
+			return seen.insert(item).inserted
+		}
+
+		if uniqueItems.count != items.count {
+			Log.debug("Dropping \(items.count - uniqueItems.count) duplicate item identifier(s) in section \(identifier)")
+		}
+
+		return uniqueItems
+	}
+
 	func populate(snapshot: inout NSDiffableDataSourceSnapshot<CollectionViewSection.SectionIdentifier, CollectionViewController.ItemRef>) {
 		if let datasourceSnapshot = dataSourceSubscription?.snapshotResettingChangeTracking(true) {
 			if let collectionViewController = collectionViewController, let highlightItemReference = collectionViewController.highlightItemReference, collectionViewController.didHighlightItemReference == false {
@@ -403,13 +419,18 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 			}
 
 			if let wrappedItems = collectionViewController?.wrap(references: datasourceSnapshot.items, forSection: identifier) {
-				snapshot.appendItems(wrappedItems, toSection: identifier)
-				// Log.debug("Section[\(identifier)] contents: \(wrappedItems.debugDescription)")
+				let uniqueItems = uniquedItemRefs(wrappedItems, skipping: Set(snapshot.itemIdentifiers))
+				if !uniqueItems.isEmpty {
+					snapshot.appendItems(uniqueItems, toSection: identifier)
+				}
 			}
 
 			if let updatedItems = datasourceSnapshot.updatedItems, updatedItems.count > 0,
 			   let wrappedUpdatedItems = collectionViewController?.wrap(references: Array(updatedItems), forSection: identifier) {
-				snapshot.reloadItems(wrappedUpdatedItems)
+				let existingUpdatedItems = wrappedUpdatedItems.filter { snapshot.indexOfItem($0) != nil }
+				if !existingUpdatedItems.isEmpty {
+					snapshot.reloadItems(existingUpdatedItems)
+				}
 			}
 		}
 	}
@@ -435,7 +456,10 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 			}
 
 			if let wrappedItems = collectionViewController?.wrap(references: datasourceSnapshot.items, forSection: identifier) {
-				sectionSnapshot.append(wrappedItems)
+				let uniqueItems = uniquedItemRefs(wrappedItems, skipping: Set(sectionSnapshot.items))
+				if !uniqueItems.isEmpty {
+					sectionSnapshot.append(uniqueItems)
+				}
 
 				if let collectionView = collectionViewController?.collectionView {
 					for expandedItemRef in expandedItemRefs {
@@ -450,7 +474,7 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 			}
 
 			if let updatedItems = datasourceSnapshot.updatedItems, updatedItems.count > 0 {
-				wrappedUpdatedItems = collectionViewController?.wrap(references: Array(updatedItems), forSection: identifier)
+				wrappedUpdatedItems = collectionViewController?.wrap(references: Array(updatedItems), forSection: identifier).filter { sectionSnapshot.contains($0) }
 			}
 		}
 
@@ -534,8 +558,10 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 
 						var childSnapshot = NSDiffableDataSourceSectionSnapshot<OCDataItemReference>()
 
-						let wrappedItems = collectionViewController.wrap(references: childrenDataSourceSnapshot.items, forSection: identifier)
-						childSnapshot.append(wrappedItems)
+						let wrappedItems = uniquedItemRefs(collectionViewController.wrap(references: childrenDataSourceSnapshot.items, forSection: identifier))
+						if !wrappedItems.isEmpty {
+							childSnapshot.append(wrappedItems)
+						}
 
 						return childSnapshot
 					}
@@ -576,6 +602,10 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 						if itemsToAdd.contains(itemToAdd) {
 							if let idx = allItems.firstIndex(of: itemToAdd) {
 								if let wrappedItemToAdd = collectionViewController.wrap(references: [ itemToAdd ], forSection: self.identifier).first {
+									if sectionSnapshot.contains(wrappedItemToAdd) {
+										itemsToAdd.remove(itemToAdd)
+										continue
+									}
 									if idx == 0 {
 										// Item at position 0
 										if allItems.count > 1 {
@@ -617,11 +647,13 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 						// Neighbor-based insert needs items already in the snapshot. The first
 						// update of a location picker / sidebar often arrives against an empty
 						// snapshot, so rebuild from the full item list instead of dropping them.
-						let wrappedAllItems = collectionViewController.wrap(references: allItems, forSection: self.identifier)
+						let wrappedAllItems = uniquedItemRefs(collectionViewController.wrap(references: allItems, forSection: self.identifier))
 
 						if parentItemRef == nil {
 							var rebuilt = NSDiffableDataSourceSectionSnapshot<CollectionViewController.ItemRef>()
-							rebuilt.append(wrappedAllItems)
+							if !wrappedAllItems.isEmpty {
+								rebuilt.append(wrappedAllItems)
+							}
 							let expanded = sectionSnapshot.items.filter { sectionSnapshot.isExpanded($0) && rebuilt.contains($0) }
 							if !expanded.isEmpty {
 								rebuilt.expand(expanded)
@@ -630,7 +662,9 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 							itemsToAdd.removeAll()
 						} else if let parentItemRef, sectionSnapshot.contains(parentItemRef) {
 							var childSnapshot = NSDiffableDataSourceSectionSnapshot<CollectionViewController.ItemRef>()
-							childSnapshot.append(wrappedAllItems)
+							if !wrappedAllItems.isEmpty {
+								childSnapshot.append(wrappedAllItems)
+							}
 							sectionSnapshot.replace(childrenOf: parentItemRef, using: childSnapshot)
 							itemsToAdd.removeAll()
 						} else {
@@ -652,13 +686,13 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 				if let updatedItems = updatedItems {
 					var wrappedUpdatedItems = collectionViewController.wrap(references: Array(updatedItems), forSection: self.identifier)
 
-					if collectionViewController.useWrappedIdentifiers {
-						wrappedUpdatedItems = wrappedUpdatedItems.filter({ itemRef in
-							return snapshot.indexOfItem(itemRef) != nil
-						})
-					}
+					wrappedUpdatedItems = wrappedUpdatedItems.filter({ itemRef in
+						return snapshot.indexOfItem(itemRef) != nil
+					})
 
-					snapshot.reloadItems(wrappedUpdatedItems)
+					if !wrappedUpdatedItems.isEmpty {
+						snapshot.reloadItems(wrappedUpdatedItems)
+					}
 				}
 
 				// Tell snapshot that removedItems were removed
