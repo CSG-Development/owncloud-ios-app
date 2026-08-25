@@ -212,6 +212,47 @@ public class ThemeCollection : NSObject {
 		return colorPairs
 	}
 
+	private static func generateButtonRecords(style: HCButtonStyle, isDark: Bool) -> [ThemeCSSRecord] {
+		let kind: ThemeCSSSelector
+		let configuration: ThemeCSSSelector
+		switch style {
+			case .primary(configuration: let buttonConfiguration):
+				kind = .primary
+				configuration = cssSelector(for: buttonConfiguration)
+			case .secondary(configuration: let buttonConfiguration):
+				kind = .secondary
+				configuration = cssSelector(for: buttonConfiguration)
+		}
+
+		let states: [(HCStyle.Button.State, ThemeCSSSelector?)] = [
+			(.normal, nil),
+			(.hover, .hovered),
+			(.pressed, .highlighted),
+			(.disabled, .disabled)
+		]
+
+		return states.flatMap { state, extraSelector in
+			var selectors: [ThemeCSSSelector] = [.button, kind, configuration]
+			if let extraSelector {
+				selectors.append(extraSelector)
+			}
+			let colors = HCStyle.Button.colors(for: style, state: state, isDark: isDark)
+			return [
+				ThemeCSSRecord(selectors: selectors, property: .fill, value: colors.background),
+				ThemeCSSRecord(selectors: selectors, property: .stroke, value: colors.text),
+				ThemeCSSRecord(selectors: selectors, property: .borderColor, value: colors.border)
+			]
+		}
+	}
+
+	private static func cssSelector(for configuration: HCButtonStyle.Configuration) -> ThemeCSSSelector {
+		switch configuration {
+			case .plain: return .plain
+			case .outlined: return .outlined
+			case .filled: return .filled
+		}
+	}
+
 	init(darkBrandColor inDarkColor: UIColor, lightBrandColor inLightColor: UIColor, style: ThemeCollectionStyle = .dark, interfaceStyles: NSDictionary? = nil, useSystemColors: Bool = false, systemTintColor: UIColor? = nil) {
 		var logoFillColor : UIColor?
 		self.style = style
@@ -715,41 +756,16 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.tabBar, .button, .help], property: .fill, value: HCColor.Interaction.primaryTransparentNormal20(isDark)),
 			ThemeCSSRecord(selectors: [.tabBar, .button, .help], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
 			ThemeCSSRecord(selectors: [.tabBar, .button], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+		])
 
-			// ### Plain
-			// #### Primary
-			ThemeCSSRecord(selectors: [.button, .primary, .plain], property: .stroke, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
-			ThemeCSSRecord(selectors: [.button, .primary, .plain], property: .fill, value: UIColor.clear),
-			ThemeCSSRecord(selectors: [.button, .primary, .plain, .disabled], property: .stroke, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .primary, .plain, .disabled], property: .fill, value: UIColor.clear),
-			ThemeCSSRecord(selectors: [.button, .primary, .plain, .highlighted], property: .stroke, value: isDark ? HCColor.Blue.lighten3 : HCColor.Blue.darken1),
-			ThemeCSSRecord(selectors: [.button, .primary, .plain, .highlighted], property: .fill, value: isDark ? HCColor.Transparencies.blueLighten3_12 : HCColor.Transparencies.blueDarken1_12),
-
-			// #### Secondary
-			ThemeCSSRecord(selectors: [.button, .secondary, .plain], property: .stroke, value: isDark ? HCColor.white : HCColor.Grey.darken4),
-			ThemeCSSRecord(selectors: [.button, .secondary, .plain], property: .fill, value: UIColor.clear),
-			ThemeCSSRecord(selectors: [.button, .secondary, .plain, .disabled], property: .stroke, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .secondary, .plain, .disabled], property: .fill, value: UIColor.clear),
-			ThemeCSSRecord(selectors: [.button, .secondary, .plain, .highlighted], property: .stroke, value: isDark ? HCColor.Grey.lighten3 : HCColor.Grey.darken3),
-			ThemeCSSRecord(selectors: [.button, .secondary, .plain, .highlighted], property: .fill, value: isDark ? HCColor.Transparencies.white_12 : HCColor.Transparencies.greyDarken3_12),
-
-			// ### Filled
-			// #### Primary
-			ThemeCSSRecord(selectors: [.button, .primary, .filled], property: .stroke, value: HCColor.Interaction.secondaryLabel(isDark)),
-			ThemeCSSRecord(selectors: [.button, .primary, .filled], property: .fill, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
-			ThemeCSSRecord(selectors: [.button, .primary, .filled, .disabled], property: .stroke, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .primary, .filled, .disabled], property: .fill, value: HCColor.Content.disabledBackground(isDark)),
-			ThemeCSSRecord(selectors: [.button, .primary, .filled, .highlighted], property: .stroke, value: isDark ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary),
-			ThemeCSSRecord(selectors: [.button, .primary, .filled, .highlighted], property: .fill, value:  isDark ? HCColor.Blue.lighten3 : HCColor.Blue.darken1),
-
-			// #### Secondary
-			ThemeCSSRecord(selectors: [.button, .secondary, .filled], property: .stroke, value: isDark ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary),
-			ThemeCSSRecord(selectors: [.button, .secondary, .filled], property: .fill, value: isDark ? HCColor.white : HCColor.Grey.darken4),
-			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .disabled], property: .stroke, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .disabled], property: .fill, value: HCColor.Content.disabledBackground(isDark)),
-			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .highlighted], property: .stroke, value: isDark ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary),
-			ThemeCSSRecord(selectors: [.button, .secondary, .filled, .highlighted], property: .fill, value:  isDark ? HCColor.Grey.lighten3 : HCColor.Grey.darken3),
-
+		// ### Buttons (from HCStyle)
+		css.add(records: ThemeCollection.generateButtonRecords(style: .primary(configuration: .plain), isDark: isDark))
+		css.add(records: ThemeCollection.generateButtonRecords(style: .primary(configuration: .filled), isDark: isDark))
+		css.add(records: ThemeCollection.generateButtonRecords(style: .primary(configuration: .outlined), isDark: isDark))
+		css.add(records: ThemeCollection.generateButtonRecords(style: .secondary(configuration: .plain), isDark: isDark))
+		css.add(records: ThemeCollection.generateButtonRecords(style: .secondary(configuration: .filled), isDark: isDark))
+		css.add(records: ThemeCollection.generateButtonRecords(style: .secondary(configuration: .outlined), isDark: isDark))
+		css.add(records: [
 			// #### Auth
 			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled], property: .stroke, value: HCColor.Text.secondary(isDark)),
 			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled], property: .fill, value: HCColor.Interaction.primaryTransparentNormal20(isDark)),
@@ -759,29 +775,6 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled, .highlighted], property: .fill, value:  isDark ? HCColor.Grey.lighten3 : HCColor.Grey.darken3),
 			ThemeCSSRecord(selectors: [.button, .primary_auth, .filled], property: .fontSize, value: CGFloat(34)),
 			ThemeCSSRecord(selectors: [.primary_auth, .error], property: .stroke, value: HCColor.Symbolic.error(isDark)),
-
-			// ### Outlined
-			// #### Primary
-			ThemeCSSRecord(selectors: [.button, .primary, .outlined], property: .borderColor, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
-			ThemeCSSRecord(selectors: [.button, .primary, .outlined], property: .stroke, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
-			ThemeCSSRecord(selectors: [.button, .primary, .outlined], property: .fill, value: UIColor.clear),
-			ThemeCSSRecord(selectors: [.button, .primary, .outlined, .disabled], property: .borderColor, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .primary, .outlined, .disabled], property: .stroke, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .primary, .outlined, .disabled], property: .fill, value: UIColor.clear),
-			ThemeCSSRecord(selectors: [.button, .primary, .outlined, .highlighted], property: .borderColor, value: isDark ? HCColor.Blue.lighten3 : HCColor.Blue.darken1),
-			ThemeCSSRecord(selectors: [.button, .primary, .outlined, .highlighted], property: .stroke, value: isDark ? HCColor.Blue.lighten3 : HCColor.Blue.darken1),
-			ThemeCSSRecord(selectors: [.button, .primary, .outlined, .highlighted], property: .fill, value:  isDark ? HCColor.Transparencies.blueLighten3_12 : HCColor.Transparencies.blueDarken1_12),
-
-			// #### Secondary
-			ThemeCSSRecord(selectors: [.button, .secondary, .outlined], property: .borderColor, value: isDark ? HCColor.white : HCColor.Grey.darken4),
-			ThemeCSSRecord(selectors: [.button, .secondary, .outlined], property: .stroke, value: isDark ? HCColor.white : HCColor.Grey.darken4),
-			ThemeCSSRecord(selectors: [.button, .secondary, .outlined], property: .fill, value: UIColor.clear),
-			ThemeCSSRecord(selectors: [.button, .secondary, .outlined, .disabled], property: .borderColor, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .secondary, .outlined, .disabled], property: .stroke, value: HCColor.Grey.grey),
-			ThemeCSSRecord(selectors: [.button, .secondary, .outlined, .disabled], property: .fill, value: UIColor.clear),
-			ThemeCSSRecord(selectors: [.button, .secondary, .outlined, .highlighted], property: .borderColor, value: isDark ? HCColor.Grey.lighten3 : HCColor.Grey.darken3),
-			ThemeCSSRecord(selectors: [.button, .secondary, .outlined, .highlighted], property: .stroke, value: isDark ? HCColor.Grey.lighten3 : HCColor.Grey.darken3),
-			ThemeCSSRecord(selectors: [.button, .secondary, .outlined, .highlighted], property: .fill, value:  isDark ? HCColor.Transparencies.white_12 : HCColor.Transparencies.greyDarken3_12),
 		])
 
 		// - Fill styles

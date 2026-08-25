@@ -57,19 +57,22 @@ open class ThemeButton : UIButton, Themeable, ThemeCSSChangeObserver {
 		if !isEnabled {
 			// Disabled
 			cssSelectors = [.disabled]
+		} else if isHighlighted {
+			// Pressed
+			cssSelectors = [.highlighted]
+		} else if isHovered {
+			cssSelectors = [.hovered]
 		} else {
-			if isHighlighted {
-				// Highlighted
-				cssSelectors = [.highlighted]
-			}
-
 			if isSelected {
-				// Selected
-				if cssSelectors != nil {
-					cssSelectors?.append(.selected)
-				} else {
-					cssSelectors = [.selected]
-				}
+				cssSelectors = [.selected]
+			}
+		}
+
+		if isEnabled, isSelected, cssSelectors?.contains(.selected) != true {
+			if cssSelectors != nil {
+				cssSelectors?.append(.selected)
+			} else {
+				cssSelectors = [.selected]
 			}
 		}
 

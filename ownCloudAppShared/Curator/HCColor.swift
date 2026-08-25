@@ -1,10 +1,52 @@
 import UIKit
 
 public enum HCColor {
+	public static let clear = UIColor.clear
+
+	/// Unique Seagate green tokens. Each hex is defined once.
+	public enum Green {
+		/// Seagate green 200
+		public static let green200 = UIColor(hexString: "#A9E196FF")
+		/// Seagate green 300
+		public static let green300 = UIColor(hexString: "#8CD873FF")
+		/// Seagate green 400
+		public static let green400 = UIColor(hexString: "#6EBE49FF")
+		/// Seagate green 500
+		public static let green500 = UIColor(hexString: "#55A72FFF")
+		/// Seagate green 700
+		public static let green700 = UIColor(hexString: "#2F743CFF")
+
+		public static func cta(_: Bool) -> UIColor { green400 }
+		public static func link(_ isDark: Bool) -> UIColor { isDark ? green300 : green700 }
+	}
+
+	/// Unique neutral tokens. Each hex is defined once.
+	public enum Neutral {
+		public static let white = UIColor(hexString: "#FFFFFFFF")
+		public static let black = UIColor(hexString: "#000000FF")
+		public static let gray900 = UIColor(hexString: "#191919FF")
+		public static let gray850 = UIColor(hexString: "#2C2C2CFF")
+		public static let gray800 = UIColor(hexString: "#4F4F4FFF")
+		public static let gray700 = UIColor(hexString: "#5D5D5DFF")
+		public static let gray600 = UIColor(hexString: "#6D6D6DFF")
+		public static let gray400 = UIColor(hexString: "#B0B0B0FF")
+		public static let gray300 = UIColor(hexString: "#D1D1D1FF")
+		public static let gray200 = UIColor(hexString: "#E7E7E7FF")
+		public static let gray150 = UIColor(hexString: "#EEEEEEFF")
+		public static let gray100 = UIColor(hexString: "#F6F6F6FF")
+		public static let grayDarken3 = UIColor(hexString: "#424242FF")
+		public static let grayDarken4 = UIColor(hexString: "#212121FF")
+		public static let medium = UIColor(hexString: "#9E9E9EFF")
+
+		public static func disabledFill(_ isDark: Bool) -> UIColor {
+			isDark ? gray100.withAlphaComponent(0.30) : gray900.withAlphaComponent(0.20)
+		}
+	}
+
 	// Constant/Primary
-	public static let green = UIColor(hexString: "#6EBD49FF")
-	public static let white = UIColor(hexString: "#FFFFFFFF")
-	public static let black = UIColor(hexString: "#000000FF")
+	public static let green = Green.green400
+	public static let white = Neutral.white
+	public static let black = Neutral.black
 
 	public enum Blue {
 		// blue/blue darken-1
@@ -18,14 +60,10 @@ public enum HCColor {
 	}
 
 	public enum Grey {
-		// grey/grey
-		public static let grey = UIColor(hexString: "#9E9E9EFF")
-		// grey/grey darken-4
-		public static let darken4 = UIColor(hexString: "#212121FF")
-		// grey/grey darken-3
-		public static let darken3 = UIColor(hexString: "#424242FF")
-		// blue/grey lighten-3
-		public static let lighten3 = UIColor(hexString: "#EEEEEEFF")
+		public static let grey = Neutral.medium
+		public static let darken4 = Neutral.grayDarken4
+		public static let darken3 = Neutral.grayDarken3
+		public static let lighten3 = Neutral.gray150
 	}
 
 	public enum Transparencies {
@@ -160,11 +198,11 @@ public enum HCColor {
 	public enum Structure {
 		// Structure/App Background
 		public static func appBackground(_ isDark: Bool) -> UIColor {
-			isDark ? UIColor(hexString: "#4F4F4FFF") : UIColor(hexString: "#E7E7E7FF")
+			isDark ? Neutral.gray800 : Neutral.gray200
 		}
 		// Structure/Menu Background
 		public static func menuBackground(_ isDark: Bool) -> UIColor {
-			isDark ? UIColor(hexString: "#191919FF") : UIColor(hexString: "#F6F6F6FF")
+			isDark ? Neutral.gray900 : Neutral.gray100
 		}
 		// Structure/Card Background
 		public static func cardBackground(_ isDark: Bool) -> UIColor {
@@ -189,8 +227,8 @@ public enum HCColor {
 
 	public enum Constant {
 		// Constant/Primary
-		public static func primary(_ isDark: Bool) -> UIColor {
-			isDark ? UIColor(hexString: "#6EBD49FF") : UIColor(hexString: "#6EBD49FF")
+		public static func primary(_: Bool) -> UIColor {
+			Green.green400
 		}
 
 		// Constant/white

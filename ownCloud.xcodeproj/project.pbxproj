@@ -311,6 +311,7 @@
 		99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+Extensions.swift */; };
 		99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EA2E095C1500104592 /* HCButtonStyle.swift */; };
 		99F472F72E095C1500104592 /* HCColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EB2E095C1500104592 /* HCColor.swift */; };
+		99F472F92E095C1500104592 /* HCStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EC2E095C1500104592 /* HCStyle.swift */; };
 		99F472F82E095C1500104592 /* UIButton+HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */; };
 		99F472FA2E095C1500104592 /* CGRect+Geometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E32E095C1500104592 /* CGRect+Geometry.swift */; };
 		99F473002E095CD600104592 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 99F472FF2E095CD600104592 /* SnapKit */; };
@@ -1580,6 +1581,7 @@
 		99F472E62E095C1500104592 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		99F472EA2E095C1500104592 /* HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCButtonStyle.swift; sourceTree = "<group>"; };
 		99F472EB2E095C1500104592 /* HCColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCColor.swift; sourceTree = "<group>"; };
+		99F472EC2E095C1500104592 /* HCStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HCStyle.swift; sourceTree = "<group>"; };
 		99F9CC1E2E82D0E9000BC8E0 /* DisplayHostType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayHostType.swift; sourceTree = "<group>"; };
 		99FC32122DE9992E0011D066 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		99FFF1032F2B000100ABCDEF /* AppExtensionBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppExtensionBootstrap.swift; sourceTree = "<group>"; };
@@ -3175,6 +3177,7 @@
 				99F472E82E095C1500104592 /* Extensions */,
 				99F472F02E095C1500104592 /* Views */,
 				99F472EB2E095C1500104592 /* HCColor.swift */,
+				99F472EC2E095C1500104592 /* HCStyle.swift */,
 				99C42E102EB0F37D00E36414 /* HCIcon.swift */,
 			);
 			path = Curator;
@@ -6151,6 +6154,7 @@
 				99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */,
 				99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */,
 				99F472F72E095C1500104592 /* HCColor.swift in Sources */,
+				99F472F92E095C1500104592 /* HCStyle.swift in Sources */,
 				99F472F82E095C1500104592 /* UIButton+HCButtonStyle.swift in Sources */,
 				99F472FA2E095C1500104592 /* CGRect+Geometry.swift in Sources */,
 				3912208223436EB80026C290 /* SortMethod.swift in Sources */,
