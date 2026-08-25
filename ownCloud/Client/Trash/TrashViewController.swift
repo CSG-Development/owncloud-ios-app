@@ -471,7 +471,7 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		let appBackground = HCColor.Structure.appBackground(isDark)
 		view.backgroundColor = appBackground
 		collectionView.backgroundColor = collection.css.getColor(.fill, for: collectionView) ?? appBackground
-		bottomActionBar.backgroundColor = appBackground
+		bottomActionBar.backgroundColor = HCStyle.Surface.barBackground(isDark: isDark)
 		layoutToggleButton.tintColor = HCColor.Content.textPrimary(isDark)
 		bulkActionActivityIndicator.color = HCColor.Content.textPrimary(isDark)
 		navigationTitleLabel.textColor = HCColor.Content.textPrimary(isDark)

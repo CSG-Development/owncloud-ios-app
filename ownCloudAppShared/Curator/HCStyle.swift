@@ -63,6 +63,32 @@ public enum HCStyle {
 			colors(for: style, state: State(controlState, isHovered: isHovered), isDark: isDark)
 		}
 	}
+
+	public enum Surface {
+		public static func appBackground(isDark: Bool) -> UIColor {
+			HCColor.Structure.appBackground(isDark)
+		}
+
+		public static func barBackground(isDark: Bool) -> UIColor {
+			HCColor.Structure.barBackground(isDark)
+		}
+	}
+
+	public enum TabBar {
+		public struct Colors {
+			public let selectedBackground: UIColor
+			public let selectedForeground: UIColor
+			public let unselectedForeground: UIColor
+		}
+
+		public static func colors(isDark: Bool) -> Colors {
+			Colors(
+				selectedBackground: HCColor.Green.green300.withAlphaComponent(0.20),
+				selectedForeground: HCColor.Green.link(isDark),
+				unselectedForeground: HCColor.Content.textPrimary(isDark)
+			)
+		}
+	}
 }
 
 private extension HCStyle.Button {

@@ -404,7 +404,7 @@ public class ThemeCollection : NSObject {
 				tokenBackgroundColor = UIColor(white: 1, alpha: 0.1)
 
 				// Progress
-				progressColors = ThemeColorPair(foreground: lightBrandColor, background: lightBrandColor.withAlphaComponent(0.3))
+				progressColors = ThemeColorPair(foreground: HCColor.Interaction.cta(true), background: HCColor.Interaction.cta(true).withAlphaComponent(0.3))
 
 				// Logo fill color
 				logoFillColor = .white
@@ -455,7 +455,7 @@ public class ThemeCollection : NSObject {
 				inlineActionBackgroundColorHighlighted = UIColor(white: 0, alpha: 0.10)
 
 				// Progress
-				progressColors = ThemeColorPair(foreground: lightBrandColor, background: UIColor.lightGray.withAlphaComponent(0.3))
+				progressColors = ThemeColorPair(foreground: HCColor.Interaction.cta(false), background: UIColor.lightGray.withAlphaComponent(0.3))
 
 				// Logo fill color
 				logoFillColor = .lightGray
@@ -478,6 +478,7 @@ public class ThemeCollection : NSObject {
 		let favoriteDisabledColor = UIColor(hex: 0x7C7C7C)
 
 		let isDark = style == .dark
+		let tabBarColors = HCStyle.TabBar.colors(isDark: isDark)
 
 		// CSS
 		css.add(records: [
@@ -503,19 +504,19 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.navigationBar], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.navigationBar, .label], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.navigationBar, .label, .title], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
-			ThemeCSSRecord(selectors: [.navigationBar], property: .fill, value: HCColor.Structure.cardBackground(isDark)),
-			ThemeCSSRecord(selectors: [.navigationBar, .button], property: .fill, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [.navigationBar], property: .fill, value: HCStyle.Surface.barBackground(isDark: isDark)),
+			ThemeCSSRecord(selectors: [.navigationBar, .button], property: .fill, value: HCColor.Interaction.link(isDark)),
 			ThemeCSSRecord(selectors: [.navigationBar, .popupButton, .icon],property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.navigationBar, .popupButton, .icon],property: .fill,   value: UIColor(white: 0.5, alpha: 0.3)),
 
 			// - Toolbar
-			ThemeCSSRecord(selectors: [.toolbar],				property: .stroke, value: toolbarSet.tintColor),
-			ThemeCSSRecord(selectors: [.toolbar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
+			ThemeCSSRecord(selectors: [.toolbar],				property: .stroke, value: HCColor.Interaction.link(isDark)),
+			ThemeCSSRecord(selectors: [.toolbar], property: .fill, value: HCStyle.Surface.barBackground(isDark: isDark)),
 
 			// - Progress
 			ThemeCSSRecord(selectors: [.progress], 				property: .fill,  value: progressBackgroundColor),
 			ThemeCSSRecord(selectors: [.progress], 				property: .stroke,value: progressForegroundColor),
-			ThemeCSSRecord(selectors: [.progress, .button],			property: .fill,  value: tintColor),
+			ThemeCSSRecord(selectors: [.progress, .button],			property: .fill,  value: HCColor.Interaction.cta(isDark)),
 
 			// - Cells
 			ThemeCSSRecord(selectors: [.cell, .sectionHeader],		property: .stroke, value: sectionHeaderColor),
@@ -606,7 +607,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.accessory], 			property: .stroke, value: cellStateSet.regular.secondaryLabelColor),
 			ThemeCSSRecord(selectors: [.accessory, .accept],		property: .stroke, value: UIColor.systemGreen),
 			ThemeCSSRecord(selectors: [.accessory, .decline],		property: .stroke, value: UIColor.systemRed),
-			ThemeCSSRecord(selectors: [.accessory, .action],		property: .stroke, value: lightBrandColor),
+			ThemeCSSRecord(selectors: [.accessory, .action],		property: .stroke, value: HCColor.Interaction.link(isDark)),
 
 			// - Segment View
 			ThemeCSSRecord(selectors: [.segments], 				property: .fill,   value: UIColor.clear),
@@ -652,15 +653,15 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.textField, .secondary],		property: .stroke, value: HCColor.Content.textSecondary(isDark)), // Text field placeholder
 
 			// - Search Field
-			ThemeCSSRecord(selectors: [.textField, .searchField],			property: .stroke, value: lightBrandColor), // Search tint color (UI elements other than text)
+			ThemeCSSRecord(selectors: [.textField, .searchField],			property: .stroke, value: HCColor.Interaction.link(isDark)), // Search tint color (UI elements other than text)
 			ThemeCSSRecord(selectors: [.textField, .searchField, .label],		property: .stroke, value: primaryLabelColor), // Search text color
 
 			// - Slider
-			ThemeCSSRecord(selectors: [.slider], 				property: .stroke, value: lightBrandColor),
+			ThemeCSSRecord(selectors: [.slider], 				property: .stroke, value: HCColor.Interaction.cta(isDark)),
 
 			// - Buttons + Popups
-			ThemeCSSRecord(selectors: [.button],				property: .stroke, value: lightBrandColor),
-			ThemeCSSRecord(selectors: [.popupButton],			property: .stroke, value: lightBrandColor),
+			ThemeCSSRecord(selectors: [.button],				property: .stroke, value: HCColor.Interaction.link(isDark)),
+			ThemeCSSRecord(selectors: [.popupButton],			property: .stroke, value: HCColor.Interaction.link(isDark)),
 
 			// - Label styles
 			ThemeCSSRecord(selectors: [.label, .destructive],		property: .stroke, value: UIColor.red),
@@ -690,7 +691,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sidebar, .background], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .border], property: .fill, value: HCColor.Content.border2(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .header, .accessory], property: .fill, value: HCColor.Content.iconBackground(isDark)),
-			ThemeCSSRecord(selectors: [.sidebar, .header, .accessory], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .header, .accessory], property: .stroke, value: HCColor.Interaction.link(isDark)),
 
 			// ## HCErrorView
 			ThemeCSSRecord(selectors: [.hcErrorView, .background], property: .fill, value: HCColor.Symbolic.errorBackgroundTransparent(isDark)),
@@ -704,16 +705,16 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.hcOverlayView, .background], property: .fill, value: HCColor.Mockups.overlayDefault(isDark)),
 
 			// # HCDigitView
-			ThemeCSSRecord(selectors: [.hcDigitBox, .focused], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [.hcDigitBox, .focused], property: .stroke, value: HCColor.Interaction.cta(isDark)),
 			ThemeCSSRecord(selectors: [.hcDigitBox, .plain], property: .stroke, value: HCColor.Content.border(isDark)),
 			ThemeCSSRecord(selectors: [.hcDigitBox, .error], property: .stroke, value: HCColor.Symbolic.error(isDark)),
 
 			// ## Spinner
-			ThemeCSSRecord(selectors: [.spinner], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [.spinner], property: .stroke, value: HCColor.Interaction.cta(isDark)),
 			ThemeCSSRecord(selectors: [.spinner], property: .fill, value: HCColor.Content.sliderBackground(isDark)),
 
 			// ## Auth
-			ThemeCSSRecord(selectors: [.auth, .background], property: .fill, value: HCColor.Structure.cardBackground(isDark)),
+			ThemeCSSRecord(selectors: [.auth, .background], property: .fill, value: HCColor.Structure.appBackground(isDark)),
 			ThemeCSSRecord(selectors: [.label, .auth], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// ## App logo
@@ -722,7 +723,7 @@ public class ThemeCollection : NSObject {
 
 			// ## HCField
 			ThemeCSSRecord(selectors: [.hcField], property: .stroke, value: HCColor.Content.border(isDark)),
-			ThemeCSSRecord(selectors: [.hcField, .selected], property: .stroke, value: isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2),
+			ThemeCSSRecord(selectors: [.hcField, .selected], property: .stroke, value: HCColor.Interaction.cta(isDark)),
 			ThemeCSSRecord(selectors: [.hcField, .error], property: .stroke, value: HCColor.Symbolic.error(isDark)),
 			ThemeCSSRecord(selectors: [.hcField], property: .borderWidth, value: CGFloat(1)),
 			ThemeCSSRecord(selectors: [.hcField, .selected], property: .borderWidth, value: CGFloat(3)),
@@ -745,17 +746,17 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sortBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
 
 			// ## Login navbar
-			ThemeCSSRecord(selectors: [ThemeCSSSelector(rawValue: "loginNavbar")], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [ThemeCSSSelector(rawValue: "loginNavbar")], property: .stroke, value: HCColor.Interaction.link(isDark)),
 
 			// ## Button
 			ThemeCSSRecord(selectors: [.button], property: .borderColor, value: UIColor.clear),
 			ThemeCSSRecord(selectors: [.button], property: .cornerRadius, value: CGFloat(1.0)),
 
 			// ### Tab bar
-			ThemeCSSRecord(selectors: [.tabBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
-			ThemeCSSRecord(selectors: [.tabBar, .button, .help], property: .fill, value: HCColor.Interaction.primaryTransparentNormal20(isDark)),
-			ThemeCSSRecord(selectors: [.tabBar, .button, .help], property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
-			ThemeCSSRecord(selectors: [.tabBar, .button], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
+			ThemeCSSRecord(selectors: [.tabBar], property: .fill, value: HCStyle.Surface.barBackground(isDark: isDark)),
+			ThemeCSSRecord(selectors: [.tabBar, .button, .help], property: .fill, value: tabBarColors.selectedBackground),
+			ThemeCSSRecord(selectors: [.tabBar, .button, .help], property: .stroke, value: tabBarColors.selectedForeground),
+			ThemeCSSRecord(selectors: [.tabBar, .button], property: .stroke, value: tabBarColors.unselectedForeground),
 		])
 
 		// ### Buttons (from HCStyle)
@@ -780,9 +781,9 @@ public class ThemeCollection : NSObject {
 		// - Fill styles
 		css.add(records: ThemeCollection.generateColorPairs(with: [.destructive], foregroundColor: .white, backgroundColor: .red))
 		css.add(records: ThemeCollection.generateColorPairs(with: [.confirm], 	  foregroundColor: .white, backgroundColor: UIColor(hex: 0x1AC763)))
-		css.add(records: ThemeCollection.generateColorPairs(with: [.cancel], 	  foregroundColor: .white, backgroundColor: lightBrandColor))
-		css.add(records: ThemeCollection.generateColorPairs(with: [.proceed], 	  foregroundColor: .white, backgroundColor: lightBrandColor))
-		css.add(records: ThemeCollection.generateColorPairs(with: [.info], 	  foregroundColor: .white, backgroundColor: lightBrandColor))
+		css.add(records: ThemeCollection.generateColorPairs(with: [.cancel], 	  foregroundColor: HCColor.Text.lightModePrimary, backgroundColor: HCColor.Interaction.cta(isDark)))
+		css.add(records: ThemeCollection.generateColorPairs(with: [.proceed], 	  foregroundColor: HCColor.Text.lightModePrimary, backgroundColor: HCColor.Interaction.cta(isDark)))
+		css.add(records: ThemeCollection.generateColorPairs(with: [.info], 	  foregroundColor: HCColor.Text.lightModePrimary, backgroundColor: HCColor.Interaction.cta(isDark)))
 		css.add(records: ThemeCollection.generateColorPairs(with: [.warning], 	  foregroundColor: .black, backgroundColor: .systemYellow))
 
 		css.add(records: ThemeCollection.generateColorPairs(with: [.purchase], 	  from: purchaseColors))
@@ -800,7 +801,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.passcode, .disabled, .subtitle],	property: .stroke, value: tertiaryLabelColor),
 
 			// - Alert View Controller
-			ThemeCSSRecord(selectors: [.alert],				property: .stroke, value: tintColor),
+			ThemeCSSRecord(selectors: [.alert],				property: .stroke, value: HCColor.Interaction.link(isDark)),
 
 			// - Action / Drop target (plain) fill style
 			ThemeCSSRecord(selectors: [.action],				property: .fill, value: inlineActionBackgroundColor),
@@ -923,25 +924,25 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.sidebar, .account, .disconnect],	property: .fill,   value: sidebarAccountCellSet.labelColor),
 
 			// - Navigation Bar
-			ThemeCSSRecord(selectors: [.sidebar, .navigationBar],		property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [.sidebar, .navigationBar],		property: .stroke, value: HCColor.Interaction.link(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .navigationBar],		property: .fill,   value: nil),
 			ThemeCSSRecord(selectors: [.sidebar, .navigationBar, .logo],	property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 			ThemeCSSRecord(selectors: [.sidebar, .navigationBar, .logo, .label],property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// - Toolbar
 			ThemeCSSRecord(selectors: [.sidebar, .toolbar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
-			ThemeCSSRecord(selectors: [.sidebar, .toolbar],			property: .stroke, value: lightBrandColor),
+			ThemeCSSRecord(selectors: [.sidebar, .toolbar],			property: .stroke, value: HCColor.Interaction.link(isDark)),
 
 			// Content Area
 			ThemeCSSRecord(selectors: [.content],				property: .fill,   value: collectionBackgroundColor),
 
 			// - Navigation Bar
 			ThemeCSSRecord(selectors: [.content, .navigationBar], property: .fill, value: HCColor.Structure.menuBackground(isDark)),
-			ThemeCSSRecord(selectors: [.content, .navigationBar],			property: .stroke, value: HCColor.Interaction.primarySolidNormal(isDark)),
+			ThemeCSSRecord(selectors: [.content, .navigationBar],			property: .stroke, value: HCColor.Interaction.link(isDark)),
 			ThemeCSSRecord(selectors: [.content, .navigationBar, .label, .title],	property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// - Toolbar
-			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .stroke, value: contentToolbarSet.tintColor),
+			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .stroke, value: HCColor.Interaction.link(isDark)),
 			ThemeCSSRecord(selectors: [.content, .toolbar],				property: .fill,   value: HCColor.Structure.menuBackground(isDark)),
 
 			// - Location Bar

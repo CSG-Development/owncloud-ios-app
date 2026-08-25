@@ -11,9 +11,9 @@
 	<key>branding.theme-colors</key>
 	<dict>
 		<key>tint-color-dark</key>
-		<string>#64B5F6</string>
+		<string>#8CD873</string>
 		<key>tint-color</key>
-		<string>#1976D2</string>
+		<string>#2F743C</string>
 		<key>setup-status-bar-style</key>
 		<string>default</string>
 		<key>folder-icon-color</key>
