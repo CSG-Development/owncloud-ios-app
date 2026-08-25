@@ -471,7 +471,7 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		let appBackground = HCColor.Structure.appBackground(isDark)
 		view.backgroundColor = appBackground
 		collectionView.backgroundColor = collection.css.getColor(.fill, for: collectionView) ?? appBackground
-		bottomActionBar.backgroundColor = appBackground
+		bottomActionBar.backgroundColor = HCStyle.Surface.barBackground(isDark: isDark)
 		layoutToggleButton.tintColor = HCColor.Content.textPrimary(isDark)
 		bulkActionActivityIndicator.color = HCColor.Content.textPrimary(isDark)
 		navigationTitleLabel.textColor = HCColor.Content.textPrimary(isDark)
@@ -1358,7 +1358,14 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 	}
 
 	private func applyBottomActionButtonStyle(_ button: UIButton, title: String, style: HCButtonStyle, icon: UIImage?) {
-		button.applyTrashBottomBarStyle(title: title, style: style, icon: icon)
+		button.contentHorizontalAlignment = .center
+		button.applyHCButtonStyle(
+			title: title,
+			style: style,
+			isDark: Theme.shared.activeCollection.isDark,
+			icon: icon,
+			contentInsets: NSDirectionalEdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12)
+		)
 	}
 
 	private func updateBottomActionButtonStyles(isDark: Bool) {
@@ -1411,83 +1418,5 @@ extension TrashViewController: BrowserNavigationSidebarToggleControlling {
 extension TrashViewController: BrowserNavigationTabBarVisibilityControlling {
 	var prefersTabBarHidden: Bool {
 		isSelecting && hidesNavigationChromeDuringSelection
-	}
-}
-
-private extension UIButton {
-	func applyTrashBottomBarStyle(title: String, style: HCButtonStyle, icon: UIImage?) {
-		contentHorizontalAlignment = .center
-
-		let updateConfiguration: (UIControl.State, inout UIButton.Configuration?) -> Void = { state, configuration in
-			let isDark = Theme.shared.activeCollection.isDark
-			let isDisabled = state.contains(.disabled)
-
-			var config = UIButton.Configuration.filled()
-			config.cornerStyle = .capsule
-			config.titleAlignment = .center
-			config.imagePadding = 8
-			config.imagePlacement = .leading
-			config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12)
-
-			let backgroundColor: UIColor?
-			let foregroundColor: UIColor
-			if isDisabled {
-				foregroundColor = HCColor.Content.gray2(isDark)
-				switch style {
-					case .primary(configuration: .filled):
-						backgroundColor = HCColor.Content.disabledBackground(isDark)
-					default:
-						backgroundColor = .clear
-				}
-			} else {
-				backgroundColor = self.trashActionBackgroundColor(style: style, isDark: isDark)
-				foregroundColor = self.trashActionForegroundColor(style: style, isDark: isDark)
-			}
-
-			config.image = icon?.withTintColor(foregroundColor, renderingMode: .alwaysOriginal)
-
-			if style.isOutlined {
-				config.background.strokeWidth = 1.0
-				config.background.strokeOutset = 0.5
-				config.background.strokeColor = foregroundColor
-			}
-			config.background.backgroundColor = backgroundColor ?? .clear
-			var attributedTitle = AttributedString(title)
-			attributedTitle.foregroundColor = foregroundColor
-			attributedTitle.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-			config.attributedTitle = attributedTitle
-			config.baseForegroundColor = foregroundColor
-
-			configuration = config
-		}
-
-		updateConfiguration(.normal, &configuration)
-		configurationUpdateHandler = { button in
-			updateConfiguration(button.state, &button.configuration)
-		}
-	}
-
-	private func trashActionBackgroundColor(style: HCButtonStyle, isDark: Bool) -> UIColor? {
-		switch style {
-			case .primary(configuration: .filled):
-				return isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2
-			case .primary(configuration: .outlined):
-				return .clear
-			case .secondary(configuration: .filled):
-				return isDark ? HCColor.white : HCColor.Grey.darken4
-			default:
-				return .clear
-		}
-	}
-
-	private func trashActionForegroundColor(style: HCButtonStyle, isDark: Bool) -> UIColor {
-		switch style {
-			case .primary(configuration: .filled), .secondary(configuration: .filled):
-				return isDark ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary
-			case .primary(configuration: .outlined):
-				return isDark ? HCColor.Blue.lighten2 : HCColor.Blue.darken2
-			default:
-				return HCColor.Content.textPrimary(isDark)
-		}
 	}
 }

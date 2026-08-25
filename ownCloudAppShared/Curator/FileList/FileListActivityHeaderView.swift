@@ -148,7 +148,7 @@ final class FileListActivityHeaderView: UIView {
 		infoIconView.tintColor = iconColor
 		chevronButton.tintColor = iconColor
 
-		progressView.progressTintColor = HCColor.Interaction.primarySolidNormal(isDark)
+		progressView.progressTintColor = HCColor.Interaction.cta(isDark)
 		progressView.trackTintColor = HCColor.Content.border2(isDark)
 	}
 

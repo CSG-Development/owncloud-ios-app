@@ -116,6 +116,7 @@ public struct ThemeCSSSelector: RawRepresentable, Equatable {
 
 	// States
 	public static let highlighted = ThemeCSSSelector(rawValue: "highlighted")
+	public static let hovered = ThemeCSSSelector(rawValue: "hovered")
 	public static let selected = ThemeCSSSelector(rawValue: "selected")
 	public static let disabled = ThemeCSSSelector(rawValue: "disabled")
 	public static let focused = ThemeCSSSelector(rawValue: "focused")

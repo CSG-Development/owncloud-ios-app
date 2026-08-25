@@ -1,125 +1,58 @@
 import UIKit
 
-extension UIButton {
+public extension UIButton {
 	func setTitle(title: String, style: HCButtonStyle, darkMode: Bool) {
-		let updateConfiguration: ((_ state: UIControl.State, _ configuration: inout UIButton.Configuration?) -> Void) = { state, configuration in
-			let backgroundColor = self.backgroundColor(style: style, state: state, darkMode: darkMode)
-			let foregroundColor = self.foregroundColor(style: style, state: state, darkMode: darkMode)
-			let isOutlined = style.isOutlined
+		applyHCButtonStyle(title: title, style: style, isDark: darkMode)
+	}
+
+	func applyHCButtonStyle(
+		title: String,
+		style: HCButtonStyle,
+		isDark: Bool,
+		icon: UIImage? = nil,
+		contentInsets: NSDirectionalEdgeInsets? = nil
+	) {
+		let updateConfiguration: (UIButton, inout UIButton.Configuration?) -> Void = { button, configuration in
+			let colors = HCStyle.Button.colors(
+				for: style,
+				controlState: button.state,
+				isDark: isDark,
+				isHovered: button.isHovered
+			)
 
 			configuration = .filled()
+			configuration?.cornerStyle = .capsule
+			configuration?.titleAlignment = .center
+			configuration?.background.backgroundColor = colors.background
+			if let contentInsets {
+				configuration?.contentInsets = contentInsets
+			}
 
-			if isOutlined {
+			if colors.hasBorder {
 				configuration?.background.strokeWidth = 1.0
 				configuration?.background.strokeOutset = 0.5
-				configuration?.background.strokeColor = foregroundColor
+				configuration?.background.strokeColor = colors.border
+			} else {
+				configuration?.background.strokeWidth = 0
+				configuration?.background.strokeColor = .clear
 			}
 
-			configuration?.cornerStyle = .capsule
-			configuration?.background.backgroundColor = backgroundColor ?? .clear
+			if let icon {
+				configuration?.image = icon.withTintColor(colors.text, renderingMode: .alwaysOriginal)
+				configuration?.imagePadding = 8
+				configuration?.imagePlacement = .leading
+			}
 
 			var attributedTitle = AttributedString(title)
-			attributedTitle.foregroundColor = foregroundColor
+			attributedTitle.foregroundColor = colors.text
 			attributedTitle.font = UIFont.systemFont(ofSize: 14, weight: .medium)
 			configuration?.attributedTitle = attributedTitle
+			configuration?.baseForegroundColor = colors.text
 		}
-		updateConfiguration(.normal, &configuration)
 
-		configurationUpdateHandler = { _ in
-			updateConfiguration(self.state, &self.configuration)
-		}
-	}
-
-	private func backgroundColor(
-		style: HCButtonStyle,
-		state: UIControl.State,
-		darkMode: Bool
-	) -> UIColor? {
-		switch style {
-		case let .primary(configuration: configuration):
-			switch configuration {
-			case .filled:
-				switch state {
-				case .highlighted:
-					return darkMode ? HCColor.Blue.lighten3 : HCColor.Blue.darken1
-				case .disabled:
-					return HCColor.Content.disabledBackground(darkMode)
-				default:
-					return darkMode ? HCColor.Blue.lighten2 : HCColor.Blue.darken2
-				}
-			case .outlined, .plain:
-				switch state {
-				case .highlighted:
-					return darkMode
-						? HCColor.Transparencies.blueLighten3_12
-						: HCColor.Transparencies.blueDarken1_12
-				default:
-					return nil
-				}
-			}
-		case let .secondary(configuration: configuration):
-			switch configuration {
-			case .filled:
-				switch state {
-				case .highlighted:
-					return darkMode ? HCColor.Grey.lighten3 : HCColor.Grey.darken3
-				case .disabled:
-					return HCColor.Content.disabledBackground(darkMode)
-				default:
-					return darkMode ? HCColor.white : HCColor.Grey.darken4
-				}
-			case .outlined, .plain:
-				switch state {
-				case .highlighted:
-					return darkMode
-						? HCColor.Transparencies.white_12 : HCColor.Transparencies.greyDarken3_12
-				default:
-					return nil
-				}
-			}
-		}
-	}
-
-	private func foregroundColor(
-		style: HCButtonStyle,
-		state: UIControl.State,
-		darkMode: Bool
-	) -> UIColor? {
-		switch style {
-		case let .primary(configuration: configuration):
-			switch configuration {
-			case .filled:
-				switch state {
-				case .disabled:
-					return HCColor.Grey.grey
-				default:
-					return darkMode ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary
-				}
-			case .outlined, .plain:
-				switch state {
-				case .highlighted:
-					return darkMode ? HCColor.Blue.lighten3 : HCColor.Blue.darken1
-				default:
-					return darkMode ? HCColor.Blue.lighten2 : HCColor.Blue.darken2
-				}
-			}
-		case let .secondary(configuration: configuration):
-			switch configuration {
-			case .filled:
-				switch state {
-				case .disabled:
-					return HCColor.Grey.grey
-				default:
-					return darkMode ? HCColor.Text.lightModePrimary : HCColor.Text.darkModePrimary
-				}
-			case .outlined, .plain:
-				switch state {
-				case .highlighted:
-					return darkMode ? HCColor.Grey.lighten3 : HCColor.Grey.darken3
-				default:
-					return darkMode ? HCColor.white : HCColor.Grey.darken4
-				}
-			}
+		updateConfiguration(self, &configuration)
+		configurationUpdateHandler = { button in
+			updateConfiguration(button, &button.configuration)
 		}
 	}
 }

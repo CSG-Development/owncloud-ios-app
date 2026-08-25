@@ -110,7 +110,7 @@ final class FileListActivityActionRowView: UIView {
 	func applyColors(isDark: Bool) {
 		titleLabel.textColor = HCColor.Content.textPrimary(isDark)
 		statusLabel.textColor = HCColor.Content.textSecondary(isDark)
-		progressView.progressTintColor = HCColor.Interaction.primarySolidNormal(isDark)
+		progressView.progressTintColor = HCColor.Interaction.cta(isDark)
 		progressView.trackTintColor = HCColor.Content.border2(isDark)
 		cancelButton.setTitleColor(HCColor.Interaction.primarySolidNormal(isDark), for: .normal)
 

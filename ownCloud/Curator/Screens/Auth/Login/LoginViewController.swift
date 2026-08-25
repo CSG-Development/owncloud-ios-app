@@ -114,6 +114,7 @@ final public class LoginViewController: UIViewController, Themeable {
 		container.spacing = 0
 		container.alignment = .center
 		container.isUserInteractionEnabled = true
+		container.isMultipleTouchEnabled = true
 		container.addGestureRecognizer(makeDeveloperOptionsRecognizer())
 		return container
 	}()
@@ -231,9 +232,9 @@ final public class LoginViewController: UIViewController, Themeable {
 	}
 
 	private func setupUI() {
-		view.addGestureRecognizer(
-			UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
-		)
+		let dismissKeyboardRecognizer = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
+		dismissKeyboardRecognizer.cancelsTouchesInView = false
+		view.addGestureRecognizer(dismissKeyboardRecognizer)
 
 		view.addSubview(scrollView)
 		scrollView.snp.makeConstraints {

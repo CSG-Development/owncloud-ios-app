@@ -56,17 +56,15 @@ public final class HCImageHighlightCapsuleButton: ThemeButton {
 	}
 
 	private func updateHighlightVisibility() {
-		let css = activeThemeCSS
-		let highlightBackgroundColor = css.getColor(.fill, selectors: [.help], for: self)
-		let highlightForegroundColor = css.getColor(.stroke, selectors: [.help], for: self)
-		let foregroundColor = css.getColor(.stroke, selectors: [], for: self)
+		let isDark = Theme.shared.activeCollection.isDark
+		let colors = HCStyle.TabBar.colors(isDark: isDark)
 
-		highlightView.backgroundColor = highlightBackgroundColor
+		highlightView.backgroundColor = colors.selectedBackground
 		highlightView.isHidden = !(isHighlighted || isSelected)
 
 		self.configuration?.imageColorTransformer = UIConfigurationColorTransformer { [weak self] _ in
 			guard let self else { return .clear }
-			return (self.isSelected ? highlightForegroundColor : foregroundColor) ?? .clear
+			return self.isSelected ? colors.selectedForeground : colors.unselectedForeground
 		}
 	}
 }
