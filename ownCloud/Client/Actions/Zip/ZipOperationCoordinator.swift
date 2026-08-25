@@ -919,10 +919,9 @@ final class ZipOperationCoordinator {
 		case .compress:
 			return job.uploadPlaceholderLocalID
 		case .decompress:
-			if job.createdFolderLocalIDs.count == 1 {
-				return job.createdFolderLocalIDs.first
-			}
-			return job.uploadedFileLocalIDs.first ?? job.createdFolderLocalIDs.first
+			// Multi-file / nested extracts create a container folder first (depth order).
+			// Reveal that folder so View opens the extract, not a single inner file.
+			return job.createdFolderLocalIDs.first ?? job.uploadedFileLocalIDs.first
 		}
 	}
 
