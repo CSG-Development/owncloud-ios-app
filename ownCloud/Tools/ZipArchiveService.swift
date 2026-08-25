@@ -1268,6 +1268,21 @@ enum ZipArchiveService {
 		}
 		profile.mark("filterAndSort", extra: "extractable=\(entries.count) skipped=\(skippedCount)")
 
+		let extractRoot = extractRootURL(for: entries, archiveURL: archiveURL, destinationURL: destinationURL)
+		if extractRoot.standardizedFileURL != destinationURL.standardizedFileURL {
+			do {
+				try fileManager.createDirectory(at: extractRoot, withIntermediateDirectories: true, attributes: [
+					.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication
+				])
+			} catch {
+				if isInsufficientStorageError(error) {
+					throw ZipArchiveError.insufficientStorage
+				}
+				throw error
+			}
+			ZipDebugLogging.log(url: extractRoot, context: "extractArchive.extractRoot(wrapped)")
+		}
+
 		progress.localizedDescription = HCL10n.ZipAction.Progress.decompressing
 		progress.totalUnitCount = max(Int64(entries.count), 1)
 		progress.completedUnitCount = 0
@@ -1298,7 +1313,7 @@ enum ZipArchiveService {
 			let entryURL: URL = relativePath
 				.split(separator: "/")
 				.map(String.init)
-				.reduce(destinationURL) { url, component in
+				.reduce(extractRoot) { url, component in
 					url.appendingPathComponent(component)
 				}
 
@@ -1342,12 +1357,53 @@ enum ZipArchiveService {
 			extra: "extracted=\(extractedCount) skipped=\(skippedDuringExtractCount) bytes=\(ZipDebugLogging.formattedBytes(extractBytes))"
 		)
 
-		ZipDebugLogging.log("extractArchive: finished extracted=\(extractedCount) skippedDuringExtract=\(skippedDuringExtractCount) destination=\(Log.mask(destinationURL.path))")
+		ZipDebugLogging.log("extractArchive: finished extracted=\(extractedCount) skippedDuringExtract=\(skippedDuringExtractCount) destination=\(Log.mask(extractRoot.path))")
 
 		if extractedCount == 0, entries.isEmpty == false {
 			ZipDebugLogging.log("extractArchive: no entries were extracted")
 			throw ZipArchiveError.unsupportedEntryNames
 		}
+	}
+
+	/// Single root-level file → extract into `destinationURL`.
+	/// Multiple files or any nested folder → extract into a folder named after the archive.
+	private static func extractRootURL(for entries: [Entry], archiveURL: URL, destinationURL: URL) -> URL {
+		var fileCount = 0
+		var hasNestedFolders = false
+
+		for entry in entries {
+			guard let relativePath = sanitizedArchiveEntryPath(decodedEntryPath(entry)) else {
+				continue
+			}
+			if entry.type == .directory || relativePath.contains("/") {
+				hasNestedFolders = true
+			}
+			if entry.type != .directory {
+				fileCount += 1
+			}
+		}
+
+		guard shouldWrapExtractedContents(fileCount: fileCount, hasNestedFolders: hasNestedFolders) else {
+			ZipDebugLogging.log("extractArchive: single-file archive — extracting into destination root")
+			return destinationURL
+		}
+
+		let containerName = suggestedExtractContainerName(fromArchiveName: archiveURL.lastPathComponent)
+		ZipDebugLogging.log("extractArchive: wrapping into container \(Log.mask(containerName)) fileCount=\(fileCount) hasNestedFolders=\(hasNestedFolders)")
+		return destinationURL.appendingPathComponent(containerName, isDirectory: true)
+	}
+
+	private static func shouldWrapExtractedContents(fileCount: Int, hasNestedFolders: Bool) -> Bool {
+		fileCount > 1 || hasNestedFolders
+	}
+
+	private static func suggestedExtractContainerName(fromArchiveName archiveName: String) -> String {
+		let trimmed = archiveName.trimmingCharacters(in: .whitespacesAndNewlines)
+		let baseName = (trimmed as NSString).deletingPathExtension.trimmingCharacters(in: .whitespacesAndNewlines)
+		if baseName.isEmpty {
+			return "Archive"
+		}
+		return baseName
 	}
 
 	private static func containsEncryptedEntries(at archiveURL: URL) -> Bool {
