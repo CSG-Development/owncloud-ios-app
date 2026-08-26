@@ -1365,36 +1365,35 @@ enum ZipArchiveService {
 		}
 	}
 
-	/// Single root-level file → extract into `destinationURL`.
-	/// Multiple files or any nested folder → extract into a folder named after the archive.
+	/// A single root item (one file or one top-level folder) extracts into `destinationURL`.
+	/// Multiple items at the archive root are wrapped in a folder named after the archive.
 	private static func extractRootURL(for entries: [Entry], archiveURL: URL, destinationURL: URL) -> URL {
-		var fileCount = 0
-		var hasNestedFolders = false
-
-		for entry in entries {
-			guard let relativePath = sanitizedArchiveEntryPath(decodedEntryPath(entry)) else {
-				continue
-			}
-			if entry.type == .directory || relativePath.contains("/") {
-				hasNestedFolders = true
-			}
-			if entry.type != .directory {
-				fileCount += 1
-			}
-		}
-
-		guard shouldWrapExtractedContents(fileCount: fileCount, hasNestedFolders: hasNestedFolders) else {
-			ZipDebugLogging.log("extractArchive: single-file archive — extracting into destination root")
+		let rootItemCount = uniqueRootItemCount(in: entries)
+		guard shouldWrapExtractedContents(rootItemCount: rootItemCount) else {
+			ZipDebugLogging.log("extractArchive: single root item — extracting into destination root count=\(rootItemCount)")
 			return destinationURL
 		}
 
 		let containerName = suggestedExtractContainerName(fromArchiveName: archiveURL.lastPathComponent)
-		ZipDebugLogging.log("extractArchive: wrapping into container \(Log.mask(containerName)) fileCount=\(fileCount) hasNestedFolders=\(hasNestedFolders)")
+		ZipDebugLogging.log("extractArchive: wrapping into container \(Log.mask(containerName)) rootItems=\(rootItemCount)")
 		return destinationURL.appendingPathComponent(containerName, isDirectory: true)
 	}
 
-	private static func shouldWrapExtractedContents(fileCount: Int, hasNestedFolders: Bool) -> Bool {
-		fileCount > 1 || hasNestedFolders
+	/// Unique first path components among sanitized entries (files and folders).
+	private static func uniqueRootItemCount(in entries: [Entry]) -> Int {
+		var roots = Set<String>()
+		for entry in entries {
+			guard let relativePath = sanitizedArchiveEntryPath(decodedEntryPath(entry)),
+			      let root = relativePath.split(separator: "/").first.map(String.init) else {
+				continue
+			}
+			roots.insert(root)
+		}
+		return roots.count
+	}
+
+	private static func shouldWrapExtractedContents(rootItemCount: Int) -> Bool {
+		rootItemCount > 1
 	}
 
 	private static func suggestedExtractContainerName(fromArchiveName archiveName: String) -> String {
