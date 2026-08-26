@@ -23,15 +23,19 @@ public final class HCCardView: ThemeCSSView {
         didSet { updateShadow() }
     }
 
+	public var cornerRadius: CGFloat = Constants.cornerRadius {
+		didSet { applyCornerRadius() }
+	}
+
     private func commonInit() {
 		cssSelector = .hcCardView
 
-        layer.cornerRadius = Constants.cornerRadius
+        layer.cornerRadius = cornerRadius
         layer.masksToBounds = false // keep shadow visible
 
         // Add a content container that clips to rounded corners
         contentViewInternal.isUserInteractionEnabled = true
-        contentViewInternal.layer.cornerRadius = Constants.cornerRadius
+        contentViewInternal.layer.cornerRadius = cornerRadius
         contentViewInternal.layer.zPosition = 0
         contentViewInternal.layer.masksToBounds = true
         super.addSubview(contentViewInternal)
@@ -44,6 +48,15 @@ public final class HCCardView: ThemeCSSView {
         ])
 
         updateShadow()
+		applyCornerRadius()
+	}
+
+	private func applyCornerRadius() {
+		layer.cornerRadius = cornerRadius
+		contentViewInternal.layer.cornerRadius = cornerRadius
+		if showsShadow {
+			layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).cgPath
+		}
 	}
 
     // Route all subviews into the clipping content container, except the container itself
@@ -57,14 +70,13 @@ public final class HCCardView: ThemeCSSView {
 
     public override func layoutSubviews() {
         super.layoutSubviews()
-        contentViewInternal.layer.cornerRadius = Constants.cornerRadius
-        if showsShadow {
-            layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Constants.cornerRadius).cgPath
-        }
+        applyCornerRadius()
     }
 
 	public override func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
-		backgroundColor = collection.css.getColor(.fill, selectors: [.hcCardView, .background], for: nil) ?? .white
+		let backgroundColor = collection.css.getColor(.fill, selectors: [.hcCardView, .background], for: nil) ?? HCStyle.Surface.dialogBackground(isDark: collection.isDark)
+		self.backgroundColor = backgroundColor
+		contentViewInternal.backgroundColor = backgroundColor
 	}
 
     private func updateShadow() {

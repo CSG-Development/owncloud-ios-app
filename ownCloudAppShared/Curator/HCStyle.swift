@@ -72,6 +72,42 @@ public enum HCStyle {
 		public static func barBackground(isDark: Bool) -> UIColor {
 			HCColor.Structure.barBackground(isDark)
 		}
+
+		public static func authBackground(isDark: Bool) -> UIColor {
+			HCColor.Structure.barBackground(isDark)
+		}
+
+		public static func dialogBackground(isDark: Bool) -> UIColor {
+			HCColor.Structure.cardBackground(isDark)
+		}
+	}
+
+	public enum Dropdown {
+		public static let cornerRadius: CGFloat = 4
+
+		public static func highlight(_: Bool) -> UIColor {
+			HCColor.Transparencies.green400_10
+		}
+	}
+
+	public enum Field {
+		public struct Colors {
+			public let label: UIColor
+			public let focusedLabel: UIColor
+		}
+
+		public static func colors(isDark: Bool) -> Colors {
+			Colors(
+				label: HCColor.Content.labels(isDark),
+				focusedLabel: HCColor.Green.link(isDark)
+			)
+		}
+	}
+
+	public enum Spinner {
+		public static func login(isDark: Bool) -> UIColor {
+			HCColor.Green.link(isDark)
+		}
 	}
 
 	public enum TabBar {

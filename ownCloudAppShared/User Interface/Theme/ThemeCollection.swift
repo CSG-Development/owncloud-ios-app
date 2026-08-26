@@ -699,7 +699,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.hcErrorView, .error], property: .fill, value: HCColor.Symbolic.error(isDark)),
 
 			// # HCCardView
-			ThemeCSSRecord(selectors: [.hcCardView, .background], property: .fill, value: HCColor.Structure.cardBackground(isDark)),
+			ThemeCSSRecord(selectors: [.hcCardView, .background], property: .fill, value: HCStyle.Surface.dialogBackground(isDark: isDark)),
 
 			// # HCOverlayView
 			ThemeCSSRecord(selectors: [.hcOverlayView, .background], property: .fill, value: HCColor.Mockups.overlayDefault(isDark)),
@@ -712,9 +712,10 @@ public class ThemeCollection : NSObject {
 			// ## Spinner
 			ThemeCSSRecord(selectors: [.spinner], property: .stroke, value: HCColor.Interaction.cta(isDark)),
 			ThemeCSSRecord(selectors: [.spinner], property: .fill, value: HCColor.Content.sliderBackground(isDark)),
+			ThemeCSSRecord(selectors: [.auth, .spinner], property: .stroke, value: HCStyle.Spinner.login(isDark: isDark)),
 
 			// ## Auth
-			ThemeCSSRecord(selectors: [.auth, .background], property: .fill, value: HCColor.Structure.appBackground(isDark)),
+			ThemeCSSRecord(selectors: [.auth, .background], property: .fill, value: HCStyle.Surface.authBackground(isDark: isDark)),
 			ThemeCSSRecord(selectors: [.label, .auth], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// ## App logo
@@ -727,7 +728,8 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.hcField, .error], property: .stroke, value: HCColor.Symbolic.error(isDark)),
 			ThemeCSSRecord(selectors: [.hcField], property: .borderWidth, value: CGFloat(1)),
 			ThemeCSSRecord(selectors: [.hcField, .selected], property: .borderWidth, value: CGFloat(3)),
-			ThemeCSSRecord(selectors: [.hcField, .text], property: .stroke, value: HCColor.Content.labels(isDark)),
+			ThemeCSSRecord(selectors: [.hcField, .text], property: .stroke, value: HCStyle.Field.colors(isDark: isDark).label),
+			ThemeCSSRecord(selectors: [.hcField, .selected, .text], property: .stroke, value: HCStyle.Field.colors(isDark: isDark).focusedLabel),
 
 			// ## HCTextField
 			ThemeCSSRecord(selectors: [.hcTextField, .placeholder], property: .stroke, value: HCColor.Content.gray3),
@@ -735,7 +737,7 @@ public class ThemeCollection : NSObject {
 
 			// ## HCDropdownView
 
-			ThemeCSSRecord(selectors: [.hcDropdownView], property: .fill, value: HCColor.Interaction.primaryTransparentNormal20(isDark)),
+			ThemeCSSRecord(selectors: [.hcDropdownView], property: .fill, value: HCStyle.Dropdown.highlight(isDark)),
 			ThemeCSSRecord(selectors: [.hcDropdownView], property: .stroke, value: HCColor.Content.textPrimary(isDark)),
 
 			// ## Sort bar

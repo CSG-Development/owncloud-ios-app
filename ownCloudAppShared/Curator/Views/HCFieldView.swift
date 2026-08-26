@@ -15,6 +15,7 @@ open class HCFieldView: ThemeCSSView {
 	private var focusedBorderColor: UIColor?
 	private var errorColor: UIColor?
 	private var titleColor: UIColor?
+	private var focusedTitleColor: UIColor?
 
 	private var borderWidth: CGFloat = 1
 	private var focusedBorderWidth: CGFloat = 1
@@ -120,7 +121,7 @@ open class HCFieldView: ThemeCSSView {
 	public func updateAppearance() {
 		let hasError = errorText != nil
 		let borderColor = hasError ? errorColor : (isActive ? focusedBorderColor : borderColor)
-		let titleColor = hasError ? errorColor : (isActive ? focusedBorderColor : titleColor)
+		let titleColor = hasError ? errorColor : (isActive ? focusedTitleColor : titleColor)
 
 		updateContentView()
 
@@ -144,6 +145,7 @@ open class HCFieldView: ThemeCSSView {
 		borderWidth = collection.css.getCGFloat(.borderWidth, selectors: [], for: self) ?? 1
 		focusedBorderWidth = collection.css.getCGFloat(.borderWidth, selectors: [.selected], for: self) ?? 1
 		titleColor = collection.css.getColor(.stroke, selectors: [.text], for: self)
+		focusedTitleColor = collection.css.getColor(.stroke, selectors: [.selected, .text], for: self) ?? focusedBorderColor
 
 		updateAppearance()
 
