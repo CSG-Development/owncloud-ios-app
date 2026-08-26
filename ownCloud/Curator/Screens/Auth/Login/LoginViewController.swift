@@ -191,8 +191,10 @@ final public class LoginViewController: UIViewController, Themeable {
 		let loadingLabel = ThemeCSSLabel()
 		loadingLabel.cssSelector = .auth
 		loadingLabel.text = HCL10n.Auth.Login.loadingViewTitle
+		let loadingSpinner = HCSpinnerView(frame: .zero)
+		loadingSpinner.cssSelectors = [.auth, .spinner]
 		let loadingView = UIStackView(arrangedSubviews: [
-			HCSpinnerView(frame: .zero),
+			loadingSpinner,
 			HCSpacerView(16, .vertical),
 			loadingLabel
 		])

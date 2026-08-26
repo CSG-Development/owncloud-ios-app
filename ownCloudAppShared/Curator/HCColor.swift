@@ -26,6 +26,7 @@ public enum HCColor {
 		public static let black = UIColor(hexString: "#000000FF")
 		public static let gray900 = UIColor(hexString: "#191919FF")
 		public static let gray850 = UIColor(hexString: "#2C2C2CFF")
+		public static let gray825 = UIColor(hexString: "#3D3D3DFF")
 		public static let gray800 = UIColor(hexString: "#4F4F4FFF")
 		public static let gray700 = UIColor(hexString: "#5D5D5DFF")
 		public static let gray600 = UIColor(hexString: "#6D6D6DFF")
@@ -59,6 +60,7 @@ public enum HCColor {
 		public static let greyDarken3_12 = Neutral.grayDarken3.withAlphaComponent(0.12)
 		public static let white_12 = Neutral.white.withAlphaComponent(0.12)
 		public static let black_87 = Neutral.black.withAlphaComponent(0.87)
+		public static let green400_10 = Green.green400.withAlphaComponent(CGFloat(0x1A) / 255.0)
 		public static let green400_12 = Green.green400.withAlphaComponent(0.12)
 		public static let green400_20 = Green.green400.withAlphaComponent(0.20)
 		public static let green300_12 = Green.green300.withAlphaComponent(0.12)
@@ -229,7 +231,7 @@ public enum HCColor {
 		}
 
 		public static func cardBackground(_ isDark: Bool) -> UIColor {
-			isDark ? UIColor(hexString: "#262729FF") : Neutral.white
+			isDark ? Neutral.gray825 : Neutral.white
 		}
 
 		public static func whiteBackground(_ isDark: Bool) -> UIColor {

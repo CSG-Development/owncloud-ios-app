@@ -109,6 +109,7 @@ public final class HCDropdownTextFieldView: HCTextFieldView, UITextFieldDelegate
 
 		// Prepare dropdown card container
 		dropdownCard.showsShadow = true
+		dropdownCard.cornerRadius = HCStyle.Dropdown.cornerRadius
 		dropdownCard.isHidden = true
 		dropdownCard.alpha = 0
 
@@ -149,7 +150,6 @@ public final class HCDropdownTextFieldView: HCTextFieldView, UITextFieldDelegate
                 self.onSelection?(idx, self.items[idx])
                 self.collapseDropdown()
             }
-            row.showSeparator = true
             stackView.addArrangedSubview(row)
         }
         updateSelectedState()
@@ -317,6 +317,7 @@ private final class DropdownOptionRow: ThemeCSSView {
         }
 
         separator.backgroundColor = .separator
+        separator.isHidden = true
         separator.snp.makeConstraints { make in
             make.top.equalTo(button.snp.bottom)
             make.leading.trailing.equalTo(button)
@@ -347,8 +348,7 @@ private final class DropdownOptionRow: ThemeCSSView {
 	}
 
     private func updateSelectionAppearance() {
-		let selectedColor = Theme.shared.activeCollection.css.getColor(.fill, selectors: [.hcDropdownView], for: nil) ?? .white
-
+		let selectedColor = HCStyle.Dropdown.highlight(Theme.shared.activeCollection.isDark)
         backgroundColor = isSelected ? selectedColor : .clear
     }
 
