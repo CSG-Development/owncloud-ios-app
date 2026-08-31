@@ -20,6 +20,11 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	private static let listIconSize: CGFloat = 40
 	private static let selectionIndicatorSize: CGFloat = 24
 	private static let accessorySize: CGFloat = 32
+	/// Extra tappable padding around the three-dot icon so slightly off-center taps open the context menu instead of the file.
+	private static let moreButtonHitPadding = NSDirectionalEdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 16)
+	private static var moreButtonWidth: CGFloat {
+		accessorySize + moreButtonHitPadding.leading + moreButtonHitPadding.trailing
+	}
 
 	private let iconImageView = UIImageView()
 	private let titleLabel = UILabel()
@@ -68,8 +73,7 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		detailSegmentView.itemSpacing = 5
 		detailSegmentView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
-		moreButton.setImage(UIImage(named: "more-dots")?.withRenderingMode(.alwaysTemplate), for: .normal)
-		moreButton.contentMode = .center
+		moreButton.configuration = makeMoreButtonConfiguration()
 		moreButton.isPointerInteractionEnabled = true
 		moreButton.accessibilityLabel = OCLocalizedString("More", nil)
 		moreButton.addTarget(self, action: #selector(moreButtonTapped), for: .primaryActionTriggered)
@@ -91,8 +95,7 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		contentView.addSubview(progressView)
 
 		NSLayoutConstraint.activate([
-			moreButton.widthAnchor.constraint(equalToConstant: Self.accessorySize),
-			moreButton.heightAnchor.constraint(equalToConstant: 42)
+			moreButton.widthAnchor.constraint(equalToConstant: Self.moreButtonWidth)
 		])
 
 		applyLayout(.list, showsSelection: false, showsAccessory: false)
@@ -192,7 +195,9 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		isDark = collection.isDark
 		titleLabel.textColor = HCColor.Content.textPrimary(collection.isDark)
 		detailLabel.textColor = HCColor.Content.textSecondary(collection.isDark)
-		moreButton.tintColor = HCColor.Interaction.buttonsPrimarySolidOutlined(collection.isDark)
+		moreButton.configuration = makeMoreButtonConfiguration(
+			foregroundColor: HCColor.Interaction.buttonsPrimarySolidOutlined(collection.isDark)
+		)
 		contentView.backgroundColor = .clear
 		backgroundColor = .clear
 		isOpaque = false
@@ -206,6 +211,14 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	@objc private func moreButtonTapped() {
 		guard let item = configuredItem, let clientContext else { return }
 		clientContext.moreItemHandler?.moreOptions(for: item, at: .moreItem, context: clientContext, sender: moreButton)
+	}
+
+	private func makeMoreButtonConfiguration(foregroundColor: UIColor? = nil) -> UIButton.Configuration {
+		var configuration = UIButton.Configuration.plain()
+		configuration.image = UIImage(named: "more-dots")?.withRenderingMode(.alwaysTemplate)
+		configuration.contentInsets = Self.moreButtonHitPadding
+		configuration.baseForegroundColor = foregroundColor
+		return configuration
 	}
 
 	private func iconSize(for layout: Layout) -> CGSize {
@@ -419,8 +432,14 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		let trailingContentAnchor: NSLayoutXAxisAnchor
 		let trailingContentConstant: CGFloat
 		if showsAccessory, layout == .list {
-			trailingContentAnchor = moreButton.isHidden ? progressView.leadingAnchor : moreButton.leadingAnchor
-			trailingContentConstant = -spacing
+			if moreButton.isHidden {
+				trailingContentAnchor = progressView.leadingAnchor
+				trailingContentConstant = -spacing
+			} else {
+				// Keep title/detail trailing aligned with the visual icon; the extra leading inset is tappable padding.
+				trailingContentAnchor = moreButton.leadingAnchor
+				trailingContentConstant = -spacing + Self.moreButtonHitPadding.leading
+			}
 		} else {
 			trailingContentAnchor = contentView.trailingAnchor
 			trailingContentConstant = -horizontalMargin
@@ -539,8 +558,9 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 
 		if showsAccessory, layout == .list {
 			layoutConstraints.append(contentsOf: [
-				moreButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -horizontalMargin),
-				moreButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+				moreButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+				moreButton.topAnchor.constraint(equalTo: contentView.topAnchor),
+				moreButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 				progressView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
 				progressView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 				progressView.widthAnchor.constraint(equalToConstant: 40),
