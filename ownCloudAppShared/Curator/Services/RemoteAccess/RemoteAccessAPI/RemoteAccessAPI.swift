@@ -224,7 +224,15 @@ public final class RemoteAccessAPI: NSObject, URLSessionDelegate, URLSessionTask
 		req.httpMethod = "GET"
 		injectAuth(&req)
 
-		return  try await request(req)
+		var paths: RADevicePaths = try await request(req)
+
+		#if DEBUG
+		// Patch homecloud-dev to have remote URL.
+		if paths.paths.contains(where: { $0.address == "homecloud-dev.noveogroup.com/" }) {
+			paths.paths.append(.init(type: .remote, address: "homecloud-dev.noveogroup.com/"))
+		}
+		#endif
+		return paths
 	}
 
 	private func injectAuth(_ request: inout URLRequest) {

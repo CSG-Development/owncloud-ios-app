@@ -236,6 +236,7 @@ final public class LoginViewController: UIViewController, Themeable {
 	private func setupUI() {
 		let dismissKeyboardRecognizer = UITapGestureRecognizer(target: self, action: #selector(closeKeyboard))
 		dismissKeyboardRecognizer.cancelsTouchesInView = false
+		dismissKeyboardRecognizer.delegate = self
 		view.addGestureRecognizer(dismissKeyboardRecognizer)
 
 		view.addSubview(scrollView)
@@ -737,6 +738,19 @@ final public class LoginViewController: UIViewController, Themeable {
 
 	private func updateSettingsButtonVisibility(isEnabled: Bool) {
 		settingsButton.isHidden = !isEnabled
+	}
+}
+
+extension LoginViewController: UIGestureRecognizerDelegate {
+	public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+		var hitView = touch.view
+		while let current = hitView, current !== view {
+			if current is UIControl {
+				return false
+			}
+			hitView = current.superview
+		}
+		return true
 	}
 }
 
