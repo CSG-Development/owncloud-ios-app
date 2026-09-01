@@ -269,6 +269,7 @@ public actor DetectionPipeline {
 	/// Fetches remote devices from RA and upserts them without clearing probes or locals.
 	public func mergeRemoteDevices(email: String) async throws {
 		let remote = try await remoteAccessService.getRemoteDevices(email: email)
+		Log.debug("[STX-RA]: RA catalog returned \(remote.count) device(s): \(remote.map { "\($0.certificateCommonName)=[\($0.paths.map(\.kind.rawValue).joined(separator: ","))]" })")
 		for device in remote {
 			await catalog.upsertRemoteDevice(device)
 		}

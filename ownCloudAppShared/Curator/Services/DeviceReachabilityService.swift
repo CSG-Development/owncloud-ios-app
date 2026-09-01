@@ -330,15 +330,19 @@ public final actor DeviceReachabilityService {
 	// MARK: - Post-login catalog sync
 
 	/// Refreshes the RA device list without clearing login probes or restarting mDNS.
+	/// The device list is authenticated by the RA tokens alone, so a missing favorite email
+	/// must not stop the fetch — it is only passed through for logging on the pipeline side.
 	public func mergeRemoteCatalogAfterLogin() async {
-		guard let email = preferences.favoriteEmail, !email.isEmpty else { return }
-		guard await remoteAccessService.hasValidTokens() else { return }
+		guard await remoteAccessService.hasValidTokens() else {
+			Log.debug("[STX-RA]: Remote catalog merge skipped — no valid RA tokens.")
+			return
+		}
 		do {
-			try await pipeline.mergeRemoteDevices(email: email)
+			try await pipeline.mergeRemoteDevices(email: preferences.favoriteEmail ?? "")
 			await connectivityCoordinator?.invalidateConfiguredProbePaths()
-			Self.logReachability("post-login remote catalog merged")
+			Log.debug("[STX-RA]: Remote catalog merged.")
 		} catch {
-			Self.logReachability("post-login remote catalog merge failed: \(error.localizedDescription)")
+			Log.debug("[STX-RA]: Remote catalog merge failed: \(error.localizedDescription)")
 		}
 	}
 
@@ -529,8 +533,18 @@ public final actor DeviceReachabilityService {
 	}
 
 	public func currentRemoteBaseURL() async -> URL? {
-		guard let cn = preferences.favoriteDeviceCN else { return nil }
-		return await catalog.remoteBaseURL(forCN: cn)
+		guard let cn = preferences.favoriteDeviceCN else {
+			Log.debug("[STX-RA]: No favorite device CN — no remote base URL.")
+			return nil
+		}
+		let url = await catalog.remoteBaseURL(forCN: cn)
+		if url == nil {
+			let known = await catalog.remoteDevices().map { device in
+				"\(device.certificateCommonName)=[\(device.paths.map(\.kind.rawValue).joined(separator: ","))]"
+			}
+			Log.debug("[STX-RA]: No remote path for '\(cn)'. Catalog holds: \(known)")
+		}
+		return url
 	}
 
 	public func nextURLToAttempt(for merged: MergedDevice) -> SelectedPath? {
