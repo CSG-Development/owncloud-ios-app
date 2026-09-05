@@ -981,17 +981,20 @@ open class ShareViewController: CollectionViewController, SearchViewControllerDe
 				if type == .link {
 					Task { [weak self] in
 						guard let self else { return }
-						let remoteBaseURL = await HCContext.shared.deviceReachabilityService.currentRemoteBaseURL()
-						guard remoteBaseURL != nil else {
-							await MainActor.run {
-								self.bottomButtonBar?.modalActionRunning = false
-								self.showSharingUnavailableAlert(message: HCL10n.Sharing.publicNotAvilableDescription)
-							}
-							return
-						}
-
-						await MainActor.run {
-							self.createShare(newShare, core: core, andShare: andShare, presentingViewController: presentingViewController)
+						switch await RemoteAccessSharingURLResolver.ensureRemotePathForPublicLinks(from: self) {
+							case .available:
+								await MainActor.run {
+									self.createShare(newShare, core: core, andShare: andShare, presentingViewController: presentingViewController)
+								}
+							case .cancelled:
+								await MainActor.run {
+									self.bottomButtonBar?.modalActionRunning = false
+								}
+							case .unavailable:
+								await MainActor.run {
+									self.bottomButtonBar?.modalActionRunning = false
+									self.showSharingUnavailableAlert(message: HCL10n.Sharing.remoteLinkNotAvailableDescription)
+								}
 						}
 					}
 					return

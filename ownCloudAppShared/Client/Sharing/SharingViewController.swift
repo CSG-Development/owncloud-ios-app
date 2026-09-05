@@ -55,89 +55,34 @@ open class SharingViewController: CollectionViewController {
 
 	private var navigationSeparatorView: UIView?
 
-	private var isCheckingRemoteAccess: Bool = false
+	private var isCheckingRemoteAccess: Bool = true
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
-
-		// Start in "checking" state: show spinner section if available
 		isCheckingRemoteAccess = true
 		updatePublicLinksVisibility()
 
-		// Kick off RA flow to try to enable remote access and refresh links
 		Task { [weak self] in
-			await self?.ensureRemoteAccessAndRefreshLinks()
+			await self?.determineRemoteAccessAvailability()
 		}
 	}
 
 	private func updatePublicLinksVisibility() {
 		guard let linksSection else { return }
 
-		if let remoteURL = HCContext.shared.lastRemoteBaseURL, remoteURL.absoluteString.isEmpty == false {
-			// Remote URL available → show real links data
-			if let ds = linksSectionDatasource {
-				linksSection.dataSource = ds
-			}
-			linksSection.hidden = false
-		} else if isCheckingRemoteAccess, let loadingDS = linksLoadingDataSource {
-			// Still checking RA → show spinner
+		if isCheckingRemoteAccess, let loadingDS = linksLoadingDataSource {
 			linksSection.dataSource = loadingDS
 			linksSection.hidden = false
-		} else {
-			// No RA and not checking → hide section
-			linksSection.hidden = true
+		} else if let ds = linksSectionDatasource {
+			linksSection.dataSource = ds
+			linksSection.hidden = false
 		}
 	}
 
-	private func ensureRemoteAccessAndRefreshLinks() async {
-		// Already have a remote URL → stop checking and show links
-		if HCContext.shared.lastRemoteBaseURL != nil {
-			await MainActor.run { [weak self] in
-				guard let self else { return }
-				self.isCheckingRemoteAccess = false
-				self.updatePublicLinksVisibility()
-			}
-			return
-		}
-
-		let raService = HCContext.shared.remoteAccessService
-		let deviceService = HCContext.shared.deviceReachabilityService
-
-		let hasTokens = await raService.hasValidTokens()
-		var isAuthenticated = hasTokens
-
-		if !hasTokens {
-			guard
-				let email = HCContext.shared.preferences.favoriteEmail,
-				let handler = HCContext.shared.emailVerificationHandler
-			else {
-				await MainActor.run { [weak self] in
-					guard let self else { return }
-					self.isCheckingRemoteAccess = false
-					self.updatePublicLinksVisibility()
-				}
-				return
-			}
-
-			isAuthenticated = await withCheckedContinuation { continuation in
-				Task { @MainActor in
-					handler(email) { authenticated in
-						continuation.resume(returning: authenticated)
-					}
-				}
-			}
-		}
-
-		guard isAuthenticated else {
-			await MainActor.run { [weak self] in
-				guard let self else { return }
-				self.isCheckingRemoteAccess = false
-				self.updatePublicLinksVisibility()
-			}
-			return
-		}
-
-		await deviceService.forceReloadDevices()
+	/// Warms up the remote path so tapping "Create link" can answer without a round-trip.
+	/// Never prompts: enabling Remote Access is only offered once the user asks for a link.
+	private func determineRemoteAccessAvailability() async {
+		_ = await RemoteAccessSharingURLResolver.hasRemotePath()
 
 		await MainActor.run { [weak self] in
 			guard let self else { return }
@@ -218,7 +163,6 @@ open class SharingViewController: CollectionViewController {
 		if clientContext.core?.connection.capabilities?.publicSharingEnabled == true {
 			addLinkDataSource = OCDataSourceArray(items: [])
 
-			// Loading (spinner) container for RA checks, with clear background
 			let spinnerView = HCSpinnerView(frame: .zero)
 			let spinnerContainer = UIView()
 			spinnerContainer.backgroundColor = .clear
@@ -230,7 +174,6 @@ open class SharingViewController: CollectionViewController {
 			NSLayoutConstraint.activate([
 				spinnerView.centerXAnchor.constraint(equalTo: spinnerContainer.centerXAnchor),
 				spinnerView.centerYAnchor.constraint(equalTo: spinnerContainer.centerYAnchor),
-				// Ensure vertical padding so the spinner doesn't touch section bounds
 				spinnerContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 48 + inset * 2)
 			])
 			linksLoadingDataSource = OCDataSourceArray(items: [spinnerContainer])
@@ -267,7 +210,7 @@ open class SharingViewController: CollectionViewController {
 					*/
 				})
 
-				linksSection = CollectionViewSection(identifier: "links", dataSource: linksSectionDatasource, cellStyle: managementCellStyle, cellLayout: .list(appearance: .insetGrouped, contentInsets: .insetGroupedSectionInsets), clientContext: managementClientContext)
+				linksSection = CollectionViewSection(identifier: "links", dataSource: linksLoadingDataSource ?? linksSectionDatasource, cellStyle: managementCellStyle, cellLayout: .list(appearance: .insetGrouped, contentInsets: .insetGroupedSectionInsets), clientContext: managementClientContext)
 				linksSection?.boundarySupplementaryItems = [
 					.smallTitle(OCLocalizedString("Public Links", nil))
 				]
@@ -306,7 +249,7 @@ open class SharingViewController: CollectionViewController {
 
 		var linkActions = [
 			OCAction(title: OCLocalizedString("Create link", nil), icon: UIImage(named: "plus-in-circle", in: Bundle.sharedAppBundle, with: nil), action: { [weak self] (action, options, completion) in
-				self?.createShare(type: .link)
+				self?.createPublicLinkIfRemoteAccessAvailable()
 				completion(nil)
 			})
 		]
@@ -460,6 +403,20 @@ open class SharingViewController: CollectionViewController {
 			.withoutDisclosure : !allowEditing
 		]
 		return managementCellStyle
+	}
+
+	func createPublicLinkIfRemoteAccessAvailable() {
+		Task { @MainActor [weak self] in
+			guard let self else { return }
+			switch await RemoteAccessSharingURLResolver.ensureRemotePathForPublicLinks(from: self) {
+				case .available:
+					self.createShare(type: .link)
+				case .cancelled:
+					break
+				case .unavailable:
+					self.showSharingUnavailableAlert(message: HCL10n.Sharing.remoteLinkNotAvailableDescription)
+			}
+		}
 	}
 
 	func createShare(type: ShareViewController.ShareType) {

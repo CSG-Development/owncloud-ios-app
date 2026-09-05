@@ -246,7 +246,11 @@ public enum HCL10n {
 	public enum Sharing {
 		public static var sharingNotPossible: String { OCLocalizedString("Sharing.sharingNotPossible", nil) }
 		public static var raNotAvilableDescription: String { OCLocalizedString("Sharing.raNotAvilableDescription", nil) }
+		public static var remoteLinkNotAvailableDescription: String { OCLocalizedString("Sharing.remoteLinkNotAvailableDescription", nil) }
 		public static var publicNotAvilableDescription: String { OCLocalizedString("Sharing.publicNotAvilableDescription", nil) }
+		public static var remoteAccessRequiredTitle: String { OCLocalizedString("Sharing.remoteAccessRequiredTitle", nil) }
+		public static var remoteAccessRequiredMessage: String { OCLocalizedString("Sharing.remoteAccessRequiredMessage", nil) }
+		public static var enableRemoteAccess: String { OCLocalizedString("Sharing.enableRemoteAccess", nil) }
 	}
 
 	public enum TrustPrompt {
