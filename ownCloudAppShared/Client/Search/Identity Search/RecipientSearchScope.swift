@@ -28,7 +28,9 @@ open class RecipientSearchScope: SearchScope {
 	public init(with context: ClientContext, cellStyle: CollectionViewCellStyle?, item: OCItem, localizedName name: String, localizedPlaceholder placeholder: String? = nil, icon: UIImage? = nil, filter: RecipientFilter? = nil) {
 		if let core = context.core {
 			recipientSearchController = core.recipientSearchController(for: item)
-			recipientSearchController?.minimumSearchTermLength = core.connection.capabilities?.sharingSearchMinLength?.uintValue ?? UInt(OCCapabilities.defaultSharingSearchMinLength)
+			// Search from the first character so single-letter usernames and display names can be found.
+			// Server capabilities typically report search_min_length=2, which skipped the request until a second character.
+			recipientSearchController?.minimumSearchTermLength = 1
 		}
 
 		self.item = item
