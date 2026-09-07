@@ -40,7 +40,7 @@ class CutAction : Action {
 
 	// MARK: - Action implementation
 	override func run() {
-		guard context.items.count > 0, let viewController = context.viewController, let core = context.core else {
+		guard context.items.count > 0, let core = context.core else {
 			completed(with: NSError(ocError: .insufficientParameters))
 			return
 		}
@@ -50,16 +50,12 @@ class CutAction : Action {
 		var itemProviderItems: [NSItemProvider] = []
 		let globalPasteboard = UIPasteboard.general
 		globalPasteboard.items = []
-		var containsFolders = false
 
 		items.forEach({ (item) in
 
 			let itemProvider = NSItemProvider()
 
 			itemProvider.suggestedName = item.name
-			if item.type == .collection {
-				containsFolders = true
-			}
 
 			itemProvider.registerDataRepresentation(forTypeIdentifier: ImportPasteboardAction.InternalPasteboardCutKey, visibility: .ownProcess) { (completionBlock) -> Progress? in
 				let data = OCItemPasteboardValue(item: item, bookmarkUUID: uuid).encodedData
@@ -70,21 +66,13 @@ class CutAction : Action {
 
 		})
 		globalPasteboard.itemProviders = itemProviderItems
+		CutPasteboardState.shared.setCut(items: items, bookmarkUUID: uuid)
 
-		var subtitle = OCLocalizedString("%ld Item was copied to the clipboard", nil)
-		if itemProviderItems.count > 1 {
-			subtitle = OCLocalizedString("%ld Items were copied to the clipboard", nil)
-		}
-
-		if containsFolders {
-			let subtitleFolder = String(format:OCLocalizedString("Please note: Folders can only be pasted into the %@ app and the same account.", nil), VendorServices.shared.appName)
-			subtitle = String(format: "%@\n\n%@", subtitle, subtitleFolder)
-		}
+		let message = HCL10n.CutPaste.Toast.itemsCut(itemProviderItems.count)
 
 		OnMainThread {
-			if let navigationController = viewController.navigationController {
-				_ = NotificationHUDViewController(on: navigationController, title: OCLocalizedString("Cut", nil), subtitle: String(format: subtitle, itemProviderItems.count))
-			}
+			let anchor = self.context.clientContext?.presentationViewController ?? self.context.viewController
+			CutPasteboardToastPresenter.show(message, on: anchor)
 		}
 
 		completed()

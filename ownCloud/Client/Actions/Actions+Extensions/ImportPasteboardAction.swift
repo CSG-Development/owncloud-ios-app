@@ -36,7 +36,7 @@ class ImportPasteboardAction : Action {
 	override class var identifier : OCExtensionIdentifier? { return OCExtensionIdentifier("com.owncloud.action.importpasteboard") }
 	override class var category : ActionCategory? { return .normal }
 	override class var name : String? { return OCLocalizedString("Paste", nil) }
-	override class var locations : [OCExtensionLocationIdentifier]? { return [.moreFolder, .keyboardShortcut, .emptyFolder] }
+	override class var locations : [OCExtensionLocationIdentifier]? { return [.moreFolder, .keyboardShortcut, .emptyFolder, .folderAction] }
 	override class var keyCommand : String? { return "V" }
 	override class var keyModifierFlags: UIKeyModifierFlags? { return [.command] }
 
@@ -48,12 +48,19 @@ class ImportPasteboardAction : Action {
 	override class func applicablePosition(forContext: ActionContext) -> ActionPosition {
 		let pasteboard = UIPasteboard.general
 
-		if forContext.items.first?.permissions.contains(.createFolder) == false ||
-		   forContext.items.first?.permissions.contains(.createFile) == false {
+		guard let targetItem = forContext.items.first else {
 			return .none
 		}
 
-		if pasteboard.numberOfItems > 0 {
+		// Accept paste when the folder can create files and/or folders (some backends
+		// only advertise one of the two bits outside space scope).
+		let canCreateFile = targetItem.permissions.contains(.createFile)
+		let canCreateFolder = targetItem.permissions.contains(.createFolder)
+		if !canCreateFile && !canCreateFolder {
+			return .none
+		}
+
+		if pasteboard.numberOfItems > 0 || !CutPasteboardState.shared.cutLocalIDs.isEmpty {
 			return .afterMiddle
 		}
 
@@ -143,6 +150,7 @@ class ImportPasteboardAction : Action {
 									self.completed(with: error)
 								} else {
 									generalPasteboard.items = []
+									CutPasteboardState.shared.clear()
 								}
 							}
 						} else {
@@ -164,6 +172,7 @@ class ImportPasteboardAction : Action {
 															Log.log("Error \(String(describing: error)) deleting \(String(describing: srcItem.path))")
 														} else {
 															generalPasteboard.items = []
+															CutPasteboardState.shared.clear()
 														}
 
 														// Return source account core

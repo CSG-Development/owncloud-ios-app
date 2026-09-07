@@ -31,6 +31,7 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	private var spaceHeaderTitle: String?
 	private var showsSpaceHeader = false
 	private var highlightItemReference: OCDataItemReference?
+	private var cutStateObserver: NSObjectProtocol?
 
 	/// Used by ClientContext permission handlers in this type.
 	private var isMultiSelecting: Bool { multiSelect.isActive }
@@ -186,6 +187,9 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	deinit {
 		queryBridge.terminate()
 		zipActivity.stopObserving()
+		if let cutStateObserver {
+			NotificationCenter.default.removeObserver(cutStateObserver)
+		}
 		if themeRegistered {
 			Theme.shared.unregister(client: self)
 		}
@@ -195,6 +199,19 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 
 	open override func viewDidLoad() {
 		super.viewDidLoad()
+
+		cutStateObserver = NotificationCenter.default.addObserver(
+			forName: CutPasteboardState.didChangeNotification,
+			object: nil,
+			queue: .main
+		) { [weak self] _ in
+			guard let self else { return }
+			if self.contentState == .empty {
+				self.applyContentStateUI()
+			}
+			// Refresh + menu / folder actions so Paste appears after Cut.
+			self.updateNavigationBarButtonItems()
+		}
 
 		view.addSubview(actionsBar.containerView)
 		view.addSubview(sortBar)
@@ -528,7 +545,8 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 				loadingOverlayView.stopAnimating()
 				emptyOverlayView.configure(
 					title: OCLocalizedString("No contents", nil),
-					message: OCLocalizedString("This folder has no contents.", nil)
+					message: OCLocalizedString("This folder has no contents.", nil),
+					actions: emptyOverlayActions()
 				)
 				collectionView.isHidden = false
 			case .removed:
@@ -722,6 +740,26 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 			return
 		}
 		moreItemHandler.moreOptions(for: rootItem, at: .moreFolder, context: clientContext, sender: sender)
+	}
+
+	private func emptyOverlayActions() -> [(title: String, handler: () -> Void)] {
+		guard let context = clientContext,
+		      let core = context.core,
+		      let item = query?.rootItem ?? (context.rootItem as? OCItem),
+		      context.hasPermission(for: .addContent) == true else {
+			return []
+		}
+
+		let originatingViewController: UIViewController = context.originatingViewController ?? self
+		let actionsLocation = OCExtensionLocation(ofType: .action, identifier: .emptyFolder)
+		let actionContext = ActionContext(viewController: originatingViewController, clientContext: context, core: core, query: query, items: [item], location: actionsLocation, sender: self)
+		let emptyFolderActions = Action.sortedApplicableActions(for: actionContext)
+
+		return emptyFolderActions.map { action in
+			(title: action.actionExtension.name, handler: {
+				action.perform()
+			})
+		}
 	}
 
 	private func updateNavigationTitleFromContext() {

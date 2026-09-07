@@ -48,6 +48,7 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	private var observedLocalID: OCLocalID?
 	private var progressObserver: NSObjectProtocol?
 	private var activityObserver: NSObjectProtocol?
+	private var cutStateObserver: NSObjectProtocol?
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -98,6 +99,14 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 			moreButton.widthAnchor.constraint(equalToConstant: Self.moreButtonWidth)
 		])
 
+		cutStateObserver = NotificationCenter.default.addObserver(
+			forName: CutPasteboardState.didChangeNotification,
+			object: nil,
+			queue: .main
+		) { [weak self] _ in
+			self?.updateCutAppearance()
+		}
+
 		applyLayout(.list, showsSelection: false, showsAccessory: false)
 	}
 
@@ -107,6 +116,9 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 
 	deinit {
 		stopObservingProgress()
+		if let cutStateObserver {
+			NotificationCenter.default.removeObserver(cutStateObserver)
+		}
 		if themeRegistered {
 			Theme.shared.unregister(client: self)
 		}
@@ -132,6 +144,8 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 		selectionIndicator.isHidden = true
 		selectionIndicator.isSelected = false
 		contentView.backgroundColor = .clear
+		contentView.alpha = 1
+		alpha = 1
 	}
 
 	override func didMoveToWindow() {
@@ -188,6 +202,7 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 
 		loadIcon(for: item, core: core, layout: layout, reloadPlaceholder: shouldReloadIcon)
 		startObservingProgress(for: item)
+		updateCutAppearance()
 		updateAccessibility(layout: layout, showsListDetail: showsListDetail)
 	}
 
@@ -211,6 +226,13 @@ final class FileListItemCell: UICollectionViewCell, Themeable {
 	@objc private func moreButtonTapped() {
 		guard let item = configuredItem, let clientContext else { return }
 		clientContext.moreItemHandler?.moreOptions(for: item, at: .moreItem, context: clientContext, sender: moreButton)
+	}
+
+	private func updateCutAppearance() {
+		let isCut = configuredItem.map { CutPasteboardState.shared.contains($0) } ?? false
+		let cutAlpha: CGFloat = 0.45
+		contentView.alpha = isCut ? cutAlpha : 1
+		accessibilityValue = isCut ? OCLocalizedString("Cut", nil) : nil
 	}
 
 	private func makeMoreButtonConfiguration(foregroundColor: UIColor? = nil) -> UIButton.Configuration {
