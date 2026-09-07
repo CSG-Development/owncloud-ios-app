@@ -142,7 +142,7 @@ public final class CodeVerificationService {
 			container = vc
 			let animator = CrossDissolveTransitioningDelegate()
 			vc.transitioningDelegate = animator
-			vc.modalPresentationStyle = .custom
+			vc.modalPresentationStyle = .overFullScreen
 			self.animator = animator
 
 			topMostController(from: rootViewController)?.present(vc, animated: true)

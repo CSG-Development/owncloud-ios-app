@@ -1,11 +1,39 @@
 import UIKit
 
+/// Full-screen presentation so `.custom` overlays resize with the window.
+/// Without this, iPad rotation leaves the presented view (and its first responder) stale.
+final class CrossDissolvePresentationController: UIPresentationController {
+	override var shouldPresentInFullscreen: Bool { true }
+
+	override var shouldRemovePresentersView: Bool { false }
+
+	override var frameOfPresentedViewInContainerView: CGRect {
+		containerView?.bounds ?? .zero
+	}
+
+	override func containerViewWillLayoutSubviews() {
+		super.containerViewWillLayoutSubviews()
+		presentedView?.frame = frameOfPresentedViewInContainerView
+	}
+}
+
 public final class CrossDissolveTransitioningDelegate: NSObject,
 	UIViewControllerTransitioningDelegate,
 	UIViewControllerAnimatedTransitioning
 {
 	private var isDismissing = false
 	private let duration: TimeInterval = 0.25
+
+	public func presentationController(
+		forPresented presented: UIViewController,
+		presenting: UIViewController?,
+		source: UIViewController
+	) -> UIPresentationController? {
+		CrossDissolvePresentationController(
+			presentedViewController: presented,
+			presenting: presenting
+		)
+	}
 
 	public func animationController(
 		forPresented presented: UIViewController,

@@ -114,6 +114,19 @@ final public class CodeVerificationCardViewController: UIViewController, Themeab
 		codeView.focus()
 	}
 
+	public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+		super.viewWillTransition(to: size, with: coordinator)
+		guard isViewLoaded, codeView != nil else { return }
+
+		let focusedIndex = codeView.focusedDigitIndex
+		codeView.unfocus()
+		coordinator.animate(alongsideTransition: { [weak self] _ in
+			self?.view.layoutIfNeeded()
+		}, completion: { [weak self] _ in
+			self?.codeView.restoreInputAfterOrientationChange(preferredIndex: focusedIndex)
+		})
+	}
+
 	private func setupUI() {
 		view.backgroundColor = .clear
 		view.translatesAutoresizingMaskIntoConstraints = false
