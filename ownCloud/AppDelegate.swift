@@ -110,6 +110,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		OCExtensionManager.shared.addExtension(PDFGoToPageAction.actionExtension)
 		OCExtensionManager.shared.addExtension(ImportPasteboardAction.actionExtension)
 		OCExtensionManager.shared.addExtension(CutAction.actionExtension)
+		OCExtensionManager.shared.addExtension(ClearPasteboardAction.actionExtension)
 		OCExtensionManager.shared.addExtension(CreateDocumentAction.actionExtension)
 		OCExtensionManager.shared.addExtension(AddToSidebarAction.actionExtension)
 		OCExtensionManager.shared.addExtension(RemoveFromSidebarAction.actionExtension)

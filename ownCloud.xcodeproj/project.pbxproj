@@ -78,6 +78,7 @@
 		399697F5260255B100E5AEBA /* PDFGotoPageAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399697F1260255B100E5AEBA /* PDFGotoPageAction.swift */; };
 		399698ED260A3CEE00E5AEBA /* ImportPasteboardAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391220922344C30F0026C290 /* ImportPasteboardAction.swift */; };
 		39969904260A3CF500E5AEBA /* CutAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 391220932344C30F0026C290 /* CutAction.swift */; };
+		0E2C25549D564D2EB0CEE63F /* ClearPasteboardAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC474273FA7145E2A8B2E354 /* ClearPasteboardAction.swift */; };
 		399725E1233DF39300FC3B94 /* Calendar+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399725E0233DF39300FC3B94 /* Calendar+Extension.swift */; };
 		3998F5D522411EDF00B66713 /* BorderedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3998F5D422411EDF00B66713 /* BorderedLabel.swift */; };
 		3998F5D72241486F00B66713 /* OCCertificate+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3998F5D62241486F00B66713 /* OCCertificate+Extension.swift */; };
@@ -796,6 +797,9 @@
 		DCE2F03E27FADF2600E9E136 /* UICollectionViewDiffableDataSource+Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE2F03D27FADF2600E9E136 /* UICollectionViewDiffableDataSource+Tools.swift */; };
 		DCE442CE2387452000940A6D /* LicensingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DCC0856B2293F1FD008CC05C /* LicensingTests.m */; };
 		DCE4E43524C1999A0051722F /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E37F48A2188B27D00CF16CA /* Action.swift */; };
+		6C28D04451D543DF88504C26 /* CutPasteboardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DD1BBC90554CC4BBCDAE97 /* CutPasteboardState.swift */; };
+		852CDBEEE3B54A608E792F7F /* CutPasteboardToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CBB9651686B48F29141EA97 /* CutPasteboardToastView.swift */; };
+		132A6CD387B14E8A9C7B563A /* CutPasteboardToastPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC0B07B4B82B478BAB431155 /* CutPasteboardToastPresenter.swift */; };
 		DCE4E43724C19A910051722F /* LicenseRequirements.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCDC209B2399A4CF003CFF5B /* LicenseRequirements.swift */; };
 		DCE4E43924C19AB20051722F /* MoreStaticTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232B01F52126B10900366FA0 /* MoreStaticTableViewController.swift */; };
 		DCE4E43A24C19ADC0051722F /* MoreViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232B01F32126B0CE00366FA0 /* MoreViewHeader.swift */; };
@@ -1283,6 +1287,7 @@
 		3912208123436EB80026C290 /* SortMethod.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SortMethod.swift; sourceTree = "<group>"; };
 		391220922344C30F0026C290 /* ImportPasteboardAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportPasteboardAction.swift; sourceTree = "<group>"; };
 		391220932344C30F0026C290 /* CutAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CutAction.swift; sourceTree = "<group>"; };
+		DC474273FA7145E2A8B2E354 /* ClearPasteboardAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearPasteboardAction.swift; sourceTree = "<group>"; };
 		3912D8AB29958BF400EDCB9A /* OCThemeValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCThemeValues.h; sourceTree = "<group>"; };
 		3912D8AC29958BF400EDCB9A /* OCThemeValues.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCThemeValues.m; sourceTree = "<group>"; };
 		391933B42B0B81DB007DF90B /* ownCloud Action Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ownCloud Action Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1417,6 +1422,9 @@
 		67188EA2E7B44BC680BA9DC2 /* StreamingProxyServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingProxyServer.swift; sourceTree = "<group>"; };
 		6E22510E397545909942170F /* FileListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListViewController.swift; sourceTree = "<group>"; };
 		6E37F48A2188B27D00CF16CA /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
+		C6DD1BBC90554CC4BBCDAE97 /* CutPasteboardState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutPasteboardState.swift; sourceTree = "<group>"; };
+		7CBB9651686B48F29141EA97 /* CutPasteboardToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutPasteboardToastView.swift; sourceTree = "<group>"; };
+		FC0B07B4B82B478BAB431155 /* CutPasteboardToastPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutPasteboardToastPresenter.swift; sourceTree = "<group>"; };
 		6E3A103D219D5BBA00F90C96 /* RenameAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameAction.swift; sourceTree = "<group>"; };
 		6E3A104C219D6F0100F90C96 /* DuplicateAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateAction.swift; sourceTree = "<group>"; };
 		6E4F1733217749910049A71B /* ImageDisplayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDisplayViewController.swift; sourceTree = "<group>"; };
@@ -2696,6 +2704,7 @@
 				DC6B971C2D21F7620045E73F /* MembersSpaceAction.swift */,
 				DC9CE3D12D1080EE00979C44 /* DetailsSpaceAction.swift */,
 				391220932344C30F0026C290 /* CutAction.swift */,
+				DC474273FA7145E2A8B2E354 /* ClearPasteboardAction.swift */,
 				399697F1260255B100E5AEBA /* PDFGotoPageAction.swift */,
 				391220922344C30F0026C290 /* ImportPasteboardAction.swift */,
 				39CD755123D787E400193950 /* DocumentEditingAction.swift */,
@@ -4457,6 +4466,9 @@
 			isa = PBXGroup;
 			children = (
 				6E37F48A2188B27D00CF16CA /* Action.swift */,
+				C6DD1BBC90554CC4BBCDAE97 /* CutPasteboardState.swift */,
+				7CBB9651686B48F29141EA97 /* CutPasteboardToastView.swift */,
+				FC0B07B4B82B478BAB431155 /* CutPasteboardToastPresenter.swift */,
 				DC62F57629268D740095BB5D /* Implementations */,
 			);
 			path = Actions;
@@ -5741,6 +5753,7 @@
 				DCD2D40622F06ECA0071FB8F /* DataSettingsSection.swift in Sources */,
 				DC9CE3D52D10813F00979C44 /* ManageSpaceAction.swift in Sources */,
 				39969904260A3CF500E5AEBA /* CutAction.swift in Sources */,
+				0E2C25549D564D2EB0CEE63F /* ClearPasteboardAction.swift in Sources */,
 				4C464BF22187AF1500D30602 /* PDFSearchViewController.swift in Sources */,
 				DC6C0A4929239E560045FF2A /* AppRootViewController.swift in Sources */,
 				997882872F28AFF600BCBB67 /* DeveloperOptionsViewModel.swift in Sources */,
@@ -5826,6 +5839,9 @@
 				99E73EB32F18FE0400477600 /* RemoteAccessSharingURLResolver.swift in Sources */,
 				DC46F3D72845FCFA00038880 /* UIView+OCDataItem.swift in Sources */,
 				DCE4E43524C1999A0051722F /* Action.swift in Sources */,
+				6C28D04451D543DF88504C26 /* CutPasteboardState.swift in Sources */,
+				852CDBEEE3B54A608E792F7F /* CutPasteboardToastView.swift in Sources */,
+				132A6CD387B14E8A9C7B563A /* CutPasteboardToastPresenter.swift in Sources */,
 				DC298CAE2936598B009FA87F /* DriveGridCell.swift in Sources */,
 				DC46F3D5284563BD00038880 /* OCAction+Interactions.swift in Sources */,
 				DC8E99E5297EEB2800594697 /* ClientLocationBarController.swift in Sources */,

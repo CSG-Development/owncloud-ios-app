@@ -376,4 +376,17 @@ public enum HCL10n {
 			public static var confirm: String { OCLocalizedString("Trash.Delete.confirm", nil) }
 		}
 	}
+
+	public enum CutPaste {
+		public enum Toast {
+			public static func itemsCut(_ count: Int) -> String {
+				String(format: OCLocalizedString("CutPaste.Toast.itemsCut", nil), count)
+			}
+			public static var clipboardCleared: String { OCLocalizedString("CutPaste.Toast.clipboardCleared", nil) }
+		}
+
+		public enum ClearClipboard {
+			public static var name: String { OCLocalizedString("CutPaste.ClearClipboard.name", nil) }
+		}
+	}
 }

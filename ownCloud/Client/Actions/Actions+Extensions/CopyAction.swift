@@ -247,6 +247,7 @@ class CopyAction : Action {
 				})
 
 				globalPasteboard.itemProviders = itemProviderItems
+				CutPasteboardState.shared.clear()
 
 				var subtitle = OCLocalizedString("%ld Item was copied to the clipboard", nil)
 				if itemProviderItems.count > 1 {
