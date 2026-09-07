@@ -61,6 +61,7 @@ final class CodeVerificationContainerViewController: UIViewController, Themeable
 		let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapOverlay))
 		tapRecognizer.delegate = self
 		containerStackView.addGestureRecognizer(tapRecognizer)
+		view.keyboardLayoutGuide.followsUndockedKeyboard = true
 		containerStackView.snp.makeConstraints {
 			$0.top.equalTo(view.safeAreaLayoutGuide)
 			$0.leading.trailing.equalToSuperview()
@@ -99,6 +100,13 @@ final class CodeVerificationContainerViewController: UIViewController, Themeable
 		containerController?.transition(content, animated: false, completion: completion)
 	}
 
+	override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+		super.viewWillTransition(to: size, with: coordinator)
+		coordinator.animate(alongsideTransition: { [weak self] _ in
+			self?.view.layoutIfNeeded()
+		})
+	}
+
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 
 	}
@@ -113,12 +121,9 @@ extension CodeVerificationContainerViewController: UITextFieldDelegate, UIGestur
 		_ gestureRecognizer: UIGestureRecognizer,
 		shouldReceive touch: UITouch
 	) -> Bool {
-		let point = touch.location(in: containerStackView)
-
-		if containerView.frame.contains(point) {
-			return false
-		}
-
-		return true
+		guard let touched = touch.view else { return true }
+		// Use hierarchy, not frame: after iPad rotation the card frame can be stale
+		// and a frame check would steal taps from the digit fields.
+		return !touched.isDescendant(of: containerView)
 	}
 }

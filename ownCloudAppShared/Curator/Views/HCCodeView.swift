@@ -23,8 +23,11 @@ public final class BackspaceAwareTextField: UITextField {
 	}
 
 	public override func becomeFirstResponder() -> Bool {
-		defer { onFocus?() }
-		return super.becomeFirstResponder()
+		let accepted = super.becomeFirstResponder()
+		if accepted {
+			onFocus?()
+		}
+		return accepted
 	}
 }
 
@@ -169,6 +172,7 @@ public final class HCCodeView: ThemeCSSView, UITextFieldDelegate {
 	private var digitContainers: [HCDigitBoxView] = []
 	private var digitTextFields: [UITextField] = []
 	private let codeLength: Int
+	private var suppressFocusCallback = false
 
 	public var isError: Bool = false {
 		didSet {
@@ -235,7 +239,8 @@ public final class HCCodeView: ThemeCSSView, UITextFieldDelegate {
 				self?.handlePaste(str)
 			}
 			box.onFocus = { [weak self] in
-				self?.onFocus?()
+				guard let self, !self.suppressFocusCallback else { return }
+				self.onFocus?()
 			}
 			let tf = box.digitTextField!
 			tf.delegate = self
@@ -250,6 +255,10 @@ public final class HCCodeView: ThemeCSSView, UITextFieldDelegate {
 		notifyChange()
 	}
 
+	public var focusedDigitIndex: Int? {
+		digitTextFields.firstIndex(where: { $0.isFirstResponder })
+	}
+
 	public func focus() {
 		guard let firstField = digitTextFields.first else { return }
 		firstField.becomeFirstResponder()
@@ -257,6 +266,37 @@ public final class HCCodeView: ThemeCSSView, UITextFieldDelegate {
 
 	public func unfocus() {
 		digitTextFields.forEach { $0.resignFirstResponder() }
+	}
+
+	/// Reconnects the keyboard after an iPad orientation change.
+	/// Rotation can leave a field as first responder while the input session is dead.
+	public func restoreInputAfterOrientationChange(preferredIndex: Int? = nil) {
+		let index = preferredIndex ?? focusedDigitIndex
+		suppressFocusCallback = true
+		unfocus()
+		for textField in digitTextFields {
+			let item = textField.inputAssistantItem
+			item.leadingBarButtonGroups = []
+			item.trailingBarButtonGroups = []
+			textField.reloadInputViews()
+		}
+		let activate: () -> Void = { [weak self] in
+			guard let self else { return }
+			if let index, index < self.digitTextFields.count {
+				_ = self.digitTextFields[index].becomeFirstResponder()
+			} else {
+				self.focus()
+			}
+			self.suppressFocusCallback = false
+			self.onFocus?()
+		}
+		DispatchQueue.main.async { [weak self] in
+			activate()
+			// iPad keyboard reconnection can fail on the first run-loop turn after rotation.
+			if self?.focusedDigitIndex == nil {
+				DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: activate)
+			}
+		}
 	}
 
 	@objc private func codeEditingChanged(_ sender: UITextField) {
