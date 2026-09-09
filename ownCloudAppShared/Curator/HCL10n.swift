@@ -389,4 +389,16 @@ public enum HCL10n {
 			public static var name: String { OCLocalizedString("CutPaste.ClearClipboard.name", nil) }
 		}
 	}
+
+	public enum FileConflict {
+		public static var title: String { OCLocalizedString("FileConflict.title", nil) }
+		public static func subtitle(fileName: String) -> String {
+			String(format: OCLocalizedString("FileConflict.subtitleFormat", nil), fileName)
+		}
+		public static var replace: String { OCLocalizedString("FileConflict.replace", nil) }
+		public static var keepBoth: String { OCLocalizedString("FileConflict.keepBoth", nil) }
+		public static var skip: String { OCLocalizedString("FileConflict.skip", nil) }
+		public static var applyToAll: String { OCLocalizedString("FileConflict.applyToAll", nil) }
+		public static var applyToAllAccessibility: String { OCLocalizedString("FileConflict.applyToAllAccessibility", nil) }
+	}
 }

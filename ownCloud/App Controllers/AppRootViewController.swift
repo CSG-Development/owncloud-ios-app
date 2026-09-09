@@ -69,7 +69,8 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 				notificationPresenter = NotificationMessagePresenter(forBookmarkUUID: focusedBookmark.uuid)
 				cardMessagePresenter = CardIssueMessagePresenter(with: focusedBookmark.uuid as OCBookmarkUUID, limitToSingleCard: true, presenter: { [weak self] (viewController) in
 					self?.presentAlertAsCard(viewController: viewController, withHandle: false, dismissable: true)
-					// Log.debug("Present \(viewController.debugDescription)")
+				}, overlayPresenter: { [weak self] (viewController) in
+					self?.presentOverlayDialog(viewController: viewController)
 				})
 
 				// Add message presenters
@@ -239,6 +240,8 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 		DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
 			guard let accountController = sidebarViewController.accountController(for: bookmark.uuid) else { return }
 
+			sidebarViewController.focusedBookmark = bookmark
+
 			accountController.connect { _ in
 				let location = OCLocation(bookmarkUUID: bookmark.uuid, driveID: nil, path: "/")
 				Log.log("[CONN_DEBUG]: Opening root location")
@@ -290,6 +293,11 @@ open class AppRootViewController: EmbeddingViewController, BrowserNavigationView
 	// MARK: - BrowserNavigationViewControllerDelegate
 	public func browserNavigation(viewController: ownCloudAppShared.BrowserNavigationViewController, contentViewControllerDidChange toViewController: UIViewController?) {
 		sidebarViewController?.updateSelection(for: toViewController?.navigationBookmark)
+
+		if let bookmarkUUID = toViewController?.navigationBookmark?.bookmarkUUID,
+		   let bookmark = OCBookmarkManager.shared.bookmark(for: bookmarkUUID) {
+			sidebarViewController?.focusedBookmark = bookmark
+		}
 	}
 
 	// MARK: - BrowserNavigationBookmarkRestore
@@ -467,6 +475,25 @@ extension AppRootViewController : ClientSessionManagerDelegate {
 			} else {
 				queueCompletionHandler()
 			}
+		}
+	}
+
+	func presentOverlayDialog(viewController: UIViewController) {
+		alertQueue.async { [weak self] (queueCompletionHandler) in
+			guard let startViewController = self else {
+				queueCompletionHandler()
+				return
+			}
+
+			var hostViewController: UIViewController = startViewController
+			while hostViewController.presentedViewController != nil,
+			      hostViewController.presentedViewController?.isBeingDismissed == false {
+				hostViewController = hostViewController.presentedViewController!
+			}
+
+			hostViewController.present(viewController, animated: true, completion: {
+				queueCompletionHandler()
+			})
 		}
 	}
 }

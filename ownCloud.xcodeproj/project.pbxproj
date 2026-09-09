@@ -761,6 +761,8 @@
 		DCC832F3242CC28900153F8C /* NotificationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = DCC832E9242CB4D600153F8C /* NotificationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DCC832F4242CC28F00153F8C /* NotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DCC832EA242CB4D600153F8C /* NotificationManager.m */; };
 		DCC832F6242CC5F700153F8C /* CardIssueMessagePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC832F5242CC5F700153F8C /* CardIssueMessagePresenter.swift */; };
+		A1F1C0DF11C7000100000001 /* FileConflictDialogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F1C0DF11C7000100000002 /* FileConflictDialogViewController.swift */; };
+		A1F1C0DF11C7000100000003 /* FileNameConflictCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F1C0DF11C7000100000004 /* FileNameConflictCoordinator.swift */; };
 		DCC8535823CE1236007BA3EB /* LicenseInAppProductListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC8535723CE1236007BA3EB /* LicenseInAppProductListViewController.swift */; };
 		DCC8536023CE1AF8007BA3EB /* PurchasesSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC8535F23CE1AF8007BA3EB /* PurchasesSettingsSection.swift */; };
 		DCCD77792604C91600098573 /* NSDate+ComputedTimes.h in Headers */ = {isa = PBXBuildFile; fileRef = DCCD776A2604C81B00098573 /* NSDate+ComputedTimes.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1993,6 +1995,8 @@
 		DCC832E9242CB4D600153F8C /* NotificationManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationManager.h; sourceTree = "<group>"; };
 		DCC832EA242CB4D600153F8C /* NotificationManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationManager.m; sourceTree = "<group>"; };
 		DCC832F5242CC5F700153F8C /* CardIssueMessagePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardIssueMessagePresenter.swift; sourceTree = "<group>"; };
+		A1F1C0DF11C7000100000002 /* FileConflictDialogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileConflictDialogViewController.swift; sourceTree = "<group>"; };
+		A1F1C0DF11C7000100000004 /* FileNameConflictCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileNameConflictCoordinator.swift; sourceTree = "<group>"; };
 		DCC832F7242CC94D00153F8C /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 		DCC83303242CF3AC00153F8C /* AlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		DCC8535723CE1236007BA3EB /* LicenseInAppProductListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseInAppProductListViewController.swift; sourceTree = "<group>"; };
@@ -4312,6 +4316,8 @@
 			isa = PBXGroup;
 			children = (
 				DCC832F5242CC5F700153F8C /* CardIssueMessagePresenter.swift */,
+				A1F1C0DF11C7000100000002 /* FileConflictDialogViewController.swift */,
+				A1F1C0DF11C7000100000004 /* FileNameConflictCoordinator.swift */,
 				DC9C1AEB247C76470067895A /* MessageGroupCell.swift */,
 				DCD954DE247D62FA00E184E6 /* MessageTableViewController.swift */,
 				DC5D9E742496512400BFFE8E /* MessageQueueExample.swift */,
@@ -5761,6 +5767,8 @@
 				99F175322E8C001500FE7DEC /* ImageCropAction.swift in Sources */,
 				99743C772E1E9FD900DB77C2 /* LoginCoordinator.swift in Sources */,
 				DCC832F6242CC5F700153F8C /* CardIssueMessagePresenter.swift in Sources */,
+				A1F1C0DF11C7000100000001 /* FileConflictDialogViewController.swift in Sources */,
+				A1F1C0DF11C7000100000003 /* FileNameConflictCoordinator.swift in Sources */,
 				DC59087D2AA8B82200BFF393 /* BookmarkSetupStepPrepopulateViewController.swift in Sources */,
 				DCD1301123A23F4E00255779 /* OCLicenseManager+AppStore.swift in Sources */,
 				DC62514C225D254500736874 /* UploadBaseAction.swift in Sources */,

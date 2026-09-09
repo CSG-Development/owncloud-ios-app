@@ -67,27 +67,30 @@ class MoveAction : Action {
 			titleText = OCLocalizedFormat("Move \"{{itemName}}\"", ["itemName" : items.first?.name?.redacted() ?? "?"])
 		}
 
-		let locationPicker = ClientLocationPicker(location: startLocation, selectButtonTitle: OCLocalizedString("Move here", nil), headerTitle: titleText, headerSubTitle: OCLocalizedString("Select target.", nil), avoidConflictsWith: items, choiceHandler: { (selectedDirectoryItem, location, _, cancelled) in
+		let locationPicker = ClientLocationPicker(location: startLocation, selectButtonTitle: OCLocalizedString("Move here", nil), headerTitle: titleText, headerSubTitle: OCLocalizedString("Select target.", nil), avoidConflictsWith: items, choiceHandler: { (selectedDirectoryItem, _, _, cancelled) in
 			guard !cancelled, let selectedDirectoryItem else {
 				self.completed(with: NSError(ocError: OCError.cancelled))
 				return
 			}
 
-			items.forEach({ (item) in
-				guard let itemName = item.name else {
-					return
-				}
+			guard let core = self.core else {
+				self.completed(with: NSError(ocError: .insufficientParameters))
+				return
+			}
 
-				if let progress = self.core?.move(item, to: selectedDirectoryItem, withName: itemName, options: nil, resultHandler: { (error, _, _, _) in
-					if error != nil {
-						Log.error("Error \(String(describing: error)) moving \(String(describing: itemName)) to \(String(describing: location))")
-					}
-				}) {
-					self.publish(progress: progress)
+			FileNameConflictCoordinator.perform(
+				items: items,
+				to: selectedDirectoryItem,
+				operation: .move,
+				core: core,
+				clientContext: clientContext,
+				publishProgress: { [weak self] progress in
+					self?.publish(progress: progress)
+				},
+				completion: { [weak self] in
+					self?.completed()
 				}
-			})
-
-			self.completed()
+			)
 		})
 
 		locationPicker.present(in: clientContext, baseContext: clientContext)

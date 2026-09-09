@@ -702,7 +702,7 @@ public class ThemeCollection : NSObject {
 			ThemeCSSRecord(selectors: [.hcCardView, .background], property: .fill, value: HCStyle.Surface.dialogBackground(isDark: isDark)),
 
 			// # HCOverlayView
-			ThemeCSSRecord(selectors: [.hcOverlayView, .background], property: .fill, value: HCColor.Mockups.overlayDefault(isDark)),
+			ThemeCSSRecord(selectors: [.hcOverlayView, .background], property: .fill, value: HCColor.Constant.overlay(isDark)),
 
 			// # HCDigitView
 			ThemeCSSRecord(selectors: [.hcDigitBox, .focused], property: .stroke, value: HCColor.Interaction.cta(isDark)),
