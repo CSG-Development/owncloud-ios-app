@@ -204,8 +204,10 @@ class ClientLocationPickerViewController: EmbeddingViewController, CustomViewCon
 	}
 
 	func choose(item: OCItem? = nil, location: OCLocation? = nil, cancelled: Bool) {
-		locationPicker.choose(item: item, location: location, context: currentLocationContext, cancelled: cancelled)
-		self.dismiss(animated: true)
+		let context = currentLocationContext
+		dismiss(animated: true) { [weak self] in
+			self?.locationPicker.choose(item: item, location: location, context: context, cancelled: cancelled)
+		}
 	}
 
 	// MARK: - CustomViewControllerEmbedding

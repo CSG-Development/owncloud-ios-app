@@ -78,7 +78,7 @@ public enum HCStyle {
 		}
 
 		public static func dialogBackground(isDark: Bool) -> UIColor {
-			HCColor.Structure.cardBackground(isDark)
+			HCColor.Structure.backgroundDialog(isDark)
 		}
 	}
 

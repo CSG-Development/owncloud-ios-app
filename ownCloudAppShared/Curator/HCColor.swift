@@ -234,6 +234,16 @@ public enum HCColor {
 			isDark ? Neutral.gray825 : Neutral.white
 		}
 
+		/// Structure/background-dialog — fill for modal cards
+		public static func backgroundDialog(_ isDark: Bool) -> UIColor {
+			cardBackground(isDark)
+		}
+
+		/// Structure/item-accent-highContrast — high-contrast accent for interactive controls
+		public static func itemAccentHighContrast(_ isDark: Bool) -> UIColor {
+			Green.link(isDark)
+		}
+
 		public static func whiteBackground(_ isDark: Bool) -> UIColor {
 			isDark ? Neutral.black : Neutral.white
 		}
@@ -260,6 +270,11 @@ public enum HCColor {
 
 		public static func white(_: Bool) -> UIColor {
 			Neutral.white
+		}
+
+		/// Constant/Overlay — dimmed backdrop behind dialogs
+		public static func overlay(_: Bool) -> UIColor {
+			Neutral.black.withAlphaComponent(0.50)
 		}
 	}
 }

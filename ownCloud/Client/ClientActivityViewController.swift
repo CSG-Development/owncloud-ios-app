@@ -163,8 +163,13 @@ class ClientActivityViewController: UITableViewController, Themeable, MessageGro
 
 	func handleMessagesUpdates(messages: [OCMessage]?, groups : [MessageGroup]?) {
 		if let tabBarItem = self.navigationController?.tabBarItem {
-			if let messageCount = messages?.count, messageCount > 0 {
-				tabBarItem.badgeValue = "\(messageCount)"
+			let visibleCount = messages?.filter { message in
+				guard let category = message.categoryIdentifier?.rawValue else { return true }
+				return !FileConflictDialogViewController.keepBothCategoryIdentifiers.contains(category)
+			}.count ?? 0
+
+			if visibleCount > 0 {
+				tabBarItem.badgeValue = "\(visibleCount)"
 			} else {
 				tabBarItem.badgeValue = nil
 			}
@@ -185,7 +190,10 @@ class ClientActivityViewController: UITableViewController, Themeable, MessageGro
 			needsDataReload = false
 
 			activities = core?.activityManager.activities
-			messageGroups = messageSelector?.groupedSelection
+			messageGroups = messageSelector?.groupedSelection?.filter { group in
+				guard let category = group.identifier?.rawValue else { return true }
+				return !FileConflictDialogViewController.keepBothCategoryIdentifiers.contains(category)
+			}
 
 			self.tableView.reloadData()
 

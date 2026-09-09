@@ -7,7 +7,7 @@
 //
 
 /*
- * Copyright (C) 2020, ownCloud GmbH.
+    10| * Copyright (C) 2020, ownCloud GmbH.
  *
  * This code is covered by the GNU Public License Version 3.
  *
@@ -26,14 +26,19 @@ class CardIssueMessagePresenter: OCMessagePresenter {
 
 	var bookmarkUUID : OCBookmarkUUID
 	var presenter : CardIssueMessagePresenterViewControllerPresenter
+	/// Presents a centered Curator overlay dialog (used for name-conflict keep-both messages).
+	var overlayPresenter : CardIssueMessagePresenterViewControllerPresenter?
 
 	var isShowingCard : Bool = false
 	var oneCardLimit : Bool
 
-	init(with bookmarkUUID: OCBookmarkUUID, limitToSingleCard: Bool, presenter: @escaping CardIssueMessagePresenterViewControllerPresenter) {
+	private var overlayTransitioningDelegate: CrossDissolveTransitioningDelegate?
+
+	init(with bookmarkUUID: OCBookmarkUUID, limitToSingleCard: Bool, presenter: @escaping CardIssueMessagePresenterViewControllerPresenter, overlayPresenter: CardIssueMessagePresenterViewControllerPresenter? = nil) {
 		self.bookmarkUUID = bookmarkUUID
 		self.oneCardLimit = limitToSingleCard
 		self.presenter = presenter
+		self.overlayPresenter = overlayPresenter
 
 		super.init()
 
@@ -41,7 +46,22 @@ class CardIssueMessagePresenter: OCMessagePresenter {
 	}
 
 	override func presentationPriority(for message: OCMessage) -> OCMessagePresentationPriority {
-		if message.localizedTitle != nil, let messageBookmarkUUID = message.bookmarkUUID, let bookmarkUUID = bookmarkUUID as UUID?, messageBookmarkUUID == bookmarkUUID, !oneCardLimit || (oneCardLimit && !isShowingCard) {
+		guard message.localizedTitle != nil,
+		      let messageBookmarkUUID = message.bookmarkUUID,
+		      let bookmarkUUID = bookmarkUUID as UUID?,
+		      messageBookmarkUUID == bookmarkUUID else {
+			return .wontPresent
+		}
+
+		// Name conflicts use the overlay dialog; never stack a second card on top.
+		if FileConflictDialogViewController.isKeepBothConflict(message) {
+			if !oneCardLimit || !isShowingCard {
+				return .high
+			}
+			return .wontPresent
+		}
+
+		if !oneCardLimit || !isShowingCard {
 			return .high
 		}
 
@@ -49,6 +69,87 @@ class CardIssueMessagePresenter: OCMessagePresenter {
 	}
 
 	override func present(_ message: OCMessage, completionHandler: @escaping (OCMessagePresentationResult, OCMessageChoice?) -> Void) {
+		if FileConflictDialogViewController.isKeepBothConflict(message), overlayPresenter != nil {
+			presentFileConflictDialog(message, completionHandler: completionHandler)
+			return
+		}
+
+		presentLegacyAlertCard(message, completionHandler: completionHandler)
+	}
+
+	private func presentFileConflictDialog(_ message: OCMessage, completionHandler: @escaping (OCMessagePresentationResult, OCMessageChoice?) -> Void) {
+		let title = message.localizedTitle ?? HCL10n.FileConflict.title
+		let subtitle = message.localizedDescription ?? ""
+		let choices = FileConflictDialogViewController.orderedChoices(from: message)
+		let similarMessages = similarKeepBothMessages(for: message)
+		let showsApplyToAll = similarMessages.count > 1
+
+		weak var presentedOverlay: UIViewController?
+
+		let dialog = FileConflictDialogViewController(
+			title: title,
+			subtitle: subtitle,
+			choices: choices,
+			showsApplyToAll: showsApplyToAll
+		) { [weak self] choiceIdentifier, applyToAll in
+			guard let self else { return }
+
+			let selected = message.choice(withIdentifier: choiceIdentifier)
+
+			if applyToAll {
+				for similar in similarMessages where similar.uuid != message.uuid {
+					if let choice = similar.choice(withIdentifier: choiceIdentifier) {
+						OCMessageQueue.global.resolveMessage(similar, with: choice)
+					}
+				}
+			}
+
+			let finish: () -> Void = {
+				self.isShowingCard = false
+				self.overlayTransitioningDelegate = nil
+				completionHandler(.didPresent, selected)
+				OCMessageQueue.global.setNeedsMessageHandling()
+			}
+
+			if let presentedOverlay {
+				presentedOverlay.dismiss(animated: true, completion: finish)
+			} else {
+				finish()
+			}
+		}
+
+		let overlay = AuthCardOverlayViewController(content: dialog)
+		let animator = CrossDissolveTransitioningDelegate()
+		overlay.transitioningDelegate = animator
+		overlay.modalPresentationStyle = UIModalPresentationStyle.custom
+		self.overlayTransitioningDelegate = animator
+		presentedOverlay = overlay
+
+		self.isShowingCard = true
+		self.overlayPresenter?(overlay)
+	}
+
+	private func similarKeepBothMessages(for message: OCMessage) -> [OCMessage] {
+		guard let category = message.categoryIdentifier else {
+			return [message]
+		}
+
+		let bookmarkUUID = message.bookmarkUUID
+		return OCMessageQueue.global.messages.filter { candidate in
+			guard FileConflictDialogViewController.isKeepBothConflict(candidate),
+			      candidate.categoryIdentifier == category else {
+				return false
+			}
+
+			if let bookmarkUUID, let candidateUUID = candidate.bookmarkUUID {
+				return candidateUUID == bookmarkUUID
+			}
+
+			return true
+		}
+	}
+
+	private func presentLegacyAlertCard(_ message: OCMessage, completionHandler: @escaping (OCMessagePresentationResult, OCMessageChoice?) -> Void) {
 		var options : [AlertOption] = []
 
 		if let choices = message.choices {
