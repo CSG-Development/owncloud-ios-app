@@ -230,6 +230,7 @@ class TagsViewController: UITableViewController, Themeable {
 		let buildFilesViewController: (ClientContext) -> ClientItemViewController = { context in
 			let itemsDataSource = OCDataSourceArray(items: [])
 			let sortedDataSource = SortedItemDataSource(itemDataSource: itemsDataSource)
+			let core = context.core
 
 			let filesVC = ClientItemViewController(
 				context: context,
@@ -244,11 +245,19 @@ class TagsViewController: UITableViewController, Themeable {
 			filesVC.navigationTitle = "\"\(tag.displayName)\""
 			filesVC.revoke(in: context, when: [.connectionClosed])
 
-			let eventTarget = OCEventTarget(ephermalEventHandlerBlock: { [weak itemsDataSource] (event: OCEvent, _: Any?) in
+			let eventTarget = OCEventTarget(ephermalEventHandlerBlock: { [weak itemsDataSource, weak core] (event: OCEvent, _: Any?) in
 				if event.error != nil { return }
-				if let items = event.result as? [OCItem] {
+				guard let items = event.result as? [OCItem] else { return }
+
+				OnBackgroundQueue {
+					let displayItems: [OCItem]
+					if let core {
+						displayItems = items.map { $0.cachedEquivalent(from: core) }
+					} else {
+						displayItems = items
+					}
 					OnMainThread {
-						itemsDataSource?.setVersionedItems(items)
+						itemsDataSource?.setVersionedItems(displayItems)
 					}
 				}
 			}, userInfo: nil, ephermalUserInfo: nil)
