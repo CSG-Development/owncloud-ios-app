@@ -270,33 +270,73 @@ extension OCItem {
 		return shareRootItem
 	}
 
-	public func parentItem(from core: OCCore, completionHandler: ((_ error: Error?, _ parentItem: OCItem?) -> Void)? = nil) -> OCItem? {
-		var parentItem : OCItem?
-
-		if let parentItemLocalID = self.parentLocalID {
-			var waitSemaphore : DispatchSemaphore?
-
-			if completionHandler == nil {
-				waitSemaphore = DispatchSemaphore(value: 0)
-			}
-
-			core.retrieveItemFromDatabase(forLocalID: parentItemLocalID) { (error, _, item) in
-				if parentItem == nil, let parentLocation = self.location?.parent {
-					parentItem = try? core.cachedItem(at: parentLocation)
-				}
-
-				if completionHandler == nil {
-					parentItem = item
-				} else {
-					completionHandler?(error, item)
-				}
-				waitSemaphore?.signal()
-			}
-
-			waitSemaphore?.wait()
+	/// Returns a database-backed copy of this item when one exists.
+	/// WebDAV SEARCH/REPORT results (tags, search) often lack `parentLocalID`; using the cached item restores it.
+	public func cachedEquivalent(from core: OCCore) -> OCItem {
+		if let fileID = fileID, let cachedItem = itemForFileID(fileID, core: core) {
+			return cachedItem
 		}
 
-		return parentItem
+		if let location, let cachedItem = try? core.cachedItem(at: location) {
+			return cachedItem
+		}
+
+		return self
+	}
+
+	public func parentItem(from core: OCCore, completionHandler: ((_ error: Error?, _ parentItem: OCItem?) -> Void)? = nil) -> OCItem? {
+		if let completionHandler {
+			OnBackgroundQueue {
+				completionHandler(nil, self.parentItem(from: core, completionHandler: nil))
+			}
+			return nil
+		}
+
+		// Prefer localID, then fileID, then the parent path. Do not nest `cachedItem(at:)`
+		// inside database callbacks — that can deadlock on the core/database queue.
+		if let parentLocalID, let parentItem = itemForLocalID(parentLocalID, core: core) {
+			return parentItem
+		}
+
+		if let parentFileID, let parentItem = itemForFileID(parentFileID, core: core) {
+			return parentItem
+		}
+
+		if let parentLocation = location?.parent {
+			return try? core.cachedItem(at: parentLocation)
+		}
+
+		return nil
+	}
+
+	private func itemForLocalID(_ localID: String, core: OCCore) -> OCItem? {
+		var cachedItem: OCItem?
+		let waitSemaphore = DispatchSemaphore(value: 0)
+
+		core.retrieveItemFromDatabase(forLocalID: localID) { _, _, item in
+			cachedItem = item
+			waitSemaphore.signal()
+		}
+
+		waitSemaphore.wait()
+		return cachedItem
+	}
+
+	private func itemForFileID(_ fileID: String, core: OCCore) -> OCItem? {
+		guard let database = core.vault.database else {
+			return nil
+		}
+
+		var cachedItem: OCItem?
+		let waitSemaphore = DispatchSemaphore(value: 0)
+
+		database.retrieveCacheItem(forFileID: fileID) { _, _, _, item in
+			cachedItem = item
+			waitSemaphore.signal()
+		}
+
+		waitSemaphore.wait()
+		return cachedItem
 	}
 
 	public func displaysDifferent(than item: OCItem?, in core: OCCore? = nil) -> Bool {

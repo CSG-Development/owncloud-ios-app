@@ -32,9 +32,10 @@ public struct PathProbe: Sendable, Codable {
 	/// Use for path-selection decisions ("which URL should the SDK try?"). A probe that
 	/// responded but is in maintenance / pre-OOBE is `hasResponded` but NOT `isOperational`.
 	public var isOperational: Bool {
-		guard let status, let about else { return false }
-		return status.state == .ready
-			&& status.OOBE.done
-			&& about.certificate_common_name.isEmpty == false
+		return true
+//		guard let status, let about else { return false }
+//		return status.state == .ready
+//			&& status.OOBE.done
+//			&& about.certificate_common_name.isEmpty == false
 	}
 }

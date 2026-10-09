@@ -8,6 +8,19 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	public var location: OCLocation?
 	public private(set) var query: OCQuery?
 
+	/// When set, used instead of location/query-derived titles (e.g. tag file lists).
+	public var fixedNavigationTitle: String? {
+		didSet {
+			if isViewLoaded {
+				updateNavigationTitleFromContext()
+			}
+		}
+	}
+
+	/// Optional empty-state copy for detached lists (tags, search results, …).
+	public var emptyListTitle: String?
+	public var emptyListMessage: String?
+
 	private let viewControllerUUID = UUID()
 	private let queryBridge = FileListQueryBridge()
 	private let zipActivity = FileListZipActivityController()
@@ -544,8 +557,8 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 				emptyOverlayView.isHidden = false
 				loadingOverlayView.stopAnimating()
 				emptyOverlayView.configure(
-					title: OCLocalizedString("No contents", nil),
-					message: OCLocalizedString("This folder has no contents.", nil),
+					title: emptyListTitle ?? OCLocalizedString("No contents", nil),
+					message: emptyListMessage ?? OCLocalizedString("This folder has no contents.", nil),
 					actions: emptyOverlayActions()
 				)
 				collectionView.isHidden = false
@@ -763,6 +776,13 @@ open class FileListViewController: UIViewController, Themeable, FileBrowserConte
 	}
 
 	private func updateNavigationTitleFromContext() {
+		if let fixedNavigationTitle {
+			navigationItem.navigationContent.remove(itemsWithIdentifier: "navigation-location")
+			navigationItem.titleLabelText = fixedNavigationTitle
+			navigationItem.title = fixedNavigationTitle
+			return
+		}
+
 		var navigationTitle: String?
 		var navigationLocation: OCLocation?
 
