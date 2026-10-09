@@ -101,7 +101,71 @@ private class TagTableViewCell: ThemeTableViewCell {
 	}
 }
 
+/// Tracks identities from the last tag-files fetch so OCQuery incremental updates
+/// can refresh those rows without admitting unrelated items (or dropping them).
+private final class TagFileListResultIdentitySet {
+	private var fileIDs: Set<String> = []
+	private var localIDs: Set<String> = []
+	private let lock = NSLock()
+
+	func replace(with items: [OCItem]) {
+		lock.lock()
+		defer { lock.unlock() }
+
+		fileIDs = Set(items.compactMap { item in
+			guard let fileID = item.fileID, !fileID.isEmpty else { return nil }
+			return fileID
+		})
+		localIDs = Set(items.compactMap { $0.localID as String? })
+	}
+
+	func contains(_ item: OCItem) -> Bool {
+		lock.lock()
+		defer { lock.unlock() }
+
+		if let localID = item.localID as String?, localIDs.contains(localID) {
+			return true
+		}
+		if let fileID = item.fileID, !fileID.isEmpty, fileIDs.contains(fileID) {
+			return true
+		}
+		return false
+	}
+}
+
+private final class TagFileListReloadCoordinator {
+	private var pendingWorkItem: DispatchWorkItem?
+	private let delay: TimeInterval = 0.35
+
+	func scheduleReload(_ block: @escaping () -> Void) {
+		pendingWorkItem?.cancel()
+		let workItem = DispatchWorkItem(block: block)
+		pendingWorkItem = workItem
+		DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
+	}
+
+	deinit {
+		pendingWorkItem?.cancel()
+	}
+}
+
+private final class TagFileListObservation {
+	private let observer: NSObjectProtocol
+	private let reloadCoordinator: TagFileListReloadCoordinator
+
+	init(observer: NSObjectProtocol, reloadCoordinator: TagFileListReloadCoordinator) {
+		self.observer = observer
+		self.reloadCoordinator = reloadCoordinator
+	}
+
+	deinit {
+		NotificationCenter.default.removeObserver(observer)
+	}
+}
+
 class TagsViewController: UITableViewController, Themeable {
+
+	private static var tagFileListRefreshObserverKey: UInt8 = 0
 
 	private var clientContext: ClientContext
 	private var tags: [OCSystemTag] = []
@@ -226,44 +290,77 @@ class TagsViewController: UITableViewController, Themeable {
 	private func openFileList(for tag: OCSystemTag) {
 		guard let connection = connection else { return }
 		let context = ClientContext(with: clientContext)
+		let bookmarkUUID = clientContext.core?.bookmark.uuid
 
-		let buildFilesViewController: (ClientContext) -> ClientItemViewController = { context in
-			let itemsDataSource = OCDataSourceArray(items: [])
-			let sortedDataSource = SortedItemDataSource(itemDataSource: itemsDataSource)
-			let core = context.core
+		let buildFilesViewController: (ClientContext) -> FileListViewController = { context in
+			// Use FileListViewController so row height / cells match the main Files browser.
+			// Keep identities from the last tag fetch so core item updates (e.g. after Duplicate)
+			// refresh existing rows instead of removing them. Unrelated sync items stay out.
+			let resultIdentities = TagFileListResultIdentitySet()
+			guard let inputFilter = OCQueryFilter(handler: { _, _, item in
+				guard let item else { return false }
+				return resultIdentities.contains(item)
+			}) else {
+				fatalError("Failed to create tag file list query filter")
+			}
+			let customSource: OCQueryCustomSource = { [weak connection] core, query, resultHandler in
+				guard let connection else {
+					resultHandler(NSError(ocError: .internal), nil)
+					return
+				}
 
-			let filesVC = ClientItemViewController(
-				context: context,
-				query: nil,
-				itemsDatasource: sortedDataSource,
-				showRevealButtonForItems: true,
-				emptyItemListIcon: OCSymbol.icon(forSymbolName: "tag"),
-				emptyItemListTitleLocalized: OCLocalizedString("No files found", nil),
-				emptyItemListMessageLocalized: OCLocalizedString("No files are tagged with this tag.", nil)
-			)
-			filesVC.useOverlayEmptyState = true
-			filesVC.navigationTitle = "\"\(tag.displayName)\""
+				let eventTarget = OCEventTarget(ephermalEventHandlerBlock: { (event: OCEvent, _: Any?) in
+					if let error = event.error {
+						resultHandler(error, nil)
+						return
+					}
+					if query.state == .stopped {
+						return
+					}
+					let items = (event.result as? [OCItem]) ?? []
+					OnBackgroundQueue {
+						let displayItems = items.map { $0.cachedEquivalent(from: core) }
+						resultIdentities.replace(with: displayItems)
+						resultHandler(nil, displayItems)
+					}
+				}, userInfo: nil, ephermalUserInfo: nil)
+
+				connection.retrieveFiles(with: tag, resultTarget: eventTarget)
+			}
+
+			let query = OCQuery(customSource: customSource, inputFilter: inputFilter)
+			let filesVC = FileListViewController(context: context, query: query, location: nil)
+			filesVC.fixedNavigationTitle = "\"\(tag.displayName)\""
+			filesVC.emptyListTitle = OCLocalizedString("No files found", nil)
+			filesVC.emptyListMessage = OCLocalizedString("No files are tagged with this tag.", nil)
 			filesVC.revoke(in: context, when: [.connectionClosed])
 
-			let eventTarget = OCEventTarget(ephermalEventHandlerBlock: { [weak itemsDataSource, weak core] (event: OCEvent, _: Any?) in
-				if event.error != nil { return }
-				guard let items = event.result as? [OCItem] else { return }
-
-				OnBackgroundQueue {
-					let displayItems: [OCItem]
-					if let core {
-						displayItems = items.map { $0.cachedEquivalent(from: core) }
-					} else {
-						displayItems = items
-					}
-					OnMainThread {
-						itemsDataSource?.setVersionedItems(displayItems)
-					}
+			// Coalesce rapid sync notifications (duplicate posts immediate + index refresh).
+			let reloadCoordinator = TagFileListReloadCoordinator()
+			let refreshObserver = NotificationCenter.default.addObserver(
+				forName: .accountTagSyncDidFinish,
+				object: nil,
+				queue: .main
+			) { [weak filesVC, weak context] notification in
+				if let bookmarkUUID,
+				   let syncedBookmark = notification.userInfo?[AccountTagSyncService.bookmarkUserInfoKey] as? OCBookmark,
+				   syncedBookmark.uuid != bookmarkUUID {
+					return
 				}
-			}, userInfo: nil, ephermalUserInfo: nil)
+				guard let query = filesVC?.query, let core = context?.core ?? filesVC?.clientContext?.core else {
+					return
+				}
+				reloadCoordinator.scheduleReload {
+					core.reload(query)
+				}
+			}
+			objc_setAssociatedObject(
+				filesVC,
+				&TagsViewController.tagFileListRefreshObserverKey,
+				TagFileListObservation(observer: refreshObserver, reloadCoordinator: reloadCoordinator),
+				.OBJC_ASSOCIATION_RETAIN_NONATOMIC
+			)
 
-			connection.retrieveFiles(with: tag, resultTarget: eventTarget)
-			sortedDataSource.sortingFollowsContext = filesVC.clientContext
 			return filesVC
 		}
 
