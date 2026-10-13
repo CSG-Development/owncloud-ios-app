@@ -138,7 +138,7 @@ public final class CodeVerificationService {
 		await MainActor.run {
 			self.reference = nil
 			self.currentEmail = email
-			let vc = CodeVerificationContainerViewController(codeVerificationService: self)
+			let vc = CodeVerificationContainerViewController()
 			container = vc
 			let animator = CrossDissolveTransitioningDelegate()
 			vc.transitioningDelegate = animator
@@ -255,10 +255,6 @@ public final class CodeVerificationService {
 				self.isLoading = false
 			}
 		}
-	}
-
-	public func onOverlayTap() {
-		dismiss(isAuthenticated: false)
 	}
 
 	public func onCancelTap() {

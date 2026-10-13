@@ -25,11 +25,7 @@ final class CodeVerificationContainerViewController: UIViewController, Themeable
 		return containerView
 	}()
 
-	private var codeVerificationService: CodeVerificationService
-
-	init(codeVerificationService: CodeVerificationService) {
-		self.codeVerificationService = codeVerificationService
-
+	init() {
 		super.init(nibName: nil, bundle: nil)
 	}
 
@@ -58,9 +54,7 @@ final class CodeVerificationContainerViewController: UIViewController, Themeable
 		containerStackView.alignment = .center
 		view.addSubview(containerStackView)
 		self.containerStackView = containerStackView
-		let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapOverlay))
-		tapRecognizer.delegate = self
-		containerStackView.addGestureRecognizer(tapRecognizer)
+		// Outside/backdrop taps must not dismiss OTP — critical security prompt.
 		view.keyboardLayoutGuide.followsUndockedKeyboard = true
 		containerStackView.snp.makeConstraints {
 			$0.top.equalTo(view.safeAreaLayoutGuide)
@@ -109,21 +103,5 @@ final class CodeVerificationContainerViewController: UIViewController, Themeable
 
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 
-	}
-
-	@objc private func didTapOverlay() {
-		codeVerificationService.onOverlayTap()
-	}
-}
-
-extension CodeVerificationContainerViewController: UITextFieldDelegate, UIGestureRecognizerDelegate {
-	public func gestureRecognizer(
-		_ gestureRecognizer: UIGestureRecognizer,
-		shouldReceive touch: UITouch
-	) -> Bool {
-		guard let touched = touch.view else { return true }
-		// Use hierarchy, not frame: after iPad rotation the card frame can be stale
-		// and a frame check would steal taps from the digit fields.
-		return !touched.isDescendant(of: containerView)
 	}
 }
