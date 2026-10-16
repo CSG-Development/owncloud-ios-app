@@ -311,7 +311,6 @@
 		99F1A1B12EFC000100000002 /* ResetPasswordError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F1A1B12EFC000100000001 /* ResetPasswordError.swift */; };
 		99F1A1B12EFC000100000004 /* ResetPasswordService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F1A1B12EFC000100000003 /* ResetPasswordService.swift */; };
 		99F1A1B12EFC000100000006 /* AuthCardOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F1A1B12EFC000100000005 /* AuthCardOverlayViewController.swift */; };
-		99F1A1B12EFC000100000008 /* ResetPasswordServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F1A1B12EFC000100000007 /* ResetPasswordServiceTests.swift */; };
 		99F472F22E095C1500104592 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472E62E095C1500104592 /* UIColor+Extensions.swift */; };
 		99F472F62E095C1500104592 /* HCButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EA2E095C1500104592 /* HCButtonStyle.swift */; };
 		99F472F72E095C1500104592 /* HCColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99F472EB2E095C1500104592 /* HCColor.swift */; };
@@ -1581,7 +1580,6 @@
 		99F1A1B12EFC000100000001 /* ResetPasswordError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordError.swift; sourceTree = "<group>"; };
 		99F1A1B12EFC000100000003 /* ResetPasswordService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordService.swift; sourceTree = "<group>"; };
 		99F1A1B12EFC000100000005 /* AuthCardOverlayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCardOverlayViewController.swift; sourceTree = "<group>"; };
-		99F1A1B12EFC000100000007 /* ResetPasswordServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordServiceTests.swift; sourceTree = "<group>"; };
 		99F472E32E095C1500104592 /* CGRect+Geometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Geometry.swift"; sourceTree = "<group>"; };
 		99F472E52E095C1500104592 /* UIButton+HCButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+HCButtonStyle.swift"; sourceTree = "<group>"; };
 		99F472E62E095C1500104592 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
@@ -2335,7 +2333,6 @@
 		233BDEB3204FEFE500C06732 /* ownCloudTests */ = {
 			isa = PBXGroup;
 			children = (
-				99F1A1B12EFC000100000009 /* Auth */,
 				DC26ADBD2550C02F0059680D /* Metadata */,
 				233BDEB6204FEFE500C06732 /* Info.plist */,
 			);
@@ -3097,14 +3094,6 @@
 				99F0A1002F12345600SIDEBAR /* HCSidebarMenuRowView.swift */,
 			);
 			path = Sidebar;
-			sourceTree = "<group>";
-		};
-		99F1A1B12EFC000100000009 /* Auth */ = {
-			isa = PBXGroup;
-			children = (
-				99F1A1B12EFC000100000007 /* ResetPasswordServiceTests.swift */,
-			);
-			path = Auth;
 			sourceTree = "<group>";
 		};
 		99F472DE2E095BB500104592 /* Curator */ = {
@@ -5767,7 +5756,6 @@
 			files = (
 				39057AA4233BA7A60008E6C0 /* Intents.intentdefinition in Sources */,
 				DC26ADDE2550C0B20059680D /* MetadataDocumentationTests.swift in Sources */,
-				99F1A1B12EFC000100000008 /* ResetPasswordServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6800,7 +6788,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.noveogroup.owncloud.ownCloudTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ownCloud.app/ownCloud";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/personalCloudFiles.app/personalCloudFiles";
 			};
 			name = Debug;
 		};
@@ -6819,7 +6807,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.noveogroup.owncloud.ownCloudTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ownCloud.app/ownCloud";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/personalCloudFiles.app/personalCloudFiles";
 			};
 			name = Release;
 		};
@@ -7259,6 +7247,7 @@
 		DCC085772293F1FD008CC05C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -7278,13 +7267,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.noveogroup.owncloud.ownCloudAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ownCloud.app/ownCloud";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/personalCloudFiles.app/personalCloudFiles";
 			};
 			name = Debug;
 		};
 		DCC085782293F1FD008CC05C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -7299,7 +7289,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.noveogroup.owncloud.ownCloudAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ownCloud.app/ownCloud";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/personalCloudFiles.app/personalCloudFiles";
 			};
 			name = Release;
 		};
