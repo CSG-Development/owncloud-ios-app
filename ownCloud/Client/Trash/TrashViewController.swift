@@ -16,6 +16,7 @@
  */
 
 import UIKit
+import ObjectiveC
 import ownCloudSDK
 import ownCloudAppShared
 
@@ -139,6 +140,93 @@ private final class TrashSelectAllHeaderView: UICollectionReusableView, Themeabl
 		titleLabel.textColor = HCColor.Content.textPrimary(collection.isDark)
 		backgroundColor = .clear
 		updateSelectionIndicator()
+	}
+}
+
+/// Survives leaving the Trash screen, unlike view-controller state, so a reload cannot
+/// paint files whose permanent deletion is still queued.
+private final class TrashPendingPurgeSession: NSObject {
+	private static var associatedKey: UInt8 = 0
+	private static let cancelledNotification = Notification.Name("OCTrashPendingPurgeCancelled")
+
+	private var suppressedKeys = Set<String>()
+	private let lock = NSLock()
+
+	static func session(for core: OCCore) -> TrashPendingPurgeSession {
+		if let existing = objc_getAssociatedObject(core, &associatedKey) as? TrashPendingPurgeSession {
+			return existing
+		}
+
+		let session = TrashPendingPurgeSession(core: core)
+		objc_setAssociatedObject(core, &associatedKey, session, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+		return session
+	}
+
+	private init(core: OCCore) {
+		super.init()
+		NotificationCenter.default.addObserver(self, selector: #selector(purgeCancelled(_:)), name: Self.cancelledNotification, object: core)
+	}
+
+	func register(_ items: [OCItem]) {
+		lock.lock()
+		for item in items {
+			suppressedKeys.formUnion(Self.keys(for: item))
+		}
+		lock.unlock()
+	}
+
+	func unregister(_ item: OCItem) {
+		lock.lock()
+		suppressedKeys.subtract(Self.keys(for: item))
+		lock.unlock()
+	}
+
+	func filter(_ items: [OCItem]) -> [OCItem] {
+		lock.lock()
+		let keys = suppressedKeys
+		lock.unlock()
+		guard !keys.isEmpty else { return items }
+		return items.filter { Self.keys(for: $0).isDisjoint(with: keys) }
+	}
+
+	/// Drops suppression for files the server no longer lists. A listing that still
+	/// contains a queued delete keeps that file hidden.
+	func prune(using serverItems: [OCItem]) {
+		lock.lock()
+		let presentKeys = Set(serverItems.flatMap { Self.keys(for: $0) })
+		suppressedKeys.formIntersection(presentKeys)
+		lock.unlock()
+	}
+
+	@objc private func purgeCancelled(_ notification: Notification) {
+		guard let item = notification.userInfo?["item"] as? OCItem else { return }
+		unregister(item)
+	}
+
+	private static func keys(for item: OCItem) -> Set<String> {
+		var keys = Set<String>()
+
+		func add(prefix: String, value: String?) {
+			guard let value, !value.isEmpty else { return }
+			let normalized = value.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+			guard !normalized.isEmpty else { return }
+			keys.insert(prefix + normalized)
+		}
+
+		add(prefix: "path:", value: item.path)
+		add(prefix: "file:", value: item.fileID)
+		add(prefix: "etag:", value: item.eTag)
+
+		let normalizedPath = (item.path ?? "").trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+		let pathLeaf = (normalizedPath as NSString).lastPathComponent
+		if !pathLeaf.isEmpty, !pathLeaf.contains(".") {
+			keys.insert("leaf:" + pathLeaf)
+		}
+		if let fileID = item.fileID, !fileID.isEmpty {
+			keys.insert("leaf:" + fileID)
+		}
+
+		return keys
 	}
 }
 
@@ -577,6 +665,14 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		prunePendingPermanentDeleteIDs(using: fetchedItems, fromServer: fromServer)
 
 		var resolvedItems = fetchedItems
+		if let core = clientContext.core {
+			let pendingPurges = TrashPendingPurgeSession.session(for: core)
+			resolvedItems = core.trashItems(byHidingPendingPermanentDeletions: resolvedItems)
+			resolvedItems = pendingPurges.filter(resolvedItems)
+			if fromServer {
+				pendingPurges.prune(using: fetchedItems)
+			}
+		}
 		if !pendingPermanentDeleteIDs.isEmpty {
 			resolvedItems = resolvedItems.filter { !pendingPermanentDeleteIDs.contains(itemIdentifier(for: $0)) }
 		}
@@ -991,6 +1087,7 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		let queuedForDeletion = core.connectionStatus != .online
 		let deleteIDs = Set(itemsToDelete.map { itemIdentifier(for: $0) })
 		pendingPermanentDeleteIDs.formUnion(deleteIDs)
+		TrashPendingPurgeSession.session(for: core).register(itemsToDelete)
 		removeItemsFromDisplay(withIDs: deleteIDs)
 		setSelecting(false)
 
@@ -1016,6 +1113,9 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 	) {
 		for result in results where result.error != nil {
 			pendingPermanentDeleteIDs.remove(itemIdentifier(for: result.item))
+			if let core = clientContext.core {
+				TrashPendingPurgeSession.session(for: core).unregister(result.item)
+			}
 		}
 		setBulkActionInProgress(false)
 
