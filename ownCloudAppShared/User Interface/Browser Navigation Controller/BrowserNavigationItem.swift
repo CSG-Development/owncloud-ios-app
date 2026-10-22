@@ -50,9 +50,24 @@ open class BrowserNavigationItem: NSObject {
 		}
 	}
 
-	/// True for regular files/folder navigation (not sidebar special items or tag file lists).
+	/// File viewer opened from a list. Not a folder in the Files hierarchy, so Back
+	/// can return to the list it was opened from (Favorites, Tags, a folder).
+	open var isFilePreviewNavigation: Bool {
+		if viewControllerIfLoaded is DisplayHostType {
+			return true
+		}
+
+		// Survives view-controller trimming: a preview bookmark points at the file.
+		if navigationBookmark?.location?.type == .file {
+			return true
+		}
+
+		return false
+	}
+
+	/// True for regular files/folder navigation (not sidebar special items, tag file lists, or file previews).
 	open var isFilesLocationNavigation: Bool {
-		guard !isSpecialTabBarItem, !isSavedSearchItem else { return false }
+		guard !isSpecialTabBarItem, !isSavedSearchItem, !isFilePreviewNavigation else { return false }
 
 		if navigationBookmark?.location != nil {
 			return true

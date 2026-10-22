@@ -625,6 +625,8 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		switch specialItem {
 			case .tags:
 				return OCLocalizedString("Tags", nil)
+			case .favoriteItems:
+				return OCLocalizedString("Favorites", nil)
 			case .trash:
 				return HCL10n.Trash.title
 			default:

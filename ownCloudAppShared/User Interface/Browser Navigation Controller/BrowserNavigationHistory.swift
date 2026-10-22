@@ -60,7 +60,10 @@ open class BrowserNavigationHistory {
 	open func push(item: BrowserNavigationItem, completion: CompletionHandler? = nil) {
 		lastPushAttempt = item
 
-		let shouldKeepSpecialItemInHistory = (item.navigationBookmark?.specialItem == .tags)
+		// Tags and Favorites stay on the stack so a file opened from those lists
+		// can step back to the list instead of the last Files folder.
+		let specialItem = item.navigationBookmark?.specialItem
+		let shouldKeepSpecialItemInHistory = specialItem == .tags || specialItem == .favoriteItems
 		let shouldAppendToHistory = !item.isSavedSearchItem && (!item.isSpecialTabBarItem || shouldKeepSpecialItemInHistory)
 
 		if shouldAppendToHistory {
@@ -111,7 +114,9 @@ open class BrowserNavigationHistory {
 		var presentItem: BrowserNavigationItem?
 
 		OCSynchronized(self) {
-			if let index = items.lastIndex(where: { !$0.isSpecialTabBarItem }) {
+			// Skip file previews. Otherwise the Files tab restores the preview
+			// opened from Favorites instead of the last Files folder.
+			if let index = items.lastIndex(where: { !$0.isSpecialTabBarItem && !$0.isFilePreviewNavigation }) {
 				position = index
 				presentItem = items[index]
 				lastPushAttempt = presentItem
@@ -141,6 +146,7 @@ open class BrowserNavigationHistory {
 			if position > 0 {
 				position -= 1
 				presentItem = items[position]
+				lastPushAttempt = presentItem
 			}
 		}
 
@@ -160,6 +166,7 @@ open class BrowserNavigationHistory {
 			if position < items.count - 1 {
 				position += 1
 				presentItem = items[position]
+				lastPushAttempt = presentItem
 			}
 		}
 
