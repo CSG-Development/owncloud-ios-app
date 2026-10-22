@@ -56,5 +56,23 @@ class TextViewController: UIViewController, Themeable {
 
 	func applyThemeCollection(theme: Theme, collection: ThemeCollection, event: ThemeEvent) {
 		textView?.apply(css: collection.css, properties: [.stroke, .fill])
+
+		// License text is an attributed string with a font and no foreground color.
+		// UITextView draws that black, and textColor does not replace it when appearance changes.
+		let textColor = HCColor.Content.textPrimary(collection.isDark)
+
+		textView?.textColor = textColor
+
+		guard let textView, let attributedText, attributedText.length > 0 else { return }
+
+		let coloredText = NSMutableAttributedString(attributedString: attributedText)
+		coloredText.addAttribute(.foregroundColor, value: textColor, range: NSRange(location: 0, length: coloredText.length))
+
+		guard !coloredText.isEqual(to: attributedText) else { return }
+
+		let offset = textView.contentOffset
+		self.attributedText = coloredText
+		textView.textColor = textColor
+		textView.contentOffset = offset
 	}
 }
