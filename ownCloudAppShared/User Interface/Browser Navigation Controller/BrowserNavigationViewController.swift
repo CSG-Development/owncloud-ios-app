@@ -586,6 +586,12 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 		return history.currentItem?.isSpecialTabBarItem ?? false
 	}
 
+	/// Recents and other saved searches are shown without being pushed, so the
+	/// Files entry still underneath must not become their back target.
+	private var isCurrentContentSavedSearch: Bool {
+		contentViewController?.navigationBookmark?.savedSearch != nil
+	}
+
 	private func updateHistoryButtons() {
 		let hasNavigation = !isCurrentContentSpecialTabBarItem
 		backButton.isEnabled = hasNavigation && history.canMoveBack
@@ -814,7 +820,9 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 
 	func updateContentNavigationItems() {
 		if let contentNavigationItem = contentViewController?.navigationItem {
-			let hasHistoryBack = history.canMoveBack && !isCurrentContentSpecialTabBarItem
+			let hasHistoryBack = history.canMoveBack
+				&& !isCurrentContentSpecialTabBarItem
+				&& !isCurrentContentSavedSearch
 			let hasBreadcrumbNavigation = isBreadcrumbNavigationAvailable(for: contentViewController)
 			let atFilesRoot = isAtFilesRoot(for: contentViewController)
 			let detachedFileList = isDetachedFileList(contentViewController)
@@ -824,7 +832,9 @@ open class BrowserNavigationViewController: EmbeddingViewController, Themeable, 
 			// Prefer the sidebar toggle at files root, when breadcrumbs provide navigation,
 			// or when there is no history back target. Back button is used for detached
 			// lists such as tag file lists that have no location breadcrumb bar.
-			let shouldPreferSidebarToggle = !detachedFileList
+			// Saved searches such as Recents are not history entries. Ignore the Files
+			// stack under them so the header keeps the sidebar toggle.
+			let shouldPreferSidebarToggle = (!detachedFileList || !hasHistoryBack)
 				&& (atFilesRoot || hasBreadcrumbNavigation || !hasHistoryBack)
 			let shouldShowSidebarToggle = shouldPreferSidebarToggle && shouldShowSidebarToggleByDisplayMode
 				&& (contentViewController as? BrowserNavigationSidebarToggleControlling)?.suppressesBrowserSidebarToggle != true
