@@ -106,6 +106,13 @@ public class ClientLocationPicker : NSObject {
 	public var selectPrompt: String?
 	public var accountControllerConfiguration: AccountController.Configuration?
 
+	/// Becomes true once the root of the picker is a folder listing, so a later
+	/// drive/core update does not replace a list the user is already browsing.
+	private var didPresentFolderList = false
+	private var didRequestConnection = false
+	private var resolvedPersonalDriveID: String?
+	private var personalDriveSubscription: OCDataSourceSubscription?
+
 	// MARK: - Init
 	public init(location: OCLocation, maximumLevel: LocationLevel = .folder, showFavorites: Bool = true, showRecents: Bool = true, selectButtonTitle: String?, selectPrompt: String? = nil, headerTitle: String? = nil, headerSubTitle: String? = nil, headerView: UIView? = nil, requiredPermissions: OCItemPermissions? = [.createFile], avoidConflictsWith conflictItems: [OCItem]?, choiceHandler: @escaping ChoiceHandler) {
 		self.startLocation = location
@@ -258,6 +265,142 @@ public class ClientLocationPicker : NSObject {
 		return sectionDataSource
 	}
 
+	deinit {
+		personalDriveSubscription?.terminate()
+	}
+
+	/// Account used to list folders. A single saved account is enough when the
+	/// picker was opened at the account chooser (auto upload) without a core.
+	private func bookmarkForFolderListing(from location: OCLocation) -> OCBookmark? {
+		if let bookmarkUUID = location.bookmarkUUID {
+			return OCBookmarkManager.shared.bookmark(for: bookmarkUUID)
+		}
+
+		if location.clientLocationLevel == .accounts, OCBookmarkManager.shared.bookmarks.count == 1 {
+			return OCBookmarkManager.shared.bookmarks.first
+		}
+
+		return nil
+	}
+
+	/// Puts the bookmark's live connection on the picker context so folder queries
+	/// can run. Auto upload presents the sheet with only an originating view controller.
+	private func attachConnection(for location: OCLocation, to context: ClientContext) {
+		guard context.core == nil, let bookmark = bookmarkForFolderListing(from: location) else { return }
+
+		let connection = AccountConnectionPool.shared.connection(for: bookmark)
+		context.accountConnection = connection
+		context.core = connection?.core
+
+		guard connection?.core == nil, !didRequestConnection else { return }
+		didRequestConnection = true
+
+		connection?.connect { [weak self, weak context, weak connection] _ in
+			OnMainThread {
+				guard let self, let context else { return }
+				context.core = connection?.core
+				self.presentResolvedFolderListIfNeeded()
+			}
+		}
+	}
+
+	/// Location whose children should fill the sheet. `.accounts` with one account
+	/// resolves to that account's root so the sheet lists folders instead of an
+	/// empty account section.
+	private func resolvedListingLocation(from location: OCLocation, in context: ClientContext) -> OCLocation? {
+		var location = location
+
+		if location.clientLocationLevel == .accounts {
+			guard let bookmark = bookmarkForFolderListing(from: location) else { return nil }
+			location = .account(bookmark)
+		}
+
+		switch location.clientLocationLevel {
+			case .account, .drive, .folder:
+				attachConnection(for: location, to: context)
+			case .accounts:
+				break
+		}
+
+		return folderLocationForListing(from: location, context: context)
+	}
+
+	/// Drive-based accounts have no folder query until the personal drive id exists.
+	/// Keep watching and swap the sheet contents in once it does.
+	private func watchForPersonalDriveIfNeeded() {
+		guard personalDriveSubscription == nil,
+		      !didPresentFolderList,
+		      let core = rootContext?.core,
+		      core.useDrives,
+		      core.personalDrive == nil,
+		      bookmarkForFolderListing(from: startLocation) != nil else { return }
+
+		personalDriveSubscription = core.personalDriveDataSource.subscribe(updateHandler: { [weak self] subscription in
+			let snapshot = subscription.snapshotResettingChangeTracking(false)
+			guard let self, snapshot.numberOfItems > 0 else { return }
+
+			for itemRef in snapshot.items {
+				guard let record = try? core.personalDriveDataSource.record(forItemRef: itemRef),
+				      let drive = record.item as? OCDrive else { continue }
+				let driveID = drive.identifier
+				guard !driveID.isEmpty else { continue }
+				OnMainThread {
+					self.resolvedPersonalDriveID = driveID
+					self.presentResolvedFolderListIfNeeded()
+				}
+				return
+			}
+		}, on: .main, trackDifferences: false, performInitialUpdate: true)
+	}
+
+	private func presentResolvedFolderListIfNeeded() {
+		guard !didPresentFolderList,
+		      let rootContext,
+		      let navigationController = rootNavigationController,
+		      let folderLocation = resolvedListingLocation(from: startLocation, in: rootContext) else {
+			watchForPersonalDriveIfNeeded()
+			return
+		}
+
+		didPresentFolderList = true
+		personalDriveSubscription?.terminate()
+		personalDriveSubscription = nil
+
+		let viewController = makeFolderListViewController(for: folderLocation, context: rootContext)
+		applyListingTitle(to: viewController, location: folderLocation, context: rootContext)
+		navigationController.setViewControllers([viewController], animated: false)
+		navigationController.delegate?.navigationController?(navigationController, willShow: viewController, animated: false)
+	}
+
+	private func applyListingTitle(to viewController: UIViewController, location: OCLocation, context: ClientContext) {
+		var title: String?
+
+		switch location.clientLocationLevel {
+			case .accounts:
+				title = OCLocalizedString("Accounts", nil)
+				viewController.cssSelector = .accountList
+
+			case .account:
+				title = OCLocalizedString("Account", nil)
+				viewController.cssSelector = .accountList
+				if let bookmarkUUID = location.bookmarkUUID {
+					title = OCBookmarkManager.shared.bookmark(for: bookmarkUUID)?.displayName
+				}
+
+			case .drive:
+				if let driveID = location.driveID {
+					title = context.core?.drive(withIdentifier: driveID, attachedOnly: false)?.name
+				}
+
+			case .folder:
+				title = location.lastPathComponent
+		}
+
+		if let title {
+			viewController.navigationItem.titleLabelText = title
+		}
+	}
+
 	private func folderLocationForListing(from location: OCLocation, context: ClientContext) -> OCLocation? {
 		switch location.clientLocationLevel {
 			case .drive, .folder:
@@ -266,7 +409,7 @@ public class ClientLocationPicker : NSObject {
 			case .account:
 				guard let core = context.core else { return nil }
 				if core.useDrives {
-					guard let driveID = location.driveID ?? context.drive?.identifier ?? core.personalDrive?.identifier else {
+					guard let driveID = location.driveID ?? context.drive?.identifier ?? core.personalDrive?.identifier ?? resolvedPersonalDriveID else {
 						return nil
 					}
 					return .drive(driveID, bookmark: core.bookmark)
@@ -281,10 +424,9 @@ public class ClientLocationPicker : NSObject {
 	}
 
 	private func makeFolderListViewController(for location: OCLocation, context: ClientContext) -> UIViewController {
-		let query = OCQuery(for: location)
-		DisplaySettings.shared.updateQuery(withDisplaySettings: query)
-
 		let openLocation = OCLocation(bookmarkUUID: location.bookmarkUUID ?? context.core?.bookmark.uuid, driveID: location.driveID, path: location.path ?? "/")
+		let query = OCQuery(for: openLocation)
+		DisplaySettings.shared.updateQuery(withDisplaySettings: query)
 		let folderContext = ClientContext(with: context, modifier: { context in
 			context.itemLayout = .list
 			if let driveID = openLocation.driveID, let core = context.core {
@@ -295,9 +437,8 @@ public class ClientLocationPicker : NSObject {
 		let itemViewController = ClientItemViewController(context: folderContext, query: query, location: openLocation)
 		itemViewController.cssSelectors = [.locationPicker, .collection]
 		itemViewController.compressForKeyboard = false
-		if let core = folderContext.core {
-			core.start(query)
-		}
+		// ClientItemViewController starts the query. Starting it again here registers
+		// a second item-list task against the same query and the sheet stays empty.
 		return itemViewController
 	}
 
@@ -305,10 +446,12 @@ public class ClientLocationPicker : NSObject {
 		var viewController: UIViewController?
 		var presentedLocation = location
 
-		if let folderLocation = folderLocationForListing(from: location, context: context) {
+		if let folderLocation = resolvedListingLocation(from: location, in: context) {
+			didPresentFolderList = true
 			presentedLocation = folderLocation
 			viewController = makeFolderListViewController(for: folderLocation, context: context)
 		} else if let sectionDataSource = provideDataSource(for: location, maximumLevel: maximumLevel, context: context) {
+			watchForPersonalDriveIfNeeded()
 			let collectionViewController = CollectionViewController(context: context, sections: nil, useStackViewRoot: true, hierarchic: true)
 			collectionViewController.compressForKeyboard = false
 			collectionViewController.sectionsDataSource = sectionDataSource
@@ -316,33 +459,9 @@ public class ClientLocationPicker : NSObject {
 		}
 
 		if let viewController {
-			var title: String?
-
-			switch presentedLocation.clientLocationLevel {
-				case .accounts:
-					title = OCLocalizedString("Accounts", nil)
-					viewController.cssSelector = .accountList
-
-				case .account:
-					title = OCLocalizedString("Account", nil)
-					viewController.cssSelector = .accountList
-					if let bookmarkUUID = presentedLocation.bookmarkUUID {
-						title = OCBookmarkManager.shared.bookmark(for: bookmarkUUID)?.displayName
-					}
-					if !(viewController is ClientItemViewController) {
-						(viewController as? CollectionViewController)?.hideNavigationBar = true
-					}
-
-				case .drive:
-					if let driveID = presentedLocation.driveID {
-						title = context.core?.drive(withIdentifier: driveID, attachedOnly: false)?.name
-					}
-
-				case .folder: break
-			}
-
-			if let title {
-				viewController.navigationItem.titleLabelText = title
+			applyListingTitle(to: viewController, location: presentedLocation, context: context)
+			if presentedLocation.clientLocationLevel == .account, !(viewController is ClientItemViewController) {
+				(viewController as? CollectionViewController)?.hideNavigationBar = true
 			}
 		}
 
