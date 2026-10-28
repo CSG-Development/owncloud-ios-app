@@ -588,6 +588,23 @@ public class CollectionViewSection: NSObject, OCDataItem, OCDataItemVersioning {
 			let updatedItems = dataSourceSnapshot.updatedItems
 			let removedItems: Set<OCDataItemReference>? = dataSourceSnapshot.removedItems
 
+			// A subscription created against an already-populated source reports those
+			// rows in `items` and leaves `addedItems` empty. The location picker is
+			// hierarchic, so that first update otherwise paints an empty sheet.
+			if (dataSourceSnapshot.addedItems?.count ?? 0) == 0,
+			   parentItemRef == nil,
+			   !dataSourceSnapshot.items.isEmpty {
+				let currentSnapshot = collectionViewDataSource.snapshot(for: self.identifier)
+				if currentSnapshot.items.isEmpty {
+					let wrappedAllItems = uniquedItemRefs(collectionViewController.wrap(references: dataSourceSnapshot.items, forSection: self.identifier))
+					if !wrappedAllItems.isEmpty {
+						var rebuilt = NSDiffableDataSourceSectionSnapshot<CollectionViewController.ItemRef>()
+						rebuilt.append(wrappedAllItems)
+						collectionViewDataSource.apply(rebuilt, to: self.identifier, animatingDifferences: false)
+					}
+				}
+			}
+
 			// Insert added items (through direct application of changes, not by using sectionSnapshot.replace(childrenOf:using:) - which would loose states)
 			if let addedItems = dataSourceSnapshot.addedItems, addedItems.count > 0 {
 				let allItems = dataSourceSnapshot.items

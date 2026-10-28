@@ -146,7 +146,11 @@ extension ImageScrollView {
 
 			Task.detached(priority: .userInitiated, operation: {
 				do {
-					let configuration = ImageAnalyzer.Configuration([.machineReadableCode, .text, .visualLookUp])
+					var analysisTypes: ImageAnalyzer.AnalysisTypes = [.machineReadableCode, .text]
+					if #available(iOS 17, *) {
+						analysisTypes.insert(.visualLookUp)
+					}
+					let configuration = ImageAnalyzer.Configuration(analysisTypes)
 					let analyzer = ImageAnalyzer()
 					let analysis = try await analyzer.analyze(image, configuration: configuration)
 					await MainActor.run {
