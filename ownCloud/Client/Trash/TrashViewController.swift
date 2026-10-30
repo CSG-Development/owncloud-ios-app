@@ -253,6 +253,7 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 	private struct TrashBulkItemResult {
 		let item: OCItem
 		let error: Error?
+		var skipped: Bool = false
 	}
 
 	private lazy var navigationTitleLabel: ThemeCSSLabel = {
@@ -958,11 +959,21 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		let itemsToRestore = selectedItems
 		guard !itemsToRestore.isEmpty, let core = clientContext.core else { return }
 
-		setBulkActionInProgress(true)
-
-		performSerialTrashOperations(items: itemsToRestore, core: core, operation: performRestoreOperation) { [weak self] results in
+		TrashRestoreCoordinator.perform(
+			items: itemsToRestore,
+			core: core,
+			present: { [weak self] viewController in
+				guard let self else { return false }
+				return self.clientContext.present(viewController, animated: true)
+			},
+			setBusy: { [weak self] busy in
+				self?.setBulkActionInProgress(busy)
+			}
+		) { [weak self] outcomes in
 			guard let self else { return }
-
+			let results = outcomes.map {
+				TrashBulkItemResult(item: $0.item, error: $0.error, skipped: $0.skipped)
+			}
 			self.fetchTrashedItems {
 				self.completeBulkRestore(itemsToRestore: itemsToRestore, results: results)
 			}
@@ -973,9 +984,15 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 		setBulkActionInProgress(false)
 		setSelecting(false)
 
-		let remainingIDs = itemIDsStillPresent(from: itemsToRestore)
-		let hasOperationErrors = results.contains { $0.error != nil }
-		let succeededCount = itemsToRestore.count - remainingIDs.count
+		let skippedIDs = Set(results.filter(\.skipped).map { itemIdentifier(for: $0.item) })
+		let consideredItems = itemsToRestore.filter { !skippedIDs.contains(itemIdentifier(for: $0)) }
+		let consideredResults = results.filter { !skippedIDs.contains(itemIdentifier(for: $0.item)) }
+
+		guard !consideredItems.isEmpty else { return }
+
+		let remainingIDs = itemIDsStillPresent(from: consideredItems)
+		let hasOperationErrors = consideredResults.contains { $0.error != nil }
+		let succeededCount = consideredItems.count - remainingIDs.count
 		let failedCount = remainingIDs.count
 
 		if remainingIDs.isEmpty && !hasOperationErrors {
@@ -983,7 +1000,7 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 			return
 		}
 
-		let failureMessage = bestRestoreFailureMessage(results: results, remainingIDs: remainingIDs)
+		let failureMessage = bestRestoreFailureMessage(results: consideredResults, remainingIDs: remainingIDs)
 
 		if succeededCount == 0 {
 			showError(message: failureMessage, title: HCL10n.Trash.restoreError)
@@ -993,10 +1010,6 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 				message: HCL10n.Trash.Restore.partialSuccess(succeeded: succeededCount, failed: failedCount) + "\n\n" + failureMessage
 			)
 		}
-	}
-
-	private func performRestoreOperation(item: OCItem, core: OCCore, completion: @escaping (Error?) -> Void) {
-		restoreTrashItem(item, using: core, completion: completion)
 	}
 
 	private func performTrashItemOperationWithRetry(
@@ -1026,35 +1039,6 @@ final class TrashViewController: UIViewController, Themeable, UICollectionViewDe
 			}
 
 			completion(error)
-		}
-	}
-
-	/// Restores a trashed item. Server-synced items use the connection API directly to avoid
-	/// sync-engine progress wiring; pending-sync items still go through the sync engine to cancel the delete.
-	private func restoreTrashItem(_ item: OCItem, using core: OCCore, completion: @escaping (Error?) -> Void) {
-		if item.isPendingTrashItem {
-			core.restoreTrashedItem(item) { error, _, _, _ in
-				completion(error)
-			}
-			return
-		}
-
-		TrashRestoreConflictChecker.checkDestinationConflict(for: item, connection: core.connection) { conflictError in
-			if let conflictError {
-				completion(conflictError)
-				return
-			}
-
-			_ = core.connection.restoreTrashedItem(item) { error in
-				if let error {
-					completion(error)
-					return
-				}
-
-				core.removeTrashedItem(fromCache: item) { cacheError in
-					completion(cacheError)
-				}
-			}
 		}
 	}
 
